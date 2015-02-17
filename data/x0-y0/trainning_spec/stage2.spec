@@ -5,14 +5,14 @@ data=[/path/to/data_spec/]stage2.
 save=[/path/to/save/stage2/output/]
 
 [OPTIMIZE]
-n_threads=[#cores]
+n_threads=32
 force_fft=1
 optimize_fft=0
 
 [TRAIN]
 test_range=1
 outsz=[desired output patch size]
-softmax=0
+softmax=1
 
 [MONITOR]
 check_freq=10
