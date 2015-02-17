@@ -1,4 +1,4 @@
 [INPUT1]
-path=[/path/to/input]
-size=[x,y,z]
+path=./cluster/data/x1-y0/input
+size=16087,48087,170
 pptype=standard2D

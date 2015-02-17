@@ -1,10 +1,10 @@
 [INPUT1]
-path=[/path/to/input]
-size=[x,y,z]
+path=./cluster/data/x1-y0/input
+size=16087,48087,170
 pptype=standard2D
 
 [INPUT2]
-path=[/path/to/stage1/output/outname].1
+path=./cluster/data/x1-y0/output/stage1.1
 offset=54,54,0
 pptype=transform
 ppargs=-1,1
