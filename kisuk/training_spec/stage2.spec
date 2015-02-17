@@ -5,7 +5,7 @@ data=[/path/to/data_spec/]stage2.
 save=[/path/to/save/stage2/output/]
 
 [OPTIMIZE]
-n_threads=[#cores]
+n_threads=[desired # of threads]
 force_fft=1
 optimize_fft=0
 
