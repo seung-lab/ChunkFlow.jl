@@ -1,7 +1,7 @@
 [PATH]
 config=./cluster/network_spec/VeryDeep2_w109.spec
 load=./cluster/network_instance/VeryDeep2_w109/
-data=./cluster/data/x0-y0/data_spec/stage1.1.spec
+data=./cluster/data/x0-y0/data_spec/stage1.
 save=./cluster/data/x0-y0/output/
 
 [OPTIMIZE]
@@ -11,7 +11,7 @@ optimize_fft=0
 
 [TRAIN]
 test_range=1
-outsz=[desired output patch size] ??
+outsz=195,195,1
 softmax=1
 
 [MONITOR]
