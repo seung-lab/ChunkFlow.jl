@@ -11,7 +11,7 @@ optimize_fft=0
 
 [TRAIN]
 test_range=1
-outsz=32,32,1
+outsz=291,291,3
 softmax=1
 
 [MONITOR]
