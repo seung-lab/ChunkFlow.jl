@@ -1,8 +1,8 @@
 [PATH]
-config=./cluster/network_spec/VeryDeep2HR_w65x9.spec
-load=./cluster/network_instance/VeryDeep2HR_w65x9/
-data=./cluster/data/x1-y1/data_spec/stage2.
-save=./cluster/data/x1-y1/output/
+config=./network_spec/VeryDeep2HR_w65x9.spec
+load=./network_instance/VeryDeep2HR_w65x9/
+data=./data/x1-y1/data_spec/stage2.
+save=./data/x1-y1/output/
 
 [OPTIMIZE]
 n_threads=32
