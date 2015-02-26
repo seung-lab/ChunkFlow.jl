@@ -1,3 +1,5 @@
 /aws-upload/data
 /aws-upload/znn-release/bin/*
 *.pyc
+*.hdf5
+*.h5

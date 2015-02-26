@@ -16,5 +16,7 @@ aws-upload folder:
 
 aws-upload/script
 * chunckStack.py  generate data folder and schedulejobs.sh
-* stack.py is a module responsable manging the data inside alignment.
+* stack.py is a module responsable manging the data inside alignment, this include generate and hdf5 file requiered for omnifying
 * znn.py is a module with util methods for generate the text file which specifies trainning and data for znn.
+* watershed.py merges the raw double output from znn and convertes it to hdf5, and run the binaries to process that file
+* omnify.py splits(if required) the hdf5 output from watershed( stack.py channel data dimensions have to agree) an run omnify parallely
