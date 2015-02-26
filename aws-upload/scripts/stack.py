@@ -1,5 +1,6 @@
 import tifffile
 import numpy
+import h5py
 
 class Stack:
 
@@ -27,10 +28,33 @@ class Stack:
 
 		return self.input[z_min:z_max, y_min:y_max, x_min:x_max]
 
-	def convertToHDF5(self, fov):
+	def convertToHDF5(self, fov = numpy.array([8, 172 ,172])):
 
 		#We need to crop a margin based on the field of view , which is in z,y,x dimensiones
 		#And then save it as a hdf5 which omnify is able to read.
-		pass
+
+		#this implementation required to load everything in ram
+		dims = self.getStackDimensions()
+
+		z_min = fov[0]/2 ; z_max = dims[0] - fov[0]/2
+		y_min = fov[1]/2 ; y_max = dims[1] - fov[1]/2
+		x_min = fov[2]/2 ; x_max = dims[2] - fov[2]/2
+
+		cropped = self.getChunk(z_max, z_min, y_max, y_min, x_max, x_min)
+
+		#Normalize and change dtype
+		cropped = cropped.astype('float32')
+		cropped = ( cropped - cropped.min()) / (cropped.max() - cropped.min())
+
+		f = h5py.File('../omnify/stack.chann.hdf5', "w" )
+		f.create_dataset('/main', data=cropped)
+		f.close()
+		return
 
 		
+if __name__ == "__main__":
+
+	#If you directly call this file create hdf5
+	s = Stack()
+	s.convertToHDF5()
+
