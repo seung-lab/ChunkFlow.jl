@@ -20,9 +20,17 @@ class Stack:
 
 		return self.dims
 
-	def getChunk(z_max, z_min, y_max, y_min, x_max, x_min):
+	def getChunk(self, z_max, z_min, y_max, y_min, x_max, x_min):
 
 		#When we use a large stack, there will be some more complex logic here to retrieve the chunck
 		#because we will load the required z-planes as needed.
 
 		return self.input[z_min:z_max, y_min:y_max, x_min:x_max]
+
+	def convertToHDF5(self, fov):
+
+		#We need to crop a margin based on the field of view , which is in z,y,x dimensiones
+		#And then save it as a hdf5 which omnify is able to read.
+		pass
+
+		
