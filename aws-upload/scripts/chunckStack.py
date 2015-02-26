@@ -25,7 +25,7 @@ fov_stage2 = numpy.array([9,65,65])
 fov_effective = numpy.array([8,172,172])
 
 #How many chuncks do we want z,y,x
-divs = numpy.array([1, 4, 5])
+divs = numpy.array([4, 1, 1])
 
 #Estimate how long will it take, and how much computation is wasted because of overlapping
 computedSize = dims + fov_effective * (divs - 1)
@@ -46,14 +46,12 @@ z_min =0; z_max = fov_effective[0]
 for z in range(divs[0]):
 	if z == 0:
 		z_min = 0
-		z_max = z_max + div_size[0]
-
-	elif z == divs[0] - 1:
-		z_min = z_min + div_size[0]
-		z_max = dims[0]
-
 	else:
 		z_min = z_min + div_size[0]
+
+	if z == divs[0] - 1:
+		z_max = dims[0]
+	else:
 		z_max = z_max + div_size[0]
 
 	#Do same thing as z, but for y_axis
@@ -61,14 +59,12 @@ for z in range(divs[0]):
 	for y in range(divs[1]):	
 		if y == 0:
 			y_min = 0
-			y_max = y_max + div_size[1]
-
-		elif y == divs[1] - 1:
-			y_min = y_min + div_size[1]
-			y_max = dims[1]
-
 		else:
 			y_min = y_min + div_size[1]
+
+		if y == divs[1] - 1:
+			y_max = dims[1]
+		else:
 			y_max = y_max + div_size[1]
 
 		#Do same thing as z,y, but for x-axis
@@ -76,16 +72,13 @@ for z in range(divs[0]):
 		for x in range(divs[2]):
 			if x == 0:
 				x_min = 0
-				x_max = x_max + div_size[2]
-
-			elif x == divs[2] - 1:
-				x_min = x_min + div_size[2]
-				x_max = dims[2]
-
 			else:
 				x_min = x_min + div_size[2]
-				x_max = x_max + div_size[2]
 
+			if x == divs[2] - 1:
+				x_max = dims[2]
+			else:
+				x_max = x_max + div_size[2]
 
 			#Save everything in chunks' list
 			filename = "z{0}-y{1}-x{2}".format(z,y,x)
@@ -95,9 +88,9 @@ for z in range(divs[0]):
 
 
 #Plot chunk
-# print '\n\n\n'
-# pp = pprint.PrettyPrinter()
-# pp.pprint(chunks)
+print '\n\n\n'
+pp = pprint.PrettyPrinter()
+pp.pprint(chunks)
 
 #Save an image which displays the chunk overlapping
 img = Image.new("RGBA", (dims[1],dims[2]),(255,255,255,255)) # We don't draw z
@@ -133,7 +126,7 @@ jobs = open('../scheduleJobs.sh','w')
 if not os.path.isfile('../znn-release/bin/znn'):
 	jobs.write('cd ./znn-release/\n')
 	jobs.write('make\n')
-	jobs.write('cd ../ \n')
+	jobs.write('cd ../\n')
 
 #Set the resources for the machine in which znn will be run
 memory = 200 * 1.2 #gb  I multiply by 1.7 because it was using 108gb
@@ -147,10 +140,18 @@ for c in chunks:
 
 	#We create a folder to store the chuncked stack as a raw file of double
 	os.makedirs('../data/{0}/input'.format(c['filename']))
+	#Save absolute position of the input as a json file
 	znn.save_input_size(c)
+
+	#Get chunck and save it to disk
+	chunk = stack.getChunk(c['z_max'], c['z_min'], c['y_max'], c['y_min'], c['x_max'], c['x_min'])
+	chunk.tofile('../data/{0}/input/input'.format(c['filename']))
+	sz = numpy.asarray(chunk.shape).astype(numpy.uint32)
+	sz.tofile('../data/{0}/input/input.size'.format(c['filename']))
 
 	#We also create an empty directoy in where znn will save the output
 	os.makedirs('../data/{0}/output'.format(c['filename']))
+	#Save the absolute position as a json file
 	znn.save_output_size(c,fov_effective)
 
 	#Create data specification folder which contains the files for specifiying the dataset

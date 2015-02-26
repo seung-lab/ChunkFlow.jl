@@ -1,2 +1,3 @@
 /aws-upload/data
 /aws-upload/znn-release/bin/*
+*.pyc
