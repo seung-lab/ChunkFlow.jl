@@ -23,6 +23,6 @@ aws-upload/script
 
 TODO list
 =========
-* Modify stack.py to work with the file organization of tommy, to work with an stack that doesn't fit in ram
+* Modify stack.py to work with the file organization of Tommy
 * find src code of watershed, and write watershed.py to merge the output of znn, and convert it to hdf5 , so the watershed binaries can process it.Again, all this has to be done with loading the hole thing in ram.
 * omnify folder should either hold the src code of a version of omni with headless support, or the libraries requiered to be preloaded when running omni. omnify.py should have the logic (if requiered) to crop the hdf5 watershed output, and submit the jobs so this can be run parallely. Also it should write an script to rsync the omni(s) project back to princeton. (Do we want to also download other data back?)
