@@ -40,14 +40,42 @@ class Stack:
 		y_min = fov[1]/2 ; y_max = dims[1] - fov[1]/2
 		x_min = fov[2]/2 ; x_max = dims[2] - fov[2]/2
 
-		cropped = self.getChunk(z_max, z_min, y_max, y_min, x_max, x_min)
 
-		#Normalize and change dtype
-		cropped = cropped.astype('float32')
-		cropped = ( cropped - cropped.min()) / (cropped.max() - cropped.min())
-
+		#Divide the input in the z-dimension and process one chunk at the time
+		memory = 5 *   (10**9) #GB memory available in the machine
+		z_plane_size = (x_max - x_min) * (y_max - y_min) * 8 #bytes for each double
+		divs = numpy.ceil(z_max / (memory / z_plane_size)).astype(int) 
+		
+		#Open hdf5 file, and specified chunck size
 		f = h5py.File('../omnify/stack.chann.hdf5', "w" )
-		f.create_dataset('/main', data=cropped)
+
+		channel_size = 	dims - fov 
+		chunk_size =  dims - fov 
+		chunk_size[0] = chunk_size[0]/divs
+
+		#Should we used compression="gzip" on this?
+		dset = f.create_dataset('/main', tuple(channel_size) , chunks=tuple(chunk_size))		
+
+		for z_chunk_max in numpy.linspace(z_min, z_max.astype(int) , divs +1):
+			z_chunk_max = z_chunk_max.astype(int)
+
+			if z_chunk_max == z_min:
+				z_chunk_min = z_min
+				continue
+
+			#print z_chunk_max, z_chunk_min 
+			cropped = self.getChunk(z_chunk_max, z_chunk_min, y_max, y_min, x_max, x_min)
+			#Normalize and change dtype
+			cropped = cropped.astype('float32')
+			cropped = ( cropped - cropped.min()) / (cropped.max() - cropped.min())
+
+			#save the chunck
+			dset[0:z_chunk_max-z_chunk_min, 0:y_max-y_min, 0:x_max-x_min] = cropped
+
+			#For next loop
+			z_chunk_min = z_chunk_max
+
+
 		f.close()
 		return
 
