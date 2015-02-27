@@ -129,8 +129,8 @@ if not os.path.isfile('../znn-release/bin/znn'):
 	jobs.write('cd ../\n')
 
 #Set the resources for the machine in which znn will be run
-memory = 200 * 1.2 #gb  I multiply by 1.7 because it was using 108gb
-nthreads = 32 #virtual cores
+memory = 10  #gb  
+nthreads = 8 #virtual cores
 
 
 for c in chunks:
@@ -174,7 +174,7 @@ for c in chunks:
 	#This is to prevent that if we have more nodes than chuncks, stages2 will start running
 	#Before stage1 finishes
 	
-	with  open('../data/{0}/trainning_spec/run.sh'.format(c['filename']),'w') as runfile:
+	with open('../data/{0}/trainning_spec/run.sh'.format(c['filename']),'w') as runfile:
 
 		run = """#!/bin/bash
 		./znn-release/bin/znn --options=./data/{0}/trainning_spec/stage1.spec --test_only=1
