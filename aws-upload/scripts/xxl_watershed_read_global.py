@@ -8,7 +8,7 @@ import numpy as np
 
 
 
-def xxl_watershed_read_global( filename, s, width ):
+def xxl_watershed_read_global( filename, s, width, h5filename ):
     seg = np.zeros( s, dtype='uint32' )
     
     xind = 0
@@ -35,6 +35,14 @@ def xxl_watershed_read_global( filename, s, width ):
     dend_values = np.fromfile( filename + '.dend_values', dtype='single' ) 
     dend = np.fromfile( filename + '.dend_pairs', dtype = 'uint64' )
     dend = np.transpose( dend )
+    
+    # write the h5 file
+    import h5py
+    f = h5py.File( 'out1.1.h5' )
+    f.create_dataset('/main',data=seg)
+    f.create_dataset('/dend', data=dend)
+    f.create_dataset('/dendValues', data=dend_values)
+    f.close()
 
     return seg, dend, dend_values
     
@@ -43,11 +51,7 @@ if __name__ == "__main__":
     filename = 'WS_scripts/temp/wstemp'
     s = np.array([126, 400, 400])
     width = np.min(s)
-    seg, dend, dend_values = xxl_watershed_read_global( filename, s, width )
+    h5filename = 'out1.1.h5'
+    seg, dend, dend_values = xxl_watershed_read_global( filename, s, width, h5filename )
     
-    import h5py
-    f = h5py.File( 'out1.1.h5' )
-    f.create_dataset('/main',data=seg)
-    f.create_dataset('/dend', data=dend)
-    f.create_dataset('/dendValues', data=dend_values)
-    f.close()
+    
