@@ -1,3 +1,10 @@
+#Set the resources for the machine in which znn will be run
+memory = 10  #gb  
+nthreads = 8 #virtual cores
+
+#How many chuncks do we want z,y,x
+divs = numpy.array([4, 1, 1])
+
 import math
 import numpy
 import h5py
@@ -24,8 +31,7 @@ fov_stage1 = numpy.array([1,109,109])
 fov_stage2 = numpy.array([9,65,65])
 fov_effective = numpy.array([8,172,172])
 
-#How many chuncks do we want z,y,x
-divs = numpy.array([4, 1, 1])
+
 
 #Estimate how long will it take, and how much computation is wasted because of overlapping
 computedSize = dims + fov_effective * (divs - 1)
@@ -128,9 +134,6 @@ if not os.path.isfile('../znn-release/bin/znn'):
 	jobs.write('make\n')
 	jobs.write('cd ../\n')
 
-#Set the resources for the machine in which znn will be run
-memory = 10  #gb  
-nthreads = 8 #virtual cores
 
 
 for c in chunks:
