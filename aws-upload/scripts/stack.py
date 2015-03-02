@@ -7,7 +7,7 @@ class Stack:
 	def __init__ (self):
 		
 		#I'm loading everything in ram because is an small stack
-		#Otherwise never do it
+		#Otherwise never do it 
 		self.input = tifffile.imread('../../alignment/stack.tif')
 
 		#The maximun of a tiff is 4gb, if our dataset is larger we should create one tiff
