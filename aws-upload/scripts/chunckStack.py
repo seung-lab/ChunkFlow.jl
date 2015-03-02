@@ -1,10 +1,3 @@
-#Set the resources for the machine in which znn will be run
-memory = 10  #gb  
-nthreads = 8 #virtual cores
-
-#How many chuncks do we want z,y,x
-divs = numpy.array([4, 1, 1])
-
 import math
 import numpy
 import h5py
@@ -17,6 +10,13 @@ from PIL.ImageDraw import Draw
 #Custom packages
 import znn
 from stack import Stack
+
+#Set the resources for the machine in which znn will be run
+memory = 10  #gb  
+nthreads = 8 #virtual cores
+
+#How many chuncks do we want z,y,x
+divs = numpy.array([1, 10, 10])
 
 #Read aligned stack
 stack = Stack()
@@ -43,13 +43,14 @@ print "with efficiency ",  numpy.prod(dims) / float(numpy.prod(computedSize)) * 
 
 #We will now compute the size of each chunck and store it in chunks' list.
 chunks = []
-div_size = dims/divs - fov_effective/4
+div_size = (dims - fov_effective) / divs
 
 #Make sure the size of the chunk is larger than the field of view
 assert numpy.all(div_size > fov_effective)
 
 z_min =0; z_max = fov_effective[0]
 for z in range(divs[0]):
+
 	if z == 0:
 		z_min = 0
 	else:
