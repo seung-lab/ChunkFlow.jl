@@ -1,10 +1,3 @@
-#Set the resources for the machine in which znn will be run
-memory = 10  #gb  
-nthreads = 8 #virtual cores
-
-#How many chuncks do we want z,y,x
-divs = numpy.array([4, 1, 1])
-
 import math
 import numpy
 import h5py
@@ -17,6 +10,13 @@ from PIL.ImageDraw import Draw
 #Custom packages
 import znn
 from stack import Stack
+
+#Set the resources for the machine in which znn will be run
+memory = 10  * 10**9#gb  
+nthreads = 8 #virtual cores
+
+#How many chuncks do we want z,y,x
+divs = numpy.array([1, 2, 2])
 
 #Read aligned stack
 stack = Stack()
@@ -43,13 +43,14 @@ print "with efficiency ",  numpy.prod(dims) / float(numpy.prod(computedSize)) * 
 
 #We will now compute the size of each chunck and store it in chunks' list.
 chunks = []
-div_size = dims/divs - fov_effective/4
+div_size = (dims - fov_effective) / divs
 
 #Make sure the size of the chunk is larger than the field of view
 assert numpy.all(div_size > fov_effective)
 
 z_min =0; z_max = fov_effective[0]
 for z in range(divs[0]):
+
 	if z == 0:
 		z_min = 0
 	else:
@@ -169,8 +170,8 @@ for c in chunks:
 	os.makedirs('../data/{0}/trainning_spec'.format(c['filename']))
 	    
 	chunk_stage1 = numpy.array([c['z_max']-c['z_min'],c['y_max']-c['y_min'],c['x_max']-c['x_min']])
-	chunk_stage2 = znn.stage1Train(c,chunk_stage1,fov_stage1, nthreads, memory)
-	znn.stage2Train(c,chunk_stage2,fov_stage2, nthreads, memory)
+	chunk_stage2 = znn.stage1Train(c,chunk_stage1,fov_stage1, nthreads ,memory)
+	znn.stage2Train(c,chunk_stage2,fov_stage2,nthreads ,memory)
 
 	#Create a bash script to run both stages together, we will add this script to the jobs list
 	#This way both stages will be run in the same node
