@@ -18,21 +18,20 @@ def xxl_watershed_read_global_V1( filename, s, width, h5filename ):
             zind = 0
             for z in range(0, s[0], width):
                 cto = np.minimum( np.array([z,y,x])+width, s-1 );
-                cfrom = np.maximum( np.array([0,0,0]), np.array([z,y,x]) )
+                cfrom = np.maximum( np.array([0,0,0]), np.array([z,y,x])-1 )
                 fname = filename + '.chunks/' + str(xind) + '/' + str(yind) + '/' + str(zind) + '/.seg'
                 sze = cto - cfrom + 1
                 
-                chk = np.reshape( np.fromfile(fname, count = np.prod(sze), dtype='uint32' ), sze )
-                
+                chk = np.reshape( np.fromfile(fname, count = np.prod(sze), dtype='uint32' ), sze)     
                 seg[ cfrom[0]+1:cto[0], cfrom[1]+1:cto[1], cfrom[2]+1:cto[2] ] = chk[ 1:-1, 1:-1, 1:-1 ]
                 
-                #print( "prepared chunk %d:%d:%d fname: %s, size:[ %d %d %d ]\n".format(x,y,z,fname,cto-cfrom+1)  )
+                print( "prepared chunk {}:{}:{} fname: {}, size: {} \n".format(x,y,z,fname,cto-cfrom+1)  )
                 
                 zind += 1
             yind += 1
         xind += 1
 
-    dend_values = np.fromfile( filename + '.dend_values', dtype='single' ) 
+    dend_values = np.fromfile( filename + '.dend_values', dtype='single' )
     dend = np.fromfile( filename + '.dend_pairs', dtype = 'uint32' )
     dend = dend.reshape((2, len(dend_values)))
     
@@ -61,12 +60,11 @@ def xxl_watershed_read_global( filename, s, width, h5filename ):
             zind = 0
             for z in range(0, s[0], width):
                 cto = np.minimum( np.array([z,y,x])+width, s-1 );
-                cfrom = np.maximum( np.array([0,0,0]), np.array([z,y,x]) )
+                cfrom = np.maximum( np.array([0,0,0]), np.array([z,y,x])-1 )
                 fname = filename + '.chunks/' + str(xind) + '/' + str(yind) + '/' + str(zind) + '/.seg'
                 sze = cto - cfrom + 1
                 
                 chk = np.reshape( np.fromfile(fname, count = np.prod(sze), dtype='uint32' ), sze )
-                
                 seg[ cfrom[0]+1:cto[0], cfrom[1]+1:cto[1], cfrom[2]+1:cto[2] ] = chk[ 1:-1, 1:-1, 1:-1 ]
                 
                 print( "prepared chunk {}:{}:{} fname: {}, size: {} \n".format(x,y,z,fname,cto-cfrom+1)  )
