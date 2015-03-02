@@ -43,7 +43,6 @@ def xxl_watershed_read_global_V1( filename, s, width, h5filename ):
     f.create_dataset('/dendValues', data=dend_values, dtype='single')
     f.close()
 
-    return seg, dend, dend_values
     
 # out-of-core processing
 def xxl_watershed_read_global( filename, s, width, h5filename ):
@@ -53,18 +52,19 @@ def xxl_watershed_read_global( filename, s, width, h5filename ):
     chunksize = np.array([width, width, width])
     seg = f.create_dataset('/main', tuple(s), chunks=tuple( chunksize ), dtype='uint32' )
     
+    # note that the chunk was transposed implicitly by reversing s order
     xind = 0
-    for x in range(0, s[2], width):
+    for x in range(0, s[0], width):
         yind = 0
         for y in range(0, s[1], width):
             zind = 0
-            for z in range(0, s[0], width):
+            for z in range(0, s[2], width):
                 cto = np.minimum( np.array([z,y,x])+width, s-1 );
                 cfrom = np.maximum( np.array([0,0,0]), np.array([z,y,x])-1 )
                 fname = filename + '.chunks/' + str(xind) + '/' + str(yind) + '/' + str(zind) + '/.seg'
                 sze = cto - cfrom + 1
                 
-                chk = np.reshape( np.fromfile(fname, count = np.prod(sze), dtype='uint32' ), sze )
+                chk = np.reshape( np.fromfile(fname, count = np.prod(sze), dtype='uint32' ), sze)     
                 seg[ cfrom[0]+1:cto[0], cfrom[1]+1:cto[1], cfrom[2]+1:cto[2] ] = chk[ 1:-1, 1:-1, 1:-1 ]
                 
                 print( "prepared chunk {}:{}:{} fname: {}, size: {} \n".format(x,y,z,fname,cto-cfrom+1)  )
@@ -83,13 +83,13 @@ def xxl_watershed_read_global( filename, s, width, h5filename ):
     f.create_dataset('/dendValues', data=dend_values, dtype='single')
     f.close()
 
-    return seg, dend, dend_values
 
 if __name__ == "__main__":
     filename = '/usr/people/jingpeng/seungmount/research/Jingpeng/01_workspace/03_watershed/WS_scripts/temp/wstemp'
     s = np.array([126, 400, 400])
     width = np.min(s)
-    h5filename = '/usr/people/jingpeng/seungmount/research/Jingpeng/01_workspace/04_omni_project/out1.1.h5'
-    seg, dend, dend_values = xxl_watershed_read_global( filename, s, width, h5filename )
+    h5filename = '/usr/people/jingpeng/seungmount/research/Jingpeng/01_workspace/04_omni_project/out1.1.3.h5'
+    xxl_watershed_read_global_V1( filename, s, width, h5filename )
+    print("--finished generating the h5 file --")
     
     
