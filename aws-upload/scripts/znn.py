@@ -38,21 +38,48 @@ ppargs=-1,1"""
 		} 
 		myfile.write(template.format(**context)) 
 
-def stage1Train(c,chunk_size,fov,nthreads,memory):
 
-	#We want to make the output which is simulatenusly compute in znn (outz), proportionally to the field of view
-	#So as much computation as possible is reuse, and we want to make it as large possible
-	#Empirically we know the memory usage is proportinoal to outz, so we have to limit it size.
-	scalar = math.pow(memory* 7000 / numpy.prod(fov), .33 )
-	outz = (fov * scalar  - 1).astype(int)
 
-	#Make sure the output is not larger that maximun, or less than 1
-	maxOut = chunk_size - fov + numpy.array([1,1,1])
-	outz[outz > maxOut] = maxOut[outz > maxOut]
 
-	minOut = numpy.array([1,1,1])
-	outz[outz < minOut] = minOut[outz < minOut]
 
+def getOutSize(input_size , fov,  memory , stage):
+
+	if stage == 1:
+	 	architecture_multiplyer = 0.6 * 10**5
+	else:
+	 	architecture_multiplyer = 0.6 * 10**5
+
+	#Given the input size and the field of view, we compute the output size
+	output_size = input_size - fov + numpy.array([1,1,1])
+
+	#We want to have a subvolume, which is a divisor of the output_size , and has shape which is similar
+	#to the shape of the field of view
+	#and uses an ammount of memory closer to the maximun memory
+	best_score = 0
+	best_conf = None
+	for z in list(divisorGenerator(output_size[0])):
+		for y in list(divisorGenerator(output_size[1])):
+			for x in list(divisorGenerator(output_size[2])):
+				conf = numpy.array([z, y, x])
+				#Check memory usage for this configuration
+				memory_used = numpy.prod(conf + fov - numpy.array([1,1,1])) * architecture_multiplyer
+
+				#Lets threat this configuration and the fov as vectors, and check how alignn both are.
+				#We want the configuration to have a similar shape to FoV
+				fov_versor = fov/numpy.linalg.norm(fov)
+				conf_versor = conf/numpy.linalg.norm(conf)
+				fov_score = numpy.prod( (conf/fov.astype(float))**2) 
+
+				if memory_used < memory and fov_score * memory_used > best_score:
+					best_conf = conf
+	
+	print 'output_size', output_size ,' fov ', fov , ' outz' , best_conf
+	return best_conf
+
+
+def stage1Train(c,input_size,fov, nthreads,memory):
+
+	outz = getOutSize(input_size , fov,  memory , 1 )
 
 	with  open('../data/{0}/trainning_spec/stage1.spec'.format(c['filename']),'w') as myfile:
 		template = """[PATH]
@@ -91,22 +118,11 @@ outname={outname}"""
 		myfile.write(template.format(**context))
 
 	#Return this stage output size
-	return maxOut
+	return input_size - fov + numpy.array([1,1,1])
 
-def stage2Train(c,chunk_size,fov,nthreads,memory):
+def stage2Train(c,input_size,fov,nthreads, memory):
 
-	#We want to make the output which is simulatenusly compute in znn (outz), proportionally to the field of view
-	#So as much computation as possible is reuse, and we want to make it as large possible
-	#Empirically we know the memory usage is proportinoal to outz, so we have to limit it size.
-	scalar = math.pow(memory* 7000 / numpy.prod(fov), .33 )
-	outz = (fov * scalar  - 1).astype(int)
-
-	#Make sure the output is not larger that maximun, or less than 1
-	maxOut = chunk_size - fov + numpy.array([1,1,1])
-	outz[outz > maxOut] = maxOut[outz > maxOut]
-
-	minOut = numpy.array([1,1,1])
-	outz[outz < minOut] = minOut[outz < minOut]
+	outz = getOutSize(input_size , fov,  memory , 2 )
 
 
 	with  open('../data/{0}/trainning_spec/stage2.spec'.format(c['filename']),'w') as myfile:
@@ -145,7 +161,7 @@ outname={outname}"""
 		myfile.write(template.format(**context))
 
 	#Return this stage output size
-	return maxOut
+	return input_size - fov + numpy.array([1,1,1])
 
 
 def save_input_size(c):
@@ -173,3 +189,17 @@ def load_size(chunk_name):
 
 	with open('data.json', 'rb') as fp:
 		return json.load(fp)
+
+
+def divisorGenerator(n):
+
+	n = int(n)
+	large_divisors = []
+	for i in xrange(1, int(math.sqrt(n) + 1)):
+		if n % i is 0:
+			yield i
+			if i is not n / i:
+				large_divisors.insert(0, n / i)
+	for divisor in large_divisors:
+		yield divisor
+
