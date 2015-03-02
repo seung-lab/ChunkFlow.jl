@@ -12,11 +12,11 @@ import znn
 from stack import Stack
 
 #Set the resources for the machine in which znn will be run
-memory = 10  #gb  
+memory = 10  * 10**9#gb  
 nthreads = 8 #virtual cores
 
 #How many chuncks do we want z,y,x
-divs = numpy.array([1, 10, 10])
+divs = numpy.array([1, 2, 2])
 
 #Read aligned stack
 stack = Stack()
@@ -170,8 +170,8 @@ for c in chunks:
 	os.makedirs('../data/{0}/trainning_spec'.format(c['filename']))
 	    
 	chunk_stage1 = numpy.array([c['z_max']-c['z_min'],c['y_max']-c['y_min'],c['x_max']-c['x_min']])
-	chunk_stage2 = znn.stage1Train(c,chunk_stage1,fov_stage1, nthreads, memory)
-	znn.stage2Train(c,chunk_stage2,fov_stage2, nthreads, memory)
+	chunk_stage2 = znn.stage1Train(c,chunk_stage1,fov_stage1, nthreads ,memory)
+	znn.stage2Train(c,chunk_stage2,fov_stage2,nthreads ,memory)
 
 	#Create a bash script to run both stages together, we will add this script to the jobs list
 	#This way both stages will be run in the same node
