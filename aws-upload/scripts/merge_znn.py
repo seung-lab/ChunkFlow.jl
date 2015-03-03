@@ -33,13 +33,13 @@ for chunk_dir in os.listdir('../data/'):
 	if x > max_x:
 		max_x = x
 
-divs =  numpy.array([max_x+1, max_y+1 , max_z+1])
+divs =  numpy.array([max_z+1, max_y+1 , max_x+1])
 print max_chunk_size , divs
 total_size = numpy.concatenate((numpy.array([3]) , max_chunk_size * divs))
 chunk_size = numpy.concatenate((numpy.array([3]) , max_chunk_size ))
 
 
-f = h5py.File('../watershed/znn_merged.chann.hdf5', "w" )
+f = h5py.File('../watershed/znn_merged.hdf5', "w" )
 
 print total_size, chunk_size 
 
