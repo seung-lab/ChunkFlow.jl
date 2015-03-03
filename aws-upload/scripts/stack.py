@@ -26,7 +26,7 @@ class Stack:
 		#When we use a large stack, there will be some more complex logic here to retrieve the chunck
 		#because we will load the required z-planes as needed.
 
-		return self.input[z_min:z_max, y_min:y_max, x_min:x_max]
+		return self.input[z_min:z_max, y_min:y_max, x_min:x_max].astype('double')
 
 	def convertToHDF5(self, fov = numpy.array([8, 172 ,172])):
 
