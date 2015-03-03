@@ -149,8 +149,9 @@ for c in chunks:
 
 	#Get chunck and save it to disk
 	chunk = stack.getChunk(c['z_max'], c['z_min'], c['y_max'], c['y_min'], c['x_max'], c['x_min'])
+	
 	chunk.tofile('../data/{0}/input/input'.format(c['filename']))
-	sz = numpy.asarray(chunk.shape).astype(numpy.uint32)
+	sz = numpy.asarray(chunk.shape).astype(numpy.uint32)[::-1]
 	sz.tofile('../data/{0}/input/input.size'.format(c['filename']))
 
 	#We also create an empty directoy in where znn will save the output
