@@ -9,7 +9,7 @@ from subprocess import call
 import h5py
 
 #Read the merged znn output
-f = h5py.File('../watershed/znn_merged.chann.hdf5', 'r')
+f = h5py.File('../watershed/znn_merged.hdf5', 'r')
 znn = f['/main']
 
 
