@@ -47,7 +47,7 @@ def getOutSize(input_size , fov,  memory , stage):
 	if stage == 1:
 	 	architecture_multiplyer = 0.6 * 10**5
 	else:
-	 	architecture_multiplyer = 0.6 * 10**5
+	 	architecture_multiplyer = 1.2 * 10**5
 
 	#Given the input size and the field of view, we compute the output size
 	output_size = input_size - fov + numpy.array([1,1,1])
