@@ -1,4 +1,4 @@
-memory =  10 * 10**9#gb
+memory =  0.2 * 10 * 10**9#gb
 threads = 8
 
 
@@ -6,104 +6,88 @@ import os
 import numpy
 import re
 from subprocess import call
+import h5py
+
+#Read the merged znn output
+f = h5py.File('../watershed/znn_merged.chann.hdf5', 'r')
+znn = f['/main']
 
 
-#We will iterate through all folders to check that the output is there
-#We count how many chunks are there, and the size of the largest chunk
-#We assume that all the chunks has similar size
-#Based on this we will decide how many times we should divide the chunks
-
-max_x, max_y, max_z = 0,0,0
-max_chunk_size = 0
-for chunk_dir in os.listdir('../data/'):
-  	
-	#Get max chunk size in voxels
-	try: 
-		chunk_size = numpy.prod(numpy.fromfile( '../data/{0}/output/stage21.0.size'.format(chunk_dir), dtype='uint32'))
-		if max_chunk_size < chunk_size:
-			max_chunk_size =  chunk_size
-	except:
-		#raise in production
-		print Exception("There is no stage 2 output in chunk {0}".format(chunk_dir))
-
-  	m = re.match(r'z(\d+)-y(\d+)-x(\d+)',chunk_dir)
-	z = int(m.group(1)) ; y = int(m.group(2)); x = int(m.group(3))
-	
-	if z > max_z:
-		max_z = z
-
-	if y > max_y:
-		max_y = y
-	
-	if x > max_x:
-		max_x = x
-
-
-znn_chunks = (max_x+1) * (max_y+1) * (max_z+1)
 #The larger the chuncks watershed process in parallel the better
 #Divide the avaiable memory by the number of threads, that should be the size of a chunk.
 #Watershed requires about 20 bytes per voxel.
-
 chunk_max_memory = memory / threads / 20 
 
-#Compute this based on chunkMaxSize and  chunk_max_memory
-chunk_divs = numpy.ceil(max_chunk_size/chunk_max_memory).astype(int)
-print 'We will divide each znn chunk in {0} parts, because we have {1} znn chunks, we will have {2} watershed chunks in total'.format(chunk_divs,znn_chunks,chunk_divs * znn_chunks)
+#Check how many divs we need, divide each axis the same ammount of times
+required_divs = numpy.prod(znn.shape) /chunk_max_memory
+
+chunk_divs = numpy.array([1 , 1 , 1]) * required_divs**.333 
+chunk_divs = numpy.ceil(chunk_divs).astype(int)
+
 
 if not os.path.exists('../watershed/data'):
 	os.makedirs('../watershed/data')
 else:
-    #For production
-    raise Exception('folder already exists')
+	#For test
+	import shutil
+	shutil.rmtree('../watershed/data')
+	os.makedirs('../watershed/data')
 
-affin = numpy.zeros(shape=(10,10,10))
+    #For production
+    #raise Exception('folder already exists')
+
 
 sizes = open('../watershed/data/input.chunksizes','w')
 affinities = open('../watershed/data/input.affinity.data','w')
 os.makedirs('../watershed/data/input.chunks')
 
-#Iterate trough znn chunks
+
+#Iterate trough watershed chunks
+#remember the first dimension of znn is 3, because in an affinity
 zabs = 0
-for z_znn in range(max_z+1):
+for z_chunk_max in numpy.linspace(0, znn.shape[1] , chunk_divs[0]+1):
+	z_chunk_max = z_chunk_max.astype(int)
+	if z_chunk_max == 0:
+		z_chunk_min = 0
+		continue
+
 	yabs = 0
-	for y_znn in range(max_y+1):
+	for y_chunk_max in numpy.linspace(0, znn.shape[2] , chunk_divs[1] +1):
+		y_chunk_max = y_chunk_max.astype(int)
+		if y_chunk_max == 0:
+			y_chunk_min = 0
+			continue
+
+
 		xabs = 0
-		for x_znn in range(max_x+1):
+		for x_chunk_max in numpy.linspace(0, znn.shape[3], chunk_divs[2]+1):
+			x_chunk_max = x_chunk_max.astype(int)
+			if x_chunk_max == 0:
+				x_chunk_min = 0
+				continue
 
-			os.makedirs('../watershed/data/input.chunks/{0}/{1}/{2}'.format(x_znn,y_znn,z_znn))
 
-			#Load znn chunks and concatenate it in one affinity, we assume this can fit in memory
-			#If it doesn't we should make znn chunks smaller
-			znn_chunk_size = numpy.fromfile('../data/{0}/output/stage21.0.size'.format(chunk_dir), dtype='uint32')
-			znn_chunk_0 =  numpy.fromfile('../data/{0}/output/stage21.0'.format(chunk_dir), dtype='double').reshape(znn_chunk_size)
-			znn_chunk_1 =  numpy.fromfile('../data/{0}/output/stage21.1'.format(chunk_dir), dtype='double').reshape(znn_chunk_size)
-			znn_chunk_2 =  numpy.fromfile('../data/{0}/output/stage21.2'.format(chunk_dir), dtype='double').reshape(znn_chunk_size)
-			znn_chunk_affinity = numpy.concatenate((znn_chunk_0[None,...],znn_chunk_1[None,...],znn_chunk_2[None,...]), axis=0)
+			os.makedirs('../watershed/data/input.chunks/{0}/{1}/{2}'.format(xabs,yabs,zabs))
+			cfrom = numpy.array([z_chunk_min, y_chunk_min, x_chunk_min]) - 1
+			cfrom[cfrom < 0] = 0
+			cto = numpy.array([z_chunk_max, y_chunk_max, x_chunk_max]) + 1
+			cto = numpy.minimum(cto, znn.shape[1:4])
 
-			z_max = znn_chunk_size[0]
-		
-			for z_chunk_max in numpy.linspace(0, z_max , chunk_divs +1):
+			size = cto - cfrom
 
-				z_chunk_max = z_chunk_max.astype(int)
-
-				if z_chunk_max == 0:
-					z_chunk_min = 0
-					continue
+			print 'prepared chunk {0}:{1}:{2} , position [{3}-{4} , {5}-{6}, {7}-{8}] size: [ {9} {10} {11} ]'.format(xabs, yabs, zabs,cfrom[0],cto[0],cfrom[1], cto[1],cfrom[2], cto[2] , size[0], size[1], size[2])
 				
-				print 'prepared chunk {0}:{1}:{2} size: [ {3} {4} {5} ]'.format(xabs, yabs, zabs, znn_chunk_size[2], znn_chunk_size[1], znn_chunk_size[0])
-				
-				affin = znn_chunk_affinity[:,z_chunk_min:z_chunk_max,:,:]
-				print affin.shape
-				affinities.write(affin.tostring())
-				sz = numpy.asarray(affin.shape).astype('int32')
-				sizes.write(sz.tostring())
+			affin = znn[:,z_chunk_min:z_chunk_max,y_chunk_min:y_chunk_max,x_chunk_min:x_chunk_max]
+			affinities.write(affin.tostring())
+			sz = numpy.asarray(affin.shape).astype('int32')
+			sizes.write(sz.tostring())
 
-				#For next loop
-				zabs += 1;
-				z_chunk_min = z_chunk_max
-
-		xabs+=1
-	yabs+=1
+			xabs+=1
+			x_chunk_min = x_chunk_max
+		yabs+=1
+		y_chunk_min = y_chunk_max
+	zabs+=1
+	z_chunk_min = z_chunk_max
 
 sizes.close()
 affinities.close()
