@@ -24,4 +24,15 @@ aws-upload/script
 TODO list
 =========
 * Modify stack.py to work with the file organization of Tommy
-* omnify folder should either hold the src code of a version of omni with headless support, or the libraries requiered to be preloaded when running omni. omnify.py should have the logic (if requiered) to convert watershed output in the hdf5 required by omni, and submit the jobs so this can be run parallely. Also it should write an script to rsync the omni(s) project back to princeton. (Do we want to also download other data back?)
+* omnify.py should have the logic (if requiered) to convert watershed output in the hdf5 required by omni, and submit the jobs so this can be run parallely. Also it should write an script to rsync the omni(s) project back to princeton. (Do we want to also download other data back?)
+
+Long-term TODO list
+===================
+* Improve documention of the hole pipeline , make sure to explain, layout of array in disks, there were many bugs primarely because znn asumes column-major, and python uses row-major order.
+* Upload chunks for znn to hard drives attach directly to the nodes, faster upload/download speed , better disk I/O . But if a node goes does, data has to be resent, is harder to manage for the scheduler.
+* Make a cluster version of watershed, where each chunk is processed in each node, and there are internode comnuication to fix the boundaries.
+* Make a cluster version of omni, where chunks are process in each node and then merge in a single project. Our current version of omni doesn't even omnify. Make a separate project for omnifying, so as to simplify omni.
+* Make HDF5 as the standar input and output of each stage in the pipeline.
+* move from SGE to a possible better mantain Slurm 
+
+
