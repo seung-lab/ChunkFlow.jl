@@ -118,7 +118,7 @@ img.save('./image.png')
 if not os.path.exists('../data'):
      os.makedirs('../data')
 else:
-	#for test
+	#For test
 	import shutil
 	shutil.rmtree('../data')
 	os.makedirs('../data')
