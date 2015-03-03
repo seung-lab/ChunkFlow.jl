@@ -54,7 +54,7 @@ class Stack:
 		chunk_size[0] = chunk_size[0]/divs
 
 		#Should we used compression="gzip" on this?
-		dset = f.create_dataset('/main', tuple(channel_size) , chunks=tuple(chunk_size))		
+		dset = f.create_dataset('/main', tuple(channel_size) , chunks=tuple(chunk_size) , compression="gzip")		
 
 		for z_chunk_max in numpy.linspace(z_min, z_max.astype(int) , divs +1):
 			z_chunk_max = z_chunk_max.astype(int)
