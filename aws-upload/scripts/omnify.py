@@ -13,6 +13,11 @@ metadata = numpy.fromfile('../watershed/data/input.metadata', dtype='uint32')[2:
 sizes = numpy.fromfile('../watershed/data/input.chunksizes', dtype='uint32')
 print sizes
 
+
+chunksizes = numpy.fromfile('../watershed/data/input.chunksizes', dtype='uint32').reshape(-1,3)
+print chunksizes
+
+
 for z_chunk in range(metadata[0]):
     for y_chunk in range(metadata[1]):
         for x_chunk in range(metadata[2]):
