@@ -7,7 +7,7 @@ Created on Fri Feb 27 13:39:22 2015
 import numpy as np
 
 # out-of-core processing, this is the desired function, but maybe slow without chunking
-def xxl_watershed_read_global( filename, s, width, h5filename ):
+def xxl_watershed_read_global_V2( filename, s, width, h5filename ):
     import h5py
     f = h5py.File( h5filename, "w" )
     chunksize = np.array([width, width, width])
@@ -104,7 +104,7 @@ def write_h5(h5filename, vol, dend, dendValues):
     f.close()
 
 # out-of-core processing, generate a bunch of h5 files
-def xxl_watershed_read_global_V2( filename, s, width, Dir ):
+def xxl_watershed_read_global( filename, s, width, Dir ):
 #    # make directory
 #    import os
 #    os.mkdir(Dir)    
@@ -165,7 +165,7 @@ if __name__ == "__main__":
 #    if os.path.exists(h5file):
 #        os.remove( h5file )    
     
-    xxl_watershed_read_global_V2( filename, s, width, h5file )
+    xxl_watershed_read_global( filename, s, width, h5file )
     
     # evaluate the volume
     #evaluate_seg(h5file, 1)
