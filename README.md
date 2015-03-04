@@ -34,5 +34,5 @@ Long-term TODO list
 * Make a cluster version of omni, where chunks are process in each node and then merge in a single project. Our current version of omni doesn't even omnify. Make a separate project for omnifying, so as to simplify omni.
 * Make HDF5 as the standar input and output of each stage in the pipeline.
 * move from SGE to a possible better mantain Slurm 
-
+* Improve znn so it doesn't waste computation when outz is not a divisor of the total ouput
 
