@@ -94,7 +94,7 @@ CLUSTER_SHELL = bash
 # The base i386 StarCluster AMI is ami-9bf9c9f2
 # The base x86_64 StarCluster AMI is ami-3393a45a
 # The base HVM StarCluster AMI is ami-6b211202
-NODE_IMAGE_ID = ami-dcbde9b4   #based on starcluster-base-ubuntu-12.04-x86_64-hvm but with libboost and fft3 installed
+NODE_IMAGE_ID = ami-3e500856  #based on starcluster-base-ubuntu-12.04-x86_64-hvm but with libboost and fft3 installed
 
 #Do we need these special images for using starCluser?
 
