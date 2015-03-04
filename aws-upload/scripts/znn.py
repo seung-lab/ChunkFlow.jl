@@ -2,6 +2,7 @@ import math
 import numpy
 import json
 
+from node_specification import *
 
 def stage1Data(c):
 	with  open('../data/{0}/data_spec/stage1.1.spec'.format(c['filename']),'w') as myfile:
@@ -42,12 +43,12 @@ ppargs=-1,1"""
 
 
 
-def getOutSize(input_size , fov,  memory , stage):
+def getOutSize(input_size , fov, stage):
 
 	if stage == 1:
-	 	architecture_multiplyer = 0.6 * 10**5
+	 	architecture_multiplyer = 1.0 * 10**5
 	else:
-	 	architecture_multiplyer = 1.2 * 10**5
+	 	architecture_multiplyer = 0.5 * 10**5
 
 	#Given the input size and the field of view, we compute the output size
 	output_size = input_size - fov + numpy.array([1,1,1])
@@ -68,18 +69,19 @@ def getOutSize(input_size , fov,  memory , stage):
 				#We want the configuration to have a similar shape to FoV
 				fov_versor = fov/numpy.linalg.norm(fov)
 				conf_versor = conf/numpy.linalg.norm(conf)
-				fov_score = numpy.prod( (conf/fov.astype(float))**2) 
+				fov_score = 1.0 / numpy.std(conf/fov.astype(float)) * memory_used
 
-				if memory_used < memory and fov_score * memory_used > best_score:
+				if memory_used < memory and fov_score > best_score:
+					best_score = fov_score
 					best_conf = conf
 	
-	print 'output_size', output_size ,' fov ', fov , ' outz' , best_conf
+	print 'output_size', output_size ,' fov ', fov , ' outz' , best_conf , best_score
 	return best_conf
 
 
-def stage1Train(c,input_size,fov, nthreads,memory):
+def stage1Train(c,input_size,fov):
 
-	outz = getOutSize(input_size , fov,  memory , 1 )
+	outz = getOutSize(input_size , fov,1 )
 
 	with  open('../data/{0}/trainning_spec/stage1.spec'.format(c['filename']),'w') as myfile:
 		template = """[PATH]
@@ -110,7 +112,7 @@ outname={outname}"""
 					"path_load":'./network_instance/VeryDeep2_w109/',
 					"path_data":'./data/{0}/data_spec/stage1.'.format(c['filename']),
 					"path_save":'./data/{0}/output/'.format(c['filename']),  #this is the path to outname
-					"threads":nthreads,
+					"threads":threads,
 					"output_path_size":'{0},{1},{2}'.format(outz[2],outz[1],outz[0]), #x,y,z from z,y,x 
 					"outname":'stage1'
 		} 
@@ -120,9 +122,9 @@ outname={outname}"""
 	#Return this stage output size
 	return input_size - fov + numpy.array([1,1,1])
 
-def stage2Train(c,input_size,fov,nthreads, memory):
+def stage2Train(c,input_size, fov):
 
-	outz = getOutSize(input_size , fov,  memory , 2 )
+	outz = getOutSize(input_size , fov, 2 )
 
 
 	with  open('../data/{0}/trainning_spec/stage2.spec'.format(c['filename']),'w') as myfile:
@@ -154,7 +156,7 @@ outname={outname}"""
 					"path_load":'./network_instance/VeryDeep2HR_w65x9/',
 					"path_data":'./data/{0}/data_spec/stage2.'.format(c['filename']),
 					"path_save":'./data/{0}/output/'.format(c['filename']),  #this is the path to outname
-					"threads":nthreads,
+					"threads":threads,
 					"output_path_size":'{0},{1},{2}'.format(outz[2],outz[1],outz[0]), #x,y,z from z,y,x 
 					"outname":'stage2'
 		} 

@@ -1,12 +1,10 @@
-memory =  0.2 * 10 * 10**9#gb
-threads = 8
-
-
 import os
 import numpy
 import re
 from subprocess import call
 import h5py
+
+from node_specification import *
 
 #Read the merged znn output
 f = h5py.File('../watershed/znn_merged.hdf5', 'r')
@@ -77,9 +75,9 @@ for z_chunk_max in numpy.linspace(0, znn.shape[1] , chunk_divs[0]+1):
 
 			print 'prepared chunk {0}:{1}:{2} , position [{3}-{4} , {5}-{6}, {7}-{8}] size: [ {9} {10} {11} ]'.format(xabs, yabs, zabs,cfrom[0],cto[0],cfrom[1], cto[1],cfrom[2], cto[2] , size[0], size[1], size[2])
 				
-			affin = znn[:,z_chunk_min:z_chunk_max,y_chunk_min:y_chunk_max,x_chunk_min:x_chunk_max]
+			affin = znn[:,cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2]]
 			affinities.write(affin.tostring())
-			sz = numpy.asarray(affin.shape).astype('int32')
+			sz = numpy.asarray(affin.shape[1:4]).astype('int32')
 			sizes.write(sz.tostring())
 
 			xabs+=1
