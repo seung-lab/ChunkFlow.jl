@@ -11,10 +11,6 @@ from PIL.ImageDraw import Draw
 import znn
 from stack import Stack
 
-#Set the resources for the machine in which znn will be run
-memory = 10  * 10**9#gb  
-nthreads = 8 #virtual cores
-
 #How many chuncks do we want z,y,x
 divs = numpy.array([1, 2, 2])
 
@@ -30,7 +26,6 @@ dims = stack.getStackDimensions()
 fov_stage1 = numpy.array([1,109,109])
 fov_stage2 = numpy.array([9,65,65])
 fov_effective = numpy.array([8,172,172])
-
 
 
 #Estimate how long will it take, and how much computation is wasted because of overlapping
@@ -59,7 +54,8 @@ for z in range(divs[0]):
 	if z == divs[0] - 1:
 		z_max = dims[0]
 	else:
-		z_max = z_max + div_size[0]
+		z_max = z_max + div_size[0]#Set the resources for the machine in which znn will be run
+
 
 	#Do same thing as z, but for y_axis
 	y_min =0; y_max = fov_effective[1]
@@ -171,8 +167,8 @@ for c in chunks:
 	os.makedirs('../data/{0}/trainning_spec'.format(c['filename']))
 	    
 	chunk_stage1 = numpy.array([c['z_max']-c['z_min'],c['y_max']-c['y_min'],c['x_max']-c['x_min']])
-	chunk_stage2 = znn.stage1Train(c,chunk_stage1,fov_stage1, nthreads ,memory)
-	znn.stage2Train(c,chunk_stage2,fov_stage2,nthreads ,memory)
+	chunk_stage2 = znn.stage1Train(c,chunk_stage1,fov_stage1)
+	znn.stage2Train(c,chunk_stage2,fov_stage2)
 
 	#Create a bash script to run both stages together, we will add this script to the jobs list
 	#This way both stages will be run in the same node
