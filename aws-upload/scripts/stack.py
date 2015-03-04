@@ -3,19 +3,40 @@ import numpy
 import h5py
 
 from node_specification import *
+import re
+import os
 
 class Stack:
 
 	def __init__ (self):
 		
+		self.filestack = list() 
+
+		base = '/usr/people/it2/seungmount/research/tommy/S2_renders/'
+		folders = ('150218_S2-W001_elastic_01_3600_3600/' , '150224_S2-W002_elastic_01_3600_3600/' , '150303_S2-W003_elastic_01_3600_3600/')
+
+		index = re.compile(r'(\d+)_')
+		def numberSort(filename):
+			return index.split(filename)[1]
+
+		for folder in folders:
+			path = base + folder
+			for z_tif in sorted(os.listdir(path), key=numberSort):
+
+				self.filestack.append(path+z_tif)
+
+
+		print self.filestack
+
+
 		#I'm loading everything in ram because is an small stack
 		#Otherwise never do it 
-		self.input = tifffile.imread('../../alignment/stack.tif')
+		#self.input = tifffile.imread('../../alignment/stack.tif')
 
 		#The maximun of a tiff is 4gb, if our dataset is larger we should create one tiff
 		#Per z-plane.
 		#You could use this constructor to get the stack dimensions.
-		self.dims =  numpy.asarray(self.input.shape)
+		#self.dims =  numpy.asarray(self.input.shape)
 
 		return
 
@@ -85,5 +106,5 @@ if __name__ == "__main__":
 
 	#If you directly call this file create hdf5
 	s = Stack()
-	s.convertToHDF5()
+	#s.convertToHDF5()
 
