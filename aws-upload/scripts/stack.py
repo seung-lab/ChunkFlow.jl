@@ -2,6 +2,8 @@ import tifffile
 import numpy
 import h5py
 
+from node_specification import *
+
 class Stack:
 
 	def __init__ (self):
@@ -42,7 +44,6 @@ class Stack:
 
 
 		#Divide the input in the z-dimension and process one chunk at the time
-		memory = 5 *   (10**9) #GB memory available in the machine
 		z_plane_size = (x_max - x_min) * (y_max - y_min) * 8 #bytes for each double
 		divs = numpy.ceil(z_max / (memory / z_plane_size)).astype(int) 
 		
