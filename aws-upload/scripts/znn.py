@@ -49,7 +49,7 @@ def optimal_outsz(chunk_size_in, fov_in, max_memory = 200 * 10**9, architecture_
 	best_outsz = None
 
 	#We don't want to overight our input
-	chunk_size = chunk_size_in.copy().astype(float)
+	chunk_size = chunk_size_in.copy().astype(float) - fov_in + 1
 	fov = fov_in.copy().astype(float)
 
 	for z in numpy.linspace(1, chunk_size[0] , div_precision , dtype=int):
