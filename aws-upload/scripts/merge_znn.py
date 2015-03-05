@@ -56,7 +56,8 @@ for z_znn in range(max_z+1):
 			znn_chunk_2 =  numpy.fromfile('../data/{0}/output/stage21.2'.format(chunk_dir), dtype='double').reshape(znn_chunk_size)
 			znn_chunk_affinity = numpy.concatenate((znn_chunk_0[None,...],znn_chunk_1[None,...],znn_chunk_2[None,...]), axis=0)
 
-			dset[:, zabs:zabs+znn_chunk_size[0], yabs:yabs+znn_chunk_size[1], xabs:xabs:znn_chunk_size[2]] = znn_chunk_affinity
+			print chunk_dir , ' Merged'
+			dset[:, zabs:zabs+znn_chunk_size[0], yabs:yabs+znn_chunk_size[1], xabs:xabs+znn_chunk_size[2]] = znn_chunk_affinity
 
 			zabs = zabs+znn_chunk_size[0]
 			yabs = yabs+znn_chunk_size[1]
