@@ -3,12 +3,15 @@ import numpy
 import re
 import h5py
 
+import znn
+
 #We will iterate through all folders to check that the output is there
 #We count how many chunks are there, and the size of the largest chunk
 #We assume that all the chunks has similar size
 
 max_x, max_y, max_z = 0,0,0
 max_chunk_size = numpy.array([0 , 0, 0])
+output_size = None
 for chunk_dir in os.listdir('../data/'):
   	
 	#Get max chunk size in voxels
@@ -32,13 +35,17 @@ for chunk_dir in os.listdir('../data/'):
 	if x > max_x:
 		max_x = x
 
+	if z == max_z and y == max_y and x == max_x:
+		output_size = znn.load_output_size(chunk_dir)
+
 divs =  numpy.array([max_z+1, max_y+1 , max_x+1])
-total_size = numpy.concatenate((numpy.array([3]) , max_chunk_size * divs))
-chunk_size = numpy.concatenate((numpy.array([3]) , max_chunk_size ))
+output_size = numpy.array([3 , output_size['z_max'] , output_size['y_max'], output_size['x_max']])
+chunk_size =  output_size.copy()
+chunk_size[1] = 1
 
 #We create and hdf5 with a chunk layout, we will load one znn chunk in memory at the time, and flush it to disk
 f = h5py.File('../watershed/znn_merged.hdf5', "w" )
-dset = f.create_dataset('/main', tuple(total_size) , chunks=tuple(chunk_size) , compression="gzip")
+dset = f.create_dataset('/main', tuple(output_size) , chunks=tuple(chunk_size) , compression="gzip")
 
 zabs = 0 
 for z_znn in range(max_z+1):
@@ -56,7 +63,7 @@ for z_znn in range(max_z+1):
 			znn_chunk_2 =  numpy.fromfile('../data/{0}/output/stage21.2'.format(chunk_dir), dtype='double').reshape(znn_chunk_size)
 			znn_chunk_affinity = numpy.concatenate((znn_chunk_0[None,...],znn_chunk_1[None,...],znn_chunk_2[None,...]), axis=0)
 
-			print chunk_dir , ' Merged'
+			print chunk_dir , ' Merged from '
 			dset[:, zabs:zabs+znn_chunk_size[0], yabs:yabs+znn_chunk_size[1], xabs:xabs+znn_chunk_size[2]] = znn_chunk_affinity
 
 			zabs = zabs+znn_chunk_size[0]
