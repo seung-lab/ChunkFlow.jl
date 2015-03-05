@@ -10,7 +10,6 @@ from global_vars import *
 f = h5py.File('../watershed/znn_merged.hdf5', 'r')
 znn = f['/main']
 
-
 #The larger the chuncks watershed process in parallel the better
 #Divide the avaiable memory by the number of threads, that should be the size of a chunk.
 #Watershed requires about 20 bytes per voxel.
@@ -19,9 +18,13 @@ chunk_max_memory = memory / threads / 20
 #Check how many divs we need, divide each axis the same ammount of times
 required_divs = numpy.prod(znn.shape) /chunk_max_memory
 
-chunk_divs = numpy.array([1 , 1 , 1]) * required_divs**.333 
+chunk_divs = numpy.array([1 , 1 , 1]) * required_divs **.333 
 chunk_divs = numpy.ceil(chunk_divs).astype(int)
 
+#As minimun we should have threads chunks
+minimun_divs =  numpy.array([1 , 1 , 1]) * numpy.ceil(threads ** .333).astype(int)
+if numpy.prod(chunk_divs) < numpy.prod(minimun_divs):
+	chunk_divs = minimun_divs
 
 if not os.path.exists('../watershed/data'):
 	os.makedirs('../watershed/data')
@@ -42,6 +45,8 @@ os.makedirs('../watershed/data/input.chunks')
 
 #Iterate trough watershed chunks
 #remember the first dimension of znn is 3, because in an affinity
+xabs = 0
+yabs = 0
 zabs = 0
 for z_chunk_max in numpy.linspace(0, znn.shape[1] , chunk_divs[0]+1):
 	z_chunk_max = z_chunk_max.astype(int)

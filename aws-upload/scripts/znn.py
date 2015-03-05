@@ -43,13 +43,13 @@ ppargs=-1,1"""
 
 
 
-def optimal_outsz(chunk_size_in, fov_in, max_memory = 200 * 10**9, architecture_multiplier= 5 * 10**5, div_precision = 50):
+def optimal_outsz(input_size, fov_in, max_memory = 200 * 10**9, architecture_multiplier= 5 * 10**5, div_precision = 50):
 	
 	max_score = 0
 	best_outsz = None
 
 	#We don't want to overight our input
-	chunk_size = chunk_size_in.copy().astype(float) - fov_in + 1
+	chunk_size = input_size.astype(float) - fov_in + 1
 	fov = fov_in.copy().astype(float)
 
 	for z in numpy.linspace(1, chunk_size[0] , div_precision , dtype=int):
@@ -76,7 +76,7 @@ def optimal_outsz(chunk_size_in, fov_in, max_memory = 200 * 10**9, architecture_
 
 def stage1Train(c,input_size,fov):
 
-	outsz = optimal_outsz(input_size , fov, architecture_multiplier= 8 * 10**5)
+	outsz = optimal_outsz(input_size , fov, architecture_multiplier= 2 * 10**5)
 
 	with  open('../data/{0}/trainning_spec/stage1.spec'.format(c['filename']),'w') as myfile:
 		template = """[PATH]
@@ -119,7 +119,7 @@ outname={outname}"""
 
 def stage2Train(c,input_size, fov):
 
-	outsz = optimal_outsz(input_size , fov , architecture_multiplier= 5 * 10**5)
+	outsz = optimal_outsz(input_size , fov , architecture_multiplier= 2 * 10**5)
 
 
 	with  open('../data/{0}/trainning_spec/stage2.spec'.format(c['filename']),'w') as myfile:
