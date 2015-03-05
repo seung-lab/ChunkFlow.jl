@@ -182,7 +182,7 @@ def save_output_size(c,fov):
 
 	return
 
-def load_size(chunk_name):
+def load_output_size(chunk_name):
 
-	with open('data.json', 'rb') as fp:
+	with open('../data/{0}/output/absolute_position.json'.format(chunk_name), 'rb') as fp:
 		return json.load(fp)
