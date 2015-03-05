@@ -2,7 +2,7 @@ import tifffile
 import numpy
 import h5py
 
-from node_specification import *
+from global_vars import *
 import re
 import os
 
@@ -12,31 +12,32 @@ class Stack:
 		
 		self.filestack = list() 
 
-		base = '/usr/people/it2/seungmount/research/tommy/S2_renders/'
-		folders = ('150218_S2-W001_elastic_01_3600_3600/' , '150224_S2-W002_elastic_01_3600_3600/' , '150303_S2-W003_elastic_01_3600_3600/')
+		#For production
+		# base = '/usr/people/it2/seungmount/research/tommy/S2_renders/'
+		# folders = ('150218_S2-W001_elastic_01_3600_3600/' , '150224_S2-W002_elastic_01_3600_3600/' , '150303_S2-W003_elastic_01_3600_3600/')
 
-		index = re.compile(r'(\d+)_')
-		def numberSort(filename):
-			return index.split(filename)[1]
+		# index = re.compile(r'(\d+)_')
+		# def numberSort(filename):
+		# 	return index.split(filename)[1]
 
-		for folder in folders:
-			path = base + folder
-			for z_tif in sorted(os.listdir(path), key=numberSort):
+		# for folder in folders:
+		# 	path = base + folder
+		# 	for z_tif in sorted(os.listdir(path), key=numberSort):
 
-				self.filestack.append(path+z_tif)
-
-
-		print self.filestack
+		# 		self.filestack.append(path+z_tif)
 
 
-		#I'm loading everything in ram because is an small stack
-		#Otherwise never do it 
-		#self.input = tifffile.imread('../../alignment/stack.tif')
+		# print self.filestack
 
-		#The maximun of a tiff is 4gb, if our dataset is larger we should create one tiff
-		#Per z-plane.
-		#You could use this constructor to get the stack dimensions.
-		#self.dims =  numpy.asarray(self.input.shape)
+
+		# I'm loading everything in ram because is an small stack
+		# Otherwise never do it 
+		self.input = tifffile.imread('../../alignment/stack.tif')
+
+		# The maximun of a tiff is 4gb, if our dataset is larger we should create one tiff
+		# Per z-plane.
+		# You could use this constructor to get the stack dimensions.
+		self.dims =  numpy.asarray(self.input.shape)
 
 		return
 
