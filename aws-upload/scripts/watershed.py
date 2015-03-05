@@ -4,7 +4,7 @@ import re
 from subprocess import call
 import h5py
 
-from node_specification import *
+from global_vars import *
 
 #Read the merged znn output
 f = h5py.File('../watershed/znn_merged.hdf5', 'r')

@@ -10,9 +10,7 @@ from PIL.ImageDraw import Draw
 #Custom packages
 import znn
 from stack import Stack
-
-#How many chuncks do we want z,y,x
-divs = numpy.array([1, 2, 2])
+from global_vars import *
 
 #Read aligned stack
 stack = Stack()
@@ -20,13 +18,22 @@ stack = Stack()
 #Save dimension of the stack z,y,x
 dims = stack.getStackDimensions()
 
-# We will apply two neural networks (stage1 and stage2)
-# We need to know the field of view of each stage, and the "effective" field of view
-# i.e. the FoV combined of both stages
-fov_stage1 = numpy.array([1,109,109])
-fov_stage2 = numpy.array([9,65,65])
-fov_effective = numpy.array([8,172,172])
+#How many chuncks do we should have z,y,x
+min_timeRequired = numpy.float('inf')
+for z in range(1,max_nodes+1):
+	for y in range(1,max_nodes+1):
+		for x in range(1,max_nodes+1):
+			
+			if x*y*z > max_nodes:
+				continue
 
+			test_divs = numpy.array([z,y,x])
+			timeRequired = numpy.prod( (dims+fov_effective*(test_divs-1)) / test_divs)
+			if timeRequired < min_timeRequired:
+				min_timeRequired = timeRequired
+				divs = test_divs
+
+print 'we will make ',divs,'chunks'
 
 #Estimate how long will it take, and how much computation is wasted because of overlapping
 computedSize = dims + fov_effective * (divs - 1)

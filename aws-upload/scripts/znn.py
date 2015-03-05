@@ -2,7 +2,7 @@ import math
 import numpy
 import json
 
-from node_specification import *
+from global_vars import *
 
 def stage1Data(c):
 	with  open('../data/{0}/data_spec/stage1.1.spec'.format(c['filename']),'w') as myfile:
@@ -43,45 +43,40 @@ ppargs=-1,1"""
 
 
 
-def getOutSize(input_size , fov, stage):
-
-	if stage == 1:
-	 	architecture_multiplyer = 1.0 * 10**5
-	else:
-	 	architecture_multiplyer = 0.5 * 10**5
-
-	#Given the input size and the field of view, we compute the output size
-	output_size = input_size - fov + numpy.array([1,1,1])
-
-	#We want to have a subvolume, which is a divisor of the output_size , and has shape which is similar
-	#to the shape of the field of view
-	#and uses an ammount of memory closer to the maximun memory
-	best_score = 0
-	best_conf = None
-	for z in list(divisorGenerator(output_size[0])):
-		for y in list(divisorGenerator(output_size[1])):
-			for x in list(divisorGenerator(output_size[2])):
-				conf = numpy.array([z, y, x])
-				#Check memory usage for this configuration
-				memory_used = numpy.prod(conf + fov - numpy.array([1,1,1])) * architecture_multiplyer
-
-				#Lets threat this configuration and the fov as vectors, and check how alignn both are.
-				#We want the configuration to have a similar shape to FoV
-				fov_versor = fov/numpy.linalg.norm(fov)
-				conf_versor = conf/numpy.linalg.norm(conf)
-				fov_score = 1.0 / numpy.std(conf/fov.astype(float)) * memory_used
-
-				if memory_used < memory and fov_score > best_score:
-					best_score = fov_score
-					best_conf = conf
+def optimal_outsz(chunk_size_in, fov_in, max_memory = 200 * 10**9, architecture_multiplier= 5 * 10**5, div_precision = 50):
 	
-	print 'output_size', output_size ,' fov ', fov , ' outz' , best_conf , best_score
-	return best_conf
+	max_score = 0
+	best_outsz = None
+
+	#We don't want to overight our input
+	chunk_size = chunk_size_in.copy().astype(float)
+	fov = fov_in.copy().astype(float)
+
+	for z in numpy.linspace(1, chunk_size[0] , div_precision , dtype=int):
+		for y in numpy.linspace(1, chunk_size[1] , div_precision , dtype=int):
+			for x in  numpy.linspace(1, chunk_size[2] ,div_precision , dtype=int):
+
+				outsz = numpy.array([z,y,x])
+				memory = numpy.prod(outsz + fov - 1) * architecture_multiplier
+				if memory > max_memory:
+					continue
+
+
+				efficiency_subvolume = chunk_size / (numpy.ceil(chunk_size/outsz) * (outsz + fov - 1))
+				efficiency_outsz = outsz / (outsz + fov -1)
+				score = numpy.prod(efficiency_subvolume) * numpy.prod(efficiency_outsz) 
+
+				if score > max_score:
+					max_score = score
+					best_outsz = outsz
+
+	print best_outsz
+	return best_outsz
 
 
 def stage1Train(c,input_size,fov):
 
-	outz = getOutSize(input_size , fov,1 )
+	outsz = optimal_outsz(input_size , fov)
 
 	with  open('../data/{0}/trainning_spec/stage1.spec'.format(c['filename']),'w') as myfile:
 		template = """[PATH]
@@ -113,7 +108,7 @@ outname={outname}"""
 					"path_data":'./data/{0}/data_spec/stage1.'.format(c['filename']),
 					"path_save":'./data/{0}/output/'.format(c['filename']),  #this is the path to outname
 					"threads":threads,
-					"output_path_size":'{0},{1},{2}'.format(outz[2],outz[1],outz[0]), #x,y,z from z,y,x 
+					"output_path_size":'{0},{1},{2}'.format(outsz[2],outsz[1],outsz[0]), #x,y,z from z,y,x 
 					"outname":'stage1'
 		} 
 
@@ -124,7 +119,7 @@ outname={outname}"""
 
 def stage2Train(c,input_size, fov):
 
-	outz = getOutSize(input_size , fov, 2 )
+	outsz = optimal_outsz(input_size , fov)
 
 
 	with  open('../data/{0}/trainning_spec/stage2.spec'.format(c['filename']),'w') as myfile:
@@ -157,7 +152,7 @@ outname={outname}"""
 					"path_data":'./data/{0}/data_spec/stage2.'.format(c['filename']),
 					"path_save":'./data/{0}/output/'.format(c['filename']),  #this is the path to outname
 					"threads":threads,
-					"output_path_size":'{0},{1},{2}'.format(outz[2],outz[1],outz[0]), #x,y,z from z,y,x 
+					"output_path_size":'{0},{1},{2}'.format(outsz[2],outsz[1],outsz[0]), #x,y,z from z,y,x 
 					"outname":'stage2'
 		} 
 		myfile.write(template.format(**context))
@@ -191,17 +186,3 @@ def load_size(chunk_name):
 
 	with open('data.json', 'rb') as fp:
 		return json.load(fp)
-
-
-def divisorGenerator(n):
-
-	n = int(n)
-	large_divisors = []
-	for i in xrange(1, int(math.sqrt(n) + 1)):
-		if n % i is 0:
-			yield i
-			if i is not n / i:
-				large_divisors.insert(0, n / i)
-	for divisor in large_divisors:
-		yield divisor
-

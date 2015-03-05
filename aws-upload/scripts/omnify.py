@@ -1,6 +1,6 @@
 import numpy
 
-from node_specification import *
+from global_vars import *
 
 dendValues = numpy.fromfile('../watershed/data/input.dend_values', dtype='single' )
 dend = numpy.fromfile('../watershed/data/input.dend_pairs', dtype = 'uint32')
