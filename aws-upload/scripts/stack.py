@@ -9,35 +9,17 @@ import os
 class Stack:
 
 	def __init__ (self):
-		
-		self.filestack = list() 
+			
 
-		#For production
-		# base = '/usr/people/it2/seungmount/research/tommy/S2_renders/'
-		# folders = ('150218_S2-W001_elastic_01_3600_3600/' , '150224_S2-W002_elastic_01_3600_3600/' , '150303_S2-W003_elastic_01_3600_3600/')
+		if  os.path.isfile('../../alignment/stack.hdf5'):
+			f = h5py.File('../../alignment/stack.hdf5', 'r')
+			self.input = f['/main']
+			self.dims =  numpy.asarray(self.input.shape)
 
-		# index = re.compile(r'(\d+)_')
-		# def numberSort(filename):
-		# 	return index.split(filename)[1]
+		else:
+			self.convertToHDF5(crop= numpy.array([0, 0 , 0]) , outputPath='../../alignment/stack.hdf5')
+			#Compress this to .7z to make it smaller than the original tiff for uploading
 
-		# for folder in folders:
-		# 	path = base + folder
-		# 	for z_tif in sorted(os.listdir(path), key=numberSort):
-
-		# 		self.filestack.append(path+z_tif)
-
-
-		# print self.filestack
-
-
-		# I'm loading everything in ram because is an small stack
-		# Otherwise never do it 
-		self.input = tifffile.imread('../../alignment/stack.tif')
-
-		# The maximun of a tiff is 4gb, if our dataset is larger we should create one tiff
-		# Per z-plane.
-		# You could use this constructor to get the stack dimensions.
-		self.dims =  numpy.asarray(self.input.shape)
 
 		return
 
@@ -45,59 +27,102 @@ class Stack:
 
 		return self.dims
 
-	def getChunk(self, z_max, z_min, y_max, y_min, x_max, x_min):
 
-		#When we use a large stack, there will be some more complex logic here to retrieve the chunck
-		#because we will load the required z-planes as needed.
+	def checkAxis(self, provided, real_min, real_max):
 
-		return self.input[z_min:z_max, y_min:y_max, x_min:x_max].astype('double')
+		provided_min = 0
+		provided_max = 0
 
-	def convertToHDF5(self, fov = numpy.array([8, 172 ,172])):
+		if  isinstance(provided,slice):
+			provided_min = provided.start
+			provided_max = provided.stop
+		elif isinstance(provided,int):
+			provided_min = provided
+			provided_max = provided + 1
+		else:
+			raise Exception('Unkown type of slice')
+
+		if provided_min > provided_max:
+			raise Exception('axis in reverse order')
+
+		if provided_min == None:
+			provided_min = real_min
+
+		if provided_max == None:
+			provided_max = real_max
+
+		return provided_min, provided_max
+
+	def __getitem__(self, slice):
+
+		if len(slice) != 3:
+			raise Exception('You should expecify z,y,x')
+
+		z_min , z_max = self.checkAxis(slice[0], 0 , self.dims[0])
+		y_min , y_max = self.checkAxis(slice[1], 0 , self.dims[1])
+		x_min , x_max = self.checkAxis(slice[2], 0 , self.dims[2])
+
+		return self.input[z_min:z_max, y_min:y_max, x_min:x_max].astype('double')	
+
+	def convertToHDF5(self, outputPath ,crop = numpy.array([0, 0 , 0])):
+
+		#For test
+		# I'm loading everything in ram because is an small stack
+		# Otherwise never do it 
+		#self.input = tifffile.imread('../../alignment/stack.tif')
+
+		# The maximun of a tiff is 4gb, if our dataset is larger we should create one tiff
+		# Per z-plane.
+		# You could use this constructor to get the stack dimensions.
 
 		#We need to crop a margin based on the field of view , which is in z,y,x dimensiones
 		#And then save it as a hdf5 which omnify is able to read.
 
 		#this implementation required to load everything in ram
-		dims = self.getStackDimensions()
-
-		z_min = fov[0]/2 ; z_max = dims[0] - fov[0]/2
-		y_min = fov[1]/2 ; y_max = dims[1] - fov[1]/2
-		x_min = fov[2]/2 ; x_max = dims[2] - fov[2]/2
 
 
-		#Divide the input in the z-dimension and process one chunk at the time
-		z_plane_size = (x_max - x_min) * (y_max - y_min) * 8 #bytes for each double
-		divs = numpy.ceil(z_max / (memory / z_plane_size)).astype(int) 
-		
+		#For production
+		base = '../../alignment/'
+		folders = ('150218_S2-W001_elastic_01_3600_3600/' , '150224_S2-W002_elastic_01_3600_3600/' , '150303_S2-W003_elastic_01_3600_3600/','150304_S2-W004_elastic_01_3600_3600')
+
+		index = re.compile(r'(\d+)_')
+		def numberSort(filename):
+			return index.split(filename)[1]
+
+		self.filestack = list() 
+		for folder in folders:
+			path = base + folder
+			for z_tif in sorted(os.listdir(path), key=numberSort):
+				self.filestack.append(path+z_tif)
+
+		# #read the first one to figure out the size
+		# #We assume all z-planes has the same size
+		plane_shape = numpy.array(tifffile.imread(self.filestack[0]).shape)
+		self.dims = numpy.concatenate((numpy.array([len(self.filestack)]) ,plane_shape)) 
+
+		z_min = crop[0]/2 ; z_max = self.dims[0] - crop[0]/2
+		y_min = crop[1]/2 ; y_max = self.dims[1] - crop[1]/2
+		x_min = crop[2]/2 ; x_max = self.dims[2] - crop[2]/2
+
 		#Open hdf5 file, and specified chunck size
-		f = h5py.File('../omnify/stack.chann.hdf5', "w" )
+		f = h5py.File(outputPath, "w" )
 
-		channel_size = 	dims - fov 
-		chunk_size =  dims - fov 
-		chunk_size[0] = chunk_size[0]/divs
+		channel_size = 	self.dims - crop 
+		chunk_size =  self.dims - crop
+		chunk_size[0] = 1
+
 
 		#Should we used compression="gzip" on this?
-		dset = f.create_dataset('/main', tuple(channel_size) , chunks=tuple(chunk_size) , compression="gzip")		
+		dset = f.create_dataset('/main', tuple(channel_size) , chunks=tuple(chunk_size))		
 
-		for z_chunk_max in numpy.linspace(z_min, z_max.astype(int) , divs +1):
-			z_chunk_max = z_chunk_max.astype(int)
-
-			if z_chunk_max == z_min:
-				z_chunk_min = z_min
-				continue
-
+		for z in range(channel_size[0]):
 			#print z_chunk_max, z_chunk_min 
-			cropped = self.getChunk(z_chunk_max, z_chunk_min, y_max, y_min, x_max, x_min)
+			cropped = tifffile.imread(self.filestack[0])[y_min:y_max , x_min:x_max]
 			#Normalize and change dtype
-			cropped = cropped.astype('float32')
-			cropped = ( cropped - cropped.min()) / (cropped.max() - cropped.min())
+			cropped = cropped/255.0
 
 			#save the chunck
-			dset[0:z_chunk_max-z_chunk_min, 0:y_max-y_min, 0:x_max-x_min] = cropped
-
-			#For next loop
-			z_chunk_min = z_chunk_max
-
+			dset[z, 0:y_max-y_min, 0:x_max-x_min] = cropped
 
 		f.close()
 		return
@@ -107,5 +132,9 @@ if __name__ == "__main__":
 
 	#If you directly call this file create hdf5
 	s = Stack()
-	#s.convertToHDF5()
+	
+	#Create cropped channel data for omnifying
+	#if we divide the watershed output in many omnifiles
+	#omnify.py will be responsable of doing it
+	s.convertToHDF5(crop = fov_effective-1, outputPath='../omnify/stack.chann.hdf5')
 
