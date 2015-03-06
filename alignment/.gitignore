@@ -1,1 +1,7 @@
-largestack.tif
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!stack.tif
+
