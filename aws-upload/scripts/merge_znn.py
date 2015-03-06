@@ -66,8 +66,9 @@ for z_znn in range(max_z+1):
 			print chunk_dir , ' Merged from '
 			dset[:, zabs:zabs+znn_chunk_size[0], yabs:yabs+znn_chunk_size[1], xabs:xabs+znn_chunk_size[2]] = znn_chunk_affinity
 
-			zabs = zabs+znn_chunk_size[0]
-			yabs = yabs+znn_chunk_size[1]
 			xabs = xabs+znn_chunk_size[2]
+		yabs = yabs+znn_chunk_size[1]
+	zabs = zabs+znn_chunk_size[0]
+
 
 f.close()
