@@ -13,8 +13,8 @@ class Stack:
 		self.filestack = list() 
 
 		#For production
-		# base = '/usr/people/it2/seungmount/research/tommy/S2_renders/'
-		# folders = ('150218_S2-W001_elastic_01_3600_3600/' , '150224_S2-W002_elastic_01_3600_3600/' , '150303_S2-W003_elastic_01_3600_3600/')
+		# base = '../../alignment/'
+		# folders = ('150218_S2-W001_elastic_01_3600_3600/' , '150224_S2-W002_elastic_01_3600_3600/' , '150303_S2-W003_elastic_01_3600_3600/','150304_S2-W004_elastic_01_3600_3600')
 
 		# index = re.compile(r'(\d+)_')
 		# def numberSort(filename):
@@ -23,13 +23,14 @@ class Stack:
 		# for folder in folders:
 		# 	path = base + folder
 		# 	for z_tif in sorted(os.listdir(path), key=numberSort):
-
 		# 		self.filestack.append(path+z_tif)
 
+		# #read the first one to figure out the size
+		# #We assume all z-planes has the same size
+		# plane_shape = numpy.array(tifffile.imread(self.filestack[0]).shape)
+		# self.dims = numpy.concatenate((numpy.array([len(self.filestack)]) ,plane_shape)) 
 
-		# print self.filestack
-
-
+		#For test
 		# I'm loading everything in ram because is an small stack
 		# Otherwise never do it 
 		self.input = tifffile.imread('../../alignment/stack.tif')
@@ -44,6 +45,41 @@ class Stack:
 	def getStackDimensions(self):
 
 		return self.dims
+
+	def __getitem__(self, slice):
+
+		print slice
+		if len(slice) != 3:
+			raise Exception('You should expecify z,y,x')
+
+
+		def checkAxis(provided, real_min, real_max):
+			# if type(provided) == 'slice':
+			# 	provided_min = provided.start
+			# 	provided_max = provided.stop
+			# elif 
+
+			if provided_min > provided_max:
+				raise Exception('axis in reverse order')
+
+			if provided_min == None:
+				provided_min = real_min
+
+			if provided_max == None:
+				provided_max = real_max
+
+			return provided_min, provided_max
+
+		# z_min , z_max = checkAxis(slice[0].start, slice[0].stop, 0 , self.dims[0])
+			
+		# y_min = slice[1].start	
+		# y_max = slice[1].stop
+
+		# x_min = slice[2].start	
+		# x_max = slice[2].stop
+
+		# print   z_min, z_max , y_min ,y_max, x_min , x_max
+		# return
 
 	def getChunk(self, z_max, z_min, y_max, y_min, x_max, x_min):
 
@@ -107,5 +143,7 @@ if __name__ == "__main__":
 
 	#If you directly call this file create hdf5
 	s = Stack()
+	print s.dims
+	print s[1,0:2,0:1]
 	#s.convertToHDF5()
 
