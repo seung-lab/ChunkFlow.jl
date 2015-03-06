@@ -39,16 +39,15 @@ ppargs=-1,1"""
 		} 
 		myfile.write(template.format(**context)) 
 
-
-
-
-
 def optimal_outsz(input_size, fov_in, max_memory = 200 * 10**9, architecture_multiplier= 5 * 10**5, div_precision = 50):
-	
-	max_score = 0
+	#So based on the chunk size (`input_size`), and the fov of the current stage `fov_in`
+	#we do a grid search from [1,1,1] to `chunk_size` which is the output size of the chunk 
+	#and it choose the best_outz based on the metric `score`
+
+	min_score = numpy.float('inf')
 	best_outsz = None
 
-	#We don't want to overight our input
+	#We don't want to overright input_size
 	chunk_size = input_size.astype(float) - fov_in + 1
 	fov = fov_in.copy().astype(float)
 
@@ -61,13 +60,10 @@ def optimal_outsz(input_size, fov_in, max_memory = 200 * 10**9, architecture_mul
 				if memory > max_memory:
 					continue
 
+				computation_done = numpy.prod(numpy.ceil(chunk_size/outsz) * (outsz + fov - 1))
 
-				efficiency_subvolume = chunk_size / (numpy.ceil(chunk_size/outsz) * (outsz + fov - 1))
-				efficiency_outsz = outsz / (outsz + fov -1)
-				score = numpy.prod(efficiency_subvolume) * numpy.prod(efficiency_outsz) 
-
-				if score > max_score:
-					max_score = score
+				if computation_done < min_score:
+					min_score = computation_done
 					best_outsz = outsz
 
 	print best_outsz
