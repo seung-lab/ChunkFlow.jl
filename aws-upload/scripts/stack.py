@@ -83,7 +83,7 @@ class Stack:
 
 		#For production
 		base = '../../alignment/'
-		folders = ('150218_S2-W001_elastic_01_3600_3600/',)
+		folders = ('150218_S2-W001_elastic_01_3600_3600/','150224_S2-W002_elastic_01_3600_3600/','150303_S2-W003_elastic_01_3600_3600/','150306_S2-W004_elastic_01_3600_3600/')
 
 		index = re.compile(r'(\d+)_')
 		def numberSort(filename):
@@ -116,7 +116,8 @@ class Stack:
 		dset = f.create_dataset('/main', tuple(channel_size) , chunks=tuple(chunk_size))		
 
 		for z in range(channel_size[0]):
-			#print z_chunk_max, z_chunk_min 
+			
+			print self.filestack[z] 
 			cropped = tifffile.imread(self.filestack[z])[y_min:y_max , x_min:x_max]
 			#Normalize and change dtype
 			cropped = cropped/255.0
@@ -136,5 +137,5 @@ if __name__ == "__main__":
 	#Create cropped channel data for omnifying
 	#if we divide the watershed output in many omnifiles
 	#omnify.py will be responsable of doing it
-	s.convertToHDF5(crop = fov_effective-1, outputPath='../omnify/stack.chann.hdf5')
+	#s.convertToHDF5(crop = fov_effective-1, outputPath='../omnify/stack.chann.hdf5')
 
