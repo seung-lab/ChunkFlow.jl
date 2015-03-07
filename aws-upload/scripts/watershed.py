@@ -39,9 +39,11 @@ else:
 
 
 sizes = open('../watershed/data/input.chunksizes','w')
+
 affinities = open('../watershed/data/input.affinity.data','w')
 os.makedirs('../watershed/data/input.chunks')
 
+print 'znn shape',znn.shape
 
 #Iterate trough watershed chunks
 #remember the first dimension of znn is 3, because in an affinity
@@ -80,10 +82,10 @@ for z_chunk_max in numpy.linspace(0, znn.shape[1] , chunk_divs[0]+1):
 
 			print 'prepared chunk {0}:{1}:{2} , position [{3}-{4} , {5}-{6}, {7}-{8}] size: [ {9} {10} {11} ]'.format(xabs, yabs, zabs,cfrom[0],cto[0],cfrom[1], cto[1],cfrom[2], cto[2] , size[0], size[1], size[2])
 				
-			affin = znn[:,cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2]]
+			affin = znn[:,cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2]].astype('float32')
 			affinities.write(affin.tostring())
-			sz = numpy.asarray(affin.shape[1:4]).astype('int32')
-			sizes.write(sz.tostring())
+			sz = numpy.asarray(affin.shape[1:4])[::-1].astype('int32')
+			sizes.write(sz)
 
 			xabs+=1
 			x_chunk_min = x_chunk_max
@@ -99,4 +101,4 @@ affinities.close()
 numpy.array([32, 32, xabs, yabs, zabs]).astype('int32').tofile('../watershed/data/input.metadata')
 
 #Run watershed
-call(["../watershed/src/zi/watershed/main/bin/xxlws", "--filename=../watershed/data/input", "--high=0.99", "--low=0.1", "--dust=25", "--dust_low=0.1"])
+call(["../watershed/src/zi/watershed/main/bin/xxlws", "--filename=../watershed/data/input", "--high=0.985", "--low=0.2", "--dust=100", "--dust_low=0.1"])
