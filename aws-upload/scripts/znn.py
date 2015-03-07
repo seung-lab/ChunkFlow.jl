@@ -82,7 +82,7 @@ def optimal_outsz(input_size, fov_in, max_memory = 200 * 10**9, architecture_mul
 
 def stage1Train(c,input_size,fov):
 
-	outsz = optimal_outsz(input_size , fov, architecture_multiplier= 2 * 10**5)
+	outsz = optimal_outsz(input_size , fov, architecture_multiplier= 2.4 * 10**5)
 
 	with  open('../data/{0}/trainning_spec/stage1.spec'.format(c['filename']),'w') as myfile:
 		template = """[PATH]
@@ -125,7 +125,7 @@ outname={outname}"""
 
 def stage2Train(c,input_size, fov):
 
-	outsz = optimal_outsz(input_size , fov , architecture_multiplier= 2 * 10**5)
+	outsz = optimal_outsz(input_size , fov , architecture_multiplier= 1.5 * 10**5)
 
 
 	with  open('../data/{0}/trainning_spec/stage2.spec'.format(c['filename']),'w') as myfile:
