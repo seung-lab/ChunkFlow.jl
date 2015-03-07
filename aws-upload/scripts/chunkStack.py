@@ -196,9 +196,14 @@ for c in chunks:
 	os.chmod('../data/{0}/trainning_spec/run.sh'.format(c['filename']), st.st_mode | 0111 )
 
 	#Add run.sh file to the job list
-	#production
-	jobs.write('qsub -V -b y -cwd ./data/{0}/trainning_spec/run.sh \n'.format(c['filename']))
-	#test
+	#For production
+	#The -r argument instructs the queueing system to re-execute the same job on a different worker node 
+	#if the currently running worker node fails or is terminated. With all jobs marked as ‘re-runnable’ 
+	#a given spot instance can be terminated and any running jobs on the instance will simply be restarted 
+	#on a different worker. This approach does not resume a job where it left off before it was interrupted,
+	#however, it does ensure that it will eventually be completed if and when resources are available. 
+	jobs.write('qsub -r -V -b y -cwd ./data/{0}/trainning_spec/run.sh \n'.format(c['filename']))
+	#For test
 	#jobs.write('./data/{0}/trainning_spec/run.sh \n'.format(c['filename']))
 
 
