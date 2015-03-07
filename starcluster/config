@@ -188,7 +188,7 @@ PLUGINS = sge  #This sets the number of slots to equal the number of nodes
 # Sections starting with "volume" define your EBS volumes
 [volume data]
 # attach vol-c9999999 to /home on master node and NFS-shre to worker nodes
-VOLUME_ID = vol-cd1272d6
+VOLUME_ID = vol-f87a26e3
 MOUNT_PATH = /home
 
 # Same volume as above, but mounts to different location

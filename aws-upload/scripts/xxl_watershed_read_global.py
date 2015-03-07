@@ -67,9 +67,9 @@ def write_cmd( fname ):
     cmdfname = '../omnify/' + fname + ".cmd"
     fcmd = open(cmdfname, 'w')
     fcmd.write('create:'+ fname+'.omni\n')
-    fcmd.write('loadHDF5chann:' + '../omnify/'+ fname + '.chann.h5\n')
+    fcmd.write('loadHDF5chann:' + fname + '.chann.h5\n')
     fcmd.write('setChanResolution:1,7,7,40\n')
-    fcmd.write('loadHDF5seg:../watershed/'+ fname +'.h5\n')
+    fcmd.write('loadHDF5seg:'+ fname +'.segm.h5\n')
     fcmd.write('setSegResolution:1,7,7,40\n')
     fcmd.write('mesh\n')
     fcmd.write('quit\n\n')
@@ -98,11 +98,8 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
     seg = ftmp.create_dataset('/main', tuple(s), \
              chunks=tuple(width), dtype='uint32' )
     
-    channfilename = '../omnify/stack.chann.hdf5'
-    fchann = h5py.File( channfilename, 'r')
-    chann = fchann['/main']
-    
     # feed the temporal volume with chunks
+    print "feed the temporal volume with chunks ..."
     zabs = 0
     for z_chunk in range(chunkNum[0]):
         yabs = 0        
@@ -118,8 +115,8 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
 #                print "Cabs: {},{},{}".format(zabs,yabs,xabs)
 #                print "cfrom: {}".format(cfrom)
 #                print "cto: {}".format(cto)
-                fname = filename + '.chunks/' + str(x_chunk) + '/' + str(y_chunk) + '/' + str(z_chunk) + '/.seg'
-                chk = np.reshape( np.fromfile(fname, dtype='uint32' ), sze)
+                segfname = filename + '.chunks/' + str(x_chunk) + '/' + str(y_chunk) + '/' + str(z_chunk) + '/.seg'
+                chk = np.reshape( np.fromfile(segfname, dtype='uint32' ), sze, order='F')
                 seg[ cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2] ] = chk[ 1:-1, 1:-1, 1:-1 ]
                
                 xabs +=  sze[2]-3
@@ -128,9 +125,19 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
     # the dend and dend values
     dendValues = np.fromfile( filename + '.dend_values', dtype='single' )
     dend = np.fromfile( filename + '.dend_pairs', dtype = 'uint32' )
-    dend = dend.reshape((2, len(dendValues)))    
+    dend = dend.reshape((2, len(dendValues)))  
     
+    ftmp.close()  
+    ftmp = h5py.File( tmpfilename, "r" )
+    seg = ftmp['/main']
+             
+    print "get the blocks ..."
     # get the blocks of seg
+
+    channfilename = '../omnify/stack.chann.hdf5'
+    fchann = h5py.File( channfilename, 'r')
+    chann = fchann['/main']    
+    
     blockid = 0
     for bz in range(0, s[0], blocksize[0]):
         for by in range(0, s[1], blocksize[1]):
@@ -149,7 +156,7 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
                         "_Y" + str(bfrom[1]) + '-' + str(bto[1]-1) + \
                         "_X" + str(bfrom[2]) + '-' + str(bto[2]-1)
                 # write the segmentation h5 file
-                h5fname = '../watershed/' + fname + ".h5"
+                h5fname = '../omnify/' + fname + ".segm.h5"
                 write_h5_with_dend( h5fname, block, chunk_dend, chunk_dendValues )
                 
                 # write channel data
@@ -189,7 +196,7 @@ if __name__ == "__main__":
     # the path of omnify binary
     omnifybin = 'bash ../omnify/omnify.sh'
     # the block size and overlap size, z,y,x
-    blocksize = np.array([200, 200, 200])
+    blocksize = np.array([159, 452, 452])
     overlap = np.array([2,2,2])
     
     # run function

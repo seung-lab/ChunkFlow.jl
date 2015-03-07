@@ -58,17 +58,19 @@ for z_znn in range(max_z+1):
 			#Load znn chunks and concatenate it in one affinity, we assume this can fit in memory
 			#If it doesn't we should make znn chunks smaller
 			znn_chunk_size = numpy.fromfile('../data/{0}/output/stage21.0.size'.format(chunk_dir), dtype='uint32')[::-1]
+			print znn_chunk_size
 			znn_chunk_0 =  numpy.fromfile('../data/{0}/output/stage21.0'.format(chunk_dir), dtype='double').reshape(znn_chunk_size)
 			znn_chunk_1 =  numpy.fromfile('../data/{0}/output/stage21.1'.format(chunk_dir), dtype='double').reshape(znn_chunk_size)
 			znn_chunk_2 =  numpy.fromfile('../data/{0}/output/stage21.2'.format(chunk_dir), dtype='double').reshape(znn_chunk_size)
 			znn_chunk_affinity = numpy.concatenate((znn_chunk_0[None,...],znn_chunk_1[None,...],znn_chunk_2[None,...]), axis=0)
 
-			print chunk_dir , ' Merged from '
+			print chunk_dir , ' Merged'
 			dset[:, zabs:zabs+znn_chunk_size[0], yabs:yabs+znn_chunk_size[1], xabs:xabs+znn_chunk_size[2]] = znn_chunk_affinity
 
 			xabs = xabs+znn_chunk_size[2]
 		yabs = yabs+znn_chunk_size[1]
 	zabs = zabs+znn_chunk_size[0]
 
+print dset.shape
 
 f.close()
