@@ -26,6 +26,8 @@ minimun_divs =  numpy.array([1 , 1 , 1]) * numpy.ceil(threads ** .333).astype(in
 if numpy.prod(chunk_divs) < numpy.prod(minimun_divs):
 	chunk_divs = minimun_divs
 
+chunk_divs = numpy.array([1 , 1 , 1])
+
 if not os.path.exists('../watershed/data'):
 	os.makedirs('../watershed/data')
 else:
@@ -101,4 +103,4 @@ affinities.close()
 numpy.array([32, 32, xabs, yabs, zabs]).astype('int32').tofile('../watershed/data/input.metadata')
 
 #Run watershed
-call(["../watershed/src/zi/watershed/main/bin/xxlws", "--filename=../watershed/data/input", "--high=0.985", "--low=0.2", "--dust=100", "--dust_low=0.1"])
+call(["../watershed/src/zi/watershed/main/bin/xxlws", "--filename=../watershed/data/input", "--high=0.97", "--low=0.2", "--dust=1000", "--dust_low=0.1"])
