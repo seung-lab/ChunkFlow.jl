@@ -4,6 +4,8 @@ import json
 
 from global_vars import *
 
+cache = dict()
+
 def stage1Data(c):
 	with  open('../data/{0}/data_spec/stage1.1.spec'.format(c['filename']),'w') as myfile:
 
@@ -43,6 +45,13 @@ def optimal_outsz(input_size, fov_in, max_memory = 200 * 10**9, architecture_mul
 	#So based on the chunk size (`input_size`), and the fov of the current stage `fov_in`
 	#we do a grid search from [1,1,1] to `chunk_size` which is the output size of the chunk 
 	#and it choose the best_outz based on the metric `score`
+	
+	#implement a cache because this takes long to run
+	args = {'input_size':input_size.tostring(), 'fov_in':fov_in.tostring(), 'max_memory':max_memory, 'architecture_multiplier':architecture_multiplier , 'div_precision':div_precision}
+	args = frozenset(args.items())
+	if args in cache:
+		print 'from cache' , cache[args]
+		return cache[args]
 
 	min_score = numpy.float('inf')
 	best_outsz = None
@@ -67,6 +76,7 @@ def optimal_outsz(input_size, fov_in, max_memory = 200 * 10**9, architecture_mul
 					best_outsz = outsz
 
 	print best_outsz
+	cache[args] = best_outsz
 	return best_outsz
 
 
