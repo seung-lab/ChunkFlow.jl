@@ -83,7 +83,7 @@ class Stack:
 
 		#For production
 		base = '../../alignment/'
-		folders = ('150218_S2-W001_elastic_01_3600_3600/' , '150224_S2-W002_elastic_01_3600_3600/' , '150303_S2-W003_elastic_01_3600_3600/','150304_S2-W004_elastic_01_3600_3600')
+		folders = ('150218_S2-W001_elastic_01_3600_3600/',)
 
 		index = re.compile(r'(\d+)_')
 		def numberSort(filename):
@@ -117,7 +117,7 @@ class Stack:
 
 		for z in range(channel_size[0]):
 			#print z_chunk_max, z_chunk_min 
-			cropped = tifffile.imread(self.filestack[0])[y_min:y_max , x_min:x_max]
+			cropped = tifffile.imread(self.filestack[z])[y_min:y_max , x_min:x_max]
 			#Normalize and change dtype
 			cropped = cropped/255.0
 
