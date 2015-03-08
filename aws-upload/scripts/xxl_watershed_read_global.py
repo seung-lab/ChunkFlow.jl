@@ -88,45 +88,58 @@ def write_runall_sh(blockNum):
 		fsh.write( 'sh chunk_' +str(idx+1) + '.sh\n' )
 	fsh.close()
 
-# out-of-core processing, generate a bunch of h5 files
-def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):       
-	chunkNum, chunkSizes, width, s = get_volume_info( filename )
+def show_chunk(chk, z):
+    import sys
+    sys.path.append("/usr/people/jingpeng/libs/")
+    import neupy.show
+    neupy.show.random_color_show( chk[z,:,:] )
 
-	# the temporal volume of whole dataset
-	import h5py
-	tmpfilename = '../watershed/tmp_seg.h5'
-	ftmp = h5py.File( tmpfilename, "w" )
-	seg = ftmp.create_dataset('/main', tuple(s), \
+# out-of-core processing, generate a bunch of h5 files
+def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
+    chunkNum, chunkSizes, width, s = get_volume_info( filename )
+
+    # the temporal volume of whole dataset
+    import h5py
+    tmpfilename = '../watershed/tmp_seg.h5'
+    try:
+#        import os
+        os.remove(tmpfilename)
+    except OSError:
+        pass
+    ftmp = h5py.File( tmpfilename, "w" )
+    seg = ftmp.create_dataset('/main', tuple(s), \
 			 chunks=tuple(width), dtype='uint32' )
-	
-	# feed the temporal volume with chunks
-	print "feed the temporal volume with chunks ..."
-	zabs = 0
-	for z_chunk in range(chunkNum[0]):
-		yabs = 0        
-		for y_chunk in range(chunkNum[1]):
-			xabs = 0            
-			for x_chunk in range(chunkNum[2]):
-				sze = chunkSizes[z_chunk+y_chunk*chunkNum[0] + \
-						x_chunk * chunkNum[0] * chunkNum[1], :]
-				cfrom = np.array([zabs,yabs,xabs])+1
-				cto = cfrom + sze -2
-#                print "C: {},{},{}".format(z_chunk,y_chunk, x_chunk)
-#                print "size: {}".format(sze)
-#                print "Cabs: {},{},{}".format(zabs,yabs,xabs)
-#                print "cfrom: {}".format(cfrom)
-#                print "cto: {}".format(cto)
-				segfname = filename + '.chunks/' + str(x_chunk) + '/' + str(y_chunk) + '/' + str(z_chunk) + '/.seg'
-				chk = np.reshape( np.fromfile(segfname, dtype='uint32' ), sze)
-				seg[ cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2] ] = chk[ 1:-1, 1:-1, 1:-1 ]
-			   
-				xabs +=  sze[2]-3
-			yabs +=  sze[1]-3
-		zabs +=  sze[0]-3
+    
+    # feed the temporal volume with chunks
+    print "feed the temporal volume with chunks ..."
+    zabs = 0
+    for z_chunk in range(chunkNum[0]):
+        yabs = 0        
+        for y_chunk in range(chunkNum[1]):
+            xabs = 0            
+            for x_chunk in range(chunkNum[2]):
+                sze = chunkSizes[z_chunk+y_chunk*chunkNum[0] + \
+                        x_chunk * chunkNum[0] * chunkNum[1], :]    
+                cfrom = np.array([zabs,yabs,xabs])+1
+                cto = cfrom + sze -2
+                print "size: {}".format(sze)
+                print "C: {},{},{}".format(z_chunk,y_chunk, x_chunk)
+                print "Cabs: {},{},{}".format(zabs,yabs,xabs)
+                print "cfrom: {}".format(cfrom)
+                print "cto: {}".format(cto)
+                segfname = filename + '.chunks/' + str(x_chunk) + '/' + str(y_chunk) + '/' + str(z_chunk) + '/.seg'
+                chk = np.reshape( np.fromfile(segfname, dtype='uint32' ), sze)
+
+#                chk = chk.transpose((0,2,1))
+                
+                seg[ cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2] ] = chk[ 1:-1, 1:-1, 1:-1 ]			   
+                xabs +=  sze[2]-3
+            yabs +=  sze[1]-3
+        zabs +=  sze[0]-3
 	# the dend and dend values
-	dendValues = np.fromfile( filename + '.dend_values', dtype='single' )
-	dend = np.fromfile( filename + '.dend_pairs', dtype = 'uint32' )
-	dend = dend.reshape((2, len(dendValues)))  
+	dendValues = np.fromfile( filename + '.dend_values', dtype='single' )#[::-1]
+	dend = np.fromfile( filename + '.dend_pairs', dtype = 'uint32' )#[::-1]
+	dend = dend.reshape((len(dendValues), 2)).transpose()
 	
 	ftmp.close()  
 	ftmp = h5py.File( tmpfilename, "r" )
@@ -135,7 +148,7 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
 	print "get the blocks ..."
 	# get the blocks of seg
 
-	channfilename = '../omnify/stack.chann.hdf5'
+	channfilename = '../watershed/stack.chann.hdf5'
 	fchann = h5py.File( channfilename, 'r')
 	chann = fchann['/main']    
 	
@@ -158,6 +171,8 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
 						"_X" + str(bfrom[2]) + '-' + str(bto[2]-1)
 				# write the segmentation h5 file
 				h5fname = '../omnify/' + fname + ".segm.h5"
+    
+                     # note that here exist a transpose
 				write_h5_with_dend( h5fname, block, chunk_dend, chunk_dendValues )
 				
 				# write channel data
@@ -174,9 +189,7 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
 	write_runall_sh(blockid)
 				
 	# close and remove the temporal file
-	ftmp.close()    
-	import os
-	#os.remove(tmpfilename)
+	ftmp.close()
 	# close channel file
 	fchann.close()
 	
@@ -191,13 +204,12 @@ def evaluate_seg(h5filename, z):
 
 if __name__ == "__main__":
 	import os
-#    os.remove('../watershed/tmp_seg.h5')    
 	
 	filename = '../watershed/data/input'
 	# the path of omnify binary
 	omnifybin = 'bash ../omnify/omnify.sh'
 	# the block size and overlap size, z,y,x
-	blocksize = np.array([452, 452, 452])
+	blocksize = np.array([200, 200, 452])
 	overlap = np.array([2,2,2])
 	
 	# run function
