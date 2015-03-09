@@ -7,10 +7,10 @@ import h5py
 #import fortranfile
 #%% parameters
 znn_merged_h5file = '../watershed/znn_merged.hdf5'
-znn_merged_h5file = '/usr/people/jingpeng/seungmount/research/Ignacio/w0-4/omnify/znn_merged_W1234.hdf5'
+#znn_merged_h5file = '/usr/people/jingpeng/seungmount/research/Ignacio/w0-4/omnify/znn_merged_W1234.hdf5'
 
 # step 
-width = np.array([200, 200, 200], dtype='uint32')
+width = np.array([300, 300, 300], dtype='uint32')
 
 temp_path = '../watershed/data/'
 
