@@ -2,14 +2,14 @@ import os
 import numpy as np
 import h5py
 
-import sys
-sys.path.append('fortranfile-0.2.1')
-import fortranfile
+#import sys
+#sys.path.append('fortranfile-0.2.1')
+#import fortranfile
 #%% parameters
 znn_merged_h5file = '../watershed/znn_merged.hdf5'
 
 # step 
-width = np.array([500, 500, 500])
+width = np.array([200, 200, 200])
 
 temp_path = '../watershed/data/'
 
@@ -23,7 +23,6 @@ os.makedirs(temp_path + 'input.chunks/')
 #%% read hdf5
 f = h5py.File(znn_merged_h5file, 'r')
 affin = f['/main']
-#affin = np.transpose(affin, (0,1,3,2))
 
 s = np.array(affin.shape)[1:]
 
