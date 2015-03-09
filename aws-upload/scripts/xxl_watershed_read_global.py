@@ -123,10 +123,7 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
                 print "cfrom: {}".format(cfrom)
                 print "cto: {}".format(cto)
                 segfname = filename + '.chunks/' + str(x_chunk) + '/' + str(y_chunk) + '/' + str(z_chunk) + '/.seg'
-                chk = np.reshape( np.fromfile(segfname, dtype='uint32' ), sze)
-
-#                chk = chk.transpose((0,2,1))
-                
+                chk = np.reshape( np.fromfile(segfname, dtype='uint32' ), sze)                
                 seg[ cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2] ] = chk[ 1:-1, 1:-1, 1:-1 ]			   
                 xabs +=  sze[2]-3
             yabs +=  sze[1]-3
@@ -143,40 +140,44 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
 	print "get the blocks ..."
 	# get the blocks of seg
 
-	channfilename = '../watershed/stack.chann.hdf5'
-	fchann = h5py.File( channfilename, 'r')
-	chann = fchann['/main']    
-	
-	blockid = 0
-	for bx in range(0, s[2], blocksize[2]):
-		for by in range(0, s[1], blocksize[1]):
-			for bz in range(0, s[0], blocksize[0]):
-				blockid += 1                
-				bfrom = np.array([ bz, by, bx ])                
-				bto = np.minimum(s, bfrom+blocksize+overlap)
-				print "blockid: {}".format(blockid)
-				print "bfrom: {}".format(bfrom)
-				print "bto  : {}".format(bto)
-				block = seg[bfrom[0]:bto[0], bfrom[1]:bto[1], bfrom[2]:bto[2] ]
-				block, chunk_dend, chunk_dendValues = truncate_dend(block, dend, dendValues)
-				# write the h5 file
-				fname = "chunk_" + str(blockid) + \
-						"_Z" + str(bfrom[0]) + '-' + str(bto[0]-1) + \
-						"_Y" + str(bfrom[1]) + '-' + str(bto[1]-1) + \
-						"_X" + str(bfrom[2]) + '-' + str(bto[2]-1)
-				# write the segmentation h5 file
-				h5fname = '../omnify/' + fname + ".segm.h5"
-				write_h5_with_dend( h5fname, block, chunk_dend, chunk_dendValues )
+    channfilename = '../watershed/stack.chann.hdf5'
+    fchann = h5py.File( channfilename, 'r')
+    chann = fchann['/main']    
+    chann = np.transpose(chann, (0,2,1))
+    chann = (chann - chann.min()) / (chann.max() - chann.min())
+    
+    blockid = 0
+    for bx in range(0, s[2], blocksize[2]):
+        for by in range(0, s[1], blocksize[1]):
+            for bz in range(0, s[0], blocksize[0]):
+                blockid += 1                
+                bfrom = np.array([ bz, by, bx ])                
+                bto = np.minimum(s, bfrom+blocksize+overlap)
+                print "blockid: {}".format(blockid)
+                print "bfrom: {}".format(bfrom)
+                print "bto  : {}".format(bto)
+                block = seg[bfrom[0]:bto[0], bfrom[1]:bto[1], bfrom[2]:bto[2] ]
+                block, chunk_dend, chunk_dendValues = truncate_dend(block, dend, dendValues)
+                # write the h5 file
+                fname = "chunk_" + str(blockid) + \
+                        "_Z" + str(bfrom[0]) + '-' + str(bto[0]-1) + \
+                        "_Y" + str(bfrom[1]) + '-' + str(bto[1]-1) + \
+                        "_X" + str(bfrom[2]) + '-' + str(bto[2]-1)
+                # write the segmentation h5 file
+                h5fname = '../omnify/' + fname + ".segm.h5"
+                write_h5_with_dend( h5fname, block, chunk_dend, chunk_dendValues )
 				
-				# write channel data
-				block_chann = chann[bfrom[0]:bto[0], bfrom[1]:bto[1], bfrom[2]:bto[2] ]
-				write_h5_chann( '../omnify/'+fname+'.chann.h5', block_chann )
+                # write channel data
+                block_chann = chann[bfrom[0]:bto[0], bfrom[1]:bto[1], bfrom[2]:bto[2] ]
+#                block_chann = block_chann.transpose((0,2,1))
+#                block_chann = (block_chann - block_chann.min()) / (block_chann.max() - block_chann.min())
+                write_h5_chann( '../omnify/'+fname+'.chann.h5', block_chann )
 				
-				# write omnify cmd file
-				write_cmd( fname )
-				# generate a corresponding sh file
-				shfname =  '../omnify/' + "chunk_" + str(blockid) + ".sh"
-				write_sh(shfname, fname, omnifybin)
+                # write omnify cmd file
+                write_cmd( fname )
+                # generate a corresponding sh file
+                shfname =  '../omnify/' + "chunk_" + str(blockid) + ".sh"
+                write_sh(shfname, fname, omnifybin)
 	
 	# write a general bash file
 	write_runall_sh(blockid)
