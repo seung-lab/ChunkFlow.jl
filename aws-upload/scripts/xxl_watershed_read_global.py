@@ -47,12 +47,12 @@ def get_volume_info( filename ):
 	 # number of chunks in the xyz direction
 	chunkNum = np.fromfile(filename+".metadata", dtype='uint32')[2:5][::-1]
 	# chunk sizes
-	chunksizes = np.fromfile(filename+".chunksizes", dtype='uint32')[::-1].reshape(1,3)
+	chunksizes = np.fromfile(filename+".chunksizes", dtype='uint32')[::-1].reshape(-1,3)
 	
 	print chunksizes
 
 	# the whole volume size
-	chunksizes1 = chunksizes.reshape(chunkNum[1],chunkNum[1],chunkNum[2],3)
+	chunksizes1 = chunksizes.reshape(chunkNum[0],chunkNum[1],chunkNum[2],3)
 	s = np.zeros(3, dtype='uint32')
 	s[0] = np.sum(chunksizes1[:,0,0, 0])
 	s[1] = np.sum(chunksizes1[0,:,0, 1])
