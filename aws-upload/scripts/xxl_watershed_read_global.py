@@ -44,25 +44,20 @@ def get_chunk_size(chunkSizes,chunkNum, z,y,x):
 	return sze
 
 def get_volume_info( filename ):
-	 # number of chunks in the xyz direction
-	chunkNum = np.fromfile(filename+".metadata", dtype='uint32')[2:5][::-1]
-	# chunk sizes
-	chunksizes = np.fromfile(filename+".chunksizes", dtype='uint32')[::-1].reshape(-1,3)
-	
-	print chunksizes
-
-	# the whole volume size
-	chunksizes1 = chunksizes.reshape(chunkNum[0],chunkNum[1],chunkNum[2],3)
-	s = np.zeros(3, dtype='uint32')
-	s[0] = np.sum(chunksizes1[:,0,0, 0])
-	s[1] = np.sum(chunksizes1[0,:,0, 1])
-	s[2] = np.sum(chunksizes1[0,0,:, 2])
-	# remove the overlap
-	s -= (chunkNum-1)*2
- 
-	 # the chunk size
-	width = np.min( chunksizes,axis=0 )
-	return chunkNum, chunksizes, width, s
+    # number of chunks in the xyz direction
+    chunkNum = np.fromfile(filename+".metadata", dtype='uint32')[2:5][::-1]
+    # chunk sizes
+    chunksizes = np.fromfile(filename+".chunksizes", dtype='uint32').reshape(-1,3)[:,::-1]
+    print chunksizes
+    
+    s = np.fromfile( filename + '.total_size', dtype='uint32' )    
+    
+    print "volume size: "+ str(s)
+#    width = np.repeat(s.min(),3)
+    width = np.fromfile( filename + '.width', dtype='uint32' )
+    width = np.minimum( width, s )
+    
+    return chunkNum, chunksizes, width, s
 
 def write_cmd( fname ):
 	cmdfname = '../omnify/' + fname + ".cmd"
@@ -153,9 +148,9 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
 	chann = fchann['/main']    
 	
 	blockid = 0
-	for bz in range(0, s[0], blocksize[0]):
+	for bx in range(0, s[2], blocksize[2]):
 		for by in range(0, s[1], blocksize[1]):
-			for bx in range(0, s[2], blocksize[2]):
+			for bz in range(0, s[0], blocksize[0]):
 				blockid += 1                
 				bfrom = np.array([ bz, by, bx ])                
 				bto = np.minimum(s, bfrom+blocksize+overlap)
@@ -171,8 +166,6 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
 						"_X" + str(bfrom[2]) + '-' + str(bto[2]-1)
 				# write the segmentation h5 file
 				h5fname = '../omnify/' + fname + ".segm.h5"
-    
-                     # note that here exist a transpose
 				write_h5_with_dend( h5fname, block, chunk_dend, chunk_dendValues )
 				
 				# write channel data
@@ -209,7 +202,7 @@ if __name__ == "__main__":
 	# the path of omnify binary
 	omnifybin = 'bash ../omnify/omnify.sh'
 	# the block size and overlap size, z,y,x
-	blocksize = np.array([2000, 2000, 452])
+	blocksize = np.array([2000, 2000, 2000])
 	overlap = np.array([2,2,2])
 	
 	# run function

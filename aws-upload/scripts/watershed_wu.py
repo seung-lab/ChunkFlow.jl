@@ -7,9 +7,10 @@ import h5py
 #import fortranfile
 #%% parameters
 znn_merged_h5file = '../watershed/znn_merged.hdf5'
+znn_merged_h5file = '/usr/people/jingpeng/seungmount/research/Ignacio/w0-4/omnify/znn_merged_W1234.hdf5'
 
 # step 
-width = np.array([200, 200, 200])
+width = np.array([200, 200, 200], dtype='uint32')
 
 temp_path = '../watershed/data/'
 
@@ -17,14 +18,20 @@ temp_path = '../watershed/data/'
 if os.path.exists(temp_path):
     import shutil
     shutil.rmtree(temp_path)
-
 os.makedirs(temp_path + 'input.chunks/')
 
 #%% read hdf5
 f = h5py.File(znn_merged_h5file, 'r')
 affin = f['/main']
+affin = np.transpose(affin, (0,1,3,2))
 
-s = np.array(affin.shape)[1:]
+s = np.array(affin.shape, dtype='uint32')[1:]
+s.tofile(temp_path + 'input.total_size')
+
+# width can not be bigger than total volume size
+width = np.minimum(width, s)
+#width = np.repeat( s.min(), 3 )
+width.tofile(temp_path + 'input.width')
 
 #Faffin = fortranfile.FortranFile(temp_path + 'input.affinity.data', mode = 'w')
 fa = open(temp_path + 'input.affinity.data', mode='w+')
@@ -37,13 +44,15 @@ for cidx, x in enumerate(range(0, s[2], width[2]) ):
            chunkid += 1
            cfrom = np.maximum( np.array([z,y,x])-1, np.array([0,0,0]))
            cto = np.minimum(np.array([z,y,x]) + width + 1, s)
-           size = cto - cfrom 
+           size = cto - cfrom
            chunkSizes.append( size[::-1] )
            
+           # the chunk part
            part = affin[:,cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2]]
-           part = np.transpose(part, (0,1,3,2))
+#           part = np.transpose(part, (0,1,3,2))
            part.tofile(fa)
            
+           # create some folders for watershed
            os.makedirs(temp_path + 'input.chunks/{0}/{1}/{2}'.format(cidx,cidy,cidz))
 
 # close the files
