@@ -1,47 +1,64 @@
 import os
 import numpy as np
 import h5py
-import matplotlib.pylab as plt
 
-#%% read hdf5
-#f = h5py.File('../watershed/stage21.hdf5', 'r')
-f = h5py.File('../watershed/znn_merged.hdf5', 'r')
-affin = f['/main']
+import sys
+sys.path.append('fortranfile-0.2.1')
+import fortranfile
+#%% parameters
+znn_merged_h5file = '../watershed/znn_merged.hdf5'
+
+# step 
+width = np.array([500, 500, 500])
+
+temp_path = '../watershed/data/'
 
 #%% prepare the folders
-if not os.path.exists('../watershed/data'):
-	os.makedirs('../watershed/data')
-else:
-	#For test
-	import shutil
-	shutil.rmtree('../watershed/data')
-	os.makedirs('../watershed/data')
+if os.path.exists(temp_path):
+    import shutil
+    shutil.rmtree(temp_path)
 
-#%% metadata and size
-metadata = np.array([32, 32, 1, 1, 1]).astype('int32')
-#metadata = metadata[::-1]
-#metadata = np.asfortranarray(metadata)
-metadata.tofile('../watershed/data/input.metadata')
+os.makedirs(temp_path + 'input.chunks/')
 
-size = np.asarray( affin.shape[1:], dtype='int32' )
-size = size[::-1]
-#size = np.asfortranarray(size)
-size.tofile('../watershed/data/input.chunksizes')
+#%% read hdf5
+f = h5py.File(znn_merged_h5file, 'r')
+affin = f['/main']
+#affin = np.transpose(affin, (0,1,3,2))
 
-affin = np.asarray(affin, dtype='single')
-ffin = np.reshape( affin, np.append(3, size[::-1]) )
-affin = np.transpose(affin, (0,1,3,2))
-affin.tofile('../watershed/data/input.affinity.data')
+s = np.array(affin.shape)[1:]
+
+#Faffin = fortranfile.FortranFile(temp_path + 'input.affinity.data', mode = 'w')
+fa = open(temp_path + 'input.affinity.data', mode='w+')
+
+chunkSizes = []
+chunkid = 0
+for cidx, x in enumerate(range(0, s[2], width[2]) ):
+    for cidy, y in enumerate(range(0, s[1], width[1])):
+        for cidz, z in enumerate( range(0, s[0], width[0]) ):
+           chunkid += 1
+           cfrom = np.maximum( np.array([z,y,x])-1, np.array([0,0,0]))
+           cto = np.minimum(np.array([z,y,x]) + width + 1, s)
+           size = cto - cfrom 
+           chunkSizes.append( size[::-1] )
+           
+           part = affin[:,cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2]]
+           part = np.transpose(part, (0,1,3,2))
+           part.tofile(fa)
+           
+           os.makedirs(temp_path + 'input.chunks/{0}/{1}/{2}'.format(cidx,cidy,cidz))
+
+# close the files
 f.close()
+fa.close()
+
+# metadata and size
+metadata = np.array([32, 32, cidx+1, cidy+1, cidz+1]).astype('int32')
+metadata.tofile(temp_path + 'input.metadata')
+
+chunkSizes = np.array( chunkSizes, dtype='uint32' )
+chunkSizes.tofile(temp_path + 'input.chunksizes')
 
 #%% run watershed
-os.makedirs('../watershed/data/input.chunks')
-os.makedirs('../watershed/data/input.chunks/{0}/{1}/{2}'.format(0,0,0))
-
 print "run watershed ..."
 os.system("../watershed/src/zi/watershed/main/bin/xxlws" + " --filename=../watershed/data/input"\
             + " --high=0.99" + " --low=0.25" + " --dust=400" + " --dust_low=0.3")
-
-
-#%% check the chunk file
-#os.system('python test_chunk.py')
