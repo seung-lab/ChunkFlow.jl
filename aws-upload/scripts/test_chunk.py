@@ -13,8 +13,8 @@ filename = '../watershed/data/input'
 #filename = '/usr/people/jingpeng/seungmount/research/Jingpeng/01_workspace/03_watershed/WS_scripts/temp/wstemp'
 
 chunkidz = 0
-chunkidy = 0
-chunkidx = 0
+chunkidy = 1
+chunkidx = 1
 
 #%% read the chunk
 # number of chunks in the xyz direction
@@ -41,8 +41,8 @@ dend = dend.reshape((2, len(dendValues)))
 
 
 #%% test the affinity graph
-affin = np.fromfile(filename + ".affinity.data", dtype='single')
-affin = np.reshape(affin, np.append(3, sze))
+#affin = np.fromfile(filename + ".affinity.data", dtype='single')
+#affin = np.reshape(affin, np.append(3, sze))
 #affin = np.transpose(affin, (0,1,3,2))
 #neupy.show.imshow( affin[1,6,:,:] )
 
