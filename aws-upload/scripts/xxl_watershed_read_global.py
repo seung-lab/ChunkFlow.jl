@@ -209,7 +209,7 @@ if __name__ == "__main__":
 	# the path of omnify binary
 	omnifybin = 'bash ../omnify/omnify.sh'
 	# the block size and overlap size, z,y,x
-	blocksize = np.array([200, 200, 452])
+	blocksize = np.array([2000, 2000, 452])
 	overlap = np.array([2,2,2])
 	
 	# run function
