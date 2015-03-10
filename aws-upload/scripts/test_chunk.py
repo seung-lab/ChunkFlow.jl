@@ -5,6 +5,9 @@ Created on Wed Mar  4 13:14:28 2015
 @author: jingpeng
 """
 import numpy as np
+import sys
+sys.path.append("/usr/people/jingpeng/libs/")
+import neupy
 #import sys
 #sys.path.append('./fortranfile-0.2.1/')
 #import fortranfile
@@ -28,8 +31,6 @@ fname = filename + '.chunks/' + str(chunkidx) + '/' + str(chunkidy) \
 chk = np.reshape( np.fromfile(fname,  dtype='uint32' ), sze)
 
 #%% show chunk
-import sys
-sys.path.append("/usr/people/jingpeng/libs/")
 import neupy.show
 neupy.show.random_color_show( chk[5,:,:] )
 
@@ -54,24 +55,33 @@ dend = dend.reshape((len(dendValues), 2)).transpose()
 import neupy
 reload(neupy)
 import h5py
-f = h5py.File('../watershed/stack.chann.hdf5')
-chann = np.asarray(f['/main'])
-neupy.show.vol_slider(chann)
-#f.close()
+#f = h5py.File('../watershed/stack.chann.hdf5')
+#f = h5py.File('/usr/people/jingpeng/seungmount/research/Jingpeng/01_workspace/08_piriform_cortex/znn_merged_W1234_crop.affin.hdf5')
+f = h5py.File('/usr/people/jingpeng/seungmount/research/Jingpeng/01_workspace/08_piriform_cortex/stack_W1234_crop.chann.hdf5')
+chann = np.asarray(f['/main'])[:,:,:]
+neupy.show.vol_slider(chann, cmap='gray')
+f.close()
+
+
 #%% test the big channel data
-f = h5py.File('/usr/people/jingpeng/seungmount/research/Ignacio/w0-4/omnify/stack_W1234.chann.hdf5')
-im = f['/main'][0,:,:]
+import h5py
+#f = h5py.File('/usr/people/jingpeng/seungmount/research/Ignacio/w0-4/omnify/stack_W1234.chann.hdf5')
+f = h5py.File('/usr/people/jingpeng/seungmount/research/Jingpeng/01_workspace/08_piriform_cortex/stack_W1234_crop.chann.hdf5')
+im = f['/main'][0,:,:]# Z 4
 import matplotlib.pylab as plt
 plt.subplot(121)
 plt.imshow(im, cmap='gray')
 f.close()
 
-#plt.subplot(122)
+plt.subplot(122)
 plt.figure
-f = h5py.File('/usr/people/jingpeng/seungmount/research/Ignacio/w0-4/omnify/znn_merged_W1234.hdf5')
-seg = f['/main'][0,:,:]
-#plt.imshow(seg, cmap='gray')
-import neupy
-neupy.show.random_color_show(seg)
+#f = h5py.File('/usr/people/jingpeng/seungmount/research/Ignacio/w0-4/omnify/znn_merged_W1234.hdf5')
+f = h5py.File('/usr/people/jingpeng/seungmount/research/Jingpeng/01_workspace/08_piriform_cortex/znn_merged_W1234_crop.affin.hdf5')
+seg = f['/main'][0,0,:,:]# Z ,-5
+plt.imshow(seg)
+#import sys
+#sys.path.append("/usr/people/jingpeng/libs/")
+#import neupy
+#neupy.show.random_color_show(seg)
 f.close()
 
