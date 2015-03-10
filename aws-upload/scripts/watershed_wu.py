@@ -6,11 +6,11 @@ import h5py
 #sys.path.append('fortranfile-0.2.1')
 #import fortranfile
 #%% parameters
-znn_merged_h5file = '../watershed/znn_merged.hdf5'
-#znn_merged_h5file = '/usr/people/jingpeng/seungmount/research/Ignacio/w0-4/omnify/znn_merged_W1234.hdf5'
+#znn_merged_h5file = '../watershed/znn_merged.hdf5'
+znn_merged_h5file = '/usr/people/jingpeng/seungmount/research/Jingpeng/01_workspace/08_piriform_cortex/znn_merged_W1234_crop.affin.hdf5'
 
 # step 
-width = np.array([300, 300, 300], dtype='uint32')
+width = np.array([3000, 3000, 3000], dtype='uint32')
 
 temp_path = '../watershed/data/'
 
@@ -23,7 +23,7 @@ os.makedirs(temp_path + 'input.chunks/')
 #%% read hdf5
 f = h5py.File(znn_merged_h5file, 'r')
 affin = f['/main']
-affin = np.transpose(affin, (0,1,3,2))
+#affin = np.transpose(affin, (0,1,3,2))
 
 s = np.array(affin.shape, dtype='uint32')[1:]
 s.tofile(temp_path + 'input.total_size')
@@ -49,7 +49,6 @@ for cidx, x in enumerate(range(0, s[2], width[2]) ):
            
            # the chunk part
            part = affin[:,cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2]]
-#           part = np.transpose(part, (0,1,3,2))
            part.tofile(fa)
            
            # create some folders for watershed
