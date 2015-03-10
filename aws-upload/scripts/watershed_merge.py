@@ -2,6 +2,10 @@ import numpy
 from global_vars import *
 import h5py
 
+#open channel data
+channel_dset = h5py.File('../omnify/stack.channle.hdf5', "w" )
+desired_size = channel_dset['/main'].shape
+channel_dset.close()
 
 #Segmentation output file
 merged_file = h5py.File('../watershed/data/watershed_merged.hdf5', "w" )
@@ -20,7 +24,7 @@ metadata = numpy.fromfile('../watershed/data/input.metadata', dtype='uint32')[2:
 chunksizes = numpy.fromfile('../watershed/data/input.chunksizes', dtype='uint32').reshape(1,3)
 
 
-main_dset = merged_file.create_dataset('/main', (159,452,452) , dtype='uint32' )
+main_dset = merged_file.create_dataset('/main', desired_size , dtype='uint32' )
 chunk_number = 0
 zabs = 0
 for z_chunk in range(metadata[0]):
