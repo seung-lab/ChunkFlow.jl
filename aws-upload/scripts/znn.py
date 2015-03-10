@@ -1,11 +1,140 @@
 import math
 import numpy
 import json
+from PIL import Image
+from PIL.ImageDraw import Draw
+import pprint
+
 
 from global_vars import *
+from stack import Stack
+
+
+def optimal_divs():
+	#size to crop is 1 pixel less than the field of view
+	crop_effective = fov_effective - 1
+
+	#Read aligned stack
+	stack = Stack()
+
+	#Save dimension of the stack z,y,x
+	dims = stack.getStackDimensions()
+
+	#How many chuncks do we should have z,y,x
+	min_timeRequired = numpy.float('inf')
+	for z in range(1,max_nodes+1):
+		for y in range(1,max_nodes+1):
+			for x in range(1,max_nodes+1):
+				
+				if x*y*z > max_nodes:
+					continue
+
+				test_divs = numpy.array([z,y,x])
+				timeRequired = numpy.prod( (dims+crop_effective*(test_divs-1)) / test_divs)
+				if timeRequired < min_timeRequired:
+					min_timeRequired = timeRequired
+					divs = test_divs
+
+	print 'we will make ',divs,'chunks'
+
+	#Estimate how long will it take, and how much computation is wasted because of overlapping
+	computedSize = dims + crop_effective * (divs - 1)
+	print "Besides the size of the stack is ",dims, " because of overlapping we will compute", computedSize
+	speed = 7500 #voxels/second
+	print "it will take about " , numpy.prod(computedSize)/numpy.prod(divs) / speed / 3600.0 , " hours for the 2 stages of ZNN "
+	print "with efficiency ",  numpy.prod(dims) / float(numpy.prod(computedSize)) * 100.0 , "%"
+
+	return divs
+
+def chunk_sizes(divs):
+	#size to crop is 1 pixel less than the field of view
+	crop_effective = fov_effective - 1
+
+	#Read aligned stack
+	stack = Stack()
+
+	#Save dimension of the stack z,y,x
+	dims = stack.getStackDimensions()
+
+	#We will now compute the size of each chunck and store it in chunks' list.
+	chunks = []
+	div_size = (dims - crop_effective) / divs
+
+	#Make sure the size of the chunk is larger than the field of view
+	if numpy.any(div_size < 0):
+		raise Exception('Chunks are too small', div_size )
+
+	z_min =0; z_max = crop_effective[0]
+	for z in range(divs[0]):
+
+		if z == 0:
+			z_min = 0
+		else:
+			z_min = z_min + div_size[0]
+
+		if z == divs[0] - 1:
+			z_max = dims[0]
+		else:
+			z_max = z_max + div_size[0]#Set the resources for the machine in which znn will be run
+
+
+		#Do same thing as z, but for y_axis
+		y_min =0; y_max = crop_effective[1]
+		for y in range(divs[1]):	
+			if y == 0:
+				y_min = 0
+			else:
+				y_min = y_min + div_size[1]
+
+			if y == divs[1] - 1:
+				y_max = dims[1]
+			else:
+				y_max = y_max + div_size[1]
+
+			#Do same thing as z,y, but for x-axis
+			x_min =0; x_max = crop_effective[2]
+			for x in range(divs[2]):
+				if x == 0:
+					x_min = 0
+				else:
+					x_min = x_min + div_size[2]
+
+				if x == divs[2] - 1:
+					x_max = dims[2]
+				else:
+					x_max = x_max + div_size[2]
+
+				#Save everything in chunks' list
+				filename = "z{0}-y{1}-x{2}".format(z,y,x)
+				chunk = {'x_min': x_min, 'x_max':x_max, 'y_min': y_min, 'y_max':y_max, 'z_min':z_min , 'z_max':z_max,'filename':filename }
+				chunks.append(chunk)
+
+
+
+	#Plot chunk
+	print '\n\n\n'
+	pp = pprint.PrettyPrinter()
+	pp.pprint(chunks)
+
+	#Save an image which displays the chunk overlapping
+	img = Image.new("RGBA", (dims[1],dims[2]),(255,255,255,255)) # We don't draw z
+	draw = Draw(img)
+
+	for chunk in chunks:
+		#Draw in red the output of znn, this output should cover the hole volume without overlap
+		draw.rectangle(((chunk['x_min']+crop_effective[2]/2,chunk['y_min']+crop_effective[1]/2),(chunk['x_max']-crop_effective[2]/2, chunk['y_max']-crop_effective[1]/2)),outline = 'red')
+		
+		#We also draw the input to znn in blue, this should overlap
+		draw.rectangle(((chunk['x_min'],chunk['y_min']), (chunk['x_max'], chunk['y_max'])), outline = "blue" )
+
+	#We save this image
+	img.save('./image.png')
+
+	return chunks
+
+
 
 cache = dict()
-
 def stage1Data(c):
 	with  open('../data/{0}/data_spec/stage1.1.spec'.format(c['filename']),'w') as myfile:
 
