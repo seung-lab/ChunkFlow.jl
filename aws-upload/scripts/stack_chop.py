@@ -12,6 +12,9 @@ import znn
 from stack import Stack
 from global_vars import *
 
+#size to crop is 1 pixel less than the field of view
+crop_effective = fov_effective - 1
+
 #Read aligned stack
 stack = Stack()
 
@@ -28,7 +31,7 @@ for z in range(1,max_nodes+1):
 				continue
 
 			test_divs = numpy.array([z,y,x])
-			timeRequired = numpy.prod( (dims+fov_effective*(test_divs-1)) / test_divs)
+			timeRequired = numpy.prod( (dims+crop_effective*(test_divs-1)) / test_divs)
 			if timeRequired < min_timeRequired:
 				min_timeRequired = timeRequired
 				divs = test_divs
@@ -36,7 +39,7 @@ for z in range(1,max_nodes+1):
 print 'we will make ',divs,'chunks'
 
 #Estimate how long will it take, and how much computation is wasted because of overlapping
-computedSize = dims + fov_effective * (divs - 1)
+computedSize = dims + crop_effective * (divs - 1)
 print "Besides the size of the stack is ",dims, " because of overlapping we will compute", computedSize
 speed = 7500 #voxels/second
 print "it will take about " , numpy.prod(computedSize)/numpy.prod(divs) / speed / 3600.0 , " hours for the 2 stages of ZNN "
@@ -45,12 +48,12 @@ print "with efficiency ",  numpy.prod(dims) / float(numpy.prod(computedSize)) * 
 
 #We will now compute the size of each chunck and store it in chunks' list.
 chunks = []
-div_size = (dims - fov_effective) / divs
+div_size = (dims - crop_effective) / divs
 
 #Make sure the size of the chunk is larger than the field of view
-assert numpy.all(div_size > fov_effective)
+assert numpy.all(div_size > crop_effective)
 
-z_min =0; z_max = fov_effective[0]
+z_min =0; z_max = crop_effective[0]
 for z in range(divs[0]):
 
 	if z == 0:
@@ -65,7 +68,7 @@ for z in range(divs[0]):
 
 
 	#Do same thing as z, but for y_axis
-	y_min =0; y_max = fov_effective[1]
+	y_min =0; y_max = crop_effective[1]
 	for y in range(divs[1]):	
 		if y == 0:
 			y_min = 0
@@ -78,7 +81,7 @@ for z in range(divs[0]):
 			y_max = y_max + div_size[1]
 
 		#Do same thing as z,y, but for x-axis
-		x_min =0; x_max = fov_effective[2]
+		x_min =0; x_max = crop_effective[2]
 		for x in range(divs[2]):
 			if x == 0:
 				x_min = 0
@@ -108,7 +111,7 @@ draw = Draw(img)
 
 for chunk in chunks:
 	#Draw in red the output of znn, this output should cover the hole volume without overlap
-	draw.rectangle(((chunk['x_min']+fov_effective[2]/2,chunk['y_min']+fov_effective[1]/2),(chunk['x_max']-fov_effective[2]/2, chunk['y_max']-fov_effective[1]/2)),outline = 'red')
+	draw.rectangle(((chunk['x_min']+crop_effective[2]/2,chunk['y_min']+crop_effective[1]/2),(chunk['x_max']-crop_effective[2]/2, chunk['y_max']-crop_effective[1]/2)),outline = 'red')
 	
 	#We also draw the input to znn in blue, this should overlap
 	draw.rectangle(((chunk['x_min'],chunk['y_min']), (chunk['x_max'], chunk['y_max'])), outline = "blue" )
@@ -160,7 +163,7 @@ for c in chunks:
 	#We also create an empty directoy in where znn will save the output
 	os.makedirs('../data/{0}/output'.format(c['filename']))
 	#Save the absolute position as a json file
-	znn.save_output_size(c,fov_effective)
+	znn.save_output_size(c,crop_effective)
 
 	#Create data specification folder which contains the files for specifiying the dataset
 	#We have two inputs because of having, 2 neural nets (stage1, stage2)
@@ -198,7 +201,7 @@ for c in chunks:
 	#Add run.sh file to the job list
 	#For production
 	#The -r argument instructs the queueing system to re-execute the same job on a different worker node 
-	#if the currently running worker node fails or is terminated. With all jobs marked as ‘re-runnable’ 
+	#if the currently running worker node fails or is terminated. With all jobs marked as re-runnable 
 	#a given spot instance can be terminated and any running jobs on the instance will simply be restarted 
 	#on a different worker. This approach does not resume a job where it left off before it was interrupted,
 	#however, it does ensure that it will eventually be completed if and when resources are available. 
