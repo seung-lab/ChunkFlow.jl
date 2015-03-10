@@ -69,36 +69,36 @@ class Stack:
 		#For test
 		# I'm loading everything in ram because is an small stack
 		# Otherwise never do it 
-		#self.input = tifffile.imread('../../alignment/stack.tif')
+		self.input = tifffile.imread('../../alignment/stack.tif')
 
 		# The maximun of a tiff is 4gb, if our dataset is larger we should create one tiff
 		# Per z-plane.
 		# You could use this constructor to get the stack dimensions.
 
 		#We need to crop a margin based on the field of view , which is in z,y,x dimensiones
-		#And then save it as a hdf5 which omnify is able to read.
-
+		#And then save it as a hdf5 which omnify is able to readself
+		self.dims = self.input.shape
 		#this implementation required to load everything in ram
 
 
 		#For production
-		base = '../../alignment/'
-		folders = ('150218_S2-W001_elastic_01_3600_3600/','150224_S2-W002_elastic_01_3600_3600/','150303_S2-W003_elastic_01_3600_3600/','150306_S2-W004_elastic_01_3600_3600/')
+		# base = '../../alignment/'
+		# folders = ('150218_S2-W001_elastic_01_3600_3600/','150224_S2-W002_elastic_01_3600_3600/','150303_S2-W003_elastic_01_3600_3600/','150306_S2-W004_elastic_01_3600_3600/')
 
-		index = re.compile(r'(\d+)_')
-		def numberSort(filename):
-			return index.split(filename)[1]
+		# index = re.compile(r'(\d+)_')
+		# def numberSort(filename):
+		# 	return index.split(filename)[1]
 
-		self.filestack = list() 
-		for folder in folders:
-			path = base + folder
-			for z_tif in sorted(os.listdir(path), key=numberSort):
-				self.filestack.append(path+z_tif)
+		# self.filestack = list() 
+		# for folder in folders:
+		# 	path = base + folder
+		# 	for z_tif in sorted(os.listdir(path), key=numberSort):
+		# 		self.filestack.append(path+z_tif)
 
-		# #read the first one to figure out the size
-		# #We assume all z-planes has the same size
-		plane_shape = numpy.array(tifffile.imread(self.filestack[0]).shape)
-		self.dims = numpy.concatenate((numpy.array([len(self.filestack)]) ,plane_shape)) 
+		# # #read the first one to figure out the size
+		# # #We assume all z-planes has the same size
+		# plane_shape = numpy.array(tifffile.imread(self.filestack[0]).shape)
+		# self.dims = numpy.concatenate((numpy.array([len(self.filestack)]) ,plane_shape)) 
 
 		z_min = crop[0]/2 ; z_max = self.dims[0] - crop[0]/2
 		y_min = crop[1]/2 ; y_max = self.dims[1] - crop[1]/2
@@ -117,8 +117,10 @@ class Stack:
 
 		for z in range(channel_size[0]):
 			
-			print self.filestack[z] 
-			cropped = tifffile.imread(self.filestack[z])[y_min:y_max , x_min:x_max]
+			#print self.filestack[z] 
+			#cropped = tifffile.imread(self.filestack[z])[y_min:y_max , x_min:x_max]
+
+			cropped = self.input[z,y_min:y_max , x_min:x_max]
 			#Normalize and change dtype
 			cropped = cropped/255.0
 
@@ -137,5 +139,5 @@ if __name__ == "__main__":
 	#Create cropped channel data for omnifying
 	#if we divide the watershed output in many omnifiles
 	#omnify.py will be responsable of doing it
-	#s.convertToHDF5(crop = fov_effective-1, outputPath='../omnify/stack.chann.hdf5')
+	s.convertToHDF5(crop = fov_effective-1, outputPath='../omnify/stack.chann.hdf5')
 
