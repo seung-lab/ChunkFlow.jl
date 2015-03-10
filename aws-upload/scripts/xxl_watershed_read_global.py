@@ -90,7 +90,7 @@ def show_chunk(chk, z):
     neupy.show.random_color_show( chk[z,:,:] )
 
 # out-of-core processing, generate a bunch of h5 files
-def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
+def xxl_watershed_read_global( filename, channfilename, blocksize, overlap, omnifybin ):
     chunkNum, chunkSizes, width, s = get_volume_info( filename )
 
     # the temporal volume of whole dataset
@@ -114,7 +114,7 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
             xabs = 0            
             for x_chunk in range(chunkNum[2]):
                 sze = chunkSizes[z_chunk+y_chunk*chunkNum[0] + \
-                        x_chunk * chunkNum[0] * chunkNum[1], :]    
+                        x_chunk * chunkNum[0] * chunkNum[1], :]
                 cfrom = np.array([zabs,yabs,xabs])+1
                 cto = cfrom + sze -2
                 print "size: {}".format(sze)
@@ -140,10 +140,11 @@ def xxl_watershed_read_global( filename, blocksize, overlap, omnifybin ):
 	print "get the blocks ..."
 	# get the blocks of seg
 
-    channfilename = '../watershed/stack.chann.hdf5'
+    
     fchann = h5py.File( channfilename, 'r')
     chann = fchann['/main']    
-    chann = np.transpose(chann, (0,2,1))
+#    chann = np.transpose(chann, (0,2,1))
+    chann = np.asarray(chann)
     chann = (chann - chann.min()) / (chann.max() - chann.min())
     
     blockid = 0
@@ -197,19 +198,20 @@ def evaluate_seg(h5filename, z):
 	plt.matshow(vol[z,:,:])
 
 if __name__ == "__main__":
-	import os
-	
-	filename = '../watershed/data/input'
-	# the path of omnify binary
-	omnifybin = 'bash ../omnify/omnify.sh'
-	# the block size and overlap size, z,y,x
-	blocksize = np.array([2000, 2000, 2000])
-	overlap = np.array([2,2,2])
-	
-	# run function
-	xxl_watershed_read_global( filename, blocksize, overlap, omnifybin )
-	
-	# evaluate result
+    import os
+    
+    filename = '../watershed/data/input'
+    # the path of omnify binary
+    omnifybin = 'bash ../omnify/omnify.sh'
+    # the block size and overlap size, z,y,x
+    blocksize = np.array([2000, 2000, 2000])
+    overlap = np.array([2,2,2])
+    
+    channfilename = '/usr/people/jingpeng/seungmount/research/Jingpeng/01_workspace/08_piriform_cortex/stack_W1234_crop.chann.hdf5'
+    # run function
+    xxl_watershed_read_global( filename, channfilename, blocksize, overlap, omnifybin )
+
+    # evaluate result
 #    h5filename = DirDst + "chunk_0_Z0-99_Y0-99_X0-99.h5"
 #    evaluate_seg(h5filename, 5)
-	print("--finished generating the h5 file --")
+    print("--finished generating the h5 file --")
