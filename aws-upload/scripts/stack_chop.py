@@ -106,7 +106,7 @@ for c in chunks:
 	#a given spot instance can be terminated and any running jobs on the instance will simply be restarted 
 	#on a different worker. This approach does not resume a job where it left off before it was interrupted,
 	#however, it does ensure that it will eventually be completed if and when resources are available. 
-	jobs.write('qsub -r -V -b y -cwd ./data/{0}/trainning_spec/run.sh \n'.format(c['filename']))
+	jobs.write('qsub -r y -V -b y -cwd ./data/{0}/trainning_spec/run.sh \n'.format(c['filename']))
 	#For test
 	#jobs.write('./data/{0}/trainning_spec/run.sh \n'.format(c['filename']))
 
