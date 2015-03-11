@@ -66,11 +66,6 @@ class Stack:
 
 	def convertToHDF5(self, outputPath ,crop = numpy.array([0, 0 , 0])):
 
-		#For test
-		# I'm loading everything in ram because is an small stack
-		# Otherwise never do it 
-		self.input = tifffile.imread('../../alignment/stack.tif')
-
 		index = re.compile(r'(\d+)_')
 		def numberSort(filename):
 			return index.split(filename)[1]
