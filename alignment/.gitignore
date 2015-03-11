@@ -3,5 +3,4 @@
 
 # But not these files...
 !.gitignore
-!stack.tif
 !20x400x800/
