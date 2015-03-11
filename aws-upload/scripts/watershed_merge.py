@@ -3,8 +3,10 @@ from global_vars import *
 import h5py
 
 #open channel data
-channel_dset = h5py.File('../omnify/stack.channle.hdf5', "w" )
-desired_size = channel_dset['/main'].shape
+channel_dset = h5py.File('../watershed/znn_merged.hdf5', "r" )
+#Remove the first dimension which is 3, because of the affinity
+desired_size = numpy.asarray(channel_dset['/main'].shape)[1:4]
+print desired_size
 channel_dset.close()
 
 #Segmentation output file
@@ -33,6 +35,7 @@ for z_chunk in range(metadata[0]):
         xabs = 0
         for x_chunk in range(metadata[2]):
 
+            print 'merging chunk ', z_chunk , y_chunk, x_chunk
             chunk_size = chunksizes[chunk_number][::-1]
 
             main_chunk = numpy.fromfile('../watershed/data/input.chunks/{0}/{1}/{2}/.seg'.format(x_chunk, y_chunk, z_chunk), dtype='uint32').reshape(chunk_size)
@@ -46,3 +49,4 @@ for z_chunk in range(metadata[0]):
     zabs += chunk_size[0]
 
 merged_file.close()
+print 'finished merging'
