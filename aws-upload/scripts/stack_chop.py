@@ -73,7 +73,6 @@ for c in chunks:
 	znn.stage1Data(c)
 	znn.stage2Data(c)
 
-
 	#Create trainning specification folder which specifies the parameters for the forward pass
 	#Again we have two files because of the two stage forward pass
 	os.makedirs('../data/{0}/trainning_spec'.format(c['filename']))
