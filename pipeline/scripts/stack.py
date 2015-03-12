@@ -14,7 +14,7 @@ class Stack:
 		if  os.path.isfile('../alignment/stack.hdf5'):
 			f = h5py.File('../alignment/stack.hdf5', 'r')
 			self.input = f['/main']
-			self.dims =  numpy.asarray(self.input.shape)
+			self.shape =  numpy.asarray(self.input.shape)
 
 		else:
 			self.convertToHDF5(crop= numpy.array([0, 0 , 0]) , outputPath='../alignment/stack.hdf5')
@@ -22,11 +22,6 @@ class Stack:
 
 
 		return
-
-	def getStackDimensions(self):
-
-		return self.dims
-
 
 	def checkAxis(self, provided, real_min, real_max):
 
@@ -58,9 +53,9 @@ class Stack:
 		if len(slice) != 3:
 			raise Exception('You should expecify z,y,x')
 
-		z_min , z_max = self.checkAxis(slice[0], 0 , self.dims[0])
-		y_min , y_max = self.checkAxis(slice[1], 0 , self.dims[1])
-		x_min , x_max = self.checkAxis(slice[2], 0 , self.dims[2])
+		z_min , z_max = self.checkAxis(slice[0], 0 , self.shape[0])
+		y_min , y_max = self.checkAxis(slice[1], 0 , self.shape[1])
+		x_min , x_max = self.checkAxis(slice[2], 0 , self.shape[2])
 
 		return self.input[z_min:z_max, y_min:y_max, x_min:x_max].astype('double')	
 
@@ -79,17 +74,17 @@ class Stack:
 		# # #read the first one to figure out the size
 		# # #We assume all z-planes has the same size
 		plane_shape = numpy.array(tifffile.imread(self.filestack[0]).shape)
-		self.dims = numpy.concatenate((numpy.array([len(self.filestack)]) ,plane_shape)) 
+		self.shape = numpy.concatenate((numpy.array([len(self.filestack)]) ,plane_shape)) 
 
-		z_min = crop[0]/2 ; z_max = self.dims[0] - crop[0]/2
-		y_min = crop[1]/2 ; y_max = self.dims[1] - crop[1]/2
-		x_min = crop[2]/2 ; x_max = self.dims[2] - crop[2]/2
+		z_min = crop[0]/2 ; z_max = self.shape[0] - crop[0]/2
+		y_min = crop[1]/2 ; y_max = self.shape[1] - crop[1]/2
+		x_min = crop[2]/2 ; x_max = self.shape[2] - crop[2]/2
 
 		#Open hdf5 file, and specified chunck size
 		f = h5py.File(outputPath, "w" )
 
-		channel_size = 	self.dims - crop 
-		chunk_size =  self.dims - crop
+		channel_size = 	self.shape - crop 
+		chunk_size =  self.shape - crop
 		chunk_size[0] = 1
 
 
@@ -97,9 +92,10 @@ class Stack:
 		dset = f.create_dataset('/main', tuple(channel_size) , chunks=tuple(chunk_size))		
 
 		zabs = 0
+		print z_min , z_max
 		for tiff in range(z_min , z_max):
 			
-			print self.filestack[tiff] 
+			print zabs , self.filestack[tiff] 
 			cropped = tifffile.imread(self.filestack[tiff])[y_min:y_max , x_min:x_max]
 
 			#Normalize and change dtype
@@ -108,7 +104,7 @@ class Stack:
 			#save the chunck
 			dset[zabs, 0:y_max-y_min, 0:x_max-x_min] = cropped
 
-			zabs =+ 1
+			zabs += 1
 
 		f.close()
 		return
@@ -122,5 +118,5 @@ if __name__ == "__main__":
 	#Create cropped channel data for omnifying
 	#if we divide the watershed output in many omnifiles
 	#omnify.py will be responsable of doing it
-	s.convertToHDF5(crop = fov_effective-1, outputPath='../omnify/stack.chann.hdf5')
+	s.convertToHDF5(crop = fov_effective-1, outputPath='../omnify/channel.hdf5')
 
