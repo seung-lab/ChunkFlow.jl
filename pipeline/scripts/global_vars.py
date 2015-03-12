@@ -1,7 +1,7 @@
 import numpy
 
 #number of nodes available
-max_nodes = 1
+max_nodes = 10
 
 #Set the resources for the machine in which znn ,watershed and omnify will be run
 memory = 20 * 10**9#gb
