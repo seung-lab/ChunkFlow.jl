@@ -96,16 +96,19 @@ class Stack:
 		#Should we used compression="gzip" on this?
 		dset = f.create_dataset('/main', tuple(channel_size) , chunks=tuple(chunk_size))		
 
-		for z in range(channel_size[0]):
+		zabs = 0
+		for tiff in range(z_min , z_max):
 			
-			print self.filestack[z] 
-			cropped = tifffile.imread(self.filestack[z])[y_min:y_max , x_min:x_max]
+			print self.filestack[tiff] 
+			cropped = tifffile.imread(self.filestack[tiff])[y_min:y_max , x_min:x_max]
 
 			#Normalize and change dtype
 			cropped = cropped/255.0
 
 			#save the chunck
-			dset[z, 0:y_max-y_min, 0:x_max-x_min] = cropped
+			dset[zabs, 0:y_max-y_min, 0:x_max-x_min] = cropped
+
+			zabs =+ 1
 
 		f.close()
 		return
