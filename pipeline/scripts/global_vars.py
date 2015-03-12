@@ -4,7 +4,7 @@ import numpy
 max_nodes = 1
 
 #Set the resources for the machine in which znn ,watershed and omnify will be run
-memory = 0.1 * 10**9#gb
+memory = 20 * 10**9#gb
 threads = 8
 
 # We will apply two neural networks (stage1 and stage2)

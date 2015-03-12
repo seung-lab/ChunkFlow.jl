@@ -5,13 +5,13 @@ data=../znn/data/z0-y1-x0/data_spec/stage1.
 save=../znn/data/z0-y1-x0/output/
 
 [OPTIMIZE]
-n_threads=32
+n_threads=8
 force_fft=1
 optimize_fft=0
 
 [TRAIN]
 test_range=1
-outsz=126,178,1
+outsz=128,178,1
 softmax=1
 
 [MONITOR]
