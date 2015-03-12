@@ -3,11 +3,11 @@ from global_vars import *
 import h5py
 
 #open channel data
-channel_dset = h5py.File('../watershed/znn_merged.hdf5', "r" )
+znn_merged = h5py.File('../watershed/znn_merged.hdf5', "r" )
 #Remove the first dimension which is 3, because of the affinity
-desired_size = numpy.asarray(channel_dset['/main'].shape)[1:4]
+desired_size = numpy.asarray(znn_merged['/main'].shape)[1:4]
 print desired_size
-channel_dset.close()
+znn_merged.close()
 
 #Segmentation output file
 merged_file = h5py.File('../watershed/data/watershed_merged.hdf5', "w" )
@@ -16,8 +16,8 @@ dendValues = numpy.fromfile('../watershed/data/input.dend_values', dtype='float3
 dendValues_dset = merged_file.create_dataset('/dendValues', data=dendValues, dtype='float32')
 
 
-dend = numpy.fromfile('../watershed/data/input.dend_pairs', dtype = 'uint64').reshape(-1,2).transpose()
-dend_dset = merged_file.create_dataset('/dend', data=dend, dtype='uint64')
+dend = numpy.fromfile('../watershed/data/input.dend_pairs', dtype = 'uint32').reshape(-1,2).transpose()
+dend_dset = merged_file.create_dataset('/dend', data=dend, dtype='uint32')
 
 #Read the metadata to find out how many chunks we have
 metadata = numpy.fromfile('../watershed/data/input.metadata', dtype='uint32')[2:5]
@@ -39,7 +39,7 @@ for z_chunk in range(metadata[0]):
 
             print chunk_size
 
-            main_chunk = numpy.fromfile('../watershed/data/input.chunks/{0}/{1}/{2}/.seg'.format(x_chunk, y_chunk, z_chunk), dtype='uint64').reshape(chunk_size)
+            main_chunk = numpy.fromfile('../watershed/data/input.chunks/{0}/{1}/{2}/.seg'.format(x_chunk, y_chunk, z_chunk), dtype='uint32').reshape(chunk_size)
             main_dset[zabs:zabs+chunk_size[0], yabs:yabs+chunk_size[1], xabs:xabs+chunk_size[2]] = main_chunk
             
 
