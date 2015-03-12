@@ -66,12 +66,12 @@ class Stack:
 
 	def convertToHDF5(self, outputPath ,crop = numpy.array([0, 0 , 0])):
 
-		index = re.compile(r'(\d+)_')
+		index = re.compile(r'(\d+)_?')
 		def numberSort(filename):
 			return index.split(filename)[1]
 
 		self.filestack = list() 
-		for folder in ('20x400x800',):
+		for folder in ('100x400x300',):
 			path = '../alignment/{}/'.format(folder)
 			for z_tif in sorted(os.listdir(path), key=numberSort):
 				self.filestack.append(path+z_tif)
