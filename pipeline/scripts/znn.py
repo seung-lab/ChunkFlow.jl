@@ -170,7 +170,7 @@ ppargs=-1,1"""
 		} 
 		myfile.write(template.format(**context)) 
 
-def optimal_outsz(input_size, fov_in, architecture_multiplier= 5 * 10**5, div_precision = 100):
+def optimal_outsz(input_size, fov_in, architecture_multiplier= 5 * 10**5, div_precision = 75):
 	#So based on the chunk size (`input_size`), and the fov of the current stage `fov_in`
 	#we do a grid search from [1,1,1] to `chunk_size` which is the output size of the chunk 
 	#and it choose the best_outz based on the metric `score`
@@ -179,7 +179,7 @@ def optimal_outsz(input_size, fov_in, architecture_multiplier= 5 * 10**5, div_pr
 	args = {'input_size':input_size.tostring(), 'fov_in':fov_in.tostring(),  'architecture_multiplier':architecture_multiplier , 'div_precision':div_precision}
 	args = frozenset(args.items())
 	if args in cache:
-		print 'from cache' , cache[args]
+		print 'znn outsz is ' , cache[args]
 		return cache[args]
 
 	min_score = numpy.float('inf')
@@ -195,9 +195,11 @@ def optimal_outsz(input_size, fov_in, architecture_multiplier= 5 * 10**5, div_pr
 
 				outsz = numpy.array([z,y,x])
 				memory_estimated = numpy.prod(outsz + fov - 1) * architecture_multiplier
-				
+
+			
 				if memory_estimated > memory:
 					continue
+
 
 				computation_done = numpy.prod(numpy.ceil(chunk_size/outsz) * (outsz + fov - 1))
 
@@ -205,7 +207,12 @@ def optimal_outsz(input_size, fov_in, architecture_multiplier= 5 * 10**5, div_pr
 					min_score = computation_done
 					best_outsz = outsz
 
-	print best_outsz
+	if best_outsz is None:
+		raise Exception('There is not enough memory even for the smallest outsz')
+	else:
+		print 'znn outsz is ' , best_outsz
+
+
 	cache[args] = best_outsz
 	return best_outsz
 

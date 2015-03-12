@@ -99,7 +99,7 @@ chunksizes.close()
 affinities.close()
 
 #Write metedata to file
-metadata = numpy.concatenate(( numpy.array([32, 32]), best_divs[::-1] )).astype('int32')
+metadata = numpy.concatenate(( numpy.array([64, 64]), best_divs[::-1] )).astype('int32')
 print metadata
 metadata.tofile('../watershed/data/input.metadata')
 
