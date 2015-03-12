@@ -10,12 +10,25 @@ import znn
 from stack import Stack
 from global_vars import *
 
+#Read aligned stack
+stack = Stack()
+
+#size to crop is 1 pixel less than the field of view
+crop_effective = fov_effective - 1
+
 #It computes the optimal disposition of chunks trying to reduce waste computation because of overlaps
-#divs = znn.optimal_divs()
-divs = numpy.array([2 ,2 ,2])
+divs = znn.optimal_divs()
+
+print 'we will make ',divs,'chunks'
+#Estimate how long will it take, and how much computation is wasted because of overlapping
+computedSize = stack.shape + crop_effective * (divs - 1)
+print "Besides the size of the stack is ",stack.shape, " because of overlapping we will compute", computedSize
+speed = 7500 #voxels/second
+print "it will take about " , numpy.prod(computedSize)/numpy.prod(stack.shape) / speed / 3600.0 , " hours for the 2 stages of ZNN "
+print "with efficiency ",  numpy.prod(stack.shape) / float(numpy.prod(computedSize)) * 100.0 , "%"
 
 #Give a dispositions of chunks, it compute the absolute position in voxels to have the right overlapping
-chunks = znn.chunk_sizes(divs)
+chunks = znn.chunk_sizes(stack.shape , divs, crop_effective)
 
 #We will now use the chunks position to crop the stack and to save it in ./data folder, with al required files to run znn on them
 if not os.path.exists('../znn/data'):
@@ -39,11 +52,7 @@ if not os.path.isfile('../znn/znn-release/bin/znn'):
 	jobs.write('cd ../\n')
 
 
-#Read aligned stack
-stack = Stack()
 
-#size to crop is 1 pixel less than the field of view
-crop_effective = fov_effective - 1
 
 for c in chunks:
 
@@ -95,9 +104,9 @@ for c in chunks:
 
 		runfile.write(run)
 
-	#make this file executable
-	st = os.stat('../znn/data/{0}/trainning_spec/run.sh'.format(c['filename']))
-	os.chmod('../znn/data/{0}/trainning_spec/run.sh'.format(c['filename']), st.st_mode | 0111 )
+		#make this file executable
+		st = os.stat(runfile.name)
+		os.chmod(runfile.name, st.st_mode | 0111 )
 
 	#Add run.sh file to the job list
 	#For production
