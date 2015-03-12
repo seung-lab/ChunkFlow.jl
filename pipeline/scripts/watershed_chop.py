@@ -99,6 +99,9 @@ chunksizes.close()
 affinities.close()
 
 #Write metedata to file
+#however the max ID is limited to 31 bits ~ 2 billion]  if using uint32s then the volumes should be <= 2G voxels just in case
+#i guess i wouldnt make cubes bigger than 1k x 1k x 2k
+# unless we want to use uint64s for IDs
 metadata = numpy.concatenate(( numpy.array([64, 64]), best_divs[::-1] )).astype('int32')
 print metadata
 metadata.tofile('../watershed/data/input.metadata')
