@@ -10,7 +10,7 @@ print desired_size
 znn_merged.close()
 
 #Segmentation output file
-merged_file = h5py.File('../watershed/data/watershed_merged.hdf5', "w" )
+merged_file = h5py.File('../omnify/watershed_merged.hdf5', "w" )
 
 dendValues = numpy.fromfile('../watershed/data/input.dend_values', dtype='float32' )
 dendValues_dset = merged_file.create_dataset('/dendValues', data=dendValues, dtype='float32')
@@ -34,12 +34,12 @@ for z_chunk in range(metadata[0]):
         xabs = 0
         for x_chunk in range(metadata[2]):
 
-            print 'merging chunk ', x_chunk , y_chunk, z_chunk
             chunk_size = chunksizes[chunk_number][::-1]
 
+            print 'reading {0}/{1}/{2}/.seg'.format(z_chunk, y_chunk, x_chunk) , ' with size ', chunk_size
 
-            main_chunk = numpy.fromfile('../watershed/data/input.chunks/{0}/{1}/{2}/.seg'.format(x_chunk, y_chunk, z_chunk), dtype='uint32').reshape(chunk_size)
-            print main_chunk.shape , chunk_size
+            main_chunk = numpy.fromfile('../watershed/data/input.chunks/{0}/{1}/{2}/.seg'.format(z_chunk, y_chunk, x_chunk), dtype='uint32').reshape(chunk_size)
+            print main_chunk.shape , numpy.prod(chunk_size)
             main_dset[zabs:zabs+chunk_size[0], yabs:yabs+chunk_size[1], xabs:xabs+chunk_size[2]] = main_chunk
             
 

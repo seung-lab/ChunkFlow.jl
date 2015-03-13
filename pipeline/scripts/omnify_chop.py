@@ -41,6 +41,8 @@ for c in znn.chunk_sizes(dims, divs, overlap):
 	with h5py.File('../omnify/data/{0}/segmentation.hdf5'.format(c['filename']), "w" ) as chunk_seg:
 		main_dset = segmentation['/main'][c['z_min']:c['z_max'], c['y_min']:c['y_max'], c['x_min']:c['x_max']]
 
+		main_dset_relabeled = numpy.copy(main_dset)
+
 		#save dendogram
 		dendogram = segmentation['/dend']
 		dendValues = segmentation['/dendValues']
@@ -74,10 +76,10 @@ for c in znn.chunk_sizes(dims, divs, overlap):
 					new_id += 1
 
 				truncated_dend.append(numpy.array([map_left_id, map_right_id]))
-				main_dset[ main_dset == left_id] = map_left_id
-				main_dset[ main_dset == right_id] = map_right_id
+				main_dset_relabeled[ main_dset == left_id] = map_left_id
+				main_dset_relabeled[ main_dset == right_id] = map_right_id
 
-		chunk_seg.create_dataset('/main', data=main_dset , dtype='uint32' )
+		chunk_seg.create_dataset('/main', data=main_dset_relabeled , dtype='uint32' )
 		chunk_seg.create_dataset('/dend', data=numpy.array(truncated_dend).transpose(), dtype='uint32' )
 		chunk_seg.create_dataset('/dendValues', data=truncated_dendValues , dtype='float32' )
 	
