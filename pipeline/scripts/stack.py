@@ -11,15 +11,12 @@ class Stack:
 	def __init__ (self):
 			
 
-		if  os.path.isfile('../alignment/stack.hdf5'):
-			f = h5py.File('../alignment/stack.hdf5', 'r')
-			self.input = f['/main']
-			self.shape =  numpy.asarray(self.input.shape)
-
-		else:
+		if not  os.path.isfile('../alignment/stack.hdf5'):
 			self.convertToHDF5(crop= numpy.array([0, 0 , 0]) , outputPath='../alignment/stack.hdf5')
-			#Compress this to .7z to make it smaller than the original tiff for uploading
 
+		f = h5py.File('../alignment/stack.hdf5', 'r')
+		self.input = f['/main']
+		self.shape =  numpy.asarray(self.input.shape)
 
 		return
 
