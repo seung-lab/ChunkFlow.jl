@@ -35,6 +35,8 @@ for z in range(1,required_divs+1):
 				best_score = score
 				best_divs = test_divs
 
+best_divs = numpy.array([2, 2, 2])
+
 width = numpy.ceil( znn.shape[1:4] / best_divs -1 ).astype(int)
 
 if not os.path.exists('../watershed/data'):
@@ -49,11 +51,10 @@ else:
     #raise Exception('folder already exists')
 
 
-chunksizes = open('../watershed/data/input.chunksizes','w+')
 affinities = open('../watershed/data/input.affinity.data','w+')
 os.makedirs('../watershed/data/input.chunks')
 
-
+sizes = []
 
 for z_chunk in range(0, best_divs[0]):
 	if z_chunk == 0:
@@ -76,7 +77,7 @@ for z_chunk in range(0, best_divs[0]):
 			x_chunk_max = x_chunk_min + width[2]
 	
 
-			os.makedirs('../watershed/data/input.chunks/{0}/{1}/{2}'.format(x_chunk, y_chunk, z_chunk))
+			os.makedirs('../watershed/data/input.chunks/{0}/{1}/{2}'.format(z_chunk, y_chunk, x_chunk))
 			cfrom = numpy.array([z_chunk_min, y_chunk_min, x_chunk_min]) - 1
 			cfrom[cfrom < 0] = 0
 			cto = numpy.array([z_chunk_max, y_chunk_max, x_chunk_max]) + 1
@@ -89,25 +90,31 @@ for z_chunk in range(0, best_divs[0]):
 			affin.tofile(affinities)
 
 			sz = numpy.asarray(affin.shape[1:4])[::-1].astype('uint32')
-			sz.tofile(chunksizes)
+			sizes.append(sz)
+
+			print sz
 
 			x_chunk_min = x_chunk_max
 		y_chunk_min = y_chunk_max
 	z_chunk_min = z_chunk_max
 
-chunksizes.close()
 affinities.close()
+
+chunksizes = open('../watershed/data/input.chunksizes','w+')
+numpy.asarray(sizes).flatten().tofile(chunksizes)
+chunksizes.close()
 
 #Write metedata to file
 #however the max ID is limited to 31 bits ~ 2 billion]  if using uint32s then the volumes should be <= 2G voxels just in case
 #i guess i wouldnt make cubes bigger than 1k x 1k x 2k
 # unless we want to use uint64s for IDs
-metadata = numpy.concatenate(( numpy.array([32, 32]), best_divs[::-1] )).astype('int32')
+metadata = numpy.concatenate(( numpy.array([32, 32]), best_divs )).astype('int32')
 print metadata
 metadata.tofile('../watershed/data/input.metadata')
 
 #Run watershed
 print 'running watershed ...'
 #there should be no spaces in the arguments, otherwise it doesn't work
-call(["../watershed/src/zi/watershed/main/bin/xxlws", "--filename=../watershed/data/input", "--high=0.99", "--low=0.25", "--dust=400", "--dust_low=0.3"])
+call(["../watershed/src/zi/watershed/main/bin/xxlws", "--filename=../watershed/data/input", "--high=0.91", "--low=0.25", "--dust=400", "--dust_low=0.3"])
 
+#print "../watershed/src/zi/watershed/main/bin/xxlws", "--filename=../watershed/data/input", "--high=0.99", "--low=0.25", "--dust=400", "--dust_low=0.3"
