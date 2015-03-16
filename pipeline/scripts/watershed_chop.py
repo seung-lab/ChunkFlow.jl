@@ -3,11 +3,12 @@ import numpy
 import re
 from subprocess import call
 import h5py
+from tqdm import tqdm
 
 from global_vars import *
-
+import time
 #Read the merged znn output
-f = h5py.File('../watershed/znn_merged.hdf5', 'r')
+f = h5py.File('../znn/data/znn_merged.hdf5', 'r')
 znn = f['/main']
 
 #The larger the chuncks watershed process in parallel the better
@@ -35,9 +36,11 @@ for z in range(1,required_divs+1):
 				best_score = score
 				best_divs = test_divs
 
-best_divs = numpy.array([2, 2, 2])
+best_divs = numpy.array([1, 4, 4])
+best_divs = best_divs[::-1]
 
-width = numpy.ceil( znn.shape[1:4] / best_divs -1 ).astype(int)
+
+width = numpy.ceil( znn.shape[1:4][::-1] / best_divs -1 ).astype(int)
 
 if not os.path.exists('../watershed/data'):
 	os.makedirs('../watershed/data')
@@ -53,50 +56,49 @@ else:
 
 affinities = open('../watershed/data/input.affinity.data','w+')
 os.makedirs('../watershed/data/input.chunks')
-
 sizes = []
 
-for z_chunk in range(0, best_divs[0]):
-	if z_chunk == 0:
-		z_chunk_min = 0
-		
+total = numpy.prod(best_divs).astype(int) -1
+progressbar = tqdm(range(total))
 
-	z_chunk_max = z_chunk_min + width[0]
+for x_chunk in range(0, best_divs[0]):
+	if x_chunk == 0:
+		x_chunk_min = 0
+	x_chunk_max = x_chunk_min + width[0]
 
 	for y_chunk in range(0 , best_divs[1]):
 		if y_chunk == 0:
-			y_chunk_min = 0
-			
+			y_chunk_min = 0		
 		y_chunk_max = y_chunk_min + width[1]
 
 
-		for x_chunk in range(0, best_divs[2]):
-			if x_chunk == 0:
-				x_chunk_min = 0
-				
-			x_chunk_max = x_chunk_min + width[2]
-	
+		for z_chunk in range(0, best_divs[2]):
+			if z_chunk == 0:
+				z_chunk_min = 0
+			z_chunk_max = z_chunk_min + width[2]
 
-			os.makedirs('../watershed/data/input.chunks/{0}/{1}/{2}'.format(z_chunk, y_chunk, x_chunk))
-			cfrom = numpy.array([z_chunk_min, y_chunk_min, x_chunk_min]) - 1
+			os.makedirs('../watershed/data/input.chunks/{0}/{1}/{2}'.format(x_chunk, y_chunk, z_chunk))
+			cfrom = numpy.array([x_chunk_min, y_chunk_min, z_chunk_min]) - 2
 			cfrom[cfrom < 0] = 0
-			cto = numpy.array([z_chunk_max, y_chunk_max, x_chunk_max]) + 1
-			cto = numpy.minimum(cto, znn.shape[1:4])
-			size = cto - cfrom
-
-			print 'prepared chunk {0}:{1}:{2} , position [{3}-{4} , {5}-{6}, {7}-{8}] size: [ {9} {10} {11} ]'.format(z_chunk, y_chunk, x_chunk,cfrom[0],cto[0],cfrom[1], cto[1],cfrom[2], cto[2] , size[0], size[1], size[2])
+			cto = numpy.array([x_chunk_max, y_chunk_max, z_chunk_max]) + 1
+			cto = numpy.minimum(cto, znn.shape[1:4][::-1])
 			
-			affin = znn[:,cfrom[0]:cto[0], cfrom[1]:cto[1], cfrom[2]:cto[2]].astype('float32')
+			affin = znn[:,cfrom[2]:cto[2], cfrom[1]:cto[1], cfrom[0]:cto[0]].astype('float32')
 			affin.tofile(affinities)
 
 			sz = numpy.asarray(affin.shape[1:4])[::-1].astype('uint32')
 			sizes.append(sz)
+			
+			print 'prepared chunk (xyz) {0}:{1}:{2} , position [{3}-{4} , {5}-{6}, {7}-{8}] size: [ {9} {10} {11} ]'.format(x_chunk, y_chunk, z_chunk, cfrom[0],cto[0],cfrom[1], cto[1],cfrom[2], cto[2], sz[2], sz[1], sz[0])
+			
+			try:
+				progressbar.next()
+			except:
+				pass
 
-			print sz
-
-			x_chunk_min = x_chunk_max
+			z_chunk_min = z_chunk_max
 		y_chunk_min = y_chunk_max
-	z_chunk_min = z_chunk_max
+	x_chunk_min = x_chunk_max
 
 affinities.close()
 
@@ -108,13 +110,11 @@ chunksizes.close()
 #however the max ID is limited to 31 bits ~ 2 billion]  if using uint32s then the volumes should be <= 2G voxels just in case
 #i guess i wouldnt make cubes bigger than 1k x 1k x 2k
 # unless we want to use uint64s for IDs
-metadata = numpy.concatenate(( numpy.array([32, 32]), best_divs )).astype('int32')
-print metadata
+metadata = numpy.concatenate(( numpy.array([32, 32]), best_divs)).astype('int32')
 metadata.tofile('../watershed/data/input.metadata')
 
 #Run watershed
 print 'running watershed ...'
 #there should be no spaces in the arguments, otherwise it doesn't work
-call(["../watershed/src/zi/watershed/main/bin/xxlws", "--filename=../watershed/data/input", "--high=0.91", "--low=0.25", "--dust=400", "--dust_low=0.3"])
+call(["../watershed/src/zi/watershed/main/bin/xxlws", "--filename=../watershed/data/input", "--high=0.90", "--low=0.25", "--dust=400", "--dust_low=0.3"])
 
-#print "../watershed/src/zi/watershed/main/bin/xxlws", "--filename=../watershed/data/input", "--high=0.99", "--low=0.25", "--dust=400", "--dust_low=0.3"
