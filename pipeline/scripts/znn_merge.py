@@ -10,7 +10,12 @@ import znn
 
 max_x, max_y, max_z = 0,0,0
 output_size = None
+print os.listdir('../znn/data/')
+
 for chunk_dir in os.listdir('../znn/data/'):
+
+	if not os.path.isdir( '../znn/data/{0}/'.format(chunk_dir)):
+		continue
   	
 	#Get max chunk size in voxels
 	try: 
@@ -41,7 +46,7 @@ chunk_size =  output_size.copy()
 chunk_size[1] = 1
 
 #We create and hdf5 with a chunk layout, we will load one znn chunk in memory at the time, and flush it to disk
-f = h5py.File('../watershed/znn_merged.hdf5', "w" )
+f = h5py.File('../znn/data/znn_merged.hdf5', "w" )
 dset = f.create_dataset('/main', tuple(output_size) , chunks=tuple(chunk_size) , compression="gzip")
 
 zabs = 0 
@@ -60,9 +65,9 @@ for z_znn in range(max_z+1):
 			print chunk_dir , ' merged'
 			dset[:, zabs:zabs+znn_chunk_size[1], yabs:yabs+znn_chunk_size[2], xabs:xabs+znn_chunk_size[3]] = znn_chunk_affinity
 
-			xabs = xabs+znn_chunk_size[3] - 1
-		yabs = yabs+znn_chunk_size[2] - 1
-	zabs = zabs+znn_chunk_size[1] - 1
+			xabs = xabs+znn_chunk_size[3] 
+		yabs = yabs+znn_chunk_size[2] 
+	zabs = zabs+znn_chunk_size[1] 
 
 print dset.shape
 
