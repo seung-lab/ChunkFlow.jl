@@ -18,6 +18,7 @@ crop_effective = fov_effective - 1
 
 #It computes the optimal disposition of chunks trying to reduce waste computation because of overlaps
 divs = znn.optimal_divs()
+#divs = numpy.array([2 ,2 ,2])
 
 print 'we will make ',divs,'chunks'
 #Estimate how long will it take, and how much computation is wasted because of overlapping
@@ -99,6 +100,7 @@ for c in chunks:
 
 		run = """#!/bin/bash
 		../znn/znn-release/bin/znn --options=../znn/data/{0}/trainning_spec/stage1.spec --test_only=1
+		python split_stage1.py {0}
 		../znn/znn-release/bin/znn --options=../znn/data/{0}/trainning_spec/stage2.spec --test_only=1
 		""".format(c['filename'])
 
