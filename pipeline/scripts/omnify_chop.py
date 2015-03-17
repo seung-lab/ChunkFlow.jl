@@ -5,11 +5,12 @@ import os
 import json
 
 from global_vars import *
+from tqdm import tqdm
 
 
-divs = numpy.array([1,1,2])
+divs = numpy.array([4,4,4])
 
-overlap = numpy.array([2, 2 ,2])
+overlap = numpy.array([10, 10 , 10])
 
 #Open the merge watershed file
 segmentation = h5py.File('../watershed/data/watershed_merged.hdf5', "r" )
@@ -28,7 +29,7 @@ else:
 	os.makedirs('../omnify/data')
 
 
-for c in znn.chunk_sizes(dims, divs, overlap):
+for c in tqdm(znn.chunk_sizes(dims, divs, overlap)):
 
 	#Make a folder which will contain this chunk
 	os.makedirs('../omnify/data/{0}'.format(c['filename']))
@@ -40,8 +41,6 @@ for c in znn.chunk_sizes(dims, divs, overlap):
 	#save main segmentation chunk
 	with h5py.File('../omnify/data/{0}/segmentation.hdf5'.format(c['filename']), "w" ) as chunk_seg:
 		main_dset = segmentation['/main'][c['z_min']:c['z_max'], c['y_min']:c['y_max'], c['x_min']:c['x_max']]
-
-		main_dset_relabeled = numpy.copy(main_dset)
 
 		#save dendogram
 		dendogram = segmentation['/dend']
@@ -61,25 +60,26 @@ for c in znn.chunk_sizes(dims, divs, overlap):
 			if left_id in unique_ids and right_id in unique_ids:				
 				truncated_dendValues.append(dendValues[row])
 
-				if left_id in id_map:
-					map_left_id = id_map[left_id]
-				else:
-					map_left_id = new_id
+				if left_id not in id_map:
 					id_map[left_id] = new_id
 					new_id += 1
 
-				if right_id in id_map:
-					map_right_id = id_map[right_id]
-				else:
-					map_right_id = new_id
+				if right_id not in id_map:
 					id_map[right_id] = new_id
 					new_id += 1
 
-				truncated_dend.append(numpy.array([map_left_id, map_right_id]))
-				main_dset_relabeled[ main_dset == left_id] = map_left_id
-				main_dset_relabeled[ main_dset == right_id] = map_right_id
+				truncated_dend.append(numpy.array([id_map[left_id], id_map[right_id]]))
 
-		chunk_seg.create_dataset('/main', data=main_dset_relabeled , dtype='uint32' )
+		old_shape = main_dset.shape
+		main_dset = main_dset.flatten()
+		for index in range(len(main_dset)):
+			label = main_dset[index]
+			if label in id_map:
+				label = id_map[label]
+
+		main_dset.reshape(old_shape)
+
+		chunk_seg.create_dataset('/main', data=main_dset , dtype='uint32' )
 		chunk_seg.create_dataset('/dend', data=numpy.array(truncated_dend).transpose(), dtype='uint32' )
 		chunk_seg.create_dataset('/dendValues', data=truncated_dendValues , dtype='float32' )
 	
