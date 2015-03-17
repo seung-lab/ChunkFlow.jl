@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 divs = numpy.array([4,4,4])
 
-overlap = numpy.array([10, 10 , 10])
+overlap = numpy.array([128, 128 , 128])
 
 #Open the merge watershed file
 segmentation = h5py.File('../watershed/data/watershed_merged.hdf5', "r" )
@@ -77,7 +77,7 @@ for c in tqdm(znn.chunk_sizes(dims, divs, overlap)):
 			if label in id_map:
 				label = id_map[label]
 
-		main_dset.reshape(old_shape)
+		main_dset = main_dset.reshape(old_shape)
 
 		chunk_seg.create_dataset('/main', data=main_dset , dtype='uint32' )
 		chunk_seg.create_dataset('/dend', data=numpy.array(truncated_dend).transpose(), dtype='uint32' )
