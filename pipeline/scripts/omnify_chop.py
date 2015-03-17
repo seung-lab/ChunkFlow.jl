@@ -41,6 +41,8 @@ for c in tqdm(znn.chunk_sizes(dims, divs, overlap)):
 	#save main segmentation chunk
 	with h5py.File('../omnify/data/{0}/segmentation.hdf5'.format(c['filename']), "w" ) as chunk_seg:
 		main_dset = segmentation['/main'][c['z_min']:c['z_max'], c['y_min']:c['y_max'], c['x_min']:c['x_max']]
+		old_shape = main_dset.shape
+		main_dset = main_dset.flatten()
 
 		#save dendogram
 		dendogram = segmentation['/dend']
@@ -48,37 +50,25 @@ for c in tqdm(znn.chunk_sizes(dims, divs, overlap)):
 
 		# truncate the dend
 		unique_ids = numpy.unique(main_dset)
+		id_map = dict(zip(unique_ids, range(len(unique_ids))))
+
+
 		truncated_dend = []
 		truncated_dendValues = []
-
-		id_map = {}
 
 		new_id = 0
 		for row in range(dendogram.shape[1]):
 			left_id = dendogram[0,row]
 			right_id = dendogram[1,row]
 			if left_id in unique_ids and right_id in unique_ids:				
+
 				truncated_dendValues.append(dendValues[row])
-
-				if left_id not in id_map:
-					id_map[left_id] = new_id
-					new_id += 1
-
-				if right_id not in id_map:
-					id_map[right_id] = new_id
-					new_id += 1
-
 				truncated_dend.append(numpy.array([id_map[left_id], id_map[right_id]]))
 
-		old_shape = main_dset.shape
-		main_dset = main_dset.flatten()
 		for index in range(len(main_dset)):
-			label = main_dset[index]
-			if label in id_map:
-				label = id_map[label]
+			main_dset[index] = id_map[main_dset[index]]
 
 		main_dset = main_dset.reshape(old_shape)
-
 		chunk_seg.create_dataset('/main', data=main_dset , dtype='uint32' )
 		chunk_seg.create_dataset('/dend', data=numpy.array(truncated_dend).transpose(), dtype='uint32' )
 		chunk_seg.create_dataset('/dendValues', data=truncated_dendValues , dtype='float32' )
