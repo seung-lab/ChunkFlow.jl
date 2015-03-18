@@ -24,11 +24,13 @@ else:
 	import shutil
 	shutil.rmtree('../omnify/data')
 	os.makedirs('../omnify/data')
+dims =  numpy.array([647, 3000 , 3000])
 
 divs = numpy.array([3,3,3])
 overlap = numpy.array([128, 128 , 128])
 width = ((dims / 128) / divs ) * 128
 width[width < 128] = 128
+
 
 if numpy.all(overlap == width):
 	divs = numpy.array([1,1,1])
@@ -71,10 +73,14 @@ for z_chunk in range(0, divs[0]):
 
 			x_chunk_min = x_chunk_max
 		y_chunk_min = y_chunk_max
-	z_chunk_min = x_chunk_max
+	z_chunk_min = z_chunk_max
 
 
-for c in chunks:
+#Create bash file with all the jobs to be run
+jobs = open('scheduleOmnification.sh','w')
+
+
+for c in tqdm(chunks):
 
 	#Make a folder which will contain this chunk
 	os.makedirs('../omnify/data/{0}'.format(c['filename']))
@@ -144,5 +150,23 @@ quit""".format(c['filename'], resolution[0], resolution[1], resolution[2], c['x_
 		st = os.stat(runfile.name)
 		os.chmod(runfile.name, st.st_mode | 0111 )
 
+
+	#Add run.sh file to the job list
+	#For production
+	#The -r argument instructs the queueing system to re-execute the same job on a different worker node 
+	#if the currently running worker node fails or is terminated. With all jobs marked as re-runnable 
+	#a given spot instance can be terminated and any running jobs on the instance will simply be restarted 
+	#on a different worker. This approach does not resume a job where it left off before it was interrupted,
+	#however, it does ensure that it will eventually be completed if and when resources are available. 
+	#jobs.write('qsub -r y -V -b y -cwd ./data/{0}/trainning_spec/run.sh \n'.format(c['filename']))
+	#For test
+	jobs.write('../omnify/data/{0}/run.sh \n'.format(c['filename']))
+
 segmentation.close()
 channel.close()
+
+
+#Close jobs and make it executable
+jobs.close()
+st = os.stat(jobs.name) 
+os.chmod(jobs.name, st.st_mode | 0111)

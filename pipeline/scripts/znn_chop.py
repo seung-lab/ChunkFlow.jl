@@ -44,7 +44,7 @@ else:
     #raise Exception('folder already exists')
 
 #Create bash file with all the jobs to be run
-jobs = open('scheduleJobs.sh','w')
+jobs = open('scheduleZNN.sh','w')
 
 #check if znn is compiled, if not, add it to the script
 if not os.path.isfile('../znn/znn-release/bin/znn'):
