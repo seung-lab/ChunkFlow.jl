@@ -8,13 +8,10 @@ from global_vars import *
 from tqdm import tqdm
 
 
-divs = numpy.array([4,4,4])
-
-overlap = numpy.array([128, 128 , 128])
-
 #Open the merge watershed file
 segmentation = h5py.File('../watershed/data/watershed_merged.hdf5', "r" )
-dims = segmentation['/main'].shape
+dims = numpy.asarray(segmentation['/main'].shape)
+
 
 #Open the channel data
 channel = h5py.File('../omnify/channel.hdf5','r')
@@ -28,8 +25,56 @@ else:
 	shutil.rmtree('../omnify/data')
 	os.makedirs('../omnify/data')
 
+divs = numpy.array([3,3,3])
+overlap = numpy.array([128, 128 , 128])
+width = ((dims / 128) / divs ) * 128
+width[width < 128] = 128
 
-for c in tqdm(znn.chunk_sizes(dims, divs, overlap)):
+if numpy.all(overlap == width):
+	divs = numpy.array([1,1,1])
+
+chunks = []
+for z_chunk in range(0, divs[0]):
+	if z_chunk == 0:
+		z_chunk_min = 0
+	else:
+		z_chunk_min = z_chunk_min - overlap[0]
+
+	z_chunk_max = z_chunk_min + width[0]
+
+	for y_chunk in range(0 , divs[1]):
+		if y_chunk == 0:
+			y_chunk_min = 0
+		else:
+			y_chunk_min = y_chunk_min - overlap[1] 
+
+
+		y_chunk_max = y_chunk_min + width[1]
+
+
+		for x_chunk in range(0, divs[2]):
+			if x_chunk == 0:
+				x_chunk_min = 0
+			else:
+				x_chunk_min = x_chunk_min - overlap[2] 
+
+			x_chunk_max = x_chunk_min + width[2]
+			cfrom = numpy.array([z_chunk_min, y_chunk_min, x_chunk_min])
+			cfrom[cfrom < 0] = 0
+			cto = numpy.array([z_chunk_max, y_chunk_max, x_chunk_max]) 
+			cto = numpy.minimum(cto, dims)
+
+			filename = "z{0}-y{1}-x{2}".format(z_chunk, y_chunk, x_chunk)
+			chunk = {'x_min': cfrom[2], 'x_max':cto[2], 'y_min': cfrom[1], 'y_max':cto[1], 'z_min':cfrom[0] , 'z_max':cto[0],'filename':filename }
+			chunks.append(chunk)
+			print chunk
+
+			x_chunk_min = x_chunk_max
+		y_chunk_min = y_chunk_max
+	z_chunk_min = x_chunk_max
+
+
+for c in chunks:
 
 	#Make a folder which will contain this chunk
 	os.makedirs('../omnify/data/{0}'.format(c['filename']))
@@ -79,16 +124,18 @@ for c in tqdm(znn.chunk_sizes(dims, divs, overlap)):
 		chunk_chann.create_dataset('/main', data=main_dset , dtype='float32' )
 
 	#Create omni run files
+	resolution = numpy.array([7, 7 , 40])
+
 	with open('../omnify/data/{0}/omnify.cmd'.format(c['filename']), 'w') as fcmd:
 		fcmd.write("""create:../../../trace/{0}.omni
 loadHDF5chann:channel.hdf5
-setChanResolution:1,7,7,40
+setChanResolution:1,{1},{2},{3}
 loadHDF5seg:segmentation.hdf5
-setSegResolution:1,7,7,40
-setChanAbsOffset:1,{1},{2},{3}
-setSegAbsOffset:1,{1},{2},{3}
+setSegResolution:1,{1},{2},{3}
+setChanAbsOffset:1,{4},{5},{6}
+setSegAbsOffset:1,{4},{5},{6}
 mesh
-quit""".format(c['filename']), c['x_min'], c['y_min'], c['z_min'])
+quit""".format(c['filename'], resolution[0], resolution[1], resolution[2], c['x_min']*resolution[0], c['y_min']*resolution[1], c['z_min']*resolution[2]))
 
 	with open('../omnify/data/{0}/run.sh'.format(c['filename']), 'w') as runfile:
 		runfile.write( '../../omnify.sh --headless --cmdfile=omnify.cmd')
