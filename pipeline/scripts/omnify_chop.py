@@ -85,8 +85,10 @@ loadHDF5chann:channel.hdf5
 setChanResolution:1,7,7,40
 loadHDF5seg:segmentation.hdf5
 setSegResolution:1,7,7,40
+setChanAbsOffset:1,{1},{2},{3}
+setSegAbsOffset:1,{1},{2},{3}
 mesh
-quit""".format(c['filename']))
+quit""".format(c['filename']), c['x_min'], c['y_min'], c['z_min'])
 
 	with open('../omnify/data/{0}/run.sh'.format(c['filename']), 'w') as runfile:
 		runfile.write( '../../omnify.sh --headless --cmdfile=omnify.cmd')
