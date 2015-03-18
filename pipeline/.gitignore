@@ -1,9 +1,7 @@
-scheduleJobs.sh
-scripts/image.png
 /znn-release/test.config
 /znn-release/train.config
 /znn-release/networks
-znn-release/Makefile.MacOS
-znn-release/dataset/
-znn-release/matlab/
+/znn-release/Makefile.MacOS
+/znn-release/dataset/
+/znn-release/matlab/
 
