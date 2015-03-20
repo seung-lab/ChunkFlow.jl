@@ -24,9 +24,8 @@ else:
 	import shutil
 	shutil.rmtree('../omnify/data')
 	os.makedirs('../omnify/data')
-dims =  numpy.array([647, 3000 , 3000])
 
-divs = numpy.array([3,3,3])
+divs = numpy.array([1,1,1])
 overlap = numpy.array([128, 128 , 128])
 width = ((dims / 128) / divs ) * 128
 width[width < 128] = 128
@@ -134,9 +133,9 @@ for c in tqdm(chunks):
 
 	with open('../omnify/data/{0}/omnify.cmd'.format(c['filename']), 'w') as fcmd:
 		fcmd.write("""create:../../../trace/{0}.omni
-loadHDF5chann:channel.hdf5
+loadHDF5chann:../omnify/data/{0}/channel.hdf5
 setChanResolution:1,{1},{2},{3}
-loadHDF5seg:segmentation.hdf5
+loadHDF5seg:../omnify/data/{0}/segmentation.hdf5
 setSegResolution:1,{1},{2},{3}
 setChanAbsOffset:1,{4},{5},{6}
 setSegAbsOffset:1,{4},{5},{6}
@@ -144,7 +143,7 @@ mesh
 quit""".format(c['filename'], resolution[0], resolution[1], resolution[2], c['x_min']*resolution[0], c['y_min']*resolution[1], c['z_min']*resolution[2]))
 
 	with open('../omnify/data/{0}/run.sh'.format(c['filename']), 'w') as runfile:
-		runfile.write( '../../omnify.sh --headless --cmdfile=omnify.cmd')
+		runfile.write( '../omnify/omnify.sh --headless --cmdfile=../omnify/data/{0}/omnify.cmd'.format(c['filename']))
 
 		#make this file executable
 		st = os.stat(runfile.name)
