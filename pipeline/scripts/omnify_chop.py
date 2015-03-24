@@ -132,7 +132,7 @@ for c in tqdm(chunks):
 	resolution = numpy.array([7, 7 , 40])
 
 	with open('../omnify/data/{0}/omnify.cmd'.format(c['filename']), 'w') as fcmd:
-		fcmd.write("""create:../../../trace/{0}.omni
+		fcmd.write("""create:../trace/{0}.omni
 loadHDF5chann:../omnify/data/{0}/channel.hdf5
 setChanResolution:1,{1},{2},{3}
 loadHDF5seg:../omnify/data/{0}/segmentation.hdf5
