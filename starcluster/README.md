@@ -1,11 +1,14 @@
 StarCluster 
 ==========
-copy aws-znn.pem to ~/.shh/ in your workstation.
+copy aws-znn.pem to ~/.ssh/ in your workstation.
 copy config to ~/.starcluster/config
 
 run in a terminal:
 starcluster -c smallcluster mycluster
 this will launch the master node.
+
+the instance type is application specific. Should check the available instance types before starting an instance.
+http://aws.amazon.com/ec2/instance-types/
 
 Modify the volume, the size of the volume should be about 20 times the size of the raw images.
 firstly all tiff images are converted into an hdf5 file.
@@ -26,3 +29,5 @@ startcluster removenode mycluster node002
 
 to terminate the cluster:
 starcluster terminate mycluster
+
+
