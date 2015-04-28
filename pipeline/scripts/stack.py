@@ -63,7 +63,7 @@ class Stack:
 			return index.split(filename)[1]
 
 		self.filestack = list() 
-		for folder in ('100x400x300',):
+		for folder in ('tiff',):
 			path = '../alignment/{}/'.format(folder)
 			for z_tif in sorted(os.listdir(path), key=numberSort):
 				self.filestack.append(path+z_tif)
@@ -86,7 +86,7 @@ class Stack:
 
 
 		#Should we used compression="gzip" on this?
-		dset = f.create_dataset('/main', tuple(channel_size) , chunks=tuple(chunk_size))		
+		dset = f.create_dataset('/main', tuple(channel_size) , chunks=tuple(chunk_size) , dtype=numpy.uint8)		
 
 		zabs = 0
 		print z_min , z_max
@@ -95,8 +95,8 @@ class Stack:
 			print zabs , self.filestack[tiff] 
 			cropped = tifffile.imread(self.filestack[tiff])[y_min:y_max , x_min:x_max]
 
-			#Normalize and change dtype
-			cropped = cropped/255.0
+			#change dtype
+			cropped = cropped.astype(numpy.uint8)
 
 			#save the chunck
 			dset[zabs, 0:y_max-y_min, 0:x_max-x_min] = cropped
@@ -115,5 +115,5 @@ if __name__ == "__main__":
 	#Create cropped channel data for omnifying
 	#if we divide the watershed output in many omnifiles
 	#omnify.py will be responsable of doing it
-	s.convertToHDF5(crop = fov_effective-1, outputPath='../omnify/channel.hdf5')
+	#s.convertToHDF5(crop = fov_effective-1, outputPath='../omnify/channel.hdf5')
 
