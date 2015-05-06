@@ -2,7 +2,7 @@ AWS-ZNN
 =======
 
 IMPORTANT: THIS PROJECT CONTAINS CONFINDENTIAL INFORMATION
-* It includes the credentials required to launch instances 
+* It includes the credentials required to launch instances
 * It contains a trained ZNN.
 
 
@@ -15,7 +15,7 @@ This project is intended to have all the logic required to:
 5.  Chop the merged ZNN output to run parallel(thread) watershed (only in node for having consistent watershed, also because the disk I/O is the bottleneck)
 6.  Merge the watershed chunks in one file (watershed_merged.hdf5)
 7.  Chop the watershed merged output, and the microscopy images into many omni projects with a specified overlap, and omnify each project in one node.
- 
+
 Documentation:
  Each folder contains a markdown files, navigate through the tree reading them.
  Read also in-code comments
@@ -25,13 +25,6 @@ Documentation:
 
 TODO list
 ===================
-1. Improve documentation pipeline, there were many bugs primarily because ZNN assumes column-major, and python uses row-major order.
-2. Make use of the scratch space provided in each node.
-3. Evaluate moving from SGE to Slurm 
-4. Add omnifycation and watershed to the scheduler with the right dependencies 
-5. Remove files from earlier stages of the pipeline while processing the following stages to free space.
-
-
-
-
-
+1. Make use of the scratch space provided in each node.
+2. Evaluate moving from SGE to Slurm
+3. change znn to read/write chunk directly from/to hdf5 file to avoid choping and merging

@@ -1,55 +1,76 @@
-import numpy
-import h5py
-from tqdm import tqdm
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Feb 27 13:39:22 2015
 
+@author: jingpeng
+"""
+import numpy as np
+import os
 from global_vars import *
-#open channel data
-znn_merged = h5py.File('../znn/data/znn_merged.hdf5', "r" )
-#Remove the first dimension which is 3, because of the affinity
-desired_size = numpy.asarray(znn_merged['/main'].shape)[1:4]
-znn_merged.close()
 
-#Segmentation output file
-merged_file = h5py.File('../watershed/data/watershed_merged.hdf5', "w" )
+def get_volume_info():
+    # number of chunks in the xyz direction
+    chunkNum = np.fromfile(gtemp_file + 'input.metadata', dtype='uint32')[2:5][::-1]
+    # chunk sizes
+    chunksizes = np.fromfile(gtemp_file + 'input.chunksizes', dtype='uint32').reshape(-1,3)[:,::-1]
+    s = np.fromfile( gtemp_file + 'input.total_size', dtype='uint32' )
+    print "volume size: "+ str(s)
+#    width = np.repeat(s.min(),3)
+    width = np.fromfile( gtemp_file + 'input.width', dtype='uint32' )
+    width = np.minimum( gwidth, s )
 
-dendValues = numpy.fromfile('../watershed/data/input.dend_values', dtype='float32' )
-dendValues_dset = merged_file.create_dataset('/dendValues', data=dendValues, dtype='float32')
+    return chunkNum, chunksizes, width, s
+
+# out-of-core processing, generate a bunch of h5 files
+def watershed_merge( ):
+    chunkNum, chunkSizes, width, s = get_volume_info()
+
+    # the temporal volume of whole dataset
+    import h5py
+
+    try:
+        os.remove(gtemp_file + 'temp_wsmerge.h5')
+    except OSError:
+        pass
+    ftmp = h5py.File( gws_merge_h5, "w" )
+    if np.all(gblocksize >= s):
+        seg = ftmp.create_dataset('/main', tuple(s), chunks=True, dtype='uint32', compression="gzip" )
+    else:
+        seg = ftmp.create_dataset('/main', tuple(s), dtype='uint32' )
+
+    # feed the temporal volume with chunks
+    print "feed the temporal volume with chunks ..."
+    xind = 0
+    for x in xrange(0, s[2], width[2]):
+        yind = 0
+        for y in xrange(0, s[1], width[1]):
+            zind = 0
+            for z in xrange(0, s[0], width[0]):
+                cfrom = np.maximum( np.array([0,0,0]), np.array([z,y,x])-1 )
+                cto = np.minimum( s, np.array([z,y,x])+width+1 )
+                sze = cto - cfrom
+                print "size: {}, from: {}, to:{}".format(sze, cfrom, cto)
+                segfname = gtemp_file + 'input' + '.chunks/' + str(xind) + '/' + str(yind) + '/' + str(zind) + '/.seg'
+                chk = np.reshape( np.fromfile(segfname, dtype='uint32' ), sze)
+                seg[ cfrom[0]+1:cto[0]-1, cfrom[1]+1:cto[1]-1, cfrom[2]+1:cto[2]-1 ] = chk[ 1:-1, 1:-1, 1:-1 ]
+
+                zind += 1
+            yind += 1
+        xind += 1
+    # unique seg ID, TO-DO
 
 
-dend = numpy.fromfile('../watershed/data/input.dend_pairs', dtype = 'uint32').reshape(-1,2).transpose()
-dend_dset = merged_file.create_dataset('/dend', data=dend, dtype='uint32')
+    # the dend and dend values
+    dendValues = np.fromfile( gtemp_file + 'input.dend_values', dtype='single' )
+    dend = np.fromfile( gtemp_file + 'input.dend_pairs', dtype = 'uint32' )
+    dend = dend.reshape((len(dendValues), 2)).transpose()
+    ftmp.create_dataset('/dend', data=dend, dtype='uint32')
+    ftmp.create_dataset('/dendValues', data=dendValues, dtype='single')
+    ftmp.close()
 
-#Read the metadata to find out how many chunks we have
-metadata = numpy.fromfile('../watershed/data/input.metadata', dtype='uint32')[2:5]
-#read sizes to get individual chunks size
-chunksizes = numpy.fromfile('../watershed/data/input.chunksizes', dtype='uint32').reshape(-1,3)
 
-main_dset = merged_file.create_dataset('/main', desired_size , dtype='uint32' )
+if __name__ == "__main__":
+    # run function
+    watershed_merge( )
 
-total = numpy.prod(metadata).astype(int) -1
-progressbar = tqdm(range(total))
-
-chunk_number = 0
-xabs = 0
-for x_chunk in range(metadata[0]):
-    yabs = 0
-    for y_chunk in range(metadata[1]):
-        zabs = 0
-        for z_chunk in range(metadata[2]):
-
-            chunk_size = chunksizes[chunk_number][::-1] 
-            main_chunk = numpy.fromfile('../watershed/data/input.chunks/{0}/{1}/{2}/.seg'.format(x_chunk, y_chunk, z_chunk), dtype='uint32').reshape(chunk_size)
-            main_dset[zabs+1:zabs+chunk_size[0]-1 , yabs+1:yabs+chunk_size[1]-1 , xabs+1:xabs+chunk_size[2]-1] = main_chunk[1:chunk_size[0]-1, 1:chunk_size[1]-1, 1:chunk_size[2]-1]
-
-            print ' merged chunk(xyz) {0}:{1}:{2} , position [{3}-{4} , {5}-{6}, {7}-{8}] size: [ {9} {10} {11} ]'.format(x_chunk, y_chunk, z_chunk, xabs+1, xabs+chunk_size[0]-1 ,yabs+1 , yabs+chunk_size[1]-1 , zabs+1 , zabs+chunk_size[2]-1 , chunk_size[0], chunk_size[1], chunk_size[2])
-            try:
-                progressbar.next()
-            except:
-                pass
-
-            #for next loop
-            chunk_number += 1
-            zabs += chunk_size[0] -2
-        yabs += chunk_size[1] -2
-    xabs += chunk_size[2] -2
-merged_file.close()
+    print("--finished generating the h5 file --")
