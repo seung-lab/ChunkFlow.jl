@@ -1,171 +1,165 @@
-import numpy
-import h5py
-import znn
-import os
-import json
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr  2 14:37:12 2015
 
+@author: jingpeng
+"""
 from global_vars import *
-from tqdm import tqdm
+import h5py
+import time
 
+def write_h5_with_dend(h5filename, dend, dendValues, vol=False):
+    import h5py
+    f = h5py.File( h5filename, "a" )
+    if np.any(vol):
+        f.create_dataset('/main', data = vol )
+    f.create_dataset('/dend', data=dend, dtype='uint32')
+    f.create_dataset('/dendValues', data=dendValues, dtype='single')
+    f.close()
 
-#Open the merge watershed file
-segmentation = h5py.File('../watershed/data/watershed_merged.hdf5', "r" )
-dims = numpy.asarray(segmentation['/main'].shape)
+def write_h5_chann( h5filename, vol ):
+    import h5py
+    f = h5py.File( h5filename, "w" )
+    f.create_dataset('/main', data = vol )
+    f.close()
 
+def write_cmd( fname, bfrom ):
+    cmdfname = gomnify_data_file + fname + ".cmd"
+    fcmd = open(cmdfname, 'w')
+    fcmd.write('create:'+ gomniprojects_save_file + fname+'.omni\n')
+    fcmd.write('loadHDF5chann:' + fname + '.chann.h5\n')
+    fcmd.write('setChanResolution:1,{},{},{}\n'.format( gvoxel_size[2], gvoxel_size[1], gvoxel_size[0] ))
+    fcmd.write('setChanAbsOffset:,1,{},{},{}\n'.format(\
+        bfrom[2]*gvoxel_size[2],\
+        bfrom[1]*gvoxel_size[1],\
+        bfrom[0]*gvoxel_size[0]) )
+    fcmd.write('loadHDF5seg:'+ fname +'.segm.h5\n')
+    fcmd.write('setSegResolution:1,{},{},{}\n'.format( gvoxel_size[2], gvoxel_size[1], gvoxel_size[0] ))
+    fcmd.write('setSegAbsOffset:1,{},{},{}\n'.format(\
+        bfrom[2]*gvoxel_size[2],\
+        bfrom[1]*gvoxel_size[1],\
+        bfrom[0]*gvoxel_size[0]) )
+    fcmd.write('mesh\n')
+    fcmd.write('quit\n\n')
+    fcmd.close()
 
-#Open the channel data
-channel = h5py.File('../omnify/channel.hdf5','r')
+def write_sh(shfname, fname):
+    fsh = open( shfname, 'w' )
+    fsh.write('#!/bin/bash\n')
+    fsh.write(gomnifybin + " --headless --cmdfile='" + gomnify_data_file + fname + ".cmd'")
+    fsh.close()
+def write_runall_sh(blockNum):
+    fsh = open( gomnify_data_file + 'runall.sh', 'w')
+    fsh.write('#!/bin/bash\n')
+    fsh.write('cd {}'.format( gomnify_data_file ) )
+    for idx in range(blockNum):
+        fsh.write( 'sh chunk_' +str(idx+1) + '.sh\n' )
+    fsh.close()
 
+def prepare_complete_volume():
+    fname = "chunk_" + str(1) + \
+            "_Z" + str(0) + '-' + str(s[0]-1) + \
+            "_Y" + str(0) + '-' + str(s[1]-1) + \
+            "_X" + str(0) + '-' + str(s[2]-1)
+    # write the segmentation h5 file
+    h5fname = gomnify_data_file + fname + ".segm.h5"
+    os.system("mv " + gws_merge_h5 + " " + h5fname)
+    write_h5_with_dend( h5fname, dend, dendValues )
+    # channel data
+    # write omnify cmd file
+    write_cmd( fname, np.array([0,0,0]) )
+    # generate a corresponding sh file
+    shfname =  gomnify_data_file + "chunk_" + str(1) + ".sh"
+    write_sh(shfname, fname)
+    # write a general bash file
+    write_runall_sh(1)
 
-if not os.path.exists('../omnify/data'):
-     os.makedirs('../omnify/data')
-else:
-	#For test
-	import shutil
-	shutil.rmtree('../omnify/data')
-	os.makedirs('../omnify/data')
+def prepare_blocks():
+    ftmp = h5py.File( gws_merge_h5, "r" )
+    seg = ftmp['/main']
+    print "get the blocks ..."
+    # get the blocks of seg
+    fchann = h5py.File( gchann_file, 'r')
+    chann = fchann['/main']
 
-divs = numpy.array([1,1,1])
-overlap = numpy.array([128, 128 , 128])
-width = ((dims / 128) / divs ) * 128
-width[width < 128] = 128
+    faffin = h5py.File( gaffin_file, 'r' )
+    affin = faffin['/main']
+    s = np.array(affin.shape, dtype='uint32')[1:]
 
+    blockid = 0
+    for bz in xrange(0, s[0], gblocksize[0]-goverlap[0]):
+        for by in xrange(0, s[1], gblocksize[1]-goverlap[1]):
+            for bx in xrange(0, s[2], gblocksize[2]-goverlap[2]):
+                blockid += 1
+                if bx>=512*3 or by>=512*3 or bz>=128*2:
+                    continue
+                print "\nblockid: {}".format(blockid)
 
-if numpy.all(overlap == width):
-	divs = numpy.array([1,1,1])
+                bfrom = np.array([bz, by, bx])
+                # the +1 was for rebuild MST
+                bto = np.minimum(s, bfrom+gblocksize)
 
-chunks = []
-for z_chunk in range(0, divs[0]):
-	if z_chunk == 0:
-		z_chunk_min = 0
-	else:
-		z_chunk_min = z_chunk_min - overlap[0]
+                print "bfrom: {}".format(bfrom)
+                print "bto  : {}".format(bto)
+                start = time.time()
+                block = np.asarray( seg[bfrom[0]:bto[0], bfrom[1]:bto[1], bfrom[2]:bto[2] ] )
+                print "reading segment block takes {0:.1f}s".format( time.time() - start )
+                start = time.time()
+                block_affin = np.asarray( affin[:, bfrom[0]:bto[0], bfrom[1]:bto[1], bfrom[2]:bto[2]] )
+                print "reading affinity block takes {0:.1f}s".format( time.time() - start )
 
-	z_chunk_max = z_chunk_min + width[0]
+                # rebuild MST
+                start = time.time()
+                from relabel import relabel
+                block, chunk_dend, chunk_dendValues = relabel(block, block_affin)
+                print "relabeling takes {0:.1f}s".format( time.time() - start )
+                print "relabelled block:    max: {}, number: {}".format(block.max(), np.unique(block).shape[0])
+                # write the h5 file
+                fname = "chunk_" + str(blockid) + \
+                        "_X" + str(bfrom[2]) + '-' + str(bto[2]-1) + \
+                        "_Y" + str(bfrom[1]) + '-' + str(bto[1]-1) + \
+                        "_Z" + str(bfrom[0]) + '-' + str(bto[0]-1)
+                # write the segmentation h5 file
+                start = time.time()
+                h5fname = gomnify_data_file + fname + ".segm.h5"
+                write_h5_with_dend( h5fname, chunk_dend, chunk_dendValues, block )
+                print "writting segment block takes {0:.1f}s".format( (time.time() - start) )
 
-	for y_chunk in range(0 , divs[1]):
-		if y_chunk == 0:
-			y_chunk_min = 0
-		else:
-			y_chunk_min = y_chunk_min - overlap[1] 
+                # write channel data
+                start = time.time()
+                block_chann = np.asarray( chann[bfrom[0]:bto[0], bfrom[1]:bto[1], bfrom[2]:bto[2] ] )
+                print "reading channel block takes {0:.1f}s".format( time.time() - start )
+                start = time.time()
+                write_h5_chann( gomnify_data_file + fname + '.chann.h5', block_chann )
+                print "writting channel block takes {0:.1f}s".format( (time.time() - start) )
 
+                # write omnify cmd file
+                write_cmd( fname, bfrom )
+                # generate a corresponding sh file
+                shfname =  gomnify_data_file + "chunk_" + str(blockid) + ".sh"
+                write_sh(shfname, fname)
 
-		y_chunk_max = y_chunk_min + width[1]
+    # write a general bash file
+    write_runall_sh(blockid)
+    ftmp.close()
+    fchann.close()
+    faffin.close()
 
+def omnify_chop():
+    ftmp = h5py.File( gws_merge_h5, "r" )
+    seg = ftmp['/main']
+    s = np.array(seg.shape, dtype='uint32')
+    ftmp.close()
+#    import os
+#    os.system('rm -rf {}chunk_*'.format(gomnify_data_file) )
+    if np.all( gblocksize >= s ):
+        # the complete volume
+        prepare_complete_volume()
+    else:
+        # run block chunking
+        prepare_blocks()
 
-		for x_chunk in range(0, divs[2]):
-			if x_chunk == 0:
-				x_chunk_min = 0
-			else:
-				x_chunk_min = x_chunk_min - overlap[2] 
-
-			x_chunk_max = x_chunk_min + width[2]
-			cfrom = numpy.array([z_chunk_min, y_chunk_min, x_chunk_min])
-			cfrom[cfrom < 0] = 0
-			cto = numpy.array([z_chunk_max, y_chunk_max, x_chunk_max]) 
-			cto = numpy.minimum(cto, dims)
-
-			filename = "z{0}-y{1}-x{2}".format(z_chunk, y_chunk, x_chunk)
-			chunk = {'x_min': cfrom[2], 'x_max':cto[2], 'y_min': cfrom[1], 'y_max':cto[1], 'z_min':cfrom[0] , 'z_max':cto[0],'filename':filename }
-			chunks.append(chunk)
-			print chunk
-
-			x_chunk_min = x_chunk_max
-		y_chunk_min = y_chunk_max
-	z_chunk_min = z_chunk_max
-
-
-#Create bash file with all the jobs to be run
-jobs = open('scheduleOmnification.sh','w')
-
-
-for c in tqdm(chunks):
-
-	#Make a folder which will contain this chunk
-	os.makedirs('../omnify/data/{0}'.format(c['filename']))
-
-	#save chunk information as a file
-	with open('../omnify/data/{0}/absolute_position.json'.format(c['filename']), 'wb') as fp:
-		json.dump(c, fp)
-
-	#save main segmentation chunk
-	with h5py.File('../omnify/data/{0}/segmentation.hdf5'.format(c['filename']), "w" ) as chunk_seg:
-		main_dset = segmentation['/main'][c['z_min']:c['z_max'], c['y_min']:c['y_max'], c['x_min']:c['x_max']]
-		old_shape = main_dset.shape
-		main_dset = main_dset.flatten()
-
-		#save dendogram
-		dendogram = segmentation['/dend']
-		dendValues = segmentation['/dendValues']
-
-		# truncate the dend
-		unique_ids = numpy.unique(main_dset)
-		id_map = dict(zip(unique_ids, range(len(unique_ids))))
-
-
-		truncated_dend = []
-		truncated_dendValues = []
-
-		new_id = 0
-		for row in range(dendogram.shape[1]):
-			left_id = dendogram[0,row]
-			right_id = dendogram[1,row]
-			if left_id in unique_ids and right_id in unique_ids:				
-
-				truncated_dendValues.append(dendValues[row])
-				truncated_dend.append(numpy.array([id_map[left_id], id_map[right_id]]))
-
-		for index in range(len(main_dset)):
-			main_dset[index] = id_map[main_dset[index]]
-
-		main_dset = main_dset.reshape(old_shape)
-		chunk_seg.create_dataset('/main', data=main_dset , dtype='uint32' )
-		chunk_seg.create_dataset('/dend', data=numpy.array(truncated_dend).transpose(), dtype='uint32' )
-		chunk_seg.create_dataset('/dendValues', data=truncated_dendValues , dtype='float32' )
-	
-	#Save the channel chunk
-	with h5py.File('../omnify/data/{0}/channel.hdf5'.format(c['filename']), "w" ) as chunk_chann:
-		main_dset = channel['/main'][c['z_min']:c['z_max'], c['y_min']:c['y_max'], c['x_min']:c['x_max']]
-		chunk_chann.create_dataset('/main', data=main_dset , dtype='float32' )
-
-	#Create omni run files
-	resolution = numpy.array([7, 7 , 40])
-
-	with open('../omnify/data/{0}/omnify.cmd'.format(c['filename']), 'w') as fcmd:
-		fcmd.write("""create:../trace/{0}.omni
-loadHDF5chann:../omnify/data/{0}/channel.hdf5
-setChanResolution:1,{1},{2},{3}
-loadHDF5seg:../omnify/data/{0}/segmentation.hdf5
-setSegResolution:1,{1},{2},{3}
-setChanAbsOffset:1,{4},{5},{6}
-setSegAbsOffset:1,{4},{5},{6}
-mesh
-quit""".format(c['filename'], resolution[0], resolution[1], resolution[2], c['x_min']*resolution[0], c['y_min']*resolution[1], c['z_min']*resolution[2]))
-
-	with open('../omnify/data/{0}/run.sh'.format(c['filename']), 'w') as runfile:
-		runfile.write( '../omnify/omnify.sh --headless --cmdfile=../omnify/data/{0}/omnify.cmd'.format(c['filename']))
-
-		#make this file executable
-		st = os.stat(runfile.name)
-		os.chmod(runfile.name, st.st_mode | 0111 )
-
-
-	#Add run.sh file to the job list
-	#For production
-	#The -r argument instructs the queueing system to re-execute the same job on a different worker node 
-	#if the currently running worker node fails or is terminated. With all jobs marked as re-runnable 
-	#a given spot instance can be terminated and any running jobs on the instance will simply be restarted 
-	#on a different worker. This approach does not resume a job where it left off before it was interrupted,
-	#however, it does ensure that it will eventually be completed if and when resources are available. 
-	#jobs.write('qsub -r y -V -b y -cwd ./data/{0}/trainning_spec/run.sh \n'.format(c['filename']))
-	#For test
-	jobs.write('../omnify/data/{0}/run.sh \n'.format(c['filename']))
-
-segmentation.close()
-channel.close()
-
-
-#Close jobs and make it executable
-jobs.close()
-st = os.stat(jobs.name) 
-os.chmod(jobs.name, st.st_mode | 0111)
+if __name__ == "__main__":
+    start = time.time()
+    omnify_chop()
+    print "omnify_chop takes {0:.2f}h".format( (time.time() - start)/3600 )
