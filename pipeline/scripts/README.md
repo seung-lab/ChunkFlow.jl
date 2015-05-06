@@ -19,6 +19,7 @@ This will create one folder for each chunk in omnify/data/ , each of this chunk 
 files
 ======
 |file name|function|notes|
+|:-------:|----------------------------------|-----------------------------------|
 |stack.py|manging the data inside alignment, this include generating the channel data required for omnifying.||
 |znn.py|generate the text file which specifies training and data for ZNN||
 |znn_chop.py|chop the channel data and prepare for znn running||
