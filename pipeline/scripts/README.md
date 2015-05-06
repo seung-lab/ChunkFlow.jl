@@ -8,7 +8,7 @@ It will also create the /scripts/scheduleJobs.sh which should be run to schedule
 Once all the chunks has been processed all the nodes can be shut down.
 We can then execute znn_merge.py which will create /znn/data/znn_merged.hdf5
 
-After that is done, we call watershed_chop.py to create chunks so that watershed can run in parallel(threads), which also calls the watershed binary.If you want to change the watershed parameters you have to modify the last line of this script.
+After that is done, we call watershed_chop.py to create chunks so that watershed can run in parallel(threads), which also calls the watershed binary.
 
 Once watershed finishes, you have to call watershed_merge.py which will produce /watershed/data/watershed_merged.hdf5.
 
@@ -27,4 +27,8 @@ files
 |main.py|run all the watershed subpipeline to get files to prepare omnification|todo: include the znn and omnification sted and we only need to run main.py|
 |watershed_chop.py|chop affinity data and prepare files for watershed and run watershed||
 |watershed_merge.py|merge the watershed results (segment chunks) to get a hdf5 file||
-|omnify_chop.py|chop the segment and channel hdf5 file to get overlaped chunks, and prepare the omnification cmd and shell files|just ```sh run_all.sh``` will aotumatically do omnification|
+|omnify_chop.py|chop the segment and channel hdf5 file to get overlaped chunks, and prepare the omnification cmd and shell files|just ```sh run_all.sh``` will automatically do omnification for all the omni projects|
+|relabel.py|relabel the segment chunks from 1 to N|used in omnify_chop.py|
+|c_relabel.pyx|cython code for relabel|speed up some functions in relabel.py|
+|setup.py|compile the c_relabel.pyx to a .so library|use command in code|
+|clean.py|delete all the temporal files|todo:delete the temporal watershed files|
