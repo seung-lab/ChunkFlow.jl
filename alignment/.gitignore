@@ -1,0 +1,7 @@
+# Ignore everything
+/*
+/*/
+
+# But not these files...
+!.gitignore
+!/100x400x300/
