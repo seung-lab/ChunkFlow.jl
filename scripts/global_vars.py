@@ -23,14 +23,14 @@ threads = 8
 # i.e. the FoV combined of both stages: z,y,x
 fov_stage1 = np.array([1,109,109])
 fov_stage2 = np.array([9,65,65])
-fov_effective = np.array([9,173,173])
+fov_effective = fov_stage1 + fov_stage2 - 1
 
 #%% watershed chop
 # step: z,y,x
-gwidth = np.array([650, 647, 647], dtype='uint32')
+gwidth = np.array([650, 512, 512], dtype='uint32')
 # watershed parameters
 gws_bin_file = '../watershed/src/quta/zi/watershed/main/bin/xxlws'
-gws_high = 0.91
+gws_high = 0.901
 gws_low = 0.3
 gws_dust = 400
 gws_dust_low = 0.25
@@ -42,13 +42,13 @@ gws_merge_h5 = gtemp_file + "pywsmerge.Th-{}.Tl-{}.Ts-{}.Te-{}.h5".format(int(gw
 
 #%% omnify chop
 # the block size and overlap size, z,y,x
-gblocksize = np.array([128, 512, 512], dtype='uint32')
+gblocksize = np.array([256, 1024, 1024], dtype='uint32')
 goverlap = np.array([20,32,32], dtype='uint32')
 # voxel size: z,y,x
 gvoxel_size = np.array([40,7,7])
 
 # prepare the omnify data for omnifying
-gomnify_data_file = '../omnify/'
+gomnify_data_file = '/data/jingpeng/omnify/'
 
 # the save path of omni projects, should be local. Remote path may make the segmentation empty.
 gomniprojects_save_file = '/data/jingpeng/omni_projects/'

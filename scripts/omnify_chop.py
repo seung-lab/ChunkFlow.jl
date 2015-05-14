@@ -51,7 +51,7 @@ def write_sh(shfname, fname):
 def write_runall_sh(blockNum):
     fsh = open( gomnify_data_file + 'runall.sh', 'w')
     fsh.write('#!/bin/bash\n')
-    fsh.write('cd {}'.format( gomnify_data_file ) )
+    fsh.write('cd {}\n'.format( gomnify_data_file ) )
     for idx in range(blockNum):
         fsh.write( 'sh chunk_' +str(idx+1) + '.sh\n' )
     fsh.close()
@@ -91,8 +91,8 @@ def prepare_blocks():
         for by in xrange(0, s[1], gblocksize[1]-goverlap[1]):
             for bx in xrange(0, s[2], gblocksize[2]-goverlap[2]):
                 blockid += 1
-                if bx>=512*3 or by>=512*3 or bz>=128*2:
-                    continue
+                # if bx<512*3 and by<512*3 and bz<128*2:
+                #     continue
                 print "\nblockid: {}".format(blockid)
 
                 bfrom = np.array([bz, by, bx])
