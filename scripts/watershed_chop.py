@@ -55,12 +55,11 @@ def watershed_chop():
     chunkSizes = np.array( chunkSizes, dtype='uint32' )
     chunkSizes.tofile(gtemp_file + 'input.chunksizes')
 
-    # run watershed
-    #print 'run watershed '
-    os.system(gws_bin_file + " --filename=" + gtemp_file + "input "\
-                + "--high={} --low={} --dust={} --dust_low={} --threads={}".format(gws_high, gws_low, gws_dust, gws_dust_low, gws_threads_num))
 
 #%%
 if __name__ == "__main__":
     watershed_chop()
-    
+    # run watershed
+    #print 'run watershed '
+    os.system(gws_bin_file + " --filename=" + gtemp_file + "input "\
+                + "--high={} --low={} --dust={} --dust_low={} --threads={}".format(gws_high, gws_low, gws_dust, gws_dust_low, gws_threads_num))
