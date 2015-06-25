@@ -31,7 +31,7 @@ def watershed_chop():
             for cidz, z in enumerate( range(0, s[0], gwidth[0]) ):
                chunkid += 1
                print "chunk ID: {}".format(chunkid)
-               start = time.time()
+               start_tmp = time.clock()
                cfrom = np.maximum( np.array([z,y,x])-1, np.array([0,0,0]))
                cto = np.minimum(np.array([z,y,x]) + width + 1, s)
                size = cto - cfrom
@@ -43,7 +43,7 @@ def watershed_chop():
 
                # create some folders for watershed
                os.makedirs(gtemp_file + 'input.chunks/{0}/{1}/{2}'.format(cidx,cidy,cidz))
-               print "elapsed time {0:.1f}s".format( time.time()-start )
+               print "python clock time {0:.1f}s".format( time.clock()-start_tmp )
     # close the files
     f.close()
     fa.close()
