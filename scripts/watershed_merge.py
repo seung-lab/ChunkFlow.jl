@@ -34,7 +34,8 @@ def watershed_merge( ):
         pass
     ftmp = h5py.File( gws_merge_h5, "w" )
     if np.all(gblocksize >= s):
-        seg = ftmp.create_dataset('/main', chunks=True, tuple(s), compression="gzip", dtype='uint32')
+        # experiments shows that we could not use chunk and compression here!!!
+        seg = ftmp.create_dataset('/main', tuple(s), dtype='uint32')
     else:
         seg = ftmp.create_dataset('/main', tuple(s), dtype='uint32' )
 
