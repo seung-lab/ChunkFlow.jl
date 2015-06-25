@@ -29,12 +29,12 @@ def watershed_merge( ):
     import h5py
 
     try:
-        os.remove(gtemp_file + 'temp_wsmerge.h5')
+        os.remove( gws_merge_h5 )
     except OSError:
         pass
     ftmp = h5py.File( gws_merge_h5, "w" )
     if np.all(gblocksize >= s):
-        seg = ftmp.create_dataset('/main', tuple(s), chunks=True, dtype='uint32', compression="gzip" )
+        seg = ftmp.create_dataset('/main', chunks=True, tuple(s), compression="gzip", dtype='uint32')
     else:
         seg = ftmp.create_dataset('/main', tuple(s), dtype='uint32' )
 
