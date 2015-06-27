@@ -29,16 +29,16 @@ def write_cmd( fname, bfrom ):
     fcmd.write('create:'+ gomniprojects_save_file + fname+'.omni\n')
     fcmd.write('loadHDF5chann:' + gchann_file + '\n')
     fcmd.write('setChanResolution:1,{},{},{}\n'.format( gvoxel_size[2], gvoxel_size[1], gvoxel_size[0] ))
-    # fcmd.write('setChanAbsOffset:,1,{},{},{}\n'.format(\
-    #     bfrom[2]*gvoxel_size[2],\
-    #     bfrom[1]*gvoxel_size[1],\
-    #     bfrom[0]*gvoxel_size[0]) )
+    fcmd.write('setChanAbsOffset:,1,{},{},{}\n'.format(\
+         bfrom[2]*gvoxel_size[2],\
+         bfrom[1]*gvoxel_size[1],\
+         bfrom[0]*gvoxel_size[0]) )
     fcmd.write('loadHDF5seg:'+ fname +'.segm.h5\n')
     fcmd.write('setSegResolution:1,{},{},{}\n'.format( gvoxel_size[2], gvoxel_size[1], gvoxel_size[0] ))
-    # fcmd.write('setSegAbsOffset:1,{},{},{}\n'.format(\
-    #     bfrom[2]*gvoxel_size[2],\
-    #     bfrom[1]*gvoxel_size[1],\
-    #     bfrom[0]*gvoxel_size[0]) )
+    fcmd.write('setSegAbsOffset:1,{},{},{}\n'.format(\
+         bfrom[2]*gvoxel_size[2],\
+         bfrom[1]*gvoxel_size[1],\
+         bfrom[0]*gvoxel_size[0]) )
     fcmd.write('mesh\n')
     fcmd.write('quit\n\n')
     fcmd.close()
@@ -65,6 +65,7 @@ def prepare_complete_volume():
             "_X" + str(0) + '-' + str(s[2]-1) + \
             "_Y" + str(0) + '-' + str(s[1]-1) + \
             "_Z" + str(0) + '-' + str(s[0]-1)
+    
     # write the segmentation h5 file
     h5fname = gomnify_data_file + fname + ".segm.h5"
     import os
