@@ -3,21 +3,21 @@ __doc__ = """
 Quick Conversion of ZNN volume files to hdf5 file format
 
  This module transfers 3d channel data volumes, and 4d affinity graph
-files (or any 4d output file), to hdf5 file format. The channel data 
-is cropped to the 3d shape of one of the affinity volumes before 
-conversion. Cropping takes evenly from both sides, in line with the 
+files (or any 4d output file), to hdf5 file format. The channel data
+is cropped to the 3d shape of one of the affinity volumes before
+conversion. Cropping takes evenly from both sides, in line with the
 loss of resolution common with convolutional nets.
 
 Inputs:
 
-	-Network Output Filename
-	-Channel Data Filename
-	-Output Filename 
+    -Network Output Filename
+    -Channel Data Filename
+    -Output Filename
 
 Main Outputs:
 
-	-Network Output HDF5 File ("{output_filename}")
-	-Channel Data HDF5 File ("channel_{output_filename}")
+    -Network Output HDF5 File ("{output_filename}")
+    -Channel Data HDF5 File ("channel_{output_filename}")
 
 Nicholas Turner, June 2015
 """
@@ -28,64 +28,60 @@ import argparse
 import numpy as np
 from os import path
 from vol_utils import crop, norm
+from global_vars import *
 
 def write_channel_file(data, filename, dtype='float32'):
-	'''Placing the cropped channel data within an hdf5 file'''
+    '''Placing the cropped channel data within an hdf5 file'''
 
-	f = h5py.File(filename, 'w')
+    f = h5py.File(filename, 'w')
 
-	dset = f.create_dataset('/main', tuple(data.shape), dtype=dtype)
+    dset = f.create_dataset('/main', tuple(data.shape), dtype=dtype)
 
-	#Saving a NORMALIZED version of the data (0<=d<=1)
-	dset[:,:,:] = norm(data.astype(dtype))
+    #Saving a NORMALIZED version of the data (0<=d<=1)
+    dset[:,:,:] = norm(data.astype(dtype))
 
-	f.close()
+    f.close()
 
 def write_affinity_file(data, filename, dtype='float32'):
-	'''Placing the affinity graph within an hdf5 file dataset of 3d size
-	specified by shape, and the number of volumes equal to the input data'''
+    '''Placing the affinity graph within an hdf5 file dataset of 3d size
+    specified by shape, and the number of volumes equal to the input data'''
 
-	f = h5py.File(filename, 'w')
+    f = h5py.File(filename, 'w')
 
-	dset = f.create_dataset('/main', tuple(data.shape), dtype=dtype) 
-	
-	#Saving data
-	dset[:, :,:,:] = data.astype(dtype)
+    dset = f.create_dataset('/main', tuple(data.shape), dtype=dtype)
 
-	f.close()
-	
+    #Saving data
+    dset[:, :,:,:] = data.astype(dtype)
 
-def main(net_output_filename, image_filename, output_filename):
+    f.close()
 
-	print "Importing data..."
-	net_output = io.znn_img_read(net_output_filename)
-	image = io.znn_img_read(image_filename)
 
-	print "Cropping channel data..."
-	#cropping the channel data to the 3d shape of the affinity graph
-	cropped_image = crop(image, net_output.shape[-3:])
+def main(net_output_filenames, image_filename, output_filename):
 
-	image_outname = 'channel_{}'.format(path.basename(output_filename))
+    print "Importing data..."
+    if len(net_output_filenames)==1 :
+        net_output = io.znn_img_read(net_output_filenames[0])
+    elif len(net_output_filenames)==3 :
+        net_output0 = io.znn_img_read( net_output_filenames[0] )
+        net_output = np.zeros((3,) + net_output0.shape, dtype = "float32")
+        net_output[0,:,:,:] = net_output0
+        net_output[1,:,:,:] = io.znn_img_read( net_output_filenames[1] )
+        net_output[2,:,:,:] = io.znn_img_read( net_output_filenames[2] )
+    else:
+        raise("not correct net_output_filenames!")
 
-	print "Writing network output file..."
-	write_affinity_file(net_output, output_filename)
-	print "Writing image file..."
-	write_channel_file(cropped_image, image_outname)
+    image = io.znn_img_read(image_filename)
+
+    print "Cropping channel data..."
+    #cropping the channel data to the 3d shape of the affinity graph
+    cropped_image = crop(image, net_output.shape[-3:])
+
+    image_outname = 'channel_{}'.format(path.basename(output_filename))
+
+    print "Writing network output file..."
+    write_affinity_file(net_output, output_filename)
+    print "Writing image file..."
+    write_channel_file(cropped_image, image_outname)
 
 if __name__ == '__main__':
-
-	parser = argparse.ArgumentParser(
-		description=__doc__,
-		formatter_class=argparse.RawDescriptionHelpFormatter)
-
-	parser.add_argument('net_output_filename',
-		help='net affinity output')
-	parser.add_argument('image_filename',
-		help='image (channel) filename')
-	parser.add_argument('output_filename')
-
-	args = parser.parse_args()
-
-	main(args.net_output_filename,
-		 args.image_filename,
-		 args.output_filename)
+    convert_to_hdf5.main(gnet_out_fnames, gchann_fname, gaffin_file)
