@@ -74,7 +74,7 @@ export LD_LIBRARY_PATH=LD_LIBRARY_PATH:"/opt/boost/lib"
     f.close()
 
 #%%
-def znn_forward_batch( inv ):
+def znn_forward_batch( inv, isaff ):
     """
     run znn forward pass
     inv: input channel volume as numpy array
@@ -90,7 +90,7 @@ def znn_forward_batch( inv ):
     # prepare the data 
     emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
     # prepare the data spec file
-    prepare_data_spec( gznn_tmp+"data.1.spec", "data.1", inv.shape, True)
+    prepare_data_spec( gznn_tmp+"data.1.spec", "data.1", inv.shape, isaff)
     # prepare the general config file
     prepare_config(gznn_tmp + "general.config")
     # prepare shell file
@@ -99,24 +99,67 @@ def znn_forward_batch( inv ):
     os.system("cd " + gznn_tmp + "; bash znn_test.sh")
     
     # read the output
-    affv_x = emirt.io.znn_img_read(gznn_tmp + "out1.0")
-    affv_y = emirt.io.znn_img_read(gznn_tmp + "out1.1")
-    affv_z = emirt.io.znn_img_read(gznn_tmp + "out1.2")    
-    return outv
+    out_fname = gznn_tmp + "out1."
+    if os.path.exists( out_fname + "2" ):
+        # affinity output
+        sz = np.fromfile(out_fname + "1.size", dtype='uint32')[:3]
+        affv = np.zeros( np.hstack((3,sz)), dtype="float64" )
+        affv[0,:,:,:] = emirt.io.znn_img_read(out_fname + "0")
+        affv[1,:,:,:] = emirt.io.znn_img_read(out_fname + "1")
+        affv[2,:,:,:] = emirt.io.znn_img_read(out_fname + "2") 
+        return affv
+    else:
+        # boundary map output
+        return emirt.io.znn_img_read(out_fname + "1")
 
-#%% get data from big channel hdf5 file
-def znn_forward(chann_fname, aff_fname, z1,z2,y1,y2,x1,x2):
-    f = h5py.File( chann_fname, 'r' )
-    cv = np.asarray( f['/main'][z1:z2, y1:y2, x1:x2] )
+#%% 
+def znn_forward(z1,z2,y1,y2,x1,x2):
+    """
+    get data from big channel hdf5 file
+    the coordinate range is in the affinity map
+    """
+    offset = (gznn_fov - 1)/2
+    f = h5py.File( graw_chann_fname, 'r' )
+    cv = np.asarray( f['/main'][z1:z2 + 2*offset[0], \
+                                y1:y2 + 2*offset[1], \
+                                x1:x2 + 2*offset[2]] )
     f.close()
-    affv = znn_forward_batch(cv)
-    offset = (cv.shape - affv.shape[1:])/2
-    f = h5py.File( aff_fname, 'a+' )
-    f['/main'][ :,  z1:z2-2*offset[0],\
-                    y1:y2-2*offset[1],\
-                    x1:x2-2*offset[2]] = affv
+    affv = znn_forward_batch(cv, True)
+    
+    f = h5py.File( gaffin_file )
+    f['/main'][ :,  z1:z2, y1:y2, x1:x2] = affv
     f.close()
 
 if __name__ == "__main__":
-    cv = emirt.io.znn_img_read( gznn_znnpath + "dataset/fish/data/batch91.image")
-    outv = znn_forward_batch( cv )
+    # to-do : parameter parser
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("z1", help="z start", type=int)
+    parser.add_argument("z2", help="z end  ", type=int)
+    parser.add_argument("y1", help="y start", type=int)
+    parser.add_argument("y2", help="y end  ", type=int)
+    parser.add_argument("x1", help="x start", type=int)
+    parser.add_argument("x2", help="x end  ", type=int)
+    args = parser.parse_args()
+    znn_forward(    args.z1, args.z2, \
+                    args.y1, args.y2, \
+                    args.x1, args.x2)
+    
+    
+    #%%
+#    cv = emirt.io.znn_img_read( gznn_znnpath + "dataset/fish/data/batch91.image")
+#    outv = znn_forward_batch( cv, True )
+#    
+#    # crop the channel
+#    offset = (cv.shape-outv.shape[1:])/2
+#    cv = cv[offset[0]:-offset[0],\
+#            offset[1]:-offset[1],\
+#            offset[2]:-offset[2]]
+#    # write the channel and affinity
+#    f = h5py.File( gchann_file )
+#    f.create_dataset('/main', data=cv, dtype="float32")
+#    f.close()
+#    f = h5py.File( gaffin_file )
+#    f.create_dataset('/main', data=outv, dtype="float32")
+#    f.close()
+#    
