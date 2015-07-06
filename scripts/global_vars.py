@@ -2,12 +2,10 @@ import numpy as np
 
 #%% basic
 # note that we'd better put the channel and affinity data in local disk since it is IO bound.
-gchann_file = 'channel_batch92_2.h5'
-gaffin_file = 'batch92_2.h5'
+gchann_file = '../omnify/channel_batch92.h5'
+gaffin_file = '../omnify/batch92.h5'
 gtemp_file = 'temp/'
 
-# the path of omnify binary
-gomnifybin = 'bash ../omnify/omnify.sh'
 
 
 #%% parameters for znn
@@ -26,17 +24,26 @@ fov_stage2 = np.array([9,65,65])
 fov_effective = fov_stage1 + fov_stage2 - 1
 
 #%% convert znn output to hdf5 file
-import convert_to_hdf5
-fname = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/experiments/VeryDeep2HR_w65x9/output2/out92."
+fname = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/experiments/VeryDeep2HR_w65x9/output/out92."
 gnet_out_fnames = (fname+"0", fname+"1", fname+"2")
 gchann_fname = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/dataset/fish/data/batch92.image"
+
+#%% znn forward
+gznn_netname = "W5_C10_P3_D2"
+gznn_znnpath = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/"
+gznn_bin = gznn_znnpath + "bin/znn"
+gznn_net_fname = gznn_znnpath + "networks/" + gznn_netname + ".spec"
+gznn_netpath = gznn_znnpath + "experiments/" + gznn_netname + "/network/"
+gznn_tmp = "./znn_temp/"
+gznn_threads = 7
+gznn_outsz = np.array([ 1, 100, 100 ])
 
 #%% watershed chop
 # step: z,y,x
 gwidth = np.array([2000, 2000, 2000], dtype='uint32')
 # watershed parameters
 gws_bin_file = '../watershed/src/quta/zi/watershed/main/bin/xxlws'
-gws_high = 0.880
+gws_high = 0.92
 gws_low = 0.3
 gws_dust = 400
 gws_dust_low = 0.25
@@ -51,11 +58,15 @@ gomnify_data_file = '../omnify/'
 gws_merge_h5 = gomnify_data_file + "pywsmerge.Th-{}.Tl-{}.Ts-{}.Te-{}.h5".format(int(gws_high*1000), int(gws_low*1000), int(gws_dust), int(gws_dust_low*1000))
 
 #%% omnify chop
+# the path of omnify binary
+gomnifybin = 'bash ../omnify/omnify.sh'
+
 # the block size and overlap size, z,y,x
 gblocksize = np.array([2000, 2000, 2000], dtype='uint32')
 goverlap = np.array([20,32,32], dtype='uint32')
 # voxel size: z,y,x
-gvoxel_size = np.array([40,7,7])
+gvoxel_size = np.array([45,5,5])
 
 # the save path of omni projects, should be local. Remote path may make the segmentation empty.
-gomniprojects_save_file = '~/omni_projects/'
+# I get some error here and use full path solves the problem.
+gomniprojects_save_file = '/usr/people/jingpeng/omni_projects/'

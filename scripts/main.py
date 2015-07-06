@@ -11,6 +11,9 @@ import os
 from global_vars import *
 #%% run znn chop and merge
 
+# converte znn output affinity graph to hdf5 file
+import znnout_to_h5
+znnout_to_h5.main(gnet_out_fnames, gchann_fname, gaffin_file)
 
 #%% watershed chop
 from watershed_chop import watershed_chop
