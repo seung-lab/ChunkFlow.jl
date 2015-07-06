@@ -1,9 +1,11 @@
 import numpy as np
 
 #%% basic
+graw_chann_fname = "../omnify/raw_chann.92.h5"
+
 # note that we'd better put the channel and affinity data in local disk since it is IO bound.
-gchann_file = '../omnify/channel_batch92.h5'
-gaffin_file = '../omnify/batch92.h5'
+gchann_file = '../omnify/chann_batch92.h5'
+gaffin_file = '../omnify/affin_batch92.h5'
 gtemp_file = 'temp/'
 
 
@@ -16,27 +18,23 @@ max_nodes = 10
 memory = 20 * 10**9#gb
 threads = 8
 
-# We will apply two neural networks (stage1 and stage2)
-# We need to know the field of view of each stage, and the "effective" field of view
-# i.e. the FoV combined of both stages: z,y,x
-fov_stage1 = np.array([1,109,109])
-fov_stage2 = np.array([9,65,65])
-fov_effective = fov_stage1 + fov_stage2 - 1
-
-#%% convert znn output to hdf5 file
-fname = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/experiments/VeryDeep2HR_w65x9/output/out92."
-gnet_out_fnames = (fname+"0", fname+"1", fname+"2")
-gchann_fname = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/dataset/fish/data/batch92.image"
-
 #%% znn forward
-gznn_netname = "W5_C10_P3_D2"
+gznn_batch_script_name = "batch_znn_forward.sh"
 gznn_znnpath = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/"
+gznn_netname = "W59_C10_P3_D3"
+gznn_fov = np.array([3,99,99])
+gznn_blocksize = np.array([20,20,20])
 gznn_bin = gznn_znnpath + "bin/znn"
 gznn_net_fname = gznn_znnpath + "networks/" + gznn_netname + ".spec"
 gznn_netpath = gznn_znnpath + "experiments/" + gznn_netname + "/network/"
 gznn_tmp = "./znn_temp/"
 gznn_threads = 7
 gznn_outsz = np.array([ 1, 100, 100 ])
+
+#%% convert znn output to hdf5 file
+fname = gznn_znnpath + "experiments/W59_C10_P3_D3/output/out92."
+gnet_out_fnames = (fname+"0", fname+"1", fname+"2")
+gchann_fname = gznn_znnpath + "dataset/fish/data/batch92.image"
 
 #%% watershed chop
 # step: z,y,x
