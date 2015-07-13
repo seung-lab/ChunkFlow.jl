@@ -9,11 +9,13 @@ conf_file = "~/.starcluster/config"
 # cluster tag or name
 tag = 'jingpeng3'
 
-# mount volume id
-volume_id = 'vol-1f5367f1'
+# cluster name and volume-id
+cnvi = {'jingpeng1':    'vol-5ba4b2b5',\
+        'jingpeng2':    'vol-df504131',\
+        'jingpeng3':    'vol-4f4051a1'}
 
 # your bidding of spot instance
-spot_bid = 0.41
+spot_bid = 0.51
 
 # command
 cmd = 'cd /home/znn-release/; sh znn_train.sh'
@@ -37,7 +39,7 @@ cl = cfg.get_clusters()[ cluster_id ]
 cl.spot_bid = spot_bid
 cl.cluster_tag = tag
 cl.force_spot_master = force_spot_master
-cl.volumes['data']['volume_id'] = volume_id
+cl.volumes['data']['volume_id'] = cnvi[tag]
 cl.node_instance_type = instance_type
 
 #%% a thread to run
