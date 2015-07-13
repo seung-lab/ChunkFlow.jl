@@ -12,23 +12,23 @@ from global_vars import *
 
 def watershed_chop():
     #%% prepare the folders
-    if os.path.exists(gtemp_file):
-        os.system('rm -rf ' + gtemp_file + 'input*')
-    os.makedirs(gtemp_file + 'input.chunks/')
+    if os.path.exists(gtmp):
+        os.system('rm -rf ' + gtmp + 'input*')
+    os.makedirs(gtmp + 'input.chunks/')
 
     #%% read hdf5
     f = h5py.File(gaffin_file, 'r')
     affin = f['/main']
 
     s = np.array(affin.shape, dtype='uint32')[1:]
-    s.tofile(gtemp_file + 'input.total_size')
+    s.tofile(gtmp + 'input.total_size')
 
     # width can not be bigger than total volume size
     global width
     width = np.minimum(gws_width, s)
-    width.tofile(gtemp_file + 'input.width')
+    width.tofile(gtmp + 'input.width')
 
-    fa = open(gtemp_file + 'input.affinity.data', mode='w+')
+    fa = open(gtmp + 'input.affinity.data', mode='w+')
 
     chunkSizes = []
     chunkid = 0
@@ -48,7 +48,7 @@ def watershed_chop():
                part.tofile(fa)
 
                # create some folders for watershed
-               os.makedirs(gtemp_file + 'input.chunks/{0}/{1}/{2}'.format(cidx,cidy,cidz))
+               os.makedirs(gtmp + 'input.chunks/{0}/{1}/{2}'.format(cidx,cidy,cidz))
                print "python clock time {0:.1f}s".format( time.clock()-start_tmp )
     # close the files
     f.close()
@@ -56,10 +56,10 @@ def watershed_chop():
 
     # metadata and size
     metadata = np.array([32, 32, cidx+1, cidy+1, cidz+1]).astype('uint32')
-    metadata.tofile(gtemp_file + 'input.metadata')
+    metadata.tofile(gtmp + 'input.metadata')
 
     chunkSizes = np.array( chunkSizes, dtype='uint32' )
-    chunkSizes.tofile(gtemp_file + 'input.chunksizes')
+    chunkSizes.tofile(gtmp + 'input.chunksizes')
 
 
 #%%
@@ -67,5 +67,5 @@ if __name__ == "__main__":
     watershed_chop()
     # run watershed
     #print 'run watershed '
-    os.system(gws_bin_file + " --filename=" + gtemp_file + "input "\
+    os.system(gws_bin_file + " --filename=" + gtmp + "input "\
                 + "--high={} --low={} --dust={} --dust_low={} --threads={}".format(gws_high, gws_low, gws_dust, gws_dust_low, gws_threads_num))

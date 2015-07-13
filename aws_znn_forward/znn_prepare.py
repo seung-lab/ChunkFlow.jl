@@ -29,7 +29,18 @@ def prepare_batch_script():
 
 def prepare_h5():
     # prepare the output affinity hdf5 file
-    fc = h5py.File( graw_chann_fname )
+    if ".image" in gznn_chann_fname:
+        chann_fname = gtmp+"/znn_raw_chann.h5"
+        import emirt
+        vc = emirt.io.znn_img_read( gznn_chann_fname )
+        ft = h5py.File( chann_fname )
+        ft.create_dataset('/main', data=vc, dtype='float32')
+        ft.close()
+        
+    else:
+        chann_fname = gznn_chann_fname
+        
+    fc = h5py.File( chann_fname )
     raw_chann = fc['/main']
     sz_chann = raw_chann.shape
     
@@ -51,9 +62,9 @@ def prepare_h5():
     fc.close()
     fc2.close()
 
-def main():
+def znn_prepare():
     prepare_h5() 
     prepare_batch_script()
     
 if __name__=="__main__":
-    main()
+    znn_prepare()
