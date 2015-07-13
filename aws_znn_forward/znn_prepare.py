@@ -8,7 +8,7 @@ import h5py
 import shutil
 from global_vars import *
 
-def prepare_batch_script():
+def prepare_batch_script( chann_fname ):
     # get the volume shape
     fa = h5py.File( gaffin_file )
     sz = fa['/main'].shape
@@ -21,9 +21,11 @@ def prepare_batch_script():
     for z in xrange(0, sz[0], gznn_blocksize[0]):
         for y in xrange(0, sz[1], gznn_blocksize[1]):
             for x in xrange(0, sz[2], gznn_blocksize[2]):
-                f.write("python znn_forward.py {} {} {} {} {} {}\n".format(   z, z+gznn_blocksize[0],\
-                                                                            y, y+gznn_blocksize[1],\
-                                                                            x, x+gznn_blocksize[2]))
+                f.write("python ../aws_znn_forward/znn_forward.py {} {} {} {} {} {} {}\n".format( \
+                                                            chann_fname,\
+                                                            z, z+gznn_blocksize[0],\
+                                                            y, y+gznn_blocksize[1],\
+                                                            x, x+gznn_blocksize[2]))
     f.close()
     
 
@@ -67,10 +69,11 @@ def prepare_h5():
         
     fc.close()
     fc2.close()
+    return chann_fname
 
 def znn_prepare():
-    prepare_h5() 
-    prepare_batch_script()
+    chann_fname = prepare_h5() 
+    prepare_batch_script( chann_fname )
     
 if __name__=="__main__":
     znn_prepare()
