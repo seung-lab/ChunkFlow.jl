@@ -16,17 +16,19 @@ gvoxel_size = np.array([45,5,5])
 #%% znn forward
 gznn_znnpath = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/"
 gznn_chann_fname = gznn_znnpath + "dataset/fish/data/batch91.image"
-gznn_netname = "W5_C10_P3_D2"
-gznn_fov = np.array([9,65,65])
+gznn_netname = "W59_C10_P3_D3"
+gznn_fov = np.array([3,99,99])
 gznn_blocksize = np.array([20,20,20])
 gznn_bin = gznn_znnpath + "bin/znn"
-gznn_batch_script_name = "znn_batch_forward.sh"
+gznn_batch_script_name = gtmp + "/znn_batch_forward.sh"
+# boost lib path for running znn. setting this in case boost is not in system path
+gznn_boost_lib = "/opt/boost/lib"
 gznn_net_fname = gznn_znnpath + "networks/" + gznn_netname + ".spec"
 gznn_netpath = gznn_znnpath + "experiments/" + gznn_netname + "/network/"
 # temporary folder for znn, this folder should be unique for every node in AWS
-gznn_tmp = "/mnt/"
+gznn_tmp = gtmp + "/znn"
 gznn_threads = 7
-gznn_outsz = np.array([ 1, 100, 100 ])
+gznn_outsz = np.array([ 1, 10, 10 ])
 
 #%% watershed chop
 # step: z,y,x
