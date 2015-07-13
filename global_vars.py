@@ -2,13 +2,13 @@ import numpy as np
 import os
 
 #%% basic
-# note that we'd better put the channel and affinity data in local disk since it is IO bound.
-# if we put them in remote mounted folder, the chopping could be slow due to IO latency
-gchann_file = 'data/chann_batch91.h5'
-gaffin_file = 'data/affin_batch91.h5'
 # global temporary folder for whole pipeline
 gabspath = os.path.dirname(os.path.abspath(__file__))
 gtmp = gabspath + '/tmp'
+# note that we'd better put the channel and affinity data in local disk since it is IO bound.
+# if we put them in remote mounted folder, the chopping could be slow due to IO latency
+gchann_file = gtmp + '/chann_batch91.h5'
+gaffin_file = gtmp + '/affin_batch91.h5'
 
 # voxel size: z,y,x
 gvoxel_size = np.array([45,5,5])
@@ -40,13 +40,12 @@ gws_dust_low = 0.25
 # if there are watershed error, we can try to change the threads number to 1
 gws_threads_num = 1
 
-# prepare the omnify data for omnifying
-gom_data_path = gtmp
-
 #%% watershed merge
-gws_merge_h5 = gom_data_path + "pywsmerge.Th-{}.Tl-{}.Ts-{}.Te-{}.h5".format(int(gws_high*1000), int(gws_low*1000), int(gws_dust), int(gws_dust_low*1000))
+gws_merge_h5 = gtmp + "pywsmerge.Th-{}.Tl-{}.Ts-{}.Te-{}.h5".format(int(gws_high*1000), int(gws_low*1000), int(gws_dust), int(gws_dust_low*1000))
 
 #%% omnify chop
+# prepare the omnify data for omnifying
+gom_data_path = gtmp
 # the path of omnify binary
 gom_bin = 'bash omnify.sh'
 # the block size and overlap size, z,y,x
@@ -56,3 +55,6 @@ gom_overlap = np.array([20,32,32], dtype='uint32')
 # the save path of omni projects, should be local. Remote path may make the segmentation empty.
 # I get some error here and use full path solves the problem.
 gom_projects_path = '/usr/people/jingpeng/omni_projects/'
+
+
+#%% evaluate
