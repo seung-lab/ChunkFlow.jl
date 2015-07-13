@@ -21,11 +21,14 @@ def prepare_batch_script( chann_fname ):
     for z in xrange(0, sz[0], gznn_blocksize[0]):
         for y in xrange(0, sz[1], gznn_blocksize[1]):
             for x in xrange(0, sz[2], gznn_blocksize[2]):
+                z1 = z; z2 = min( sz[0], z+gznn_blocksize[0] )
+                y1 = y; y2 = min( sz[1], y+gznn_blocksize[1] )
+                x1 = x; x2 = min( sz[2], x+gznn_blocksize[2] )
                 f.write("python ../aws_znn_forward/znn_forward.py {} {} {} {} {} {} {}\n".format( \
                                                             chann_fname,\
-                                                            z, z+gznn_blocksize[0],\
-                                                            y, y+gznn_blocksize[1],\
-                                                            x, x+gznn_blocksize[2]))
+                                                            z1, z2,\
+                                                            y1, y2,\
+                                                            x1, x2))
     f.close()
     
 
