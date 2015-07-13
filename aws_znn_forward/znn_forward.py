@@ -11,6 +11,8 @@ import emirt
 import os
 import shutil
 import h5py
+#import sys
+#sys.path.append("../")
 from global_vars import *
 
 def prepare_config(fname):
@@ -68,9 +70,9 @@ ppargs={}
 
 def prepare_shell(fname, general_config):
     shell = """#!/bin/bash
-export LD_LIBRARY_PATH=LD_LIBRARY_PATH:"/opt/boost/lib"
+export LD_LIBRARY_PATH=LD_LIBRARY_PATH:"{}"
 {} --test_only=true --options="{}"
-    """.format( gznn_bin, general_config )
+    """.format( gznn_boost_lib, gznn_bin, general_config )
     # write shell script
     f = open(fname, 'w')
     f.write( shell )
@@ -88,21 +90,21 @@ def znn_forward_batch( inv, isaff ):
         shutil.rmtree( gznn_tmp )
     os.mkdir( gznn_tmp )
     # cp the network file
-    shutil.copy(gznn_net_fname, gznn_tmp + "network.spec")
+    shutil.copy(gznn_net_fname, gznn_tmp + "/network.spec")
 
     # prepare the data 
-    emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
+    emirt.io.znn_img_save(inv, gznn_tmp + "/data.1.image")
     # prepare the data spec file
-    prepare_data_spec( gznn_tmp+"data.1.spec", "data.1", inv.shape, isaff)
+    prepare_data_spec( gznn_tmp+"/data.1.spec", "data.1", inv.shape, isaff)
     # prepare the general config file
-    prepare_config(gznn_tmp + "general.config")
+    prepare_config(gznn_tmp + "/general.config")
     # prepare shell file
-    prepare_shell( gznn_tmp + "znn_test.sh", "general.config" )
+    prepare_shell( gznn_tmp + "/znn_test.sh", "general.config" )
     # run znn forward pass
     os.system("cd " + gznn_tmp + "; bash znn_test.sh")
     
     # read the output
-    out_fname = gznn_tmp + "out1."
+    out_fname = gznn_tmp + "/out1."
     if os.path.exists( out_fname + "2" ):
         # affinity output
         sz = np.fromfile(out_fname + "1.size", dtype='uint32')[:3]
@@ -116,13 +118,13 @@ def znn_forward_batch( inv, isaff ):
         return emirt.io.znn_img_read(out_fname + "1")
 
 #%% 
-def znn_forward(z1,z2,y1,y2,x1,x2):
+def znn_forward(chann_fname, z1,z2,y1,y2,x1,x2):
     """
     get data from big channel hdf5 file
     the coordinate range is in the affinity map
     """
     offset = (gznn_fov - 1)/2
-    f = h5py.File( graw_chann_fname, 'r' )
+    f = h5py.File( chann_fname )
     cv = np.asarray( f['/main'][z1:z2 + 2*offset[0], \
                                 y1:y2 + 2*offset[1], \
                                 x1:x2 + 2*offset[2]] )
@@ -137,6 +139,7 @@ if __name__ == "__main__":
     # to-do : parameter parser
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument("chann_fname", help="channel file name", type=str)
     parser.add_argument("z1", help="z start", type=int)
     parser.add_argument("z2", help="z end  ", type=int)
     parser.add_argument("y1", help="y start", type=int)
@@ -144,9 +147,10 @@ if __name__ == "__main__":
     parser.add_argument("x1", help="x start", type=int)
     parser.add_argument("x2", help="x end  ", type=int)
     args = parser.parse_args()
-    znn_forward(    args.z1, args.z2, \
-                    args.y1, args.y2, \
-                    args.x1, args.x2)
+    znn_forward(args.chann_fname, \
+                args.z1, args.z2, \
+                args.y1, args.y2, \
+                args.x1, args.x2)
     
     
     #%%
