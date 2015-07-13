@@ -31,6 +31,8 @@ def prepare_h5():
     # prepare the output affinity hdf5 file
     if ".image" in gznn_chann_fname:
         chann_fname = gtmp+"/znn_raw_chann.h5"
+        if shutil.os.path.exists( chann_fname ):
+            shutil.os.remove( chann_fname )
         import emirt
         vc = emirt.io.znn_img_read( gznn_chann_fname )
         ft = h5py.File( chann_fname )
@@ -48,16 +50,20 @@ def prepare_h5():
     sz_affin = sz_chann - 2*offset
     sz_affin = np.hstack((3,sz_affin))
     # create the affinity hdf5 file
+    if shutil.os.path.exists( gaffin_file ):
+            shutil.os.remove( gaffin_file )
     fa = h5py.File( gaffin_file )
     fa.create_dataset('/main', shape=sz_affin, dtype='float32', chunks=True, compression="gzip")
     fa.close()
     # create the channel hdf5 file
+    if shutil.os.path.exists( gchann_file ):
+            shutil.os.remove( gchann_file )
     fc2 = h5py.File( gchann_file )
     fc2.create_dataset('/main', shape=sz_affin[1:4], dtype="float32" )
     chann2 = fc2['/main']
     # in case the channel data is huge, copy layer by layer
     for z in xrange( sz_affin[1] ):
-        chann2[z,:,:] = raw_chann[z+offset, offset:-offset, offset:-offset]
+        chann2[z,:,:] = raw_chann[z+offset[0], offset[1]:-offset[1], offset[2]:-offset[2]]
         
     fc.close()
     fc2.close()
@@ -68,3 +74,4 @@ def znn_prepare():
     
 if __name__=="__main__":
     znn_prepare()
+#    shutil.os.remove( gtmp+"/*" )
