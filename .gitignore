@@ -1,8 +1,3 @@
-/pipeline/znn/data
-/pipeline/znn/znn-release/bin/*
-/pipeline/scripts/image.png
-/pipeline/scripts/scheduleZNN.sh
-/pipeline/scripts/scheduleOmnification.sh
 *.pyc
 *.hdf5
 *.h5
