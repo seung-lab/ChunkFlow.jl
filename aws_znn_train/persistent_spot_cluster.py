@@ -54,7 +54,7 @@ f = open('log.txt','a+')
 f.write( "try to start a cluster with id: {}\n".format( cid ) )
 while True:
     # if cluster not started start the cluster
-    if cl.is_cluster_stopped() or cl.is_cluster_terminated():
+    if (not cl.nodes) or cl.is_cluster_stopped() or cl.is_cluster_terminated():
         cid = cid + 1
         
         print "try to start a cluster with id: {}\n".format( cid )
