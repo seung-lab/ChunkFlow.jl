@@ -27,7 +27,7 @@ import h5py
 import argparse
 import numpy as np
 from os import path
-from vol_utils import crop, norm
+from emirt.volume_util import crop, norm
 from global_vars import *
 
 def write_channel_file(data, filename, dtype='float32'):
@@ -85,7 +85,7 @@ def main(net_output_filenames, image_filename, output_filename):
 
 if __name__ == '__main__':
     #%% convert znn output to hdf5 file
-    fname = gznn_znnpath + "experiments/W59_C10_P3_D3/output/out92."
+    fname = gznn_znnpath + "experiments/VeryDeep2HR_w65x9/output/out92."
     gnet_out_fnames = (fname+"0", fname+"1", fname+"2")
     gchann_fname = gznn_znnpath + "dataset/fish/data/batch92.image"
     main(gnet_out_fnames, gchann_fname, gaffin_file)
