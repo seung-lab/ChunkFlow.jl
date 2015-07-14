@@ -24,7 +24,7 @@ def write_h5_chann( h5filename, vol ):
     f.close()
 
 def write_cmd( fname, bfrom ):
-    cmdfname = gom_data_path + fname + ".cmd"
+    cmdfname = gom_data_path + "/" + fname + ".cmd"
     fcmd = open(cmdfname, 'w')
     fcmd.write('create:'+ gom_projects_path + fname+'.omni\n')
     fcmd.write('loadHDF5chann:' + gchann_file + '\n')
@@ -46,10 +46,10 @@ def write_cmd( fname, bfrom ):
 def write_sh(shfname, fname):
     fsh = open( shfname, 'w' )
     fsh.write('#!/bin/bash\n')
-    fsh.write(gom_bin + " --headless --cmdfile='" + gom_data_path + fname + ".cmd'")
+    fsh.write(gom_bin + " --headless --cmdfile='" + gom_data_path + "/" + fname + ".cmd'")
     fsh.close()
 def write_runall_sh(blockNum):
-    fsh = open( gom_data_path + 'runall.sh', 'w')
+    fsh = open( gom_data_path + '/runall.sh', 'w')
     fsh.write('#!/bin/bash\n')
     fsh.write('cd {}\n'.format( gom_data_path ) )
     for idx in range(blockNum):
@@ -67,13 +67,13 @@ def prepare_complete_volume():
             "_Z" + str(0) + '-' + str(s[0]-1)
     
     # write the segmentation h5 file
-    h5fname = gom_data_path + fname + ".segm.h5"
+    h5fname = gom_data_path + "/" + fname + ".segm.h5"
     import os
     os.system("mv " + gws_merge_h5 + " " + h5fname)
     # write omnify cmd file
     write_cmd( fname, np.array([0,0,0]) )
     # generate a corresponding sh file
-    shfname =  gom_data_path + "chunk_" + str(1) + ".sh"
+    shfname =  gom_data_path + "/chunk_" + str(1) + ".sh"
     write_sh(shfname, fname)
     # write a general bash file
     write_runall_sh(1)
@@ -125,7 +125,7 @@ def prepare_blocks():
                         "_Z" + str(bfrom[0]) + '-' + str(bto[0]-1)
                 # write the segmentation h5 file
                 start_tmp = time.clock()
-                h5fname = gom_data_path + fname + ".segm.h5"
+                h5fname = gom_data_path + "/" + fname + ".segm.h5"
                 write_h5_with_dend( h5fname, chunk_dend, chunk_dendValues, block )
                 print "writting segment block takes {0:.1f}s".format( (time.clock() - start_tmp) )
 
@@ -134,13 +134,13 @@ def prepare_blocks():
                 block_chann = np.asarray( chann[bfrom[0]:bto[0], bfrom[1]:bto[1], bfrom[2]:bto[2] ] )
                 print "reading channel block takes {0:.1f}s".format( time.clock() - start_tmp )
                 start_tmp = time.clock()
-                write_h5_chann( gom_data_path + fname + '.chann.h5', block_chann )
+                write_h5_chann( gom_data_path + "/" + fname + '.chann.h5', block_chann )
                 print "writting channel block takes {0:.1f}s".format( (time.clock() - start_tmp) )
 
                 # write omnify cmd file
                 write_cmd( fname, bfrom )
                 # generate a corresponding sh file
-                shfname =  gom_data_path + "chunk_" + str(blockid) + ".sh"
+                shfname =  gom_data_path + "/chunk_" + str(blockid) + ".sh"
                 write_sh(shfname, fname)
 
     # write a general bash file
@@ -150,7 +150,7 @@ def prepare_blocks():
     faffin.close()
 
 def omnify_chop():
-    ftmp = h5py.File( gws_merge_h5, "r" )
+    ftmp = h5py.File( gws_merge_h5 )
     seg = ftmp['/main']
     s = np.array(seg.shape, dtype='uint32')
     ftmp.close()
@@ -166,4 +166,4 @@ def omnify_chop():
 if __name__ == "__main__":
     start = time.time()
     omnify_chop()
-    print "omnify_chop takes {0:.2f}h".format( (time.time() - start)/3600 )
+    print "omnify_chop takes {0:.2f}m".format( (time.time() - start)/60 )
