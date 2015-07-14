@@ -104,7 +104,7 @@ NODE_IMAGE_ID = ami-a77e94cc
 # (options: m3.large, c3.8xlarge, i2.8xlarge, t2.micro, hs1.8xlarge, c1.xlarge, r3.4xlarge, g2.2xlarge, m1.small, c1.medium, m3.2xlarge, c3.2xlarge, m2.xlarge, m2.2xlarge, t2.small, r3.2xlarge, t1.micro, cr1.8xlarge, r3.8xlarge, cc1.4xlarge, m1.medium, r3.large, c3.xlarge, i2.xlarge, m3.medium, cc2.8xlarge, m1.large, cg1.4xlarge, i2.2xlarge, c3.large, i2.4xlarge, c3.4xlarge, r3.xlarge, t2.medium, hi1.4xlarge, m2.4xlarge, m1.xlarge, m3.xlarge)
 NODE_INSTANCE_TYPE = c3.xlarge #r3.8xlarge
 # Launch cluster in a VPC subnet (OPTIONAL)
-# SUBNET_ID=subnet-3ac46111
+SUBNET_ID=subnet-XXXXXXXX
 # Uncomment to assign public IPs to cluster nodes (VPC-ONLY) (OPTIONAL)
 # WARNING: Using public IPs with a VPC requires:
 # 1. An internet gateway attached to the VPC
@@ -119,7 +119,7 @@ DISABLE_QUEUE=True  #If you specify to use SGE plugin you have to disable this s
 
 # Uncomment to specify a different instance type for the master node (OPTIONAL)
 # (defaults to NODE_INSTANCE_TYPE if not specified)
-# MASTER_INSTANCE_TYPE = t2.small
+MASTER_INSTANCE_TYPE = t2.small
 
 # Uncomment to specify a separate AMI to use for the master node. (OPTIONAL)
 # (defaults to NODE_IMAGE_ID if not specified)
@@ -273,10 +273,6 @@ MOUNT_PATH = /home
 setup_class = starcluster.plugins.sge.SGEPlugin
 slots_per_host = 1
 master_is_exec_host = False
-
-# [plugin runznn]
-# setup_class = runznn.RunZnn
-# cmd = cd /home/znn-release/; sh znn_train.sh
 
 # [plugin anaconda_plugin]
 # # myplugin module either lives in ~/.starcluster/plugins or is
