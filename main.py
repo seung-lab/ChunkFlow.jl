@@ -20,7 +20,7 @@ print "watershed chop time: {0:.2f}m".format( (time.clock()-mstart)/60 )
 #%% run watershed
 print 'run watershed... '
 mstart = time.clock()
-os.system(gws_bin_file + " --filename=" + gtemp_file + "input "\
+os.system(gws_bin_file + " --filename=" + gtmp + "/ws "\
             + "--high={} --low={} --dust={} --dust_low={} --threads={}".format(gws_high, gws_low, gws_dust, gws_dust_low, gws_threads_num))
 print "watershed time: {0:.2f}m".format( (time.clock()-mstart)/60 )
 
@@ -32,16 +32,16 @@ watershed_merge()
 print "watershed merge time: {0:.2f}m".format( (time.clock()-mstart)/60 )
 
 #%% omnify chop
-from ominfy.omnify_chop import omnify_chop
+from omnify.omnify_chop import omnify_chop
 print "chopping volume to build small omni projects..."
 mstart = time.clock()
 omnify_chop()
 print "omnify chop time: {0:.2f}m".format( (time.clock() - mstart)/60 )
 
 #%% start meshing, Note that this part could also be parallized in AWS SGE by qsub the runall.sh
-from global_vars import gomnify_data_file
+from global_vars import gom_data_path
 print "omnification ..."
 mstart = time.clock()
-# os.system("cd "+gomnify_data_file)
-os.system("sh " + gomnify_data_file + "runall.sh")
+os.system("cd " + gom_data_path)
+os.system("sh " + gom_data_path + "/runall.sh")
 print "omnification takes {0:.2f}m".format( (time.clock() - mstart)/60 )
