@@ -15,7 +15,7 @@ gvoxel_size = np.array([45,5,5])
 
 #%% znn forward
 gznn_znnpath = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release"
-gznn_chann_fname = gznn_znnpath + "dataset/fish/data/batch91.image"
+gznn_chann_fname = gznn_znnpath + "/dataset/fish/data/batch92.image"
 gznn_netname = "W59_C10_P3_D3"
 gznn_fov = np.array([3,99,99])
 gznn_blocksize = np.array([20,20,20])
