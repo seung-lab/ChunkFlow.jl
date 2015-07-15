@@ -3,7 +3,7 @@ import os
 
 #%% basic
 # global temporary folder for whole pipeline
-gabspath = os.path.dirname(os.path.abspath(__file__))
+gabspath = os.path.dirname(os.path.abspath(__file__)) 
 gtmp = gabspath + '/tmp'
 # note that we'd better put the channel and affinity data in local disk since it is IO bound.
 # if we put them in remote mounted folder, the chopping could be slow due to IO latency
@@ -15,9 +15,9 @@ gvoxel_size = np.array([45,5,5])
 
 #%% znn forward
 gznn_znnpath = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release"
-gznn_chann_fname = gznn_znnpath + "/dataset/fish/data/batch92.image"
-gznn_netname = "W59_C10_P3_D3"
-gznn_fov = np.array([3,99,99])
+gznn_chann_fname = "https://s3.amazonaws.com/zfish/alignment/ZfishTrainingSet_1.tif"
+gznn_netname = ("W5_C10_P3_D2","VeryDeep2HR_w65x9")
+gznn_fov = (np.array([1,99,99]), np.array([9,65,65]))
 gznn_blocksize = np.array([20,20,20])
 gznn_bin = gznn_znnpath + "bin/znn"
 gznn_batch_script_name = gtmp + "/znn_batch_forward.sh"
