@@ -11,16 +11,22 @@ import emirt
 import os
 import shutil
 import h5py
-
 from global_vars import *
 
-def prepare_config(fname):
-    config = """[PATH]
-config=network.spec
+def prepare_config(fname, netname, isaff=True ):
+    net_spec = gznn + "networks/" + netname + ".spec"
+    net_file = gznn + "experiments/" + netname + "/network/"
+    if isaff:
+        dp_type="affinity"
+    else:
+        dp_type="volume"
+        
+    config = """
+[PATH]
+config={}
 load={}
 data=data.
-save=./
-hist=
+save={}
 
 [OPTIMIZE]
 n_threads={}
@@ -30,41 +36,63 @@ optimize_fft=0
 [TRAIN]
 test_range=1
 outsz={},{},{}
+dp_type={}
 softmax=0
 mirroring=0
 
 [SCAN]
 cutoff=1
-    """.format( gznn_netpath, gznn_threads, \
-                gznn_outsz[2], gznn_outsz[1], gznn_outsz[0] )
+    """.format( net_spec, net_file, gtmp, gznn_threads, \
+                gznn_outsz[2], gznn_outsz[1], gznn_outsz[0], dp_type )
     # write the config file
     f = open(fname, 'w')
     f.write(config)
     f.close()
     
     
-def prepare_data_spec(fname, image_path, size, isaffinity=True, ):
-    if isaffinity:
+def prepare_data_spec(fname, image_path, size, stgid=0, isaff=True, ):
+    fov = gznn_fovs[stgid]
+    if isaff:
         offset=1
     else:
         offset=0
-    data_spec="""[INPUT1]
+    INPUT1="""
+[INPUT1]
 path={}
 ext=image
 size={},{},{}
 pptype=standard2D
-
+    """.format(image_path, size[2], size[1], size[0])
+    
+    if stg == 1:
+        INPUT2 = ""
+    elif (stg == 2) and len(gznn_net_names)==2:
+        INPUT2="""
+[INPUT2]
+path={}
+size={},{},{}
+pptype=transform
+ppargs=0,1
+        """.format(gtmp+"out1.1", \
+        size[2]-2*(fov[2]-1),\
+        size[1]-2*(fov[1]-1),\
+        size[0]-2*(fov[0]-1))
+    else:
+        raise NameError("stage setting is wrong!")
+        
+    MASK1 = """
 [MASK1]
 size={},{},{}
 offset={},{},{}
 pptype=one
 ppargs={}
-    """.format( image_path, size[2], size[1], size[0], \
-                size[2]-offset, size[1]-offset, size[0]-offset,\
+    """.format( size[2]-offset, size[1]-offset, size[0]-offset,\
                 offset, offset, offset, 2+offset )
     # write the spec file
     f = open(fname,'w')
-    f.write(data_spec)
+    f.write(INPUT1)
+    f.write(INPUT2)
+    f.write(MASK1)
     f.close()
 
 def prepare_shell(fname, general_config):
@@ -78,7 +106,7 @@ export LD_LIBRARY_PATH=LD_LIBRARY_PATH:"{}"
     f.close()
 
 #%%
-def znn_forward_batch( inv, isaff ):
+def znn_forward( inv ):
     """
     run znn forward pass
     inv: input channel volume as numpy array
@@ -88,23 +116,43 @@ def znn_forward_batch( inv, isaff ):
     if os.path.exists( gznn_tmp ):
         shutil.rmtree( gznn_tmp )
     os.mkdir( gznn_tmp )
-    # cp the network file
-    shutil.copy(gznn_net_fname, gznn_tmp + "/network.spec")
-
-    # prepare the data 
-    emirt.io.znn_img_save(inv, gznn_tmp + "/data.1.image")
-    # prepare the data spec file
-    prepare_data_spec( gznn_tmp+"/data.1.spec", "data.1", inv.shape, isaff)
-    # prepare the general config file
-    prepare_config(gznn_tmp + "/general.config")
-    # prepare shell file
-    prepare_shell( gznn_tmp + "/znn_test.sh", "general.config" )
-    # run znn forward pass
-    os.system("cd " + gznn_tmp + "; bash znn_test.sh")
     
+    # first stage forward pass
+    if len(gznn_net_names)==1:
+        isaff=False
+    elif len(gznn_net_names)==2:
+        isaff=True
+    else:
+        raise NameError("do not support this net name parameter!")
+        
+    netname = gznn_net_names[0]
+    # prepare the data 
+    emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
+    # prepare the data spec file
+    prepare_data_spec( gznn_tmp+"data.1.spec", gznn_tmp+"data.1", inv.shape, 0, isaff)
+    # prepare the general config file
+    prepare_config(gznn_tmp + "general.config", netname, isaff)
+    # prepare shell file
+    prepare_shell( gznn_tmp + "znn_forward.sh", "general.config" )
+    # run znn forward pass
+    os.system("cd " + gznn_tmp + "; bash znn_forward.sh")
+
+    # second stage forward pass    
+    if len(gznn_net_names)==2:
+        isaff = True
+        netname = znn_net_names[1]
+        # prepare the data spec file
+        prepare_data_spec( gznn_tmp+"data.1.spec", gtmp+"out1.1", inv.shape-(gznn_fovs[0]-1), 1, isaff)
+        # prepare the general config file
+        prepare_config(gznn_tmp + "general.config", netname, isaff)
+        # prepare shell file
+        prepare_shell( gznn_tmp + "znn_forward.sh", "general.config" )
+        # run znn forward pass
+        os.system("cd " + gznn_tmp + "; bash znn_forward.sh")
+        
     # read the output
-    out_fname = gznn_tmp + "/out1."
-    if os.path.exists( out_fname + "2" ):
+    out_fname = gznn_tmp + "out1."
+    if isaff:
         # affinity output
         sz = np.fromfile(out_fname + "1.size", dtype='uint32')[:3]
         affv = np.zeros( np.hstack((3,sz)), dtype="float64" )
@@ -117,7 +165,7 @@ def znn_forward_batch( inv, isaff ):
         return emirt.io.znn_img_read(out_fname + "1")
 
 #%% 
-def znn_forward(chann_fname, z1,z2,y1,y2,x1,x2):
+def znn_forward_batch(chann_fname, z1,z2,y1,y2,x1,x2):
     """
     get data from big channel hdf5 file
     the coordinate range is in the affinity map
@@ -128,14 +176,13 @@ def znn_forward(chann_fname, z1,z2,y1,y2,x1,x2):
                                 y1:y2 + 2*offset[1], \
                                 x1:x2 + 2*offset[2]] )
     f.close()
-    affv = znn_forward_batch(cv, True)
+    affv = znn_forward(cv, True)
     
     f = h5py.File( gaffin_file )
     f['/main'][ :,  z1:z2, y1:y2, x1:x2] = affv
     f.close()
 
 if __name__ == "__main__":
-    # to-do : parameter parser
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("chann_fname", help="channel file name", type=str)
@@ -146,26 +193,7 @@ if __name__ == "__main__":
     parser.add_argument("x1", help="x start", type=int)
     parser.add_argument("x2", help="x end  ", type=int)
     args = parser.parse_args()
-    znn_forward(args.chann_fname, \
-                args.z1, args.z2, \
-                args.y1, args.y2, \
-                args.x1, args.x2)
-    
-    
-    #%%
-#    cv = emirt.io.znn_img_read( gznn_znnpath + "dataset/fish/data/batch91.image")
-#    outv = znn_forward_batch( cv, True )
-#    
-#    # crop the channel
-#    offset = (cv.shape-outv.shape[1:])/2
-#    cv = cv[offset[0]:-offset[0],\
-#            offset[1]:-offset[1],\
-#            offset[2]:-offset[2]]
-#    # write the channel and affinity
-#    f = h5py.File( gchann_file )
-#    f.create_dataset('/main', data=cv, dtype="float32")
-#    f.close()
-#    f = h5py.File( gaffin_file )
-#    f.create_dataset('/main', data=outv, dtype="float32")
-#    f.close()
-#    
+    znn_forward_batch(  args.chann_fname, \
+                        args.z1, args.z2, \
+                        args.y1, args.y2, \
+                        args.x1, args.x2)
