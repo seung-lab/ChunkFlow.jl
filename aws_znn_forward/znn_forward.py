@@ -11,8 +11,7 @@ import emirt
 import os
 import shutil
 import h5py
-#import sys
-#sys.path.append("../")
+
 from global_vars import *
 
 def prepare_config(fname):
