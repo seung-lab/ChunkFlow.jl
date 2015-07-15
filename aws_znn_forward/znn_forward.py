@@ -151,7 +151,7 @@ def znn_forward( inv ):
         os.system("cd " + gznn_tmp + "; bash znn_forward.sh")
         
     # read the output
-    out_fname = gznn_tmp + "out1."
+    out_fname = gtmp + "out1."
     if isaff:
         # affinity output
         sz = np.fromfile(out_fname + "1.size", dtype='uint32')[:3]
