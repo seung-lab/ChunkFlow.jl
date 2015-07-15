@@ -1,4 +1,4 @@
-aws
+ZNN training on AWS using spot instances
 ===
 this script can create a cluster including an on-demand master node and several spot-instance worker nodes. whenever the spot instance node got terminated by price, the script will create a new spot instance request. Thus, creating a kind of "persistance" spot worker node.
 
