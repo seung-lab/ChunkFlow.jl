@@ -2,6 +2,8 @@ import numpy as np
 import os
 
 #%% basic
+# is this program runing in AWS?
+gisaws = True
 # global temporary folder for whole pipeline
 gabspath = os.path.dirname(os.path.abspath(__file__)) 
 gtmp = gabspath + '/tmp'
@@ -57,5 +59,7 @@ gom_overlap = np.array([20,32,32], dtype='uint32')
 # I get some error here and use full path solves the problem.
 gom_projects_path = '/usr/people/jingpeng/omni_projects/'
 
+if gisaws:
+    gom_s3_prj = "https://s3.amazonaws.com/zfish/om_prj/"
 
 #%% evaluate
