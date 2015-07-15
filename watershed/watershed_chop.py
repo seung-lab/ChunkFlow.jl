@@ -13,22 +13,22 @@ from global_vars import *
 def watershed_chop():
     #%% prepare the folders
     if os.path.exists(gtmp):
-        os.system('rm -rf ' + gtmp + '/ws*')
-    os.makedirs(gtmp + '/ws.chunks/')
+        os.system('rm -rf ' + gtmp + 'ws*')
+    os.makedirs(gtmp + 'ws.chunks/')
 
     #%% read hdf5
     f = h5py.File(gaffin_file)
     affin = f['/main']
 
     s = np.array(affin.shape, dtype='uint32')[1:]
-    s.tofile(gtmp + '/ws.total_size')
+    s.tofile(gtmp + 'ws.total_size')
 
     # width can not be bigger than total volume size
     global width
     width = np.minimum(gws_width, s)
-    width.tofile(gtmp + '/ws.width')
+    width.tofile(gtmp + 'ws.width')
 
-    fa = open(gtmp + '/ws.affinity.data', mode='w+')
+    fa = open(gtmp + 'ws.affinity.data', mode='w+')
 
     chunkSizes = []
     chunkid = 0
@@ -48,7 +48,7 @@ def watershed_chop():
                part.tofile(fa)
 
                # create some folders for watershed
-               os.makedirs(gtmp + '/ws.chunks/{0}/{1}/{2}'.format(cidx,cidy,cidz))
+               os.makedirs(gtmp + 'ws.chunks/{0}/{1}/{2}'.format(cidx,cidy,cidz))
                print "python clock time {0:.1f}s".format( time.clock()-start_tmp )
     # close the files
     f.close()
@@ -56,10 +56,10 @@ def watershed_chop():
 
     # metadata and size
     metadata = np.array([32, 32, cidx+1, cidy+1, cidz+1]).astype('uint32')
-    metadata.tofile(gtmp + '/ws.metadata')
+    metadata.tofile(gtmp + 'ws.metadata')
 
     chunkSizes = np.array( chunkSizes, dtype='uint32' )
-    chunkSizes.tofile(gtmp + '/ws.chunksizes')
+    chunkSizes.tofile(gtmp + 'ws.chunksizes')
 
 
 #%%

@@ -10,13 +10,13 @@ from global_vars import *
 
 def get_volume_info():
     # number of chunks in the xyz direction
-    chunkNum = np.fromfile(gtmp + '/ws.metadata', dtype='uint32')[2:5][::-1]
+    chunkNum = np.fromfile(gtmp + 'ws.metadata', dtype='uint32')[2:5][::-1]
     # chunk sizes
-    chunksizes = np.fromfile(gtmp + '/ws.chunksizes', dtype='uint32').reshape(-1,3)[:,::-1]
-    s = np.fromfile( gtmp + '/ws.total_size', dtype='uint32' )
+    chunksizes = np.fromfile(gtmp + 'ws.chunksizes', dtype='uint32').reshape(-1,3)[:,::-1]
+    s = np.fromfile( gtmp + 'ws.total_size', dtype='uint32' )
     print "volume size: "+ str(s)
 #    width = np.repeat(s.min(),3)
-    width = np.fromfile( gtmp + '/ws.width', dtype='uint32' )
+    width = np.fromfile( gtmp + 'ws.width', dtype='uint32' )
     width = np.minimum( gws_width, s )
 
     return chunkNum, chunksizes, width, s
@@ -51,7 +51,7 @@ def watershed_merge( ):
                 cto = np.minimum( s, np.array([z,y,x])+width+1 )
                 sze = cto - cfrom
                 print "size: {}, from: {}, to:{}".format(sze, cfrom, cto)
-                segfname = gtmp + '/ws.chunks/' + str(xind) + '/' + str(yind) + '/' + str(zind) + '/.seg'
+                segfname = gtmp + 'ws.chunks/' + str(xind) + '/' + str(yind) + '/' + str(zind) + '/.seg'
                 chk = np.reshape( np.fromfile(segfname, dtype='uint32' ), sze)
                 seg[ cfrom[0]+1:cto[0]-1, cfrom[1]+1:cto[1]-1, cfrom[2]+1:cto[2]-1 ] = chk[ 1:-1, 1:-1, 1:-1 ]
 
@@ -62,8 +62,8 @@ def watershed_merge( ):
 
 
     # the dend and dend values
-    dendValues = np.fromfile( gtmp + '/ws.dend_values', dtype='single' )
-    dend = np.fromfile( gtmp + '/ws.dend_pairs', dtype = 'uint32' )
+    dendValues = np.fromfile( gtmp + 'ws.dend_values', dtype='single' )
+    dend = np.fromfile( gtmp + 'ws.dend_pairs', dtype = 'uint32' )
     dend = dend.reshape((len(dendValues), 2)).transpose()
     ftmp.create_dataset('/dend', data=dend, dtype='uint32')
     ftmp.create_dataset('/dendValues', data=dendValues, dtype='single')
