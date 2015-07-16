@@ -96,8 +96,10 @@ def prepare_h5():
     fc2.close()
 
 def znn_prepare():
-    if not os.path.exists(gtmp):
-	os.mkdir(gtmp)
+    if os.path.exists(gtmp):
+	shutil.rmtree(gtmp)
+
+    os.mkdir(gtmp)
     prepare_h5() 
     prepare_batch_script()
     
