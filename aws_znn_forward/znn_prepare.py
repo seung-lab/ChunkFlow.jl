@@ -4,6 +4,8 @@ Created on Mon Jul  6 14:22:18 2015
 
 @author: jingpeng
 """
+import sys
+sys.path.append("..")
 import h5py
 import shutil
 from global_vars import *
@@ -43,7 +45,7 @@ def get_fov():
 def prepare_h5():
     # copy data from S3 to EBS volume
     raw_chann_tif = gznn_raw_chann_fname.replace(".h5", ".tif")
-    if gisaws:
+    if gisaws and not shutil.os.path.exists(raw_chann_tif):
         os.system("aws s3 cp " + gznn_chann_s3fname + " " + raw_chann_tif)
     # prepare the raw channel data 
     if ".image" in gznn_raw_chann_fname:
@@ -92,6 +94,8 @@ def prepare_h5():
     fc2.close()
 
 def znn_prepare():
+    if not os.path.exists(gtmp):
+	os.mkdir(gtmp)
     prepare_h5() 
     prepare_batch_script()
     
