@@ -15,7 +15,7 @@ def prepare_batch_script():
     print "prepare batch script..."
     # get the volume shape
     fa = h5py.File( gaffin_file )
-    sz = fa['/main'].shape
+    sz = np.asarray(fa['/main'].shape)
     fa.close()
     
     if shutil.os.path.exists( gznn_batch_script_name ):
