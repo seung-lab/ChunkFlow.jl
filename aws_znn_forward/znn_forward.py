@@ -77,12 +77,16 @@ pptype=standard2D
 [INPUT2]
 path={}
 size={},{},{}
+offset={},{},{}
 pptype=transform
 ppargs=0,1
         """.format(gznn_tmp+"out1.1", \
-        size[2]-2*(fov[2]-1),\
-        size[1]-2*(fov[1]-1),\
-        size[0]-2*(fov[0]-1))
+        size[2]-2*(gznn_fovs[0][2]-1),\
+        size[1]-2*(gznn_fovs[0][1]-1),\
+        size[0]-2*(gznn_fovs[0][0]-1),\
+	gznn_fovs[0][2],\
+	gznn_fovs[0][1],\
+	gznn_fovs[0][0])
     else:
         raise NameError("stage setting is wrong!")
         
@@ -148,7 +152,7 @@ def znn_forward( inv ):
         isaff = True
         netname = gznn_net_names[1]
         # prepare the data spec file
-        prepare_data_spec( gznn_tmp+"data.1.spec", gznn_tmp+"out1.1", inv.shape-(gznn_fovs[0]-1), 1, isaff)
+        prepare_data_spec( gznn_tmp+"data.1.spec", gznn_tmp+"data.1", inv.shape-(gznn_fovs[0]-1), 1, isaff)
         # prepare the general config file
         prepare_config(gznn_tmp + "general.config", netname, isaff)
         # prepare shell file
