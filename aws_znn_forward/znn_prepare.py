@@ -15,24 +15,22 @@ def prepare_batch_script():
     print "prepare batch script..."
     # get the volume shape
     fa = h5py.File( gaffin_file )
-    sz = np.asarray(fa['/main'].shape)
+    aff_size = np.asarray(fa['/main'].shape)
+    print aff_size
     fa.close()
     
     if shutil.os.path.exists( gznn_batch_script_name ):
         shutil.os.remove( gznn_batch_script_name )
     f = open(gznn_batch_script_name, 'a+')
     f.write("#!/usr/bin/bash\n")
-    for z in xrange(0, sz[0], gznn_blocksize[0]):
-        for y in xrange(0, sz[1], gznn_blocksize[1]):
-            for x in xrange(0, sz[2], gznn_blocksize[2]):
-                z1 = z; z2 = min( sz[0], z+gznn_blocksize[0] )
-                y1 = y; y2 = min( sz[1], y+gznn_blocksize[1] )
-                x1 = x; x2 = min( sz[2], x+gznn_blocksize[2] )
+    for z in xrange(0, aff_size[1], gznn_blocksize[0]):
+        for y in xrange(0, aff_size[2], gznn_blocksize[1]):
+            for x in xrange(0, aff_size[3], gznn_blocksize[2]):
                 f.write("python " + gabspath + "aws_znn_forward/znn_forward.py {} {} {} {} {} {} {}\n".format( \
                                                             gznn_raw_chann_fname,\
-                                                            z1, z2,\
-                                                            y1, y2,\
-                                                            x1, x2))
+                                                            z,  min( aff_size[1], z+gznn_blocksize[0] ),\
+                                                            y,  min( aff_size[2], y+gznn_blocksize[1] ),\
+                                                            x,  min( aff_size[3], x+gznn_blocksize[2] )))
     f.close()
 
 def get_fov():
