@@ -22,7 +22,7 @@ gaffin_file = gtmp + 'affin.h5'
 gvoxel_size = np.array([45,5,5])
 
 #%% znn forward
-gznn = "/home/znn-release/"
+gznn = "/data/znn-release/"
 gznn_chann_s3fname = "s3://zfish/alignment/ZfishTrainingSet_1.tif"
 gznn_raw_chann_fname = gtmp + "raw_chann.h5"
 gznn_net_names = ("W5_C10_P3_D2","VeryDeep2HR_w65x9")
@@ -33,7 +33,7 @@ gznn_batch_script_name = gtmp + "znn_batch_forward.sh"
 # boost lib path for running znn. setting this in case boost is not in system path
 gznn_boost_lib = "/opt/boost/lib"
 # temporary folder for znn, this folder should be unique for every node in AWS
-gznn_tmp = gtmp + "znn"
+gznn_tmp = gtmp + "znn/"
 gznn_threads = 32
 gznn_outsz = np.array([ 1, 100, 100 ])
 

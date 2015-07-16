@@ -7,8 +7,14 @@ This module could be replaced to run ZNN V4
 
 Jingpeng Wu <jingpeng.wu@gmail.com>, 2015
 """
-import emirt
+# configure sys path
+import sys
 import os
+current_path = os.path.dirname(os.path.abspath(__file__)) + "/../"
+if current_path not in sys.path:
+    sys.path.append(current_path)
+
+import emirt
 import shutil
 import h5py
 from global_vars import *
@@ -64,9 +70,9 @@ size={},{},{}
 pptype=standard2D
     """.format(image_path, size[2], size[1], size[0])
     
-    if stg == 1:
+    if stgid == 0:
         INPUT2 = ""
-    elif (stg == 2) and len(gznn_net_names)==2:
+    elif (stgid == 1) and len(gznn_net_names)==2:
         INPUT2="""
 [INPUT2]
 path={}
@@ -140,7 +146,7 @@ def znn_forward( inv ):
     # second stage forward pass    
     if len(gznn_net_names)==2:
         isaff = True
-        netname = znn_net_names[1]
+        netname = gznn_net_names[1]
         # prepare the data spec file
         prepare_data_spec( gznn_tmp+"data.1.spec", gtmp+"out1.1", inv.shape-(gznn_fovs[0]-1), 1, isaff)
         # prepare the general config file
@@ -170,13 +176,15 @@ def znn_forward_batch(chann_fname, z1,z2,y1,y2,x1,x2):
     get data from big channel hdf5 file
     the coordinate range is in the affinity map
     """
-    offset = (gznn_fov - 1)/2
+    import znn_prepare
+    fov = znn_prepare.get_fov()
+    offset = (fov - 1)/2
     f = h5py.File( chann_fname )
     cv = np.asarray( f['/main'][z1:z2 + 2*offset[0], \
                                 y1:y2 + 2*offset[1], \
                                 x1:x2 + 2*offset[2]] )
     f.close()
-    affv = znn_forward(cv, True)
+    affv = znn_forward(cv)
     
     f = h5py.File( gaffin_file )
     f['/main'][ :,  z1:z2, y1:y2, x1:x2] = affv
