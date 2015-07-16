@@ -57,7 +57,6 @@ cutoff=1
     
     
 def prepare_data_spec(fname, image_path, size, stgid=0, isaff=True, ):
-    fov = gznn_fovs[stgid]
     if isaff:
         offset=1
     else:
@@ -139,7 +138,8 @@ def znn_forward( inv ):
     # prepare the data 
     emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
     # prepare the data spec file
-    prepare_data_spec( gznn_tmp+"data.1.spec", gznn_tmp+"data.1", inv.shape, 0, isaff)
+    prepare_data_spec( gznn_tmp+"data.1.spec", gznn_tmp+"data.1", \
+                        np.asarray(inv.shape), 0, isaff)
     # prepare the general config file
     prepare_config(gznn_tmp + "general.config", netname, isaff)
     # prepare shell file
