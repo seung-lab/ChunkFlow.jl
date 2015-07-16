@@ -48,7 +48,7 @@ mirroring=0
 
 [SCAN]
 cutoff=1
-    """.format( net_spec, net_file, gtmp, gznn_threads, \
+    """.format( net_spec, net_file, gznn_tmp, gznn_threads, \
                 gznn_outsz[2], gznn_outsz[1], gznn_outsz[0], dp_type )
     # write the config file
     f = open(fname, 'w')
