@@ -81,12 +81,12 @@ offset={},{},{}
 pptype=transform
 ppargs=0,1
         """.format(gznn_tmp+"out1.1", \
-        size[2]-2*(gznn_fovs[0][2]-1),\
-        size[1]-2*(gznn_fovs[0][1]-1),\
-        size[0]-2*(gznn_fovs[0][0]-1),\
-	gznn_fovs[0][2],\
-	gznn_fovs[0][1],\
-	gznn_fovs[0][0])
+        size[2]-(gznn_fovs[0][2]-1),\
+        size[1]-(gznn_fovs[0][1]-1),\
+        size[0]-(gznn_fovs[0][0]-1),\
+	(gznn_fovs[0][2]-1)/2,\
+	(gznn_fovs[0][1]-1)/2,\
+	(gznn_fovs[0][0]-1)/2)
     else:
         raise NameError("stage setting is wrong!")
         
