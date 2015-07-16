@@ -22,9 +22,9 @@ gaffin_file = gtmp + 'affin.h5'
 gvoxel_size = np.array([45,5,5])
 
 #%% znn forward
-gznn = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/"
-gznn_chann_s3fname = "https://s3.amazonaws.com/zfish/alignment/ZfishTrainingSet_1.tif"
-gznn_raw_chann_fname = "/home/raw_chann.h5"
+gznn = "/home/znn-release/"
+gznn_chann_s3fname = "s3://zfish/alignment/ZfishTrainingSet_1.tif"
+gznn_raw_chann_fname = gtmp + "raw_chann.h5"
 gznn_net_names = ("W5_C10_P3_D2","VeryDeep2HR_w65x9")
 gznn_fovs = ( np.array([1,99,99]), np.array([9,65,65]) )
 gznn_blocksize = np.array([20,20,20])
@@ -32,18 +32,17 @@ gznn_bin = gznn + "bin/znn"
 gznn_batch_script_name = gtmp + "znn_batch_forward.sh"
 # boost lib path for running znn. setting this in case boost is not in system path
 gznn_boost_lib = "/opt/boost/lib"
-
 # temporary folder for znn, this folder should be unique for every node in AWS
 gznn_tmp = gtmp + "znn"
-gznn_threads = 7
-gznn_outsz = np.array([ 1, 10, 10 ])
+gznn_threads = 32
+gznn_outsz = np.array([ 1, 100, 100 ])
 
 #%% watershed chop
 # step: z,y,x
 gws_width = np.array([2000, 2000, 2000], dtype='uint32')
 # watershed parameters
 gws_bin_file = gabspath + 'watershed/src/quta/zi/watershed/main/bin/xxlws'
-gws_high = 0.92
+gws_high = 0.91
 gws_low = 0.3
 gws_dust = 400
 gws_dust_low = 0.25
@@ -63,7 +62,7 @@ gom_overlap = np.array([20,32,32], dtype='uint32')
 
 # the save path of omni projects, should be local. Remote path may make the segmentation empty.
 # I get some error here and use full path solves the problem.
-gom_projects_path = '/usr/people/jingpeng/omni_projects/'
+gom_projects_path = '/mnt/'
 
 if gisaws:
     gom_s3_prj = "https://s3.amazonaws.com/zfish/om_prj/"
