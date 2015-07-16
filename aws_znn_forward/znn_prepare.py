@@ -12,6 +12,7 @@ from global_vars import *
 import emirt
 
 def prepare_batch_script():
+    print "prepare batch script..."
     # get the volume shape
     fa = h5py.File( gaffin_file )
     sz = fa['/main'].shape
@@ -27,7 +28,7 @@ def prepare_batch_script():
                 z1 = z; z2 = min( sz[0], z+gznn_blocksize[0] )
                 y1 = y; y2 = min( sz[1], y+gznn_blocksize[1] )
                 x1 = x; x2 = min( sz[2], x+gznn_blocksize[2] )
-                f.write("python ../aws_znn_forward/znn_forward.py {} {} {} {} {} {} {}\n".format( \
+                f.write("python " + gabspath + "aws_znn_forward/znn_forward.py {} {} {} {} {} {} {}\n".format( \
                                                             gznn_raw_chann_fname,\
                                                             z1, z2,\
                                                             y1, y2,\
@@ -43,6 +44,7 @@ def get_fov():
         raise NameError("do not support this FoV parameter!")
         
 def prepare_h5():
+    print "prepare channel and affinity h5 files..."
     # copy data from S3 to EBS volume
     raw_chann_tif = gznn_raw_chann_fname.replace(".h5", ".tif")
     if gisaws and not shutil.os.path.exists(raw_chann_tif):
