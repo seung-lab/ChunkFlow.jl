@@ -45,7 +45,7 @@ gznn_outsz = np.array([ 3, 20, 20 ])
 gws_width = np.array([2000, 2000, 2000], dtype='uint32')
 # watershed parameters
 gws_bin_file = gabspath + 'watershed/src/quta/zi/watershed/main/bin/xxlws'
-gws_high = 0.91
+gws_high = 0.999
 gws_low = 0.3
 gws_dust = 400
 gws_dust_low = 0.25
