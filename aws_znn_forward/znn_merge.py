@@ -4,6 +4,8 @@ Created on Sun Jul 19 10:22:38 2015
 
 @author: jingpeng
 """
+import shutil
+import h5py
 from global_vars import *
 
 def get_fov():
@@ -19,10 +21,12 @@ def znn_merge():
     merge the cubes in an affinity h5 file
     """
     # prepare affinity file
+    f = h5py.File(gchann_file)
+    shape2 = f['/main'].shape
+    f.close()
     fov = get_fov()
     offset = (fov - 1)/2
-    sz_affin = sz_chann - 2*offset
-    sz_affin = np.hstack((3,sz_affin))
+    sz_affin = np.hstack((3,shape2))
     # create the affinity hdf5 file
     if shutil.os.path.exists( gaffin_file ):
             shutil.os.remove( gaffin_file )
@@ -39,7 +43,7 @@ def znn_merge():
     for c in coords:
         z1,z2,y1,y2,x1,x2 = c
         # read the cube
-        fc = h5py.File( gshared_tmp+'cube_X{}-{}_Y{}-{}_Z{}-{}.h5'.format(x1,x2,y1,y2,z1,z2) )
+        fc = h5py.File( gshared_tmp+'affin_X{}-{}_Y{}-{}_Z{}-{}.h5'.format(x1,x2,y1,y2,z1,z2) )
         vol = np.asarray( fc['/main'] )
         fc.close()
         # save in global affinity file
