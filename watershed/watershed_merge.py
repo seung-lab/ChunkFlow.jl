@@ -65,6 +65,7 @@ def watershed_merge( ):
     dendValues = np.fromfile( gtmp + 'ws.dend_values', dtype='single' )
     dend = np.fromfile( gtmp + 'ws.dend_pairs', dtype = 'uint32' )
     dend = dend.reshape((len(dendValues), 2)).transpose()
+    print dend
     ftmp.create_dataset('/dend', data=dend, dtype='uint32')
     ftmp.create_dataset('/dendValues', data=dendValues, dtype='single')
     ftmp.close()
