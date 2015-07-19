@@ -12,11 +12,14 @@ if current_path not in sys.path:
 gisaws = True
 # global temporary folder for whole pipeline
 gabspath = os.path.dirname(os.path.abspath(__file__)) + "/"
+# temporary folder in local node 
 gtmp = '/mnt/spipe/'
+# temporary folder in shared EBS volume
+gshared_tmp = gabspath + 'tmp/'
 # note that we'd better put the channel and affinity data in local disk since it is IO bound.
 # if we put them in remote mounted folder, the chopping could be slow due to IO latency
-gchann_file = gtmp + 'chann.h5'
-gaffin_file = gtmp + 'affin.h5'
+gchann_file = gshared_tmp + 'chann.h5'
+gaffin_file = gshared_tmp + 'affin.h5'
 
 # voxel size: z,y,x
 gvoxel_size = np.array([45,5,5])
