@@ -162,7 +162,7 @@ def znn_forward( inv ):
         
     # read the output
     out_fname = gznn_tmp + "out1."
-    if isaff:
+    if isaff and len(gznn_net_names)==2:
         # affinity output
         sz = np.fromfile(out_fname + "1.size", dtype='uint32')[:3][::-1]
         affv = np.zeros( np.hstack((3,sz)), dtype="float64" )
@@ -170,9 +170,11 @@ def znn_forward( inv ):
         affv[1,:,:,:] = emirt.io.znn_img_read(out_fname + "1")
         affv[2,:,:,:] = emirt.io.znn_img_read(out_fname + "2") 
         return affv
-    else:
+    elif not isaff and len(gznn_net_names)==1:
         # boundary map output
         return emirt.io.znn_img_read(out_fname + "1")
+    else:
+	raise ErrorName('unsupported parameters!')
 
 #%% 
 def znn_forward_batch(z1,z2,y1,y2,x1,x2):
