@@ -164,7 +164,7 @@ def znn_forward( inv ):
     out_fname = gznn_tmp + "out1."
     if isaff:
         # affinity output
-        sz = np.fromfile(out_fname + "1.size", dtype='uint32')[:3]
+        sz = np.fromfile(out_fname + "1.size", dtype='uint32')[:3][::-1]
         affv = np.zeros( np.hstack((3,sz)), dtype="float64" )
         affv[0,:,:,:] = emirt.io.znn_img_read(out_fname + "0")
         affv[1,:,:,:] = emirt.io.znn_img_read(out_fname + "1")
@@ -180,14 +180,17 @@ def znn_forward_batch(chann_fname, z1,z2,y1,y2,x1,x2):
     get data from big channel hdf5 file
     the coordinate range is in the affinity map
     """
-    import znn_prepare
-    fov = znn_prepare.get_fov()
-    offset = (fov - 1)/2
-    f = h5py.File( chann_fname )
-    cv = np.asarray( f['/main'][z1:z2 + 2*offset[0], \
-                                y1:y2 + 2*offset[1], \
-                                x1:x2 + 2*offset[2]] )
+    # clear and prepare local temporal folder
+    if os.path.exists(gtmp):
+	shutil.rmtree(gtmp)
+    os.mkdir(gtmp)
+    
+    # read the cube
+    f = h5py.File(gshared_tmp+'cube_X{}-{}_Y{}-{}_Z{}-{}.h5'.format(x1,x2,y1,y2,z1,z2))
+    cv = np.asarray(f['/main'])
     f.close()
+    
+    # run forward for this cube
     affv = znn_forward(cv)
     
     f = h5py.File( gaffin_file )
@@ -197,7 +200,6 @@ def znn_forward_batch(chann_fname, z1,z2,y1,y2,x1,x2):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("chann_fname", help="channel file name", type=str)
     parser.add_argument("z1", help="z start", type=int)
     parser.add_argument("z2", help="z end  ", type=int)
     parser.add_argument("y1", help="y start", type=int)
@@ -205,7 +207,6 @@ if __name__ == "__main__":
     parser.add_argument("x1", help="x start", type=int)
     parser.add_argument("x2", help="x end  ", type=int)
     args = parser.parse_args()
-    znn_forward_batch(  args.chann_fname, \
-                        args.z1, args.z2, \
+    znn_forward_batch(  args.z1, args.z2, \
                         args.y1, args.y2, \
                         args.x1, args.x2)
