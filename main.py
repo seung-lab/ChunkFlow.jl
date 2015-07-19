@@ -8,7 +8,11 @@ import time
 import os
 from global_vars import *
 #%% run parallel znn forward
-
+from aws_znn_forward.znn_chop import znn_chop
+znn_chop()
+os.system('qsub -V -b y -cwd '+ gznn_batch_script_name )
+from aws_znn_forward.znn_merge import znn_merge
+znn_merge()
 
 #%% watershed chop
 from watershed.watershed_chop import watershed_chop
