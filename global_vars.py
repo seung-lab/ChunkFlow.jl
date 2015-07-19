@@ -38,7 +38,7 @@ gznn_boost_lib = "/opt/boost/lib"
 # temporary folder for znn, this folder should be unique for every node in AWS
 gznn_tmp = gtmp + "znn/"
 gznn_threads = 32
-gznn_outsz = np.array([ 1, 100, 100 ])
+gznn_outsz = np.array([ 3, 20, 20 ])
 
 #%% watershed chop
 # step: z,y,x
