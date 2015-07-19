@@ -24,7 +24,8 @@ def znn_merge():
     merge the cubes in an affinity h5 file
     """
     # prepare affinity file
-    f = h5py.File(gchann_file)
+    print "prepare affinity file..."
+    f = h5py.File(gchann_file, 'r')
     shape2 = f['/main'].shape
     f.close()
     fov = get_fov()
@@ -38,19 +39,26 @@ def znn_merge():
     fa.close()
     
     # merge the cubes in affinity file
+    print "merge cubes..."
     # read coordinates
     f = h5py.File(gshared_tmp + 'cube_coordinates.h5')
     coords = list( f['/main'] )
     f.close()
+    print coords
     # merge the cubes
+    fa = h5py.File( gaffin_file )
     for c in coords:
+	print c
         z1,z2,y1,y2,x1,x2 = c
         # read the cube
         fc = h5py.File( gshared_tmp+'affin_X{}-{}_Y{}-{}_Z{}-{}.h5'.format(x1,x2,y1,y2,z1,z2) )
         vol = np.asarray( fc['/main'] )
         fc.close()
         # save in global affinity file
-        fa = h5py.File( gaffin_file )
         fa['/main'][:,z1:z2,y1:y2,x1:x2] = vol
-        fa.close()
-        
+      
+    fa.close()
+
+
+if __name__ == "__main__":
+    znn_merge() 
