@@ -13,17 +13,16 @@ import emirt
 
 def prepare_cube(z1,z2,y1,y2,x1,x2):
     # extract cube in large volume
-    # get affinity size
+    # get field of view
     from znn_merge import get_fov
     fov = get_fov()
-    offset = (fov - 1)/2
 
     f = h5py.File(gznn_raw_chann_fname)
-    vol = np.asarray( f['/main'][z1:z2+2*offset[0],y1:y2+2*offset[1],x1:x2+2*offset[2]] )
+    vol = np.asarray( f['/main'][z1:z2+fov[0]-1,y1:y2+fov[1]-1,x1:x2+fov[2]-1] )
     f.close
     
     # save the cube
-    f = h5py.File( gshared_tmp+'chann_X{}-{}_Y{}-{}_Z{}-{}.h5'.format(x1,x2,y1,y2,z1,z2) )
+    f = h5py.File( gshared_tmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
     f.create_dataset('/main', data=vol, dtype='double')
     f.close()
 
