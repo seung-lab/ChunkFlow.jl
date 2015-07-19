@@ -149,6 +149,7 @@ def znn_forward( inv ):
 
     # second stage forward pass    
     if len(gznn_net_names)==2:
+  	print "second stage.."
         isaff = True
         netname = gznn_net_names[1]
         # prepare the data spec file
@@ -164,7 +165,7 @@ def znn_forward( inv ):
     out_fname = gznn_tmp + "out1."
     if isaff and len(gznn_net_names)==2:
         # affinity output
-        sz = np.fromfile(out_fname + "1.size", dtype='uint32')[:3][::-1]
+        sz = np.fromfile(out_fname + "1.size", dtype='uint32')[::-1]
         affv = np.zeros( np.hstack((3,sz)), dtype="float64" )
         affv[0,:,:,:] = emirt.io.znn_img_read(out_fname + "0")
         affv[1,:,:,:] = emirt.io.znn_img_read(out_fname + "1")
