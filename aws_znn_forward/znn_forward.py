@@ -175,11 +175,14 @@ def znn_forward( inv ):
         return emirt.io.znn_img_read(out_fname + "1")
 
 #%% 
-def znn_forward_batch(chann_fname, z1,z2,y1,y2,x1,x2):
+def znn_forward_batch(z1,z2,y1,y2,x1,x2):
     """
     get data from big channel hdf5 file
     the coordinate range is in the affinity map
     """
+    # if we already have this file, directly return
+    if os.path.exists( gshared_tmp+'cube_X{}-{}_Y{}-{}_Z{}-{}.h5'.format(x1,x2,y1,y2,z1,z2) ):
+        return
     # clear and prepare local temporal folder
     if os.path.exists(gtmp):
 	shutil.rmtree(gtmp)
