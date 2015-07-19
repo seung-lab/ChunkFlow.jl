@@ -1,8 +1,11 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jul 19 10:22:38 2015
+#!/usr/bin/env python
+__doc__ = """
+rundd forward pass using znn
 
-@author: jingpeng
+wrape ZNN as a function to process numpy array. 
+This module could be replaced to run ZNN V4
+
+Jingpeng Wu <jingpeng.wu@gmail.com>, 2015
 """
 import shutil
 import h5py
