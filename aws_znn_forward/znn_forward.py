@@ -184,7 +184,7 @@ def znn_forward_batch(z1,z2,y1,y2,x1,x2):
     the coordinate range is in the affinity map
     """
     # if we already have this file, directly return
-    if os.path.exists( gshared_tmp+'affin_X{}-{}_Y{}-{}_Z{}-{}.h5'.format(x1,x2,y1,y2,z1,z2) ):
+    if os.path.exists( gshared_tmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) ):
         return
     # clear and prepare local temporal folder
     if os.path.exists(gtmp):
@@ -192,14 +192,14 @@ def znn_forward_batch(z1,z2,y1,y2,x1,x2):
     os.mkdir(gtmp)
     
     # read the cube
-    f = h5py.File(gshared_tmp+'chann_X{}-{}_Y{}-{}_Z{}-{}.h5'.format(x1,x2,y1,y2,z1,z2))
+    f = h5py.File(gshared_tmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2))
     cv = np.asarray(f['/main'])
     f.close()
     
     # run forward for this cube
     affv = znn_forward(cv)
     
-    f = h5py.File( gshared_tmp+'affin_X{}-{}_Y{}-{}_Z{}-{}.h5'.format(x1,x2,y1,y2,z1,z2) )
+    f = h5py.File( gshared_tmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
     f['/main'] = affv
     f.close()
 
