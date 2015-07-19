@@ -51,6 +51,6 @@ def znn_merge():
         fc.close()
         # save in global affinity file
         fa = h5py.File( gaffin_file )
-        fa['/main'][:,z1:z2,y1:y2,x1,x2] = vol
+        fa['/main'][:,z1:z2,y1:y2,x1:x2] = vol
         fa.close()
         
