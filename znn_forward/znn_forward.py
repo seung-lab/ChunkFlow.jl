@@ -203,7 +203,7 @@ def znn_forward(z1,z2,y1,y2,x1,x2):
         raise NameError('the size of znn output is incorrect!')
     # save this cube
     f = h5py.File( gtmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
-    f['/main'] = affv
+    f.create_dataset('/main', data=affv, dtype='float32')
     f.close()
 
 if __name__ == "__main__":
