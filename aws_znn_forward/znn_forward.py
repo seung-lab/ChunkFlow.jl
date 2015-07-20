@@ -187,9 +187,9 @@ def znn_forward(z1,z2,y1,y2,x1,x2):
     if os.path.exists( gtmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) ):
         return
     # clear and prepare local temporal folder
-    if os.path.exists(gtmp):
-	shutil.rmtree(gtmp)
-    os.mkdir(gtmp)
+    if os.path.exists(gznn_tmp):
+	shutil.rmtree(gznn_tmp)
+    os.mkdir(gznn_tmp)
     
     # read the cube
     f = h5py.File(gtmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2), 'r')
