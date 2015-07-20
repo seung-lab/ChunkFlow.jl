@@ -32,7 +32,7 @@ gznn_net_names = ("W5_C10_P3_D2","VeryDeep2HR_w65x9")
 # field of view, (z,y,x)
 gznn_fovs = ( np.array([1,99,99]), np.array([9,65,65]) )
 # output affinity block size for each node
-gznn_blocksize = np.array([50,200,200])
+gznn_blocksize = np.array([20,300,300])
 gznn_bin = gznn + "bin/znn"
 gznn_batch_script_name = gtmp + "znn_batch_forward.sh"
 # boost lib path for running znn. setting this in case boost is not in system path
