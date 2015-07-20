@@ -8,12 +8,10 @@ if current_path not in sys.path:
     sys.path.append(current_path)
 
 #%% basic
-# is this program runing in AWS?
-gisaws = True
 # global temporary folder for whole pipeline
 gabspath = os.path.dirname(os.path.abspath(__file__)) + "/"
 # temporary folder in local node 
-gtmp = gabspath + 'tmp/'
+gtmp = '/tmp/spipe/'
 
 # note that we'd better put the channel and affinity data in local disk since it is IO bound.
 # if we put them in remote mounted folder, the chopping could be slow due to IO latency
@@ -24,25 +22,26 @@ gaffin_file = gtmp + 'affin.h5'
 gvoxel_size = np.array([45,5,5])
 
 #%% znn forward
-gznn = "/data/znn-release/"
-gznn_chann_s3fname = "s3://zfish/fish-train/Merlin_raw2.tif"
+gznn = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/"
+#gznn_chann_origin = "s3://zfish/fish-train/Merlin_raw2.tif"
+gznn_chann_origin = "/usr/people/jingpeng/seungmount/research/Jingpeng/13_zfish/fish_train/Merlin_raw2.tif"
 gznn_raw_chann_fname = gtmp + "raw_chann.h5"
 # networks
 gznn_net_names = ("W5_C10_P3_D2","VeryDeep2HR_w65x9")
 # field of view, (z,y,x)
 gznn_fovs = ( np.array([1,99,99]), np.array([9,65,65]) )
 # output affinity block size for each node
-gznn_blocksize = np.array([20,300,300])
+gznn_blocksize = np.array([20,50,50])
 gznn_bin = gznn + "bin/znn"
 gznn_batch_script_name = gtmp + "znn_batch_forward.sh"
 # boost lib path for running znn. setting this in case boost is not in system path
 gznn_boost_lib = "/opt/boost/lib"
 # temporary folder for znn, this folder should be unique for every node in AWS
 # in EC2 instance, the '/mnt' is a local cache partition.
-gznn_tmp = "/mnt/znn/"
-gznn_threads = 32
+gznn_tmp = "/tmp/znn_tmp/"
+gznn_threads = 7
 # output size of each epoch
-gznn_outsz = np.array([ 3, 20, 20 ])
+gznn_outsz = np.array([ 3, 60, 60 ])
 
 #%% watershed chop
 # step: z,y,x
@@ -69,9 +68,8 @@ gom_overlap = np.array([20,32,32], dtype='uint32')
 
 # the save path of omni projects, should be local. Remote path may make the segmentation empty.
 # I get some error here and use full path solves the problem.
-gom_projects_path = '/mnt/'
-
-if gisaws:
-    gom_s3_prj = "https://s3.amazonaws.com/zfish/om_prj/"
+gom_projects_path = gtmp + 'ompro/'
+# the S3 bucket directory
+#gom_s3_prj = "https://s3.amazonaws.com/zfish/om_prj/"
 
 #%% evaluate
