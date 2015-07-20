@@ -128,9 +128,9 @@ def znn_forward( inv ):
     
     # first stage forward pass
     if len(gznn_net_names)==1:
-        isaff=False
-    elif len(gznn_net_names)==2:
         isaff=True
+    elif len(gznn_net_names)==2:
+        isaff=False
     else:
         raise NameError("do not support this net name parameter!")
         
@@ -192,13 +192,13 @@ def znn_forward_batch(z1,z2,y1,y2,x1,x2):
     os.mkdir(gtmp)
     
     # read the cube
-    f = h5py.File(gshared_tmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2))
+    f = h5py.File(gshared_tmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2), 'r')
     cv = np.asarray(f['/main'])
     f.close()
     
     # run forward for this cube
     affv = znn_forward(cv)
-    
+    # save this cube
     f = h5py.File( gshared_tmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
     f['/main'] = affv
     f.close()
