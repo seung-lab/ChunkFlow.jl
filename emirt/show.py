@@ -191,9 +191,9 @@ def mat_show(mat, xlabel=''):
     ax1.set_xlabel(xlabel)
     plt.show()
 
-def imshow(im):
+def imshow(im, cmap='gray'):
     import matplotlib.pylab as plt
-    plt.imshow(im)
+    plt.imshow(im, cmap=cmap)
     
 # show the labeled image with random color
 def random_color_show( im, mode='im' ):
