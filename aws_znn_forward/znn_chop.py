@@ -21,6 +21,9 @@ def prepare_cube(z1,z2,y1,y2,x1,x2):
     vol = np.asarray( f['/main'][z1:z2+fov[0]-1,y1:y2+fov[1]-1,x1:x2+fov[2]-1] )
     f.close
     
+
+    print vol.shape
+
     # save the cube
     f = h5py.File( gshared_tmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
     f.create_dataset('/main', data=vol, dtype='double')
@@ -31,7 +34,6 @@ def prepare_batch_script():
     # get the volume shape
     fc = h5py.File( gchann_file )
     size2 = np.asarray(fc['/main'].shape)
-    print size2
     fc.close()
     
     if shutil.os.path.exists( gznn_batch_script_name ):
