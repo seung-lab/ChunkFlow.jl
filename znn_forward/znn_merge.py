@@ -36,7 +36,7 @@ def znn_merge():
     print coords
     # merge the cubes
     for c in coords:
-	print c
+        print c
         z1,z2,y1,y2,x1,x2 = c
         # read the cube
         fc = h5py.File( gtmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
