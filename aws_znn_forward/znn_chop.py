@@ -11,10 +11,18 @@ import shutil
 from global_vars import *
 import emirt
 
+
+def get_fov():
+    if len(gznn_fovs)==1:
+        return gznn_fovs[0]
+    elif len(gznn_fovs)==2:
+        return gznn_fovs[0]+gznn_fovs[1]-1
+    else:
+        raise NameError("do not support this FoV parameter!")
+        
 def prepare_cube(z1,z2,y1,y2,x1,x2):
     # extract cube in large volume
     # get field of view
-    from znn_merge import get_fov
     fov = get_fov()
 
     f = h5py.File(gznn_raw_chann_fname)
@@ -25,7 +33,7 @@ def prepare_cube(z1,z2,y1,y2,x1,x2):
     print vol.shape
 
     # save the cube
-    f = h5py.File( gshared_tmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
+    f = h5py.File( gtmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
     f.create_dataset('/main', data=vol, dtype='double')
     f.close()
 
@@ -56,7 +64,7 @@ def prepare_batch_script():
     f.close()
     
     # save the cube coordinates
-    fc = h5py.File( gshared_tmp + 'cube_coordinates.h5' )
+    fc = h5py.File( gtmp + 'cube_coordinates.h5' )
     fc.create_dataset('/main', data=cube_coords,dtype='uint32')
     fc.close()
         
@@ -87,7 +95,6 @@ def prepare_h5():
     raw_chann = fc['/main']
     sz_chann = raw_chann.shape
     # get croped channel volume size
-    from znn_merge import get_fov
     fov = get_fov()
     offset = (fov - 1)/2
     crop_shape = sz_chann - fov+1
@@ -111,9 +118,9 @@ def prepare_h5():
 
 def znn_chop():
     # clear and prepare shared temporary folder
-    if os.path.exists(gshared_tmp):
-	shutil.rmtree(gshared_tmp)
-    os.mkdir(gshared_tmp)
+    if os.path.exists(gtmp):
+	shutil.rmtree(gtmp)
+    os.mkdir(gtmp)
     
     prepare_h5() 
     prepare_batch_script()
