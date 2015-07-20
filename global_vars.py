@@ -41,7 +41,7 @@ gznn_boost_lib = "/opt/boost/lib"
 gznn_tmp = "/tmp/znn_tmp/"
 gznn_threads = 7
 # output size of each epoch
-gznn_outsz = np.array([ 3, 60, 60 ])
+gznn_outszs = (np.array([ 1, 100, 100 ]), np.array([ 3, 20, 20 ]))
 
 #%% watershed chop
 # step: z,y,x
