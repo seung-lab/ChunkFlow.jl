@@ -19,7 +19,7 @@ import shutil
 import h5py
 from global_vars import *
 
-def prepare_config(fname, netname, isaff=True ):
+def prepare_config(fname, netname, isaff ):
     net_spec = gznn + "networks/" + netname + ".spec"
     net_file = gznn + "experiments/" + netname + "/network/"
     if isaff:
@@ -56,7 +56,7 @@ cutoff=1
     f.close()
     
     
-def prepare_data_spec(fname, image_path, size, stgid=0, isaff=True, ):
+def prepare_data_spec(fname, image_path, size, stgid, isaff, ):
     if isaff:
         offset=1
     else:
@@ -115,7 +115,7 @@ export LD_LIBRARY_PATH=LD_LIBRARY_PATH:"{}"
     f.close()
 
 #%%
-def znn_forward( inv ):
+def znn_forward_cube( inv ):
     """
     run znn forward pass
     inv: input channel volume as numpy array
@@ -178,13 +178,13 @@ def znn_forward( inv ):
 	raise ErrorName('unsupported parameters!')
 
 #%% 
-def znn_forward_batch(z1,z2,y1,y2,x1,x2):
+def znn_forward(z1,z2,y1,y2,x1,x2):
     """
     get data from big channel hdf5 file
     the coordinate range is in the affinity map
     """
     # if we already have this file, directly return
-    if os.path.exists( gshared_tmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) ):
+    if os.path.exists( gtmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) ):
         return
     # clear and prepare local temporal folder
     if os.path.exists(gtmp):
@@ -192,14 +192,17 @@ def znn_forward_batch(z1,z2,y1,y2,x1,x2):
     os.mkdir(gtmp)
     
     # read the cube
-    f = h5py.File(gshared_tmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2), 'r')
+    f = h5py.File(gtmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2), 'r')
     cv = np.asarray(f['/main'])
     f.close()
     
     # run forward for this cube
-    affv = znn_forward(cv)
+    affv = znn_forward_cube(cv)
+    # ensure the size is correct
+    if affv.shape[0]!=z2-z1 or affv.shape[1]!=y2-y1 or affv.shape[2]!=x2-x1:
+        raise NameError('the size of znn output is incorrect!')
     # save this cube
-    f = h5py.File( gshared_tmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
+    f = h5py.File( gtmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
     f['/main'] = affv
     f.close()
 
@@ -213,6 +216,6 @@ if __name__ == "__main__":
     parser.add_argument("x1", help="x start", type=int)
     parser.add_argument("x2", help="x end  ", type=int)
     args = parser.parse_args()
-    znn_forward_batch(  args.z1, args.z2, \
-                        args.y1, args.y2, \
-                        args.x1, args.x2)
+    znn_forward(    args.z1, args.z2, \
+                    args.y1, args.y2, \
+                    args.x1, args.x2)

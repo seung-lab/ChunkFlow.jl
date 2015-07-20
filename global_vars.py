@@ -13,13 +13,12 @@ gisaws = True
 # global temporary folder for whole pipeline
 gabspath = os.path.dirname(os.path.abspath(__file__)) + "/"
 # temporary folder in local node 
-gtmp = '/mnt/spipe/'
-# temporary folder in shared EBS volume
-gshared_tmp = gabspath + 'tmp/'
+gtmp = gabspath + 'tmp/'
+
 # note that we'd better put the channel and affinity data in local disk since it is IO bound.
 # if we put them in remote mounted folder, the chopping could be slow due to IO latency
-gchann_file = gshared_tmp + 'chann.h5'
-gaffin_file = gshared_tmp + 'affin.h5'
+gchann_file = gtmp + 'chann.h5'
+gaffin_file = gtmp + 'affin.h5'
 
 # voxel size: z,y,x
 gvoxel_size = np.array([45,5,5])
@@ -27,17 +26,22 @@ gvoxel_size = np.array([45,5,5])
 #%% znn forward
 gznn = "/data/znn-release/"
 gznn_chann_s3fname = "s3://zfish/fish-train/Merlin_raw2.tif"
-gznn_raw_chann_fname = gshared_tmp + "raw_chann.h5"
+gznn_raw_chann_fname = gtmp + "raw_chann.h5"
+# networks
 gznn_net_names = ("W5_C10_P3_D2","VeryDeep2HR_w65x9")
+# field of view, (z,y,x)
 gznn_fovs = ( np.array([1,99,99]), np.array([9,65,65]) )
+# output affinity block size for each node
 gznn_blocksize = np.array([50,200,200])
 gznn_bin = gznn + "bin/znn"
-gznn_batch_script_name = gshared_tmp + "znn_batch_forward.sh"
+gznn_batch_script_name = gtmp + "znn_batch_forward.sh"
 # boost lib path for running znn. setting this in case boost is not in system path
 gznn_boost_lib = "/opt/boost/lib"
 # temporary folder for znn, this folder should be unique for every node in AWS
-gznn_tmp = gtmp + "znn/"
+# in EC2 instance, the '/mnt' is a local cache partition.
+gznn_tmp = "/mnt/znn/"
 gznn_threads = 32
+# output size of each epoch
 gznn_outsz = np.array([ 3, 20, 20 ])
 
 #%% watershed chop
