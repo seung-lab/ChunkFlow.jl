@@ -10,7 +10,8 @@ import h5py
 import shutil
 from global_vars import *
 import emirt
-import subprocess
+#import subprocess
+import os
 
 def get_fov():
     if len(gznn_fovs)==1:
@@ -73,9 +74,9 @@ def prepare_h5():
     # copy data from S3 to EBS volume
     raw_chann_tif = gznn_raw_chann_fname.replace(".h5", ".tif")
     if "s3" in gznn_chann_origin and not shutil.os.path.exists(raw_chann_tif):
-        subprocess.call("aws s3 cp " + gznn_chann_origin + " " + raw_chann_tif)
+        os.system("aws s3 cp " + gznn_chann_origin + " " + raw_chann_tif)
     elif not shutil.os.path.exists(raw_chann_tif):
-        subprocess.call(["cp", gznn_chann_origin, raw_chann_tif])
+        os.system("cp "+ gznn_chann_origin + " " + raw_chann_tif)
     # prepare the raw channel data 
     if ".image" in gznn_raw_chann_fname:
         if shutil.os.path.exists( gznn_raw_chann_fname ):
