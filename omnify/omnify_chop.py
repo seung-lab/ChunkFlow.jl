@@ -7,6 +7,7 @@ Jingpeng Wu <jingpeng.wu@gmail.com>, 2015
 from global_vars import *
 import h5py
 import time
+import subprocess
 
 def write_h5_with_dend(h5filename, dend, dendValues, vol=False):
     import h5py
@@ -162,6 +163,14 @@ def omnify_chop():
     else:
         # run block chunking
         prepare_blocks()
+    
+    # copy omni projects to S3
+    try:
+        subprocess.call("aws s3 cp "+gom_projects_path+" "+gom_s3_prj)
+    except NameError:
+        print "no s3 destination defined"
+    else:
+        print "copy omnify projects to s3 bucket."
 
 if __name__ == "__main__":
     start = time.time()
