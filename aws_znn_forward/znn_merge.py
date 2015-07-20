@@ -51,7 +51,7 @@ def znn_merge():
 	print c
         z1,z2,y1,y2,x1,x2 = c
         # read the cube
-        fc = h5py.File( gshared_tmp+'affin_X{}-{}_Y{}-{}_Z{}-{}.h5'.format(x1,x2,y1,y2,z1,z2) )
+        fc = h5py.File( gshared_tmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
         vol = np.asarray( fc['/main'] )
         fc.close()
         # save in global affinity file
