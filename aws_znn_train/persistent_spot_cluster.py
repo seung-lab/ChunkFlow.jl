@@ -13,7 +13,8 @@ cluster_name = 'jingpeng'
 node_name = 'node1'
 
 # your bidding of spot instance
-spot_bid = 0.51
+spot_bid = 0.51:q
+
 
 # command
 cmds = {'node1':'cd /home/znn-release/; sh znn_train1.sh',\
@@ -83,7 +84,7 @@ while True:
         mynode = cl.add_node( alias=node_name, spot_bid=spot_bid )
         print "run plugin"
         mynode.wait()
-        time.sleep(1*60)
+        time.sleep(2*60)
         mynode.ssh.execute( cmds[node_name] )
 
     f.write('wait for cluster...\n')
