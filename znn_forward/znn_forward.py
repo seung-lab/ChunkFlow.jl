@@ -14,7 +14,8 @@ current_path = os.path.dirname(os.path.abspath(__file__)) + "/../"
 if current_path not in sys.path:
     sys.path.append(current_path)
     
-import subprocess
+#import subprocess
+import os
 import emirt
 import shutil
 import h5py
@@ -140,7 +141,6 @@ def znn_forward_cube( inv ):
     else:
         raise NameError("do not support this net name parameter!")
         
-    netname = gznn_net_names[0]
     # prepare the data 
     emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
     # prepare the data spec file
@@ -150,7 +150,7 @@ def znn_forward_cube( inv ):
     # prepare shell file
     prepare_shell( gznn_tmp + "znn_forward.sh", "general.config" )
     # run znn forward pass
-    subprocess.call("cd " + gznn_tmp + "; bash znn_forward.sh", shell=True)
+    os.system("cd " + gznn_tmp + "; bash znn_forward.sh")
 
     # second stage forward pass    
     if len(gznn_net_names)==2:
@@ -163,7 +163,7 @@ def znn_forward_cube( inv ):
         # prepare shell file
         prepare_shell( gznn_tmp + "znn_forward.sh", "general.config" )
         # run znn forward pass
-        subprocess.call(["cd",gznn_tmp,"; bash znn_forward.sh"])
+        os.system("cd "+ gznn_tmp + "; bash znn_forward.sh")
         
     # read the output
     out_fname = gznn_tmp + "out1."
