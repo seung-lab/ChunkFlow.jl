@@ -223,7 +223,7 @@ def znn_forward(z1,z2,y1,y2,x1,x2):
     # run forward for this cube
     affv = znn_forward_cube(cv)
     # ensure the size is correct
-    if affv.shape[0]!=z2-z1 or affv.shape[1]!=y2-y1 or affv.shape[2]!=x2-x1:
+    if affv.shape[1]!=z2-z1 or affv.shape[2]!=y2-y1 or affv.shape[3]!=x2-x1:
         raise NameError('the size of znn output is incorrect!')
     # save this cube
     f = h5py.File( gtmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) )
