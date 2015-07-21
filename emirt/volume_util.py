@@ -80,7 +80,7 @@ def norm(vol):
 	'''Normalizes the input volume to have values between 0 and 1
 	(achieved by factor normalization to the max)'''
 
-	vol = vol - np.min(vol)
+	vol = vol - np.min(vol.astype('float32'))
 	vol = vol / np.max(vol)
 
 	return vol
