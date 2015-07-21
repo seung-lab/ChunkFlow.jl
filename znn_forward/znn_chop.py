@@ -70,7 +70,7 @@ def prepare_batch_script():
     fc.close()
         
 def prepare_h5():
-    print "prepare channel and affinity h5 files..."
+    print "prepare channel h5 files..."
     # copy data from S3 to EBS volume
     raw_chann_tif = gznn_raw_chann_fname.replace(".h5", ".tif")
     if "s3" in gznn_chann_origin and not shutil.os.path.exists(raw_chann_tif):
@@ -93,7 +93,7 @@ def prepare_h5():
     else:
         raise NameError('unknown channel data format!')
     
-    # crop raw channel volume and prepare affinity h5 file
+    # crop raw channel volume h5 file
     fc = h5py.File( gznn_raw_chann_fname )
     raw_chann = fc['/main']
     sz_chann = raw_chann.shape
@@ -112,13 +112,10 @@ def prepare_h5():
     for z in xrange( crop_shape[0] ):
         sec = raw_chann[z+offset[0], offset[1]:-offset[1], offset[2]:-offset[2]]
         # normalize for omni
-        chann2[z,:,:] = emirt.volume_util.norm( np.asarray(sec) )
-        
+        chann2[z,:,:] = emirt.volume_util.norm( np.asarray(sec) )     
     fc.close()
     fc2.close()
-    # remove the original file (to-do)
-    # os.remove( gznn_raw_chann_fname )
-
+    
 def znn_chop():
     # clear and prepare shared temporary folder
     if os.path.exists(gtmp):
@@ -128,6 +125,8 @@ def znn_chop():
     prepare_h5() 
     prepare_batch_script()
     
+    # remove the original file
+    os.remove( gznn_raw_chann_fname )
+    
 if __name__=="__main__":
     znn_chop()
-#    shutil.os.remove( gtmp+"/*" )
