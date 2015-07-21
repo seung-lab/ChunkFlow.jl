@@ -2,7 +2,7 @@
 __doc__ = """
 run forward pass using znn
 
-wrape ZNN as a function to process numpy array. 
+wrape ZNN as a function to process numpy array.
 This module could be replaced to run ZNN V4
 
 Jingpeng Wu <jingpeng.wu@gmail.com>, 2015
@@ -13,7 +13,7 @@ import os
 current_path = os.path.dirname(os.path.abspath(__file__)) + "/../"
 if current_path not in sys.path:
     sys.path.append(current_path)
-    
+
 #import subprocess
 import os
 import emirt
@@ -30,7 +30,7 @@ def prepare_config(fname, stgid, isaff ):
         dp_type="affinity"
     else:
         dp_type="volume"
-        
+
     config = """
 [PATH]
 config={}
@@ -58,8 +58,8 @@ cutoff=1
     f = open(fname, 'w')
     f.write(config)
     f.close()
-    
-    
+
+
 def prepare_data_spec(fname, stgid, isaff ):
     # data image path
     image_path = gznn_tmp + 'data.1'
@@ -75,7 +75,7 @@ ext=image
 size={},{},{}
 pptype=standard2D
     """.format(image_path, dsize[2], dsize[1], dsize[0])
-    
+
     if stgid == 0:
         INPUT2 = ""
     elif (stgid == 1) and len(gznn_net_names)==2:
@@ -95,7 +95,7 @@ ppargs=0,1
 	(gznn_fovs[0][0]-1)/2)
     else:
         raise NameError("stage setting is wrong!")
-        
+
     MASK1 = """
 [MASK1]
 size={},{},{}
@@ -111,11 +111,11 @@ ppargs={}
     f.write(MASK1)
     f.close()
 
-def prepare_shell(fname, general_config):
+def prepare_shell(fname):
     shell = """#!/bin/bash
 export LD_LIBRARY_PATH=LD_LIBRARY_PATH:"{}"
-{} --test_only=true --options="{}"
-    """.format( gznn_boost_lib, gznn_bin, general_config )
+{} --test_only=true --options="general.config"
+    """.format( gznn_boost_lib, gznn_bin )
     # write shell script
     f = open(fname, 'w')
     f.write( shell )
@@ -126,16 +126,11 @@ def znn_forward_cube( inv ):
     """
     run znn forward pass
     inv: input channel volume as numpy array
-    net_fname: the network configuration file name
     """
-    # make the temporary folder
-    if os.path.exists( gznn_tmp ):
-        shutil.rmtree( gznn_tmp )
-    os.mkdir( gznn_tmp )
-  
-    # prepare the data 
+    print inv.shape
+    # prepare the data
     emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
- 
+    print inv.shape
     # first stage forward pass
     if len(gznn_net_names)==1:
         isaff=True
@@ -143,20 +138,31 @@ def znn_forward_cube( inv ):
         isaff=False
     else:
         raise NameError("do not support this net name parameter!")
-        
+
     # prepare the data spec file
     prepare_data_spec( gznn_tmp+"data.1.spec", 0, isaff)
     # prepare the general config file
     prepare_config(gznn_tmp + "general.config", 0, isaff)
     # prepare shell file
-    prepare_shell( gznn_tmp + "znn_forward.sh", "general.config" )
+    prepare_shell( gznn_tmp + "znn_forward.sh" )
+    # ensure the shape
+    dsize = np.fromfile(gznn_tmp+'data.1.size', dtype='uint32')[::-1]
+    if not np.all(inv.shape== dsize):
+        print inv.shape
+        print dsize
+        raise NameError("the input size of 1st stage is wrong")
     # run znn forward pass
     os.system("cd " + gznn_tmp + "; bash znn_forward.sh")
 
-    # second stage forward pass    
+    # evaluate the outvolume size
+    outsize0 = np.fromfile(gznn_tmp+'out1.1.size',dtype='float32')[::-1]
+    if outsize0[1]!=inv.shape[1]-gznn_fovs[0][1]+1:
+        raise NameError('first stage out size  is wrong')
+
+    # second stage forward pass
     if len(gznn_net_names)==2:
   	print "second stage.."
-        # prepare the data 
+        # prepare the data
     	emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
 	isaff = True
         # prepare the data spec file
@@ -164,10 +170,10 @@ def znn_forward_cube( inv ):
         # prepare the general config file
         prepare_config(gznn_tmp + "general.config", 1, isaff)
         # prepare shell file
-        prepare_shell( gznn_tmp + "znn_forward.sh", "general.config" )
+        prepare_shell( gznn_tmp + "znn_forward.sh" )
         # run znn forward pass
         os.system("cd "+ gznn_tmp + "; bash znn_forward.sh")
-        
+
     # read the output
     out_fname = gznn_tmp + "out1."
     if isaff and len(gznn_net_names)==2:
@@ -176,29 +182,43 @@ def znn_forward_cube( inv ):
         affv = np.zeros( np.hstack((3,sz)), dtype="float64" )
         affv[0,:,:,:] = emirt.io.znn_img_read(out_fname + "0")
         affv[1,:,:,:] = emirt.io.znn_img_read(out_fname + "1")
-        affv[2,:,:,:] = emirt.io.znn_img_read(out_fname + "2") 
+        affv[2,:,:,:] = emirt.io.znn_img_read(out_fname + "2")
         return affv
     elif not isaff and len(gznn_net_names)==1:
         # boundary map output
         return emirt.io.znn_img_read(out_fname + "1")
     else:
-	raise ErrorName('unsupported parameters!')
+	raise NameError('unsupported parameters!')
 
-#%% 
+#%%
 def znn_forward(z1,z2,y1,y2,x1,x2):
     """
     get data from big channel hdf5 file
     the coordinate range is in the affinity map
     """
+    print "input coordinates: Z{}-{}_Y{}-{}_X{}-{}".format(z1,z2,y1,y2,x1,x2)
     # if we already have this file, directly return
     if os.path.exists( gtmp+'affin_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2) ):
+        print "the destination file already exist"
         return
-   
+    # make the temporary folder
+    gznn_tmp = gznn_tmp + "Z{}-{}_Y{}-{}_X{}-{}".format(z1,z2,y1,y2,x1,x2)
+    if os.path.exists( gznn_tmp ):
+        shutil.rmtree( gznn_tmp )
+    os.mkdir( gznn_tmp )
+
     # read the cube
     f = h5py.File(gtmp+'chann_Z{}-{}_Y{}-{}_X{}-{}.h5'.format(z1,z2,y1,y2,x1,x2), 'r')
     cv = np.asarray(f['/main'])
     f.close()
-    
+    # evaluate the shape
+    print cv.shape
+    if cv.shape[1]!= y2-y1+gznn_fovs[0][1]+gznn_fovs[1][1]-2 and \
+       cv.shape[2]!= y2-y1+gznn_fovs[0][2]+gznn_fovs[1][2]-2:
+        print cv.shape
+        print "y: {}-{}, x:{}-{}".format(y1,y2,x1,x2)
+        raise NameError('wrong input volume size for znn')
+
     # run forward for this cube
     affv = znn_forward_cube(cv)
     # ensure the size is correct
