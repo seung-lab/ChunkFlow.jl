@@ -132,7 +132,10 @@ def znn_forward_cube( inv ):
     if os.path.exists( gznn_tmp ):
         shutil.rmtree( gznn_tmp )
     os.mkdir( gznn_tmp )
-    
+  
+    # prepare the data 
+    emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
+ 
     # first stage forward pass
     if len(gznn_net_names)==1:
         isaff=True
@@ -141,8 +144,6 @@ def znn_forward_cube( inv ):
     else:
         raise NameError("do not support this net name parameter!")
         
-    # prepare the data 
-    emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
     # prepare the data spec file
     prepare_data_spec( gznn_tmp+"data.1.spec", 0, isaff)
     # prepare the general config file
@@ -155,7 +156,9 @@ def znn_forward_cube( inv ):
     # second stage forward pass    
     if len(gznn_net_names)==2:
   	print "second stage.."
-        isaff = True
+        # prepare the data 
+    	emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
+	isaff = True
         # prepare the data spec file
         prepare_data_spec( gznn_tmp+"data.1.spec", 1, isaff)
         # prepare the general config file
