@@ -155,7 +155,7 @@ def znn_forward_cube( inv ):
     os.system("cd " + gznn_tmp + "; bash znn_forward.sh")
 
     # evaluate the outvolume size
-    outsize0 = np.fromfile(gznn_tmp+'out1.1.size',dtype='float32')[::-1]
+    outsize0 = np.fromfile(gznn_tmp+'out1.1.size',dtype='uint32')[::-1]
     if outsize0[1]!=inv.shape[1]-gznn_fovs[0][1]+1:
         raise NameError('first stage out size  is wrong')
 
@@ -202,7 +202,8 @@ def znn_forward(z1,z2,y1,y2,x1,x2):
         print "the destination file already exist"
         return
     # make the temporary folder
-    gznn_tmp = gznn_tmp + "Z{}-{}_Y{}-{}_X{}-{}".format(z1,z2,y1,y2,x1,x2)
+    global gznn_tmp
+    gznn_tmp=gznn_tmp + "Z{}-{}_Y{}-{}_X{}-{}/".format(z1,z2,y1,y2,x1,x2)
     if os.path.exists( gznn_tmp ):
         shutil.rmtree( gznn_tmp )
     os.mkdir( gznn_tmp )
