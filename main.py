@@ -45,5 +45,5 @@ os.system("sh " + gom_data_path + "/runall.sh")
 print "omnification takes {0:.2f}m".format( (time.clock() - mstart)/60 )
 
 # move the omnify projects to S3
-if gisaws:
+if "s3" in gznn_chann_origin:
     os.system("aws s3 cp "+ gom_projects_path + " " + gom_s3_prj)
