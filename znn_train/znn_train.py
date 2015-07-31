@@ -7,7 +7,7 @@ import threading
 conf_file = "~/.starcluster/config"
 
 # cluster name
-cluster_name = 'jingpeng'
+cluster_name = 'nick_pers_test'
 
 # node tag or name
 node_name = 'node1'
@@ -17,8 +17,8 @@ spot_bid = 0.51
 
 
 # command
-cmds = {'node1':'cd /home/znn-release/; sh znn_train1.sh',\
-        'node2':'cd /home/znn-release/; sh znn_train2.sh'}
+cmds = {'node1':'cd /home/znn-release/; sh znn_train_deep.sh &>> train_deep.log',\
+        'node2':'cd /home/znn-release/; sh znn_train_wide.sh &>> train_wide.log'}
 
 # instance type
 instance_type = 'c3.8xlarge'
@@ -48,6 +48,12 @@ class ThreadRun(object):
         self.cl.start()
         cl.wait_for_cluster(msg='Waiting for cluster to come up...')
 
+def node_search(cl, node_name):
+    for node in cl.nodes:
+        if node.alias == node_name:
+            return node
+    return None
+
 #%% start the cluster
 print "constantly check whether this cluster is stopped or terminated."
 cid = 0
@@ -76,15 +82,15 @@ while True:
             pass
     # if node not started, start the node
     hasnode = False
-    for node in cl.nodes:
-        if node.alias == node_name:
-            mynode = node 
-            hasnode = True
-    if not hasnode:
-        mynode = cl.add_node( alias=node_name, spot_bid=spot_bid )
+    mynode = node_search(cl, node_name)
+    if mynode == None:
+        try:
+            mynode = cl.add_node( alias=node_name, spot_bid=spot_bid )
+        except:
+            print "node creation failed"
+            continue
         print "run plugin"
-        mynode.wait()
-        time.sleep(2*60)
+	mynode = node_search(cl, node_name)
         mynode.ssh.execute( cmds[node_name] )
 
     f.write('wait for cluster...\n')
