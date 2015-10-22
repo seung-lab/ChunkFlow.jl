@@ -48,7 +48,7 @@ gznn_outszs = (np.array([ 1, 100, 100 ]), np.array([ 3, 20, 20 ]))
 gws_width = np.array([2000, 2000, 2000], dtype='uint32')
 # watershed parameters
 gws_bin_file = gabspath + 'watershed/src/quta/zi/watershed/main/bin/xxlws'
-gws_high = 0.999
+gws_high = 0.91
 gws_low = 0.3
 gws_dust = 400
 gws_dust_low = 0.25
@@ -61,7 +61,7 @@ gws_merge_h5 = gtmp + "pywsmerge.Th-{}.Tl-{}.Ts-{}.Te-{}.h5".format(int(gws_high
 # prepare the omnify data for omnifying
 gom_data_path = gtmp
 # the path of omnify binary
-gom_bin = 'bash ' + gabspath + 'omnify/omnify.sh'
+gom_bin = '/usr/people/XXXX/seungmount/Omni/omni/nightly/beta.omni'
 # the block size and overlap size, z,y,x
 gom_blocksize = np.array([2000, 2000, 2000], dtype='uint32')
 gom_overlap = np.array([20,32,32], dtype='uint32')
