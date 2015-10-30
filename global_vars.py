@@ -19,36 +19,36 @@ gchann_file = gtmp + 'chann.h5'
 gaffin_file = gtmp + 'affin.h5'
 
 # voxel size: z,y,x
-gvoxel_size = np.array([45,5,5])
+gvoxel_size = np.array([40,7,7])
 
 #%% znn forward
-gznn = "/usr/people/jingpeng/seungmount/research/Jingpeng/01_ZNN/znn-release/"
+gznn = "/usr/people/XXXX/seungmount/research/Jingpeng/01_ZNN/znn-release-kisuk/"
 #gznn_chann_origin = "s3://zfish/fish-train/Merlin_raw2.tif"
-gznn_chann_origin = "/usr/people/jingpeng/seungmount/research/Jingpeng/13_zfish/ZfishTrainingSet_1.tif"
+gznn_chann_origin = "/usr/people/XXXX/src/scripts/out/chann_Z1-168_Y17000-18024_X12000-13024.h5"
 gznn_raw_chann_fname = gtmp + "raw_chann.h5"
 # networks
-gznn_net_names = ("W5_C10_P3_D2","VeryDeep2HR_w65x9")
+gznn_net_names = ("VeryDeep2_w109","VeryDeep2HR_w65x9")
 # field of view, (z,y,x)
-gznn_fovs = ( np.array([1,99,99]), np.array([9,65,65]) )
+gznn_fovs = ( np.array([1,109,109]), np.array([9,65,65]) )
 # output affinity block size for each node
-gznn_blocksize = np.array([100,300,300])
+gznn_blocksize = np.array([168,1024,1024])
 gznn_bin = gznn + "bin/znn"
 gznn_batch_script_name = gtmp + "znn_batch_forward.sh"
 # boost lib path for running znn. setting this in case boost is not in system path
-gznn_boost_lib = "/opt/boost/lib"
+gznn_boost_lib = "/boost/lib"
 # temporary folder for znn, this folder should be unique for every node in AWS
 # in EC2 instance, the '/mnt' is a local cache partition.
 gznn_tmp = "/tmp/znn_tmp/"
-gznn_threads = 7
+gznn_threads = 31
 # output size of each epoch
-gznn_outszs = (np.array([ 1, 100, 100 ]), np.array([ 3, 20, 20 ]))
+gznn_outszs = (np.array([ 1, 100, 100 ]), np.array([ 1, 60, 60 ]))
 
 #%% watershed chop
 # step: z,y,x
 gws_width = np.array([2000, 2000, 2000], dtype='uint32')
 # watershed parameters
 gws_bin_file = gabspath + 'watershed/src/quta/zi/watershed/main/bin/xxlws'
-gws_high = 0.91
+gws_high = 0.90
 gws_low = 0.3
 gws_dust = 400
 gws_dust_low = 0.25
