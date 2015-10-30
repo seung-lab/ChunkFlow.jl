@@ -28,8 +28,10 @@ def prepare_config(fname, stgid, isaff ):
     net_file = gznn + "experiments/" + netname + "/network/"
     if isaff:
         dp_type="affinity"
+	is_softmax = 0
     else:
         dp_type="volume"
+	is_softmax = 1
 
     config = """
 [PATH]
@@ -47,13 +49,13 @@ optimize_fft=0
 test_range=1
 outsz={},{},{}
 dp_type={}
-softmax=0
+softmax={}
 mirroring=0
 
 [SCAN]
 cutoff=1
     """.format( net_spec, net_file, gznn_tmp, gznn_threads, \
-                outsz[2], outsz[1], outsz[0], dp_type )
+                outsz[2], outsz[1], outsz[0], dp_type, is_softmax )
     # write the config file
     f = open(fname, 'w')
     f.write(config)
@@ -85,7 +87,7 @@ path={}
 size={},{},{}
 offset={},{},{}
 pptype=transform
-ppargs=0,1
+ppargs=-1,1
         """.format(gznn_tmp+"out1.1", \
         dsize[2]-(gznn_fovs[0][2]-1),\
         dsize[1]-(gznn_fovs[0][1]-1),\
@@ -129,7 +131,7 @@ def znn_forward_cube( inv ):
     """
     print inv.shape
     # prepare the data
-    emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
+    emirt.emio.znn_img_save(inv, gznn_tmp + "data.1.image")
     print inv.shape
     # first stage forward pass
     if len(gznn_net_names)==1:
@@ -163,7 +165,7 @@ def znn_forward_cube( inv ):
     if len(gznn_net_names)==2:
   	print "second stage.."
         # prepare the data
-    	emirt.io.znn_img_save(inv, gznn_tmp + "data.1.image")
+    	emirt.emio.znn_img_save(inv, gznn_tmp + "data.1.image")
 	isaff = True
         # prepare the data spec file
         prepare_data_spec( gznn_tmp+"data.1.spec", 1, isaff)
@@ -180,13 +182,13 @@ def znn_forward_cube( inv ):
         # affinity output
         sz = np.fromfile(out_fname + "1.size", dtype='uint32')[::-1]
         affv = np.zeros( np.hstack((3,sz)), dtype="float64" )
-        affv[0,:,:,:] = emirt.io.znn_img_read(out_fname + "0")
-        affv[1,:,:,:] = emirt.io.znn_img_read(out_fname + "1")
-        affv[2,:,:,:] = emirt.io.znn_img_read(out_fname + "2")
+        affv[0,:,:,:] = emirt.emio.znn_img_read(out_fname + "0")
+        affv[1,:,:,:] = emirt.emio.znn_img_read(out_fname + "1")
+        affv[2,:,:,:] = emirt.emio.znn_img_read(out_fname + "2")
         return affv
     elif not isaff and len(gznn_net_names)==1:
         # boundary map output
-        return emirt.io.znn_img_read(out_fname + "1")
+        return emirt.emio.znn_img_read(out_fname + "1")
     else:
 	raise NameError('unsupported parameters!')
 
