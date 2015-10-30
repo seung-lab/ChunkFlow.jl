@@ -71,6 +71,8 @@ def prepare_batch_script():
         
 def prepare_h5():
     print "prepare channel h5 files..."
+    # TODO the raw_chann_tif logic isn't fully correct, can use the below for hack -will
+    # os.system("cp "+ gznn_chann_origin + " " + gznn_raw_chann_fname)
     # copy data from S3 to EBS volume
     raw_chann_tif = gznn_raw_chann_fname.replace(".h5", ".tif")
     if "s3" in gznn_chann_origin and not shutil.os.path.exists(raw_chann_tif):
