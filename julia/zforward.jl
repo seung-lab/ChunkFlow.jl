@@ -83,5 +83,7 @@ function zforward(faffs, tmp_dir, fimg, zdir, fnet_spec1, fnet1, outsz1, fnet_sp
     run(`python forward.py -c $(tmp_dir)/forward.stg2.cfg -n $(fnet2) -r 10`)
     cd(cp)
     # move the output affinity to destination
-    mv("$(tmp_dir)/out_sample10_output.h5", faffs, remove_destination=true)
+    if "$(tmp_dir)/out_sample10_output.h5" != faffs
+        mv("$(tmp_dir)/out_sample10_output.h5", faffs, remove_destination=true)
+    end
 end
