@@ -1,4 +1,4 @@
-export zforward()
+export zforward
 
 """
 create temporal dataset specification file
@@ -24,12 +24,12 @@ function create_dataset_spec(tmp_dir, fimg)
     rinput = 10
     """
     # write the spec file
-    f = open("$(tmp_dir)/dataset.spec", 'w')
+    f = open("$(tmp_dir)/dataset.spec", "w")
     write(f, dspec)
     close(f)
 end
 
-function create_config(stgid, tmp_dir, fnet_spec, fnet, outsz)
+function create_config(stgid, tmp_dir, fnet_spec, fnet, is_stdio, outsz)
     # stage specific configuration
     if stgid == 1
         out_type = "boundary"
@@ -40,7 +40,12 @@ function create_config(stgid, tmp_dir, fnet_spec, fnet, outsz)
     else
         error("only support 1-2 stage configuration!")
     end
-
+    # standard IO or not
+    if is_stdio
+        stdio = "yes"
+    else
+        stdio = "no"
+    end
     # configuration string
     conf="""
     [parameters]
@@ -50,25 +55,33 @@ function create_config(stgid, tmp_dir, fnet_spec, fnet, outsz)
     dtype = float32
     out_type = $(out_type)
     forward_range = $(sampleid)
+    is_bd_mirror = yes
     forward_net = $(fnet)
+    is_stdio = $(stdio)
     forward_conv_mode = fft
     forward_outsz = $(outsz[1]),$(outsz[2]),$(outsz[3])
     output_prefix = $(tmp_dir)/out
     """
     # write the config file
-    f = open("$(tmp_dir)/forward.stg$(stgid).cfg", 'w')
+    f = open("$(tmp_dir)/forward.stg$(stgid).cfg", "w")
     write(f, conf)
     close(f)
 end
 
-function zforward(tmp_dir, fimg)
+function zforward(faffs, tmp_dir, fimg, zdir, fnet_spec1, fnet1, outsz1, fnet_spec2, fnet2, outsz2, is_stdio)
     # create dataset specification file
     create_dataset_spec(tmp_dir, fimg)
     # create forward pass stage 1 configuration file
-    create_config(1, tmp_dir, fnet_spec, fnet, outszs[1:3])
+    create_config(1, tmp_dir, fnet_spec1, fnet1, is_stdio, outsz1)
     # create forward pass stage 2 configuration file
-    create_config(2, tmp_dir, fnet_spec, fnet, outszs[4:6])
-    # run forward pass
-    run(`cd ../python; python forward.py -c $(tmp_dir)/forward.stg1.cfg -n $(fnet) -r 1; cd ../julia`)
-    run(`cd ../python; python forward.py -c $(tmp_dir)/forward.stg2.cfg -n $(fnet) -r 10; cd ../julia`)
+    create_config(2, tmp_dir, fnet_spec2, fnet2, is_stdio, outsz2)
+    # current path
+    cp = pwd()
+    # run recursive forward pass
+    cd("$(zdir)/python")
+    run(`python forward.py -c $(tmp_dir)/forward.stg1.cfg -n $(fnet1) -r 1`)
+    run(`python forward.py -c $(tmp_dir)/forward.stg2.cfg -n $(fnet2) -r 10`)
+    cd(cp)
+    # move the output affinity to destination
+    mv("$(tmp_dir)/out_sample10_output.h5", faffs, remove_destination=true)
 end
