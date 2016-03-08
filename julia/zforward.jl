@@ -29,7 +29,7 @@ function create_dataset_spec(tmp_dir, fimg)
     close(f)
 end
 
-function create_config(stgid, tmp_dir, fnet_spec, fnet, is_stdio, outsz)
+function create_config(stgid, tmp_dir, fnet_spec, fnet, outsz, is_stdio)
     # stage specific configuration
     if stgid == 1
         out_type = "boundary"
@@ -72,9 +72,9 @@ function zforward(faffs, tmp_dir, fimg, zdir, fnet_spec1, fnet1, outsz1, fnet_sp
     # create dataset specification file
     create_dataset_spec(tmp_dir, fimg)
     # create forward pass stage 1 configuration file
-    create_config(1, tmp_dir, fnet_spec1, fnet1, is_stdio, outsz1)
+    create_config(1, tmp_dir, fnet_spec1, fnet1, outsz1, is_stdio)
     # create forward pass stage 2 configuration file
-    create_config(2, tmp_dir, fnet_spec2, fnet2, is_stdio, outsz2)
+    create_config(2, tmp_dir, fnet_spec2, fnet2, outsz2, is_stdio)
     # current path
     cp = pwd()
     # run recursive forward pass
@@ -83,7 +83,8 @@ function zforward(faffs, tmp_dir, fimg, zdir, fnet_spec1, fnet1, outsz1, fnet_sp
     run(`python forward.py -c $(tmp_dir)/forward.stg2.cfg -n $(fnet2) -r 10`)
     cd(cp)
     # move the output affinity to destination
-    if "$(tmp_dir)/out_sample10_output.h5" != faffs
-        mv("$(tmp_dir)/out_sample10_output.h5", faffs, remove_destination=true)
+    outfname = replace("$(tmp_dir)/out_sample10_output.h5", "//","/")
+    if outfname != faffs
+        mv(outfname, faffs, remove_destination=true)
     end
 end
