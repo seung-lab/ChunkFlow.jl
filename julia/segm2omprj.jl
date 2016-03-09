@@ -1,10 +1,11 @@
+using EMIRT
+
 export segm2omprj
 
 function segm2omprj(ombin, fimg, fsegm, vs=[4,4,40], fomprj="/tmp/tmp.omni")
     fimgh5 = fimg
     if contains(fimg, ".tif")
         # transform tif image to hdf5
-        using EMIRT
         img = imread(fimg)
         fimgh5 = replace(fimg, ".tiff", ".h5")
         fimgh5 = replace(fimg, ".tif", ".h5")
