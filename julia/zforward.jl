@@ -50,6 +50,7 @@ function create_config(stgid, tmp_dir, fnet_spec, fnet, outsz, is_stdio)
     conf="""
     [parameters]
     fnet_spec = $(fnet_spec)
+    cost_fn = auto
     fdata_spec = $(tmp_dir)/dataset.spec
     num_threads = 0
     dtype = float32
