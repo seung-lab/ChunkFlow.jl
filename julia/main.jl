@@ -30,8 +30,9 @@ end
 # watershed, affs to segm
 if pd["ws"]["is_watershed"]
     # read affinity map
-    println("reading affinity map...")
+    print("reading affinity map...")
     affs = h5read(faffs, "/main")
+    println("done!")
 
     # watershed
     # exchange x and z channel
@@ -40,7 +41,7 @@ if pd["ws"]["is_watershed"]
     end
     # remap to uniform distribution
     if pd["ws"]["is_remap"]
-        affs2uniform!(affs)
+        affs = affs2uniform(affs)
     end
 
     seg, dend, dendValues = affs2segm(affs, pd["ws"]["low"], pd["ws"]["high"])
