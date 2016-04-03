@@ -91,7 +91,7 @@ function main()
 
     # make the affinity map value distribution uniform
     println("transfer to uniform distribution...")
-    affsuniform!(affs)
+    affs = affsuniform(affs)
     # get segm file for omnification
     seg, dend, dendValues = affs2segm(affs, ws_low, ws_high)
     save_segm(fsegm, seg, dend, dendValues)
