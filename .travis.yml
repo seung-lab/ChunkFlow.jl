@@ -1,0 +1,13 @@
+language: julia
+os: linux
+
+julia:
+        - 0.4
+
+notifications:
+        email: false
+
+script:
+        - julia -e 'Pkg.init(); Pkg.add("Watershed"); using Watershed'
+        - git clone https://github.com/seung-lab/spipe.git -b julia
+        - cd spipe
