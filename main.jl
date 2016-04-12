@@ -1,3 +1,5 @@
+using Agglomerator
+using Process
 using EMIRT
 using HDF5
 include("affs2segm.jl")
@@ -45,6 +47,13 @@ if pd["ws"]["is_watershed"]
     end
 
     seg, dend, dendValues = affs2segm(affs, pd["ws"]["low"], pd["ws"]["high"])
+
+    # aggromeration
+    if pd["ag"]["is_ag"]
+        mst = Process.forward(affs, seg)
+        dend = mst.dend
+        dendValues = mst.dendValues
+    end
     # save seg and mst
     save_segm(pd["gn"]["fsegm"], seg, dend, dendValues)
 end
