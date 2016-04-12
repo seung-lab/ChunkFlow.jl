@@ -11,14 +11,14 @@ fimg = /path/of/raw/image/file.tif/.h5
 voxel_size = 4,4,40
 
 # affinit file, default: out_sample1_output.h5 in tmp folder
-faffs = /tmp/out_sample10_output.h5
+faffs = assets/affs.h5
 
 # segmentation with dendrogram
 fsegm = /tmp/segm.h5
 
 [znn]
 # whether to run forward pass
-is_znn = yes
+is_znn = no
 
 ### znn forward
 dir = /opt/znn-release
@@ -57,9 +57,13 @@ low = 0.3
 thresholds = 600,0.3
 dust = 600
 
+[agg]
+# aggromeration
+is_agg = no
+
 [omni]
 # weather to do omnification or not
-is_omni = yes
+is_omni = no
 
 # the path of omnify executable file
 ombin = /opt/omni
