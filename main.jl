@@ -49,7 +49,7 @@ if pd["ws"]["is_watershed"]
     seg, dend, dendValues = affs2segm(affs, pd["ws"]["low"], pd["ws"]["high"])
 
     # aggromeration
-    if pd["ag"]["is_ag"]
+    if pd["agg"]["is_agg"]
         mst = Process.forward(affs, seg)
         dend = mst.dend
         dendValues = mst.dendValues
