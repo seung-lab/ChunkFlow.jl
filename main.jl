@@ -5,17 +5,56 @@ using HDF5
 include("affs2segm.jl")
 include("segm2omprj.jl")
 include("zforward.jl")
+include("aws.jl")
 
-# parse the config file
-if length(ARGS)==0
-    fconf = "params.cfg"
-elseif length(ARGS)==1
-    fconf = ARGS[1]
-else
-    error("too many commandline arguments")
+"""
+get spipe parameters
+"""
+function get_task()
+    # parse the config file
+    if length(ARGS)==0
+        env = build_env()
+        msg = takeSQSmessage!(env,"spipe-tasks")
+        conf = msg.body
+    elseif length(ARGS)==1
+        fconf = ARGS[1]
+        conf = readtxt(fconf)
+    else
+        error("too many commandline arguments")
+    end
+    return configparser(conf)
 end
 
-pd = configparser(fconf)
+"""
+move all the s3 files to local temporal folder, and adjust the pd accordingly
+Note that the omni project will not be copied, because it is output. will deal with it later.
+"""
+function s32local!(pd::Dict)
+    tmpdir = pd["gn"]["tmp_dir"]
+    if iss3(pd["gn"]["fimg"])
+        pd["gn"]["fimg"] = s32local( pd["gn"]["fimg"], tmpdir )
+    end
+
+    if typeof( pd["znn"]["fnet_specs"] ) == ASCIIString
+        pd["znn"]["fnet_specs"] = s32local( pd["znn"]["fnet_specs"], tmpdir )
+        pd["znn"]["fnets"] = s32local( pd["znn"]["fnets"], tmpdir )
+    else
+        # multiple nets
+        for idx in 1:length( pd["znn"]["fnet_specs"] )
+            if iss3( pd["znn"]["fnet_specs"][idx] )
+                pd["znn"]["fnet_specs"][idx] = s32local( pd["znn"]["fnet_specs"][idx], tmpdir )
+            end
+            if iss3( pd["znn"]["fnets"][idx] )
+                pd["znn"]["fnets"][idx] = s32local( pd["znn"]["fnets"][idx], tmpdir )
+            end
+        end
+    end
+end
+
+# the task information was embedded in a dictionary
+pd = get_task()
+# copy data from s3 to local temp directory
+s32local(pd)
 
 # get affinity map
 faffs = pd["gn"]["faffs"]
@@ -60,5 +99,13 @@ end
 
 # omnification
 if pd["omni"]["is_omni"]
-    segm2omprj(pd["omni"]["ombin"], pd["gn"]["fimg"], pd["gn"]["fsegm"], pd["gn"]["voxel_size"], pd["omni"]["fomprj"])
+    if iss3(pd["omni"]["fomprj"])
+        fomprj = joinpath(pd["gn"]["tmp_dir"], "tmp.omni")
+        segm2omprj(pd["omni"]["ombin"], pd["gn"]["fimg"], pd["gn"]["fsegm"], pd["gn"]["voxel_size"], fomprj)
+        # copy local omni project to s3
+        run(`aws s3 cp $(fomprj) $(pd["omni"]["fomprj"])`)
+        run(`aws s3 cp --recursive $(fomprj).files $(pd["omni"]["fomprj"].files)`)
+    else
+        segm2omprj(pd["omni"]["ombin"], pd["gn"]["fimg"], pd["gn"]["fsegm"], pd["gn"]["voxel_size"], pd["omni"]["fomprj"])
+    end
 end
