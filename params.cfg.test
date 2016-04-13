@@ -5,32 +5,35 @@ tmp_dir = /tmp/
 
 # raw image file name,
 # gray image, bit depth should be 8
-fimg = /path/of/raw/image/file.tif/.h5
+# support tif and hdf5 (dataset name is "/main")
+fimg = s3://znn/dataset/allen/Allen03_raw.h5
 
 # voxel size: x,y,z
 voxel_size = 4,4,40
 
 # affinit file, default: out_sample1_output.h5 in tmp folder
-faffs = assets/affs.h5
+faffs = /tmp/affs.h5
 
 # segmentation with dendrogram
 fsegm = /tmp/segm.h5
 
 [znn]
 # whether to run forward pass
-is_znn = no
+is_znn = yes
 
 ### znn forward
+# directory of znn
 dir = /opt/znn-release
 
 # net architecture specifications
-fnet_specs = /opt/znn-release/networks/VD2D.znn, /opt/znn-release/networks/VD2D3D.znn
+fnet_specs = s3://znn/networks/VD2D.znn, s3://networks/VD2D3D.znn
 
 # networks
-fnets = /opt/znn-release/experiments/allen/VD2D/net_current.h5, /opt/znn-release/experiments/allen/W3/net_current.h5
+fnets = s3://znn/experiments/allen/VD2D/net_current.h5, s3://znn/experiments/allen/W3/net_current.h5
 
-# standard io
-is_stdio = no
+# standard io, this should match with the setting in znn training config.cfg file
+# default is no
+is_stdio = yes
 
 # output size of each epoch, z,y,x
 outszs = 1, 250, 250; 1, 100, 100
@@ -46,7 +49,7 @@ is_watershed = yes
 
 # exchange x and z channel or not
 # current network output affinity as z,y,x, so we need to exchange x and z channel to  make sure that the affinity is organized as x,y,z
-is_exchange_affs_xz = yes
+is_exchange_affs_xz = no
 # whether remap to uniform distribution or not
 # options: yes, no
 is_remap = yes
@@ -54,8 +57,8 @@ is_remap = yes
 high = 0.80
 low = 0.3
 # thresholds example: 256,0.3; 500,0.5
-thresholds = 600,0.3
-dust = 600
+thresholds = 1000,0.3
+dust = 2000
 
 [agg]
 # aggromeration
@@ -63,10 +66,10 @@ is_agg = no
 
 [omni]
 # weather to do omnification or not
-is_omni = no
+is_omni = yes
 
 # the path of omnify executable file
 ombin = /opt/omni
 
 # the save path of omni projects, should be local. Remote path may make the segmentation empty.
-fomprj = /tmp/tmp.omni
+fomprj = s3://seunglab/spipe/omni_prjs/tmp.omni
