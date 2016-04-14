@@ -28,7 +28,7 @@ qurl: String, url of queue or queue name
 function fetchSQSmessage(env, qurl)
     if !contains(qurl, "https://sqs.")
         # this is not a url, should be a queue name
-        qurl = get_qurl(env, qname)
+        qurl = get_qurl(env, qurl)
     end
     resp = ReceiveMessage(env, queueUrl = qurl)
     msg = resp.obj.messageSet[1]
@@ -40,9 +40,15 @@ take SQS message from queue
 will delete mssage after fetching
 """
 function takeSQSmessage!(env, qurl)
+    if !contains(qurl, "https://sqs.")
+        # this is not a url, should be a queue name
+        qurl = get_qurl(env, qurl)
+    end
+
     msg = fetchSQSmessage(env, qurl)
     # delete the message in queue
-    resp = DeleteMessage(env, queueurl=qurl, receiptHandle=msg.receiptHandle)
+    resp = DeleteMessage(env, queueUrl=qurl, receiptHandle=msg.receiptHandle)
+    # resp = DeleteMessage(env, msg)
     if resp.http_code < 299
         println("message deleted")
     else

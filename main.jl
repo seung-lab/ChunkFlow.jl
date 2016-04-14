@@ -16,12 +16,16 @@ function get_task()
         env = build_env()
         msg = takeSQSmessage!(env,"spipe-tasks")
         conf = msg.body
+        conf = replace(conf, "\\n", "\n")
+        conf = replace(conf, "\"", "")
+        conf = split(conf, "\n")
     elseif length(ARGS)==1
         fconf = ARGS[1]
-        conf = readtxt(fconf)
+        conf = readlines(fconf)
     else
         error("too many commandline arguments")
     end
+    @show conf
     return configparser(conf)
 end
 
