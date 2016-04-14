@@ -109,3 +109,6 @@ if pd["omni"]["is_omni"]
         segm2omprj(pd["omni"]["ombin"], pd["gn"]["fimg"], pd["gn"]["fsegm"], pd["gn"]["voxel_size"], pd["omni"]["fomprj"])
     end
 end
+
+# auto shutdown
+run(`sudo shutdown -h 0`)
