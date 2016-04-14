@@ -19,13 +19,13 @@ function get_task(env::AWSEnv)
         conf = replace(conf, "\\n", "\n")
         conf = replace(conf, "\"", "")
         conf = split(conf, "\n")
+        conf = Vector{ASCIIString}(conf)
     elseif length(ARGS)==1
         fconf = ARGS[1]
         conf = readlines(fconf)
     else
         error("too many commandline arguments")
     end
-    @show conf
     return configparser(conf)
 end
 
@@ -116,4 +116,6 @@ if pd["omni"]["is_omni"]
 end
 
 # auto shutdown
-run(`sudo shutdown -h 0`)
+if pd["gn"]["is_auto_shutdown"]
+    run(`sudo shutdown -h 0`)
+end
