@@ -109,7 +109,7 @@ if pd["omni"]["is_omni"]
         segm2omprj(pd["omni"]["ombin"], pd["gn"]["fimg"], pd["gn"]["fsegm"], pd["gn"]["voxel_size"], fomprj)
         # copy local omni project to s3
         run(`aws s3 cp $(fomprj) $(pd["omni"]["fomprj"])`)
-        run(`aws s3 cp --recursive $(fomprj).files $(pd["omni"]["fomprj"].files)`)
+        run(`aws s3 cp --recursive $(fomprj).files $(pd["omni"]["fomprj"]).files`)
     else
         segm2omprj(pd["omni"]["ombin"], pd["gn"]["fimg"], pd["gn"]["fsegm"], pd["gn"]["voxel_size"], pd["omni"]["fomprj"])
     end
