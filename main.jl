@@ -10,10 +10,10 @@ include("aws.jl")
 """
 get spipe parameters
 """
-function get_task()
+env = build_env()
+function get_task(env::AWSEnv)
     # parse the config file
     if length(ARGS)==0
-        env = build_env()
         msg = takeSQSmessage!(env,"spipe-tasks")
         conf = msg.body
         conf = replace(conf, "\\n", "\n")
@@ -33,32 +33,33 @@ end
 move all the s3 files to local temporal folder, and adjust the pd accordingly
 Note that the omni project will not be copied, because it is output. will deal with it later.
 """
-function s32local!(pd::Dict)
+function s32local!(env::AWSEnv, pd::Dict)
     tmpdir = pd["gn"]["tmp_dir"]
     if iss3(pd["gn"]["fimg"])
-        pd["gn"]["fimg"] = s32local( pd["gn"]["fimg"], tmpdir )
+        pd["gn"]["fimg"] = s32local( env, pd["gn"]["fimg"], tmpdir )
     end
 
-    if typeof( pd["znn"]["fnet_specs"] ) == ASCIIString
-        pd["znn"]["fnet_specs"] = s32local( pd["znn"]["fnet_specs"], tmpdir )
-        pd["znn"]["fnets"] = s32local( pd["znn"]["fnets"], tmpdir )
+    if typeof( pd["znn"]["fnet_specs"] ) <: AbstractString
+        pd["znn"]["fnet_specs"] = s32local(env, pd["znn"]["fnet_specs"], tmpdir )
+        pd["znn"]["fnets"] = s32local( env, pd["znn"]["fnets"], tmpdir )
     else
         # multiple nets
         for idx in 1:length( pd["znn"]["fnet_specs"] )
             if iss3( pd["znn"]["fnet_specs"][idx] )
-                pd["znn"]["fnet_specs"][idx] = s32local( pd["znn"]["fnet_specs"][idx], tmpdir )
+                pd["znn"]["fnet_specs"][idx] = s32local(env, pd["znn"]["fnet_specs"][idx], tmpdir )
             end
             if iss3( pd["znn"]["fnets"][idx] )
-                pd["znn"]["fnets"][idx] = s32local( pd["znn"]["fnets"][idx], tmpdir )
+                pd["znn"]["fnets"][idx] = s32local( env, pd["znn"]["fnets"][idx], tmpdir )
             end
         end
     end
 end
 
 # the task information was embedded in a dictionary
-pd = get_task()
+pd = get_task(env)
 # copy data from s3 to local temp directory
-s32local(pd)
+@show pd
+s32local!(env, pd)
 
 # get affinity map
 faffs = pd["gn"]["faffs"]
@@ -76,7 +77,7 @@ end
 if pd["ws"]["is_watershed"]
     # read affinity map
     print("reading affinity map...")
-    affs = h5read(faffs, "/main")
+    affs = h5read(pd["gn"]["faffs"], "/main")
     println("done!")
 
     # watershed
