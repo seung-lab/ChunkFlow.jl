@@ -75,14 +75,25 @@ lcname: String, local temporal folder path or local file name
 `Outputs:`
 lcname: String, local file name
 """
-function s32local(env, s3name, lcname)
+function s32local(env::AWSEnv, s3name::AbstractString, tmpdir::AbstractString)
     @assert iss3(s3name)
-    if isdir(lcname)
-        # get the file name
-        dir, fname = splitdir(s3name)
-        lcname = joinpath(lcname, fname)
+    @assert isdir(tmpdir)
+    # get the file name
+
+    dir, fname = splitdir(s3name)
+    dir = replace(dir, "s3://", "")
+    # local directory
+    lcdir = joinpath(tmpdir, dir)
+    # local file name
+    lcfname = joinpath(lcdir, fname)
+    # remove existing file
+    if isfile(lcfname)
+        rm(lcfname)
+    else
+        # create local directory
+        mkpath(lcdir)
     end
     # download s3 file using awscli
-    run(`aws s3 cp $(s3name) $(lcname)`)
-    return lcname
+    run(`aws s3 cp $(s3name) $(lcfname)`)
+    return lcfname
 end
