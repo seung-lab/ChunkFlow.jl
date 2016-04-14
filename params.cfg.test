@@ -17,6 +17,10 @@ faffs = /tmp/affs.h5
 # segmentation with dendrogram
 fsegm = /tmp/segm.h5
 
+# shutdown maching after pipeline: yes | no
+# if you run it in aws, please always set it as yes
+is_auto_shutdown = no
+
 [znn]
 # whether to run forward pass
 is_znn = yes
