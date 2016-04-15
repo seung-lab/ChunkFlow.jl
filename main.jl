@@ -94,9 +94,7 @@ if pd["ws"]["is_watershed"]
 
     # aggromeration
     if pd["agg"]["is_agg"]
-        mst = Process.forward(affs, seg)
-        dend = mst.dend
-        dendValues = mst.dendValues
+        dend, dendValues = Process.forward(affs, seg)
     end
     # save seg and mst
     save_segm(pd["gn"]["fsegm"], seg, dend, dendValues)
