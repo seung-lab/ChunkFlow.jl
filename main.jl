@@ -55,8 +55,20 @@ function s32local!(env::AWSEnv, pd::Dict)
     end
 end
 
+"""
+clear a floder
+"""
+function cleardir(dir::AbstractString)
+    for fname in readdir(dir)
+        rm(joinpath(dir, fname), recursive=true)
+    end
+end
+
 # the task information was embedded in a dictionary
 pd = get_task(env)
+# clear the temporal folder
+cleardir(pd["gn"]["tmp_dir"])
+
 # copy data from s3 to local temp directory
 @show pd
 s32local!(env, pd)
@@ -102,14 +114,13 @@ end
 
 # omnification
 if pd["omni"]["is_omni"]
+    fomprj = joinpath(pd["gn"]["tmp_dir"], "tmp.omni")
+    segm2omprj(pd["omni"]["ombin"], pd["gn"]["fimg"], pd["gn"]["fsegm"], pd["gn"]["voxel_size"], fomprj)
     if iss3(pd["omni"]["fomprj"])
-        fomprj = joinpath(pd["gn"]["tmp_dir"], "tmp.omni")
-        segm2omprj(pd["omni"]["ombin"], pd["gn"]["fimg"], pd["gn"]["fsegm"], pd["gn"]["voxel_size"], fomprj)
-        # copy local omni project to s3
-        run(`aws s3 cp $(fomprj) $(pd["omni"]["fomprj"])`)
-        run(`aws s3 cp --recursive $(fomprj).files $(pd["omni"]["fomprj"]).files`)
-    else
-        segm2omprj(pd["omni"]["ombin"], pd["gn"]["fimg"], pd["gn"]["fsegm"], pd["gn"]["voxel_size"], pd["omni"]["fomprj"])
+        # copy local results to s3
+        run(`aws s3 sync $(pd["gn"]["tmp_dir"]) $(pd["gn"]["outputs"])`)
+        #run(`aws s3 cp $(fomprj) $(pd["omni"]["fomprj"])`)
+        #run(`aws s3 cp --recursive $(fomprj).files $(pd["omni"]["fomprj"]).files`)
     end
 end
 
