@@ -116,12 +116,13 @@ end
 if pd["omni"]["is_omni"]
     fomprj = joinpath(pd["gn"]["tmp_dir"], "tmp.omni")
     segm2omprj(pd["omni"]["ombin"], pd["gn"]["fimg"], pd["gn"]["fsegm"], pd["gn"]["voxel_size"], fomprj)
-    if iss3(pd["omni"]["fomprj"])
-        # copy local results to s3
-        run(`aws s3 sync $(pd["gn"]["tmp_dir"]) $(pd["gn"]["outputs"])`)
-        #run(`aws s3 cp $(fomprj) $(pd["omni"]["fomprj"])`)
-        #run(`aws s3 cp --recursive $(fomprj).files $(pd["omni"]["fomprj"]).files`)
-    end
+end
+
+if iss3(pd["gn"]["outdir"])
+    # copy local results to s3
+    run(`aws s3 sync $(pd["gn"]["tmp_dir"]) $(pd["gn"]["outdir"])`)
+else
+    #mv()
 end
 
 # auto shutdown
