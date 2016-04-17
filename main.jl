@@ -64,10 +64,10 @@ function cleardir(dir::AbstractString)
     end
 end
 
-# the task information was embedded in a dictionary
-pd = get_task(env)
 # clear the temporal folder
 cleardir(pd["gn"]["tmp_dir"])
+# the task information was embedded in a dictionary
+pd = get_task(env)
 
 # copy data from s3 to local temp directory
 @show pd
