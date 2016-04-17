@@ -63,11 +63,11 @@ function cleardir(dir::AbstractString)
         rm(joinpath(dir, fname), recursive=true)
     end
 end
+# clear the temporal folder
+#cleardir(pd["gn"]["tmp_dir"])
 
 # the task information was embedded in a dictionary
 pd = get_task(env)
-# clear the temporal folder
-cleardir(pd["gn"]["tmp_dir"])
 
 # copy data from s3 to local temp directory
 @show pd
