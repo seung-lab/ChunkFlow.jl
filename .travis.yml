@@ -1,0 +1,16 @@
+language: julia
+os: linux
+
+julia:
+        - 0.4
+
+notifications:
+        email: false
+
+script:
+        - julia -e 'Pkg.init(); Pkg.add("Watershed"); using Watershed'
+        - julia -e 'Pkg.clone("git@github.com:seung-lab/Agglomerator.git")'
+        - julia -e 'Pkg.add("EMIRT")'
+        - git clone https://github.com/seung-lab/spipe.git -b julia
+        - cd spipe
+        - julia main.jl test/params_test.cfg
