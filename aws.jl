@@ -76,7 +76,11 @@ lcname: String, local temporal folder path or local file name
 lcname: String, local file name
 """
 function s32local(env::AWSEnv, s3name::AbstractString, tmpdir::AbstractString)
-    @assert iss3(s3name)
+    # directly return if not s3 file
+    if !iss3(s3name)
+        return s3name
+    end
+
     @assert isdir(tmpdir)
     # get the file name
 
