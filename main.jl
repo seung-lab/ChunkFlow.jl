@@ -2,7 +2,7 @@ using Agglomerator
 using Process
 using EMIRT
 using HDF5
-include("affs2segm.jl")
+include("aff2segm.jl")
 include("segm2omprj.jl")
 include("zforward.jl")
 include("aws.jl")
@@ -39,17 +39,17 @@ function s32local!(env::AWSEnv, pd::Dict)
         pd["gn"]["fimg"] = s32local( env, pd["gn"]["fimg"], tmpdir )
     end
 
-    if typeof( pd["znn"]["fnet_specs"] ) <: AbstractString
-        pd["znn"]["fnet_specs"] = s32local(env, pd["znn"]["fnet_specs"], tmpdir )
-        pd["znn"]["fnets"] = s32local( env, pd["znn"]["fnets"], tmpdir )
+    if typeof( pd["znn"]["fnet_spec"] ) <: AbstractString
+        pd["znn"]["fnet_spec"] = s32local(env, pd["znn"]["fnet_spec"], tmpdir )
+        pd["znn"]["fnet"] = s32local( env, pd["znn"]["fnet"], tmpdir )
     else
         # multiple nets
-        for idx in 1:length( pd["znn"]["fnet_specs"] )
-            if iss3( pd["znn"]["fnet_specs"][idx] )
-                pd["znn"]["fnet_specs"][idx] = s32local(env, pd["znn"]["fnet_specs"][idx], tmpdir )
+        for idx in 1:length( pd["znn"]["fnet_spec"] )
+            if iss3( pd["znn"]["fnet_spec"][idx] )
+                pd["znn"]["fnet_spec"][idx] = s32local(env, pd["znn"]["fnet_spec"][idx], tmpdir )
             end
-            if iss3( pd["znn"]["fnets"][idx] )
-                pd["znn"]["fnets"][idx] = s32local( env, pd["znn"]["fnets"][idx], tmpdir )
+            if iss3( pd["znn"]["fnet"][idx] )
+                pd["znn"]["fnet"][idx] = s32local( env, pd["znn"]["fnet"][idx], tmpdir )
             end
         end
     end
@@ -70,43 +70,48 @@ end
 pd = get_task(env)
 
 # copy data from s3 to local temp directory
-@show pd
 s32local!(env, pd)
 
-# get affinity map
-faffs = pd["gn"]["faffs"]
+# share the general parameters in other sections
+pd = shareprms!(pd, "gn")
+@show pd
+
+# znn forward pass to get affinity map
+# file name to save affinity map
+faff = pd["gn"]["faff"]
 if pd["znn"]["is_znn"]
-    if !isfile(faffs) || pd["znn"]["is_overwrite"]
+    if !isfile(faff) || pd["znn"]["is_overwrite"]
         println("run forward path to create one...")
-        if isfile(faffs) && pd["znn"]["is_overwrite"]
-            rm(faffs)
+        if isfile(faff) && pd["znn"]["is_overwrite"]
+            rm(faff)
         end
-        zforward(faffs, pd["gn"]["tmp_dir"], pd["gn"]["fimg"], pd["znn"]["dir"], pd["znn"]["fnet_specs"][1], pd["znn"]["fnets"][1], pd["znn"]["outszs"][1:3], pd["znn"]["fnet_specs"][2], pd["znn"]["fnets"][2], pd["znn"]["outszs"][4:6], pd["znn"]["is_stdio"])
+        inps = Dict( "img"=> pd["gn"]["fimg"] )
+        outs = zforward(pd["znn"], inps)
     end
 end
 
-# watershed, affs to segm
+# watershed, aff to segm
 if pd["ws"]["is_watershed"]
     # read affinity map
     print("reading affinity map...")
-    affs = h5read(pd["gn"]["faffs"], "/main")
+    aff = h5read(pd["gn"]["faff"], "/main")
     println("done!")
 
     # watershed
     # exchange x and z channel
-    if pd["ws"]["is_exchange_affs_xz"]
-        exchangeaffsxz!(affs)
+    if pd["ws"]["is_exchange_aff_xz"]
+        exchangeaffxz!(aff)
     end
     # remap to uniform distribution
     if pd["ws"]["is_remap"]
-        affs = affs2uniform(affs)
+        aff = aff2uniform(aff)
     end
 
-    seg, dend, dendValues = affs2segm(affs, pd["ws"]["low"], pd["ws"]["high"])
+    seg, dend, dendValues = aff2segm(aff, pd["ws"]["low"], pd["ws"]["high"])
 
     # aggromeration
     if pd["agg"]["is_agg"]
-        dend, dendValues = Process.forward(affs, seg)
+        dend, dendValues = Process.forward(aff, seg)
     end
     # save seg and mst
     save_segm(pd["gn"]["fsegm"], seg, dend, dendValues)
