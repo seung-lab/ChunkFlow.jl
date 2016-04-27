@@ -1,6 +1,16 @@
 using EMIRT
+using Agglomerator
+using Process
 
 export segm2omprj
+
+function segm2omprj(d::Dict{ASCIIString, Any})
+    if !d["is_omni"]
+        return
+    end
+    println("start omnification...")
+    segm2omprj(d["ombin"], d["fimg"], d["fsegm"], d["voxel_size"], d["fomprj"])
+end
 
 function segm2omprj(ombin, fimg, fsegm, vs=[4,4,40], fomprj="/tmp/tmp.omni")
     fimgh5 = fimg
