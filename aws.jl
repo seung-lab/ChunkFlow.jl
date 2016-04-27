@@ -15,7 +15,7 @@ end
 """
 get the url of queue
 """
-function get_qurl(env, qname)
+function get_qurl(env, qname="spipe-tasks")
     return GetQueueUrl(env; queueName=qname).obj.queueUrl
 end
 
@@ -39,7 +39,7 @@ end
 take SQS message from queue
 will delete mssage after fetching
 """
-function takeSQSmessage!(env, qurl)
+function takeSQSmessage!(env, qurl="")
     if !contains(qurl, "https://sqs.")
         # this is not a url, should be a queue name
         qurl = get_qurl(env, qurl)
@@ -107,7 +107,7 @@ move all the s3 files to local temporal folder, and adjust the pd accordingly
 Note that the omni project will not be copied, because it is output. will deal with it later.
 """
 function pds32local!(env::AWSEnv, pd::Dict)
-    tmpdir = pd["gn"]["tmp_dir"]
+    tmpdir = pd["gn"]["tmpdir"]
     if iss3(pd["gn"]["fimg"])
         pd["gn"]["fimg"] = s32local( env, pd["gn"]["fimg"], tmpdir )
     end
@@ -125,5 +125,56 @@ function pds32local!(env::AWSEnv, pd::Dict)
                 pd["znn"]["fnet"][idx] = s32local( env, pd["znn"]["fnet"][idx], tmpdir )
             end
         end
+    end
+end
+
+
+"""
+get spipe parameters
+"""
+function get_task(env::AWSEnv, queuename::ASCIIString = "spipe-tasks")
+    # parse the config file
+    if length(ARGS)==0
+        msg = takeSQSmessage!(env, queuename)
+        conf = msg.body
+        conf = replace(conf, "\\n", "\n")
+        conf = replace(conf, "\"", "")
+        conf = split(conf, "\n")
+        conf = Vector{ASCIIString}(conf)
+    elseif length(ARGS)==1
+        conf = readlines( ARGS[1] )
+    else
+        error("too many commandline arguments")
+    end
+    pd = configparser(conf)
+    # make default parameters
+    if pd["omni"]["fomprj"]==""
+        fimg = basename(pd["gn"]["fimg"])
+        name, ext = splitext(fimg)
+        pd["omni"]["fomprj"] = joinpath(pd["gn"]["tmpdir"], name, ".omni")
+    end
+    # copy data from s3 to local temp directory
+    pds32local!(env, pd)
+
+    # share the general parameters in other sections
+    pd = shareprms!(pd, "gn")
+    @show pd
+    return pd
+end
+
+"""
+move the important output files to outdir
+"""
+function mvoutput(pd::Dict{ASCIIString, Any})
+    if iss3(pd["gn"]["outdir"])
+        # copy local results to s3
+        run(`aws s3 cp --recursive $(pd["gn"]["tmpdir"])/aff.h5 $(pd["gn"]["outdir"])/aff.h5`)
+        run(`aws s3 cp --recursive $(pd["gn"]["tmpdir"])/segm.h5 $(pd["gn"]["outdir"])/segm.h5`)
+        run(`aws s3 cp --recursive $(pd["gn"]["tmpdir"])/$(pd["omni"]["fomprj"]).omni.files $(pd["gn"]["outdir"])/$(pd["omni"]["fomprj"]).omni.files`)
+        run(`aws s3 cp --recursive $(pd["gn"]["tmpdir"])/$(pd["omni"]["fomprj"]).omni $(pd["gn"]["outdir"])/$(pd["omni"]["fomprj"]).omni`)
+    elseif pd["gn"]["tmpdir"] != pd["gn"]["outdir"] || pd["gn"]["outdir"]!=""
+        run(`mv $(pd["gn"]["faff"])    $(pd["gn"]["outdir"])/`)
+        run(`mv $(pd["gn"]["fsegm"])   $(pd["gn"]["outdir"])/`)
+        run(`mv $(pd["gn"]["fomprj"])* $(pd["gn"]["outdir"])/`)
     end
 end
