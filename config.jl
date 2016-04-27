@@ -1,11 +1,24 @@
-export default_params!, assert_params
+export get_task
 
-function default_params!(pd)
-    tmp_dir = pd["gn"]["tmp_dir"]
-    if pd["gn"]["faffs"]==""
-        pd["gn"]["faffs"] = "$(tmp_dir)/out_sample10_output_0.tif"
+include("aws.jl")
+
+"""
+get spipe parameters
+"""
+function get_task(env::AWSEnv)
+    # parse the config file
+    if length(ARGS)==0
+        msg = takeSQSmessage!(env,"spipe-tasks")
+        conf = msg.body
+        conf = replace(conf, "\\n", "\n")
+        conf = replace(conf, "\"", "")
+        conf = split(conf, "\n")
+        conf = Vector{ASCIIString}(conf)
+    elseif length(ARGS)==1
+        fconf = ARGS[1]
+        conf = readlines(fconf)
+    else
+        error("too many commandline arguments")
     end
-end
-
-function assert_params(pd)
+    return configparser(conf)
 end
