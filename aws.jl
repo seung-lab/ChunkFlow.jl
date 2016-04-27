@@ -101,3 +101,29 @@ function s32local(env::AWSEnv, s3name::AbstractString, tmpdir::AbstractString)
     run(`aws s3 cp $(s3name) $(lcfname)`)
     return lcfname
 end
+
+"""
+move all the s3 files to local temporal folder, and adjust the pd accordingly
+Note that the omni project will not be copied, because it is output. will deal with it later.
+"""
+function pds32local!(env::AWSEnv, pd::Dict)
+    tmpdir = pd["gn"]["tmp_dir"]
+    if iss3(pd["gn"]["fimg"])
+        pd["gn"]["fimg"] = s32local( env, pd["gn"]["fimg"], tmpdir )
+    end
+
+    if typeof( pd["znn"]["fnet_spec"] ) <: AbstractString
+        pd["znn"]["fnet_spec"] = s32local(env, pd["znn"]["fnet_spec"], tmpdir )
+        pd["znn"]["fnet"] = s32local( env, pd["znn"]["fnet"], tmpdir )
+    else
+        # multiple nets
+        for idx in 1:length( pd["znn"]["fnet_spec"] )
+            if iss3( pd["znn"]["fnet_spec"][idx] )
+                pd["znn"]["fnet_spec"][idx] = s32local(env, pd["znn"]["fnet_spec"][idx], tmpdir )
+            end
+            if iss3( pd["znn"]["fnet"][idx] )
+                pd["znn"]["fnet"][idx] = s32local( env, pd["znn"]["fnet"][idx], tmpdir )
+            end
+        end
+    end
+end
