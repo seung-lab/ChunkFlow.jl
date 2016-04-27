@@ -6,71 +6,15 @@ include("aff2segm.jl")
 include("segm2omprj.jl")
 include("zforward.jl")
 include("aws.jl")
+include("config.jl")
 
-"""
-get spipe parameters
-"""
-env = build_env()
-function get_task(env::AWSEnv)
-    # parse the config file
-    if length(ARGS)==0
-        msg = takeSQSmessage!(env,"spipe-tasks")
-        conf = msg.body
-        conf = replace(conf, "\\n", "\n")
-        conf = replace(conf, "\"", "")
-        conf = split(conf, "\n")
-        conf = Vector{ASCIIString}(conf)
-    elseif length(ARGS)==1
-        fconf = ARGS[1]
-        conf = readlines(fconf)
-    else
-        error("too many commandline arguments")
-    end
-    return configparser(conf)
-end
-
-"""
-move all the s3 files to local temporal folder, and adjust the pd accordingly
-Note that the omni project will not be copied, because it is output. will deal with it later.
-"""
-function s32local!(env::AWSEnv, pd::Dict)
-    tmpdir = pd["gn"]["tmp_dir"]
-    if iss3(pd["gn"]["fimg"])
-        pd["gn"]["fimg"] = s32local( env, pd["gn"]["fimg"], tmpdir )
-    end
-
-    if typeof( pd["znn"]["fnet_spec"] ) <: AbstractString
-        pd["znn"]["fnet_spec"] = s32local(env, pd["znn"]["fnet_spec"], tmpdir )
-        pd["znn"]["fnet"] = s32local( env, pd["znn"]["fnet"], tmpdir )
-    else
-        # multiple nets
-        for idx in 1:length( pd["znn"]["fnet_spec"] )
-            if iss3( pd["znn"]["fnet_spec"][idx] )
-                pd["znn"]["fnet_spec"][idx] = s32local(env, pd["znn"]["fnet_spec"][idx], tmpdir )
-            end
-            if iss3( pd["znn"]["fnet"][idx] )
-                pd["znn"]["fnet"][idx] = s32local( env, pd["znn"]["fnet"][idx], tmpdir )
-            end
-        end
-    end
-end
-
-"""
-clear a floder
-"""
-function cleardir(dir::AbstractString)
-    for fname in readdir(dir)
-        rm(joinpath(dir, fname), recursive=true)
-    end
-end
-# clear the temporal folder
-#cleardir(pd["gn"]["tmp_dir"])
+const env = build_env()
 
 # the task information was embedded in a dictionary
 pd = get_task(env)
 
 # copy data from s3 to local temp directory
-s32local!(env, pd)
+pds32local!(env, pd)
 
 # share the general parameters in other sections
 pd = shareprms!(pd, "gn")
@@ -104,10 +48,14 @@ if pd["ws"]["is_watershed"]
     end
     # remap to uniform distribution
     if pd["ws"]["is_remap"]
-        aff = aff2uniform(aff)
+        # aff = aff2uniform(aff)
+        # seg, dend, dendValues = aff2segm(aff, pd["ws"]["low"], pd["ws"]["high"])
+        low  = rthd2athd(aff, pd["ws"]["low"])
+        high = rthd2athd(aff, pd["ws"]["high"])
+        seg, dend, dendValues = aff2segm(aff, low, high)
+    else
+        seg, dend, dendValues = aff2segm(aff, pd["ws"]["low"], pd["ws"]["high"])
     end
-
-    seg, dend, dendValues = aff2segm(aff, pd["ws"]["low"], pd["ws"]["high"])
 
     # aggromeration
     if pd["agg"]["is_agg"]
