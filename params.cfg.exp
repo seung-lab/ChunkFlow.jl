@@ -29,7 +29,7 @@ is_auto_shutdown = no
 
 [znn]
 # whether to run forward pass
-is_znn = no
+is_znn = yes
 ### znn forward
 
 # directory of znn
@@ -60,12 +60,17 @@ is_ws = yes
 # exchange x and z channel or not
 # current network output affinity as z,y,x, so we need to exchange x and z channel to  make sure that the affinity is organized as x,y,z
 is_exchange_aff_xz = yes
-# whether remap to uniform distribution or not
-# options: yes, no
-is_remap = yes
+
+# the following thresholds are percentage or absolute?
+# options: percent | absolute
+# percent (recommanded): the percentage of number of voxels
+# absolute: the affinity weight value
+thd_type = percent
+
 # watershed parameters
 high = 0.60
 low = 0.1
+
 # thresholds example: 256,0.3; 500,0.5
 thresholds = (600,0.2);
 dustsize = 1000
