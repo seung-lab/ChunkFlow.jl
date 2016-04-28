@@ -55,7 +55,7 @@ function create_dataset_spec(tmpdir::AbstractString, inps::Dict)
     close(f)
 end
 
-function create_config(d, inps)
+function create_config(d)
     tmpdir = d["tmpdir"]
 
     # standard IO or not
@@ -92,13 +92,11 @@ function zforward( d::Dict{AbstractString, Any} )
     if !d["is_znn"]
         return
     end
-
+    println("znn forward pass...")
     if isfile(d["faff"])
         println("remove existing affinity file...")
         rm(d["faff"])
     end
-
-    println("znn forward pass...")
 
     inps = Dict( "img"=> d["fimg"] )
 
@@ -106,7 +104,7 @@ function zforward( d::Dict{AbstractString, Any} )
     # create dataset specification file
     create_dataset_spec( tmpdir, inps )
     # create forward pass stage 1 configuration file
-    create_config( d, inps )
+    create_config( d )
     # current path
     cp = pwd()
     # run recursive forward pass
