@@ -1,76 +1,83 @@
 [gn]
 # general section
 # temporary folder in local node, please do not change this for spipe-service in AWS
-tmp_dir = /tmp/
+tmpdir = /tmp/
 
 # output folder
-outdir = s3://spipe-service/outputs/
+outdir = /tmp/
+#s3://spipe-service/outputs/
 
 # raw image file name,
 # gray image, bit depth should be 8
 # support tif and hdf5 (dataset name is "/main")
-fimg = s3://spipe-service/assets/img.h5
-
-# voxel size: x,y,z
-voxel_size = 4,4,40
+fimg = s3://spipe-service/assets/piriform.h5
 
 # affinity file, default: out_sample1_output.h5 in tmp folder
 # no need to change this in AWS
-faffs = /tmp/affs.h5
+faff = /tmp/aff.h5
 
 # segmentation with dendrogram
 fsegm = /tmp/segm.h5
 
+# voxel size: x,y,z
+voxel_size = 7,7,40
+
 # shutdown maching after pipeline: yes | no
 # if you run it in aws, please always set it as yes
-is_auto_shutdown = yes
+is_auto_shutdown = no
 
 [znn]
 # whether to run forward pass
 is_znn = yes
-
 ### znn forward
+
 # directory of znn
-dir = /opt/znn-release
+dir = /znn
+#/opt/znn-release
 
 # net architecture specifications
-fnet_specs = s3://znn/networks/VD2D.znn, s3://znn/networks/W3_VD2D3D_AR.znn
+fnet_spec = s3://znn/networks/VD2D3D-MS.znn
 
 # networks
-fnets = s3://znn/experiments/allen/0311_VD2D/net_current.h5, s3://znn/experiments/allen/0318_W3/net_current.h5
+fnet = s3://znn/experiments/piriform/VD2D3D-MS/net_current.h5
+
+# output type
+out_type = affinity
 
 # standard io, this should match with the setting in znn training config.cfg file
 # default is no
-is_stdio = yes
+is_stdio = no
 
 # output size of each epoch, z,y,x
-outszs = 3, 100, 100; 3, 100, 100
-
-# whether overwrite the existing affinity file or not
-# options: yes, no
-is_overwrite = yes
+outsz = 1, 100, 100
 
 [ws]
 # watershed section
 # weather to run watershed or not
-is_watershed = yes
+is_ws = yes
 
 # exchange x and z channel or not
 # current network output affinity as z,y,x, so we need to exchange x and z channel to  make sure that the affinity is organized as x,y,z
-is_exchange_affs_xz = no
-# whether remap to uniform distribution or not
-# options: yes, no
-is_remap = yes
-# watershed parameters
-high = 0.80
-low = 0.3
-# thresholds example: 256,0.3; 500,0.5
-thresholds = 1000,0.3
-dust = 2000
+is_exchange_aff_xz = yes
 
-[agg]
-# use mean affinity agglomeration or not
-is_agg = yes
+# the following thresholds are percentage or absolute?
+# options: uniform | percent | absolute
+# uniform: remap the affinity to uniform distribution, will sort all the affinity edges
+# percent (recommanded): the percentage of number of voxels
+# absolute: the affinity weight value
+remap_type = percent
+
+# watershed parameters
+high = 0.60
+low = 0.1
+
+# thresholds example: 256,0.3; 500,0.5
+thresholds = (600,0.2);
+dustsize = 1000
+
+# agglomeration mode: mean | none
+# will support more mode in the future
+agg_mode = mean
 
 [omni]
 # weather to do omnification or not
@@ -80,4 +87,6 @@ is_omni = yes
 # if running pipeline in AWS, set it as `/opt/omni`
 ombin = /opt/omni
 
-# fomprj = s3://spipe-service/omni_prjs/tmp.omni
+# file name of omni project
+# if empty here, will use fimg file name
+fomprj =
