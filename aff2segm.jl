@@ -50,11 +50,11 @@ function aff2segm(d::Dict{AbstractString, Any})
     end
 
     # aggromeration
-    if pd["agg"]["is_agg"]
+    if d["agg_mode"]=="mean"
         dend, dendValues = Process.forward(aff, seg)
     end
     # save seg and mst
-    save_segm(pd["gn"]["fsegm"], seg, dend, dendValues)
+    save_segm(d["fsegm"], seg, dend, dendValues)
 end
 
 function aff2segm(aff::Taff, d::Dict{ASCIIString, Any})
