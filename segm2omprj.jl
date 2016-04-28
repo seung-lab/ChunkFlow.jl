@@ -4,7 +4,7 @@ using Process
 
 export segm2omprj
 
-function segm2omprj(d::Dict{ASCIIString, Any})
+function segm2omprj(d::Dict{AbstractString, Any})
     if !d["is_omni"]
         return
     end

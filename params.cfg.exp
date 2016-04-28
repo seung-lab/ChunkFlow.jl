@@ -13,6 +13,13 @@ outdir = /tmp/
 fimg = /usr/people/jingpeng/workspace/spipe/assets/piriform.h5
 #s3://spipe-service/assets/img.h5
 
+# affinity file, default: out_sample1_output.h5 in tmp folder
+# no need to change this in AWS
+faff = /tmp/aff.h5
+
+# segmentation with dendrogram
+fsegm = /tmp/segm.h5
+
 # voxel size: x,y,z
 voxel_size = 7,7,40
 
@@ -22,7 +29,7 @@ is_auto_shutdown = no
 
 [znn]
 # whether to run forward pass
-is_znn = yes
+is_znn = no
 ### znn forward
 
 # directory of znn
@@ -48,7 +55,7 @@ outsz = 1, 100, 100
 [ws]
 # watershed section
 # weather to run watershed or not
-is_watershed = yes
+is_ws = yes
 
 # exchange x and z channel or not
 # current network output affinity as z,y,x, so we need to exchange x and z channel to  make sure that the affinity is organized as x,y,z
@@ -57,15 +64,15 @@ is_exchange_aff_xz = yes
 # options: yes, no
 is_remap = yes
 # watershed parameters
-high = 0.70
+high = 0.60
 low = 0.1
 # thresholds example: 256,0.3; 500,0.5
-thresholds = 1000,0.3
+thresholds = (600,0.2);
 dustsize = 1000
 
-[agg]
-# use mean affinity agglomeration or not
-is_agg = yes
+# agglomeration mode: mean | none
+# will support more mode in the future
+agg_mode = mean
 
 [omni]
 # weather to do omnification or not

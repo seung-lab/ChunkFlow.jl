@@ -10,6 +10,7 @@ const global queuename = "spipe-tasks"
 
 function main()
     is_auto_shutdown = false
+    pd = Dict{AbstractString, Dict{AbstractString, Any}}()
     # keep doing tasks
     while true
         try
@@ -18,6 +19,14 @@ function main()
             is_auto_shutdown = pd["gn"]["is_auto_shutdown"]
             # do this task
             handletask(pd)
+            # avoid endless loop for local use
+            if length(ARGS) > 0
+                if is_auto_shutdown
+                    run(`sudo shutdown -h 0`)
+                else
+                    break
+                end
+            end
         catch
             # auto shutdown
             if is_auto_shutdown
@@ -34,7 +43,6 @@ handle a task
 """
 function handletask( pd::Dict{AbstractString, Dict{AbstractString, Any}} )
     println("start doing a task...")
-    @show pd
     # znn forward pass to get affinity map
     # file name to save affinity map
     zforward( pd["znn"] )
