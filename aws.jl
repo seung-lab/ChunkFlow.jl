@@ -165,16 +165,16 @@ end
 """
 move the important output files to outdir
 """
-function mvoutput(pd::Dict{ASCIIString, Any})
-    if iss3(pd["gn"]["outdir"])
+function mvoutput(d::Dict{AbstractString, Any})
+    if iss3(d["outdir"])
         # copy local results to s3
-        run(`aws s3 cp --recursive $(pd["gn"]["tmpdir"])/aff.h5 $(pd["gn"]["outdir"])/aff.h5`)
-        run(`aws s3 cp --recursive $(pd["gn"]["tmpdir"])/segm.h5 $(pd["gn"]["outdir"])/segm.h5`)
-        run(`aws s3 cp --recursive $(pd["gn"]["tmpdir"])/$(pd["omni"]["fomprj"]).omni.files $(pd["gn"]["outdir"])/$(pd["omni"]["fomprj"]).omni.files`)
-        run(`aws s3 cp --recursive $(pd["gn"]["tmpdir"])/$(pd["omni"]["fomprj"]).omni $(pd["gn"]["outdir"])/$(pd["omni"]["fomprj"]).omni`)
-    elseif pd["gn"]["tmpdir"] != pd["gn"]["outdir"] || pd["gn"]["outdir"]!=""
-        run(`mv $(pd["gn"]["faff"])    $(pd["gn"]["outdir"])/`)
-        run(`mv $(pd["gn"]["fsegm"])   $(pd["gn"]["outdir"])/`)
-        run(`mv $(pd["gn"]["fomprj"])* $(pd["gn"]["outdir"])/`)
+        run(`aws s3 cp --recursive $(d["tmpdir"])/aff.h5 $(d["outdir"])/aff.h5`)
+        run(`aws s3 cp --recursive $(d["tmpdir"])/segm.h5 $(d["outdir"])/segm.h5`)
+        run(`aws s3 cp --recursive $(d["tmpdir"])/$(pd["omni"]["fomprj"]).omni.files $(d["outdir"])/$(pd["omni"]["fomprj"]).omni.files`)
+        run(`aws s3 cp --recursive $(d["tmpdir"])/$(pd["omni"]["fomprj"]).omni $(d["outdir"])/$(pd["omni"]["fomprj"]).omni`)
+    elseif realpath(d["tmpdir"]) != realpath(d["outdir"]) && d["outdir"]!=""
+        run(`mv $(d["faff"])    $(d["outdir"])/`)
+        run(`mv $(d["fsegm"])   $(d["outdir"])/`)
+        run(`mv $(d["fomprj"])* $(d["outdir"])/`)
     end
 end
