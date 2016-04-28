@@ -142,7 +142,12 @@ function get_task(env::AWSEnv, queuename::ASCIIString = "spipe-tasks")
         conf = split(conf, "\n")
         conf = Vector{ASCIIString}(conf)
     elseif length(ARGS)==1
-        conf = readlines( ARGS[1] )
+        if iss3( ARGS[1] )
+            lcfile = s32local(env, ARGS[1], "/tmp/")
+            conf = readlines( lcfile )
+        else
+            conf = readlines( ARGS[1] )
+        end
     else
         error("too many commandline arguments")
     end
@@ -151,7 +156,7 @@ function get_task(env::AWSEnv, queuename::ASCIIString = "spipe-tasks")
     if pd["omni"]["fomprj"]==""
         fimg = basename(pd["gn"]["fimg"])
         name, ext = splitext(fimg)
-        pd["omni"]["fomprj"] = joinpath(pd["gn"]["tmpdir"], name, ".omni")
+        pd["omni"]["fomprj"] = joinpath(pd["gn"]["tmpdir"], "$name.omni")
     end
     # copy data from s3 to local temp directory
     pds32local!(env, pd)
