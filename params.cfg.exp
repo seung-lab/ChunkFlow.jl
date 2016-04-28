@@ -61,10 +61,11 @@ is_ws = yes
 is_exchange_aff_xz = yes
 
 # the following thresholds are percentage or absolute?
-# options: percent | absolute
+# options: uniform | percent | absolute
+# uniform: remap the affinity to uniform distribution, will sort all the affinity edges
 # percent (recommanded): the percentage of number of voxels
 # absolute: the affinity weight value
-thd_type = percent
+remap_type = percent
 
 # watershed parameters
 high = 0.60
