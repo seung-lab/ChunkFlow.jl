@@ -10,8 +10,7 @@ outdir = /tmp/
 # raw image file name,
 # gray image, bit depth should be 8
 # support tif and hdf5 (dataset name is "/main")
-fimg = /usr/people/jingpeng/workspace/spipe/assets/piriform.h5
-#s3://spipe-service/assets/img.h5
+fimg = s3://spipe-service/assets/piriform.h5
 
 # affinity file, default: out_sample1_output.h5 in tmp folder
 # no need to change this in AWS
@@ -37,10 +36,10 @@ dir = /znn
 #/opt/znn-release
 
 # net architecture specifications
-fnet_spec = /znn/networks/VD2D3D-MS.znn
+fnet_spec = s3://znn/networks/VD2D3D-MS.znn
 
 # networks
-fnet = /znn/experiments/piriform/VD2D3D-MS/net_current.h5
+fnet = s3://znn/experiments/piriform/VD2D3D-MS/net_current.h5
 
 # output type
 out_type = affinity
@@ -87,4 +86,6 @@ is_omni = yes
 # if running pipeline in AWS, set it as `/opt/omni`
 ombin = /opt/omni
 
+# file name of omni project
+# if empty here, will use fimg file name
 fomprj =
