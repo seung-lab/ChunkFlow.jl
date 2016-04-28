@@ -38,14 +38,21 @@ function aff2segm(d::Dict{AbstractString, Any})
     if d["is_exchange_aff_xz"]
         exchangeaffxz!(aff)
     end
-    # remap to uniform distribution
-    if d["is_remap"]
+
+    if contains(d["thd_type"], "percent")
+        # use percentage threshold
         # aff = aff2uniform(aff)
         # seg, dend, dendValues = aff2segm(aff, d["low"], d["high"], d["thresholds"], d["dustsize"])
-        low  = rthd2athd(aff, d["low"])
-        high = rthd2athd(aff, d["high"])
-        seg, dend, dendValues = aff2segm(aff, low, high, d["thresholds"], d["dustsize"])
+        e, count = hist(aff[:], 10000)
+        low  = percent2thd(e, count, d["low"])
+        high = percent2thd(e, count, d["high"])
+        thds = Vector{Tuple}()
+        for tp in d["thresholds"]
+            push!(thds, tuple(tp[1], percent2thd(e, count, tp[2])))
+        end
+        seg, dend, dendValues = aff2segm(aff, low, high, thds, d["dustsize"])
     else
+        # use absolute threshold
         seg, dend, dendValues = aff2segm(aff, d)
     end
 
