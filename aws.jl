@@ -108,8 +108,10 @@ Note that the omni project will not be copied, because it is output. will deal w
 """
 function pds32local!(env::AWSEnv, pd::Dict)
     tmpdir = pd["gn"]["tmpdir"]
-    if iss3(pd["gn"]["fimg"])
-        pd["gn"]["fimg"] = s32local( env, pd["gn"]["fimg"], tmpdir )
+    for (k,v) in pd["gn"]
+        if typeof(v)<:AbstractString && iss3(v)
+            pd["gn"][k] = s32local( env, v, tmpdir )
+        end
     end
 
     if typeof( pd["znn"]["fnet_spec"] ) <: AbstractString
