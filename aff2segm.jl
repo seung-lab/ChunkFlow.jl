@@ -39,10 +39,12 @@ function aff2segm(d::Dict{AbstractString, Any})
         exchangeaffxz!(aff)
     end
 
-    if contains(d["thd_type"], "percent")
+    if contains(d["remap_type"], "uniform")
+        # remap the affinity to uniform distribution, will do sorting
+        aff = aff2uniform(aff)
+        seg, dend, dendValues = aff2segm(aff, d["low"], d["high"], d["thresholds"], d["dustsize"])
+    elseif contains(d["remap_type"], "percent")
         # use percentage threshold
-        # aff = aff2uniform(aff)
-        # seg, dend, dendValues = aff2segm(aff, d["low"], d["high"], d["thresholds"], d["dustsize"])
         e, count = hist(aff[:], 10000)
         low  = percent2thd(e, count, d["low"])
         high = percent2thd(e, count, d["high"])
