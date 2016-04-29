@@ -32,7 +32,7 @@ is_znn = yes
 ### znn forward
 
 # directory of znn
-dir = /znn
+dir = /opt/znn-release
 #/opt/znn-release
 
 # net architecture specifications
