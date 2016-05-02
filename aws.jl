@@ -1,5 +1,6 @@
 using EMIRT
 using AWS
+using AWS.SQS
 
 """
 move all the s3 files to local temporal folder, and adjust the pd accordingly
