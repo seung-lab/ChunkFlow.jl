@@ -77,8 +77,8 @@ function mvoutput(d::Dict{AbstractString, Any})
         # copy local results to s3
         run(`aws s3 cp $(d["tmpdir"])/aff.h5 $(d["outdir"])/aff.h5`)
         run(`aws s3 cp $(d["tmpdir"])/segm.h5 $(d["outdir"])/segm.h5`)
-        run(`aws s3 cp --recursive $(d["tmpdir"])/$(pd["omni"]["fomprj"]).omni.files $(d["outdir"])/$(pd["omni"]["fomprj"]).omni.files`)
-        run(`aws s3 cp $(d["tmpdir"])/$(pd["omni"]["fomprj"]).omni $(d["outdir"])/$(pd["omni"]["fomprj"]).omni`)
+        run(`aws s3 cp --recursive $(d["tmpdir"])/$(d["fomprj"]).omni.files $(d["outdir"])/$(d["fomprj"]).omni.files`)
+        run(`aws s3 cp $(d["tmpdir"])/$(d["fomprj"]).omni $(d["outdir"])/$(d["fomprj"]).omni`)
     elseif realpath(d["tmpdir"]) != realpath(d["outdir"]) && d["outdir"]!=""
         run(`mv $(d["faff"])    $(d["outdir"])/`)
         run(`mv $(d["fsegm"])   $(d["outdir"])/`)
