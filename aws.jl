@@ -10,21 +10,21 @@ function pds32local!(pd::Dict)
     tmpdir = pd["gn"]["tmpdir"]
     for (k,v) in pd["gn"]
         if typeof(v)<:AbstractString && iss3(v) && k!="outdir"
-            pd["gn"][k] = s32local( env, v, tmpdir )
+            pd["gn"][k] = download( env, v, tmpdir )
         end
     end
 
     if typeof( pd["znn"]["fnet_spec"] ) <: AbstractString
-        pd["znn"]["fnet_spec"] = s32local(env, pd["znn"]["fnet_spec"], tmpdir )
-        pd["znn"]["fnet"] = s32local( env, pd["znn"]["fnet"], tmpdir )
+        pd["znn"]["fnet_spec"] = download(env, pd["znn"]["fnet_spec"], tmpdir )
+        pd["znn"]["fnet"] = download( env, pd["znn"]["fnet"], tmpdir )
     else
         # multiple nets
         for idx in 1:length( pd["znn"]["fnet_spec"] )
             if iss3( pd["znn"]["fnet_spec"][idx] )
-                pd["znn"]["fnet_spec"][idx] = s32local(env, pd["znn"]["fnet_spec"][idx], tmpdir )
+                pd["znn"]["fnet_spec"][idx] = download(env, pd["znn"]["fnet_spec"][idx], tmpdir )
             end
             if iss3( pd["znn"]["fnet"][idx] )
-                pd["znn"]["fnet"][idx] = s32local( env, pd["znn"]["fnet"][idx], tmpdir )
+                pd["znn"]["fnet"][idx] = download( env, pd["znn"]["fnet"][idx], tmpdir )
             end
         end
     end
