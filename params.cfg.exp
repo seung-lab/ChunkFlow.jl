@@ -10,6 +10,8 @@ outdir = /tmp/
 # raw image file name,
 # gray image, bit depth should be 8
 # support tif and hdf5 (dataset name is "/main")
+# for aws s3 file, it is only a prefix.
+# the files matching the prefix will be submitted to spipe-task SQS queue.
 fimg = s3://spipe-service/assets/piriform.img.h5
 
 # affinity hdf5 file
