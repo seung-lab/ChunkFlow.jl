@@ -1,4 +1,5 @@
 include("aws.jl")
+include("task.jl")
 using EMIRT
 
 const global env = build_env()
