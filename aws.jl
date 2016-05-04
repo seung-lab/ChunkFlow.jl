@@ -54,17 +54,13 @@ function get_task(env::AWSEnv, queuename::ASCIIString = "spipe-tasks")
         error("too many commandline arguments")
     end
     pd = configparser(conf)
-    # make default parameters
-    if pd["omni"]["fomprj"]==""
-        fimg = basename(pd["gn"]["fimg"])
-        name, ext = splitext(fimg)
-        pd["omni"]["fomprj"] = joinpath(pd["gn"]["tmpdir"], "$name.omni")
-    end
     # copy data from s3 to local temp directory
     pds32local!(env, pd)
 
-    # share the general parameters in other sections
-    pd = shareprms!(pd, "gn")
+    # preprocessing the parameter dict
+    # eg. add some default values
+    pd = preprocess!(pd)
+
     @show pd
     return pd
 end

@@ -49,7 +49,7 @@ end
 """
 handle a task
 """
-function handletask( pd::Dict{AbstractString, Dict{AbstractString, Any}} )
+function handletask( pd::Tpd )
     println("start doing a task...")
     # znn forward pass to get affinity map
     # file name to save affinity map
