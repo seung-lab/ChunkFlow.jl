@@ -25,7 +25,7 @@ end
 transform affinity map to segmentation with mst
 """
 function aff2segm(d::Dict{AbstractString, Any})
-    if !d["is_ws"]
+    if contains(d["node_switch"], "off")
         return
     end
     # read affinity map
