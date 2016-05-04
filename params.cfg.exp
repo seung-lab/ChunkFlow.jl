@@ -12,7 +12,7 @@ outdir = /tmp/
 # support tif and hdf5 (dataset name is "/main")
 fimg = s3://spipe-service/assets/piriform.img.h5
 
-# affinity file, default: out_sample1_output.h5 in tmp folder
+# affinity hdf5 file
 # no need to change this in AWS
 faff = /tmp/aff.h5
 #s3://spipe-service/assets/piriform.aff.h5
@@ -23,13 +23,18 @@ fsegm = /tmp/segm.h5
 # voxel size: x,y,z
 voxel_size = 7,7,40
 
+# volume offset: x,y,z
+offset = 0,0,0
+
 # shutdown maching after pipeline: yes | no
 # if you run it in aws, please always set it as yes
 is_auto_shutdown = no
 
 [znn]
+# node switch
 # whether to run forward pass
-is_znn = yes
+# options: on | off
+node_switch = on
 ### znn forward
 
 # directory of znn
@@ -53,9 +58,10 @@ is_stdio = no
 outsz = 1, 100, 100
 
 [ws]
-# watershed section
+# node switch
 # weather to run watershed or not
-is_ws = yes
+# options: on | off
+node_switch = on
 
 # exchange x and z channel or not
 # old version znn output affinity as z,y,x, so we need to exchange x and z channel to  make sure that the affinity is organized as x,y,z
@@ -89,7 +95,8 @@ agg_aff_source = original
 
 [omni]
 # weather to do omnification or not
-is_omni = yes
+# options: on | off
+node_switch = on
 
 # the path of omnify executable file
 # if running pipeline in AWS, set it as `/opt/omni`
