@@ -5,14 +5,14 @@ using Process
 export segm2omprj
 
 function segm2omprj(d::Dict{AbstractString, Any})
-    if !d["is_omni"]
+    if contains(d["node_switch"], "off")
         return
     end
     println("start omnification...")
-    segm2omprj(d["ombin"], d["fimg"], d["fsegm"], d["voxel_size"], d["fomprj"])
+    segm2omprj(d["ombin"], d["fimg"], d["fsegm"], d["voxel_size"], d["offset"], d["fomprj"])
 end
 
-function segm2omprj(ombin, fimg, fsegm, vs=[4,4,40], fomprj="/tmp/tmp.omni")
+function segm2omprj(ombin, fimg, fsegm, vs=[4,4,40], offset = [0,0,0], fomprj="/tmp/tmp.omni")
     fimgh5 = fimg
     if contains(fimg, ".tif")
         # transform tif image to hdf5
@@ -29,10 +29,10 @@ function segm2omprj(ombin, fimg, fsegm, vs=[4,4,40], fomprj="/tmp/tmp.omni")
     cmd = """create:$(fomprj)
     loadHDF5chann:$(fimgh5)
     setChanResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
-    setChanAbsOffset:,1,0,0,0
+    setChanAbsOffset:,1,$(offset[1]),$(offset[2]),$(offset[3])
     loadHDF5seg:$(fsegm)
     setSegResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
-    setSegAbsOffset:1,0,0,0
+    setSegAbsOffset:1,$(offset[1]),$(offset[2]),$(offset[3])
     mesh
     quit
     """
