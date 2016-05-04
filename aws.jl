@@ -6,7 +6,7 @@ using AWS.SQS
 move all the s3 files to local temporal folder, and adjust the pd accordingly
 Note that the omni project will not be copied, because it is output. will deal with it later.
 """
-function pds32local!(env::AWSEnv, pd::Dict)
+function pds32local!(pd::Dict)
     tmpdir = pd["gn"]["tmpdir"]
     for (k,v) in pd["gn"]
         if typeof(v)<:AbstractString && iss3(v) && k!="outdir"
@@ -31,39 +31,6 @@ function pds32local!(env::AWSEnv, pd::Dict)
 end
 
 
-"""
-get spipe parameters
-"""
-function get_task(env::AWSEnv, queuename::ASCIIString = "spipe-tasks")
-    # parse the config file
-    if length(ARGS)==0
-        msg = takeSQSmessage!(env, queuename)
-        conf = msg.body
-        conf = replace(conf, "\\n", "\n")
-        conf = replace(conf, "\"", "")
-        conf = split(conf, "\n")
-        conf = Vector{ASCIIString}(conf)
-    elseif length(ARGS)==1
-        if iss3( ARGS[1] )
-            lcfile = s32local(env, ARGS[1], "/tmp/")
-            conf = readlines( lcfile )
-        else
-            conf = readlines( ARGS[1] )
-        end
-    else
-        error("too many commandline arguments")
-    end
-    pd = configparser(conf)
-    # copy data from s3 to local temp directory
-    pds32local!(env, pd)
-
-    # preprocessing the parameter dict
-    # eg. add some default values
-    pd = preprocess!(pd)
-
-    @show pd
-    return pd
-end
 
 """
 move the important output files to outdir
