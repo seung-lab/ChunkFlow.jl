@@ -62,7 +62,7 @@ function handletask( pd::Dict{AbstractString, Dict{AbstractString, Any}} )
     segm2omprj(pd["omni"])
 
     # move results
-    mvoutput(pd["gn"])
+    mvoutput(pd["omni"])
 end
 
 
