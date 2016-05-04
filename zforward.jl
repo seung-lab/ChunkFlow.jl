@@ -89,7 +89,7 @@ function create_config(d)
 end
 
 function zforward( d::Dict{AbstractString, Any} )
-    if !d["is_znn"]
+    if contains(d["node_switch"], "off")
         return
     end
     println("znn forward pass...")
