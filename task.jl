@@ -4,6 +4,9 @@ include("aws.jl")
 get spipe parameters
 """
 function get_task(queuename::ASCIIString = "spipe-tasks")
+    return get_task(env, queuename)
+end
+function get_task(env::AWSEnv, queuename::ASCIIString = "spipe-tasks")
     # parse the config file
     if length(ARGS)==0
         msg = takeSQSmessage!(env, queuename)
