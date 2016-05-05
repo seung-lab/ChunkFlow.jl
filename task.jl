@@ -81,7 +81,7 @@ function preprocess!(pd::Tpd)
     if pd["gn"]["offset"]==""
         pd["gn"]["offset"] = [0,0,0]
     end
-    offset = fname2offset(pd["gn"]["offset"])
+    offset = fname2offset(pd["gn"]["fimg"])
     if pd["gn"]["offset"]==[0,0,0] && offset!=nothing
         pd["gn"]["offset"] = offset
     end

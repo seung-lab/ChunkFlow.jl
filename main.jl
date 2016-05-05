@@ -4,6 +4,7 @@ include("aff2segm.jl")
 include("segm2omprj.jl")
 include("zforward.jl")
 include("aws.jl")
+include("task.jl")
 
 const global env = build_env()
 const global queuename = "spipe-tasks"
