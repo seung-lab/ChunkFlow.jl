@@ -38,13 +38,20 @@ move the important output files to outdir
 function mvoutput(d::Dict{AbstractString, Any})
     if iss3(d["outdir"])
         # copy local results to s3
-        run(`aws s3 cp $(d["tmpdir"])/aff.h5 $(d["outdir"])/aff.h5`)
-        run(`aws s3 cp $(d["tmpdir"])/segm.h5 $(d["outdir"])/segm.h5`)
-        run(`aws s3 cp --recursive $(d["tmpdir"])/$(d["fomprj"]).omni.files $(d["outdir"])/$(d["fomprj"]).omni.files`)
-        run(`aws s3 cp $(d["tmpdir"])/$(d["fomprj"]).omni $(d["outdir"])/$(d["fomprj"]).omni`)
+        if d["node_switch"]=="off"
+            run(`aws s3 cp $(d["tmpdir"])/aff.h5 $(d["outdir"])/aff.h5`)
+            run(`aws s3 cp $(d["tmpdir"])/segm.h5 $(d["outdir"])/segm.h5`)
+        else
+            # has omni project
+            run(`mv $(d["tmpdir"])/aff.h5 $(d["tmpdir"])/$(d["fomprj"]).omni.files/`)
+            run(`aws s3 cp --recursive $(d["tmpdir"])/$(d["fomprj"]).omni.files $(d["outdir"])/$(d["fomprj"]).omni.files`)
+            run(`aws s3 cp $(d["tmpdir"])/$(d["fomprj"]).omni $(d["outdir"])/$(d["fomprj"]).omni`)
+        end
     elseif realpath(d["tmpdir"]) != realpath(d["outdir"]) && d["outdir"]!=""
         run(`mv $(d["faff"])    $(d["outdir"])/`)
         run(`mv $(d["fsegm"])   $(d["outdir"])/`)
-        run(`mv $(d["fomprj"])* $(d["outdir"])/`)
+        if d["node_switch"]=="on"
+            run(`mv $(d["fomprj"])* $(d["outdir"])/`)
+        end
     end
 end
