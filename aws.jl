@@ -39,14 +39,15 @@ function mvoutput(d::Dict{AbstractString, Any})
     if iss3(d["outdir"])
         # copy local results to s3
         if d["node_switch"]=="off"
-            run(`aws s3 cp $(d["tmpdir"])/aff.h5 $(d["outdir"])/aff.h5`)
-            run(`aws s3 cp $(d["tmpdir"])/segm.h5 $(d["outdir"])/segm.h5`)
+            # no omnification, only copy affinity map and segmentation
+            run(`aws s3 cp $(d["tmpdir"])/aff.h5 $(joinpath( d["outdir"], "aff.h5")) `)
+            run(`aws s3 cp $(d["tmpdir"])segm.h5 $(joinpath( d["outdir"], "segm.h5"))`)
         else
             # has omni project
             bn = basename(d["fomprj"])
-            run(`mv $(d["tmpdir"])/aff.h5 $(d["fomprj"]).files/`)
-            run(`aws s3 cp --recursive $(d["fomprj"]).files $(d["outdir"])/$(bn).files`)
-            run(`aws s3 cp $(d["fomprj"]) $(d["outdir"])/$(bn)`)
+            run(`mv $(d["tmpdir"])aff.h5 $(d["fomprj"]).files/`)
+            run(`aws s3 cp --recursive $(d["fomprj"]).files $(joinpath( d["outdir"], "$(bn).files"))`)
+            run(`aws s3 cp $(d["fomprj"]) $(joinpath( d["outdir"], bn))`)
         end
     elseif realpath(d["tmpdir"]) != realpath(d["outdir"]) && d["outdir"]!=""
         run(`mv $(d["faff"])    $(d["outdir"])/`)
