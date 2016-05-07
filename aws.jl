@@ -43,9 +43,10 @@ function mvoutput(d::Dict{AbstractString, Any})
             run(`aws s3 cp $(d["tmpdir"])/segm.h5 $(d["outdir"])/segm.h5`)
         else
             # has omni project
+            bn = basename(d["fomprj"])
             run(`mv $(d["tmpdir"])/aff.h5 $(d["fomprj"]).files/`)
-            run(`aws s3 cp --recursive $(d["fomprj"]).files $(d["outdir"])/$(d["fomprj"]).files`)
-            run(`aws s3 cp $(d["fomprj"]) $(d["outdir"])/$(d["fomprj"])`)
+            run(`aws s3 cp --recursive $(d["fomprj"]).files $(d["outdir"])/$(bn).files`)
+            run(`aws s3 cp $(d["fomprj"]) $(d["outdir"])/$(bn)`)
         end
     elseif realpath(d["tmpdir"]) != realpath(d["outdir"]) && d["outdir"]!=""
         run(`mv $(d["faff"])    $(d["outdir"])/`)
