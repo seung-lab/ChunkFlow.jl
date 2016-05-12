@@ -26,6 +26,10 @@ fsegm = /tmp/segm.h5
 voxel_size = 7,7,40
 
 # volume offset: x,y,z
+# the unit is voxel here rather than physical offset
+# will compute physical offset in segm2omprj.jl
+# if offset is empty or 0,0,0, will try to get offset from fimg
+# for example, fimg = /tmp/test_1-200_2-300_3-400.h5, offset will be 1,2,3
 offset = 0,0,0
 
 # shutdown maching after pipeline: yes | no
