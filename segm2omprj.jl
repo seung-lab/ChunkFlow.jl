@@ -24,15 +24,18 @@ function segm2omprj(ombin, fimg, fsegm, vs=[4,4,40], offset = [0,0,0], fomprj="/
         end
         imsave(img, fimgh5)
     end
+    # compute physical offset
+    phyOffset = (offset-1) .* vs
+
     # prepare the cmd file for omnification
     # make omnify command file
     cmd = """create:$(fomprj)
     loadHDF5chann:$(fimgh5)
     setChanResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
-    setChanAbsOffset:,1,$(offset[1]),$(offset[2]),$(offset[3])
+    setChanAbsOffset:,1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
     loadHDF5seg:$(fsegm)
     setSegResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
-    setSegAbsOffset:1,$(offset[1]),$(offset[2]),$(offset[3])
+    setSegAbsOffset:1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
     mesh
     quit
     """
