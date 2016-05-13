@@ -17,7 +17,7 @@ function get_task(env::AWSEnv, queuename::ASCIIString = "spipe-tasks")
         conf = Vector{ASCIIString}(conf)
     elseif length(ARGS)==1
         if iss3( ARGS[1] )
-            lcfile = s32local(ARGS[1], "/tmp/")
+            lcfile = download(env, ARGS[1], "/tmp/")
             conf = readlines( lcfile )
         else
             conf = readlines( ARGS[1] )
