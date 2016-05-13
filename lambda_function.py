@@ -5,9 +5,9 @@ def lambda_handler(event, context):
     # find the triger file in bucket
     record = event['Records'][0]
     bucket = record['s3']['bucket']['name']
-    key = record['s3']['object']['key'] 
-        
-    # my bash code to execute 
+    key = record['s3']['object']['key']
+
+    # my bash code to execute
     myscript="""#!/bin/bash
 export HOME=/root/
 export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:/usr/local/share/julia/site/v0.4/Agglomerator/src
@@ -27,23 +27,23 @@ cd /usr/local/share/julia/v0.4/EMIRT
 git checkout master
 git pull
 
-mkfs -t ext4 /dev/xvde                                                                                                 
+mkfs -t ext4 /dev/xvde
 mount /dev/xvde /tmp
 rm -rf /tmp/*
 
 julia /opt/spipe/main.jl s3://{}/{}
 """.format(bucket, key)
-    
+
     # launch a node to handle this task
     ec2 = boto3.client('ec2')
     ec2.run_instances(
         DryRun = False,
-        ImageId = 'ami-8d08ece0',
+        ImageId = 'ami-75698918',
         MinCount = 1 ,
         MaxCount = 1 ,
         KeyName = 'jpwu_workstation',
         UserData = myscript,
-        InstanceType = 'cr3.8xlarge',
+        InstanceType = 'r3.8xlarge',
         InstanceInitiatedShutdownBehavior='terminate', # 'stop' | 'terminate',
         BlockDeviceMappings = [
             {
@@ -58,5 +58,3 @@ julia /opt/spipe/main.jl s3://{}/{}
             }
         ]
     )
-    
-    
