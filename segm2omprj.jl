@@ -25,7 +25,7 @@ function segm2omprj(ombin, fimg, fsegm, vs=[4,4,40], offset = [0,0,0], fomprj="/
         imsave(img, fimgh5)
     end
     # compute physical offset
-    phyOffset = (offset-1) .* vs
+    phyOffset = offset .* vs
 
     # prepare the cmd file for omnification
     # make omnify command file
