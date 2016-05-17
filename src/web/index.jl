@@ -2,6 +2,7 @@ import Escher: @api, render
 
 include("plotcurve.jl")
 include("evaluate.jl")
+include("segmentation.jl")
 
 function wiretabs()
     tabbar = tabs([hbox(icon("autorenew"), hskip(1em), "Train"),
@@ -11,7 +12,7 @@ function wiretabs()
                    hbox(icon("assessment"), hskip(1em), "Evaluate"),
                    hbox(icon("polymer"), hskip(1em), "Pipeline"),
                    hbox(icon("help"), hskip(1em), "Help")] )
-    tabcontents = pages([ "training", plotcurve(), "forward pass", "segmentation", evaluate(), "Pipeline", "help"])
+    tabcontents = pages([ "training", plotcurve(), "forward pass", segmentation(), evaluate(), "Pipeline", "help"])
 
     t, p = wire( tabbar, tabcontents, :tabschannel, :selected)
 
