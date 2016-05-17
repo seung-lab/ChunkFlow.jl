@@ -60,12 +60,13 @@ end
 """
 the form tile to provide learning curve plotting tile
 """
-function tile_form_network_file(pcs::Sampler)
-    return vbox(
+function tile_form_network_file!(pcs::Sampler)
+    form = vbox(
                 h1("Choose your network file"),
                 watch!(pcs, :fname, textinput("/tmp/net_current.h5", label="network file")),
-                trigger!(pcs, :plot, button("Plot Learning Curve", raised=false))
+                trigger!(pcs, :submit, button("Plot Learning Curve", raised=false))
                 ) |> maxwidth(400px)
+    return form
 end
 
 """
@@ -80,7 +81,7 @@ ret: learning curve plotting tile
 function plotcurve()
     pcinp = Signal(Dict())
     pcs = Escher.sampler()
-    pcform = tile_form_network_file(pcs)
+    pcform = tile_form_network_file!(pcs)
     ret = map(pcinp) do pcdict
         vbox(
              intent(pcs, pcform) >>> pcinp,
