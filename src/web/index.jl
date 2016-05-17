@@ -16,7 +16,8 @@ function wiretabs()
     t, p = wire( tabbar, tabcontents, :tabschannel, :selected)
 
     return vbox(toolbar(["ZNN @", iconbutton("cloud"), flex()]),
-                maxwidth(65em, t), Escher.pad(1em, p))
+                Escher.pad(1em, t),
+                Escher.pad(1em, p))
 end
 
 main(window) = begin

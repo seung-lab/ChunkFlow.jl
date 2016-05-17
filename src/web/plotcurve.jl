@@ -3,6 +3,8 @@ using Distributions
 using HDF5
 import Escher: Sampler
 
+typealias Tcurve Dict{ASCIIString, Dict{ASCIIString,Vector}}
+
 function get_learning_curve(fname::AbstractString)
     if contains(fname, "s3://")
         # local file name
@@ -12,7 +14,7 @@ function get_learning_curve(fname::AbstractString)
         # rename fname to local file name
         fname = lcfname
     end
-    curve = Dict{ASCIIString, Dict{ASCIIString,Vector}}()
+    curve = Tcurve()
     if isfile(fname)
         curve["train"] = Dict{ASCIIString, Vector}()
         curve["test"]  = Dict{ASCIIString, Vector}()
@@ -27,7 +29,7 @@ function get_learning_curve(fname::AbstractString)
     return curve
 end
 
-function tile_learning_curve(curve::Dict)
+function tile_learning_curve(curve::Tcurve)
     if length( keys(curve) ) == 0
         return ""
     else
@@ -58,11 +60,11 @@ end
 """
 the form tile to provide learning curve plotting tile
 """
-function tile_form_network_file(inp::Signal, s::Sampler)
+function tile_form_network_file(pcs::Sampler)
     return vbox(
                 h1("Choose your network file"),
-                watch!(s, :fname, textinput("/tmp/net_current.h5", label="network file")),
-                trigger!(s, :plot, button("Plot Learning Curve"))
+                watch!(pcs, :fname, textinput("/tmp/net_current.h5", label="network file")),
+                trigger!(pcs, :plot, button("Plot Learning Curve", raised=false))
                 ) |> maxwidth(400px)
 end
 
@@ -76,15 +78,16 @@ s: sampler
 ret: learning curve plotting tile
 """
 function plotcurve()
-    inp = Signal(Dict())
-    s = Escher.sampler()
-    form = tile_form_network_file(inp, s)
-    ret = consume(inp) do dict
+    pcinp = Signal(Dict())
+    pcs = Escher.sampler()
+    pcform = tile_form_network_file(pcs)
+    ret = map(pcinp) do pcdict
         vbox(
-                intent(s, form) >>> inp,
-                vskip(2em),
-                tile_learning_curve(get(dict, :fname, ""))
-                ) |> Escher.pad(2em)
+             intent(pcs, pcform) >>> pcinp,
+             vskip(2em),
+             tile_learning_curve(get(pcdict, :fname, "")),
+             string(pcdict)
+             ) |> Escher.pad(2em)
     end
     return ret
 end
