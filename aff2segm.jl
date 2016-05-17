@@ -25,7 +25,7 @@ end
 transform affinity map to segmentation with mst
 """
 function aff2segm(d::Dict{AbstractString, Any})
-    if !d["is_ws"]
+    if contains(d["node_switch"], "off")
         return
     end
     # read affinity map
@@ -41,8 +41,8 @@ function aff2segm(d::Dict{AbstractString, Any})
 
     if contains(d["remap_type"], "uniform")
         # remap the affinity to uniform distribution, will do sorting
-        aff = aff2uniform(aff)
-        seg, dend, dendValues = aff2segm(aff, d["low"], d["high"], d["thresholds"], d["dustsize"])
+        unf_aff = aff2uniform(aff)
+        seg, dend, dendValues = aff2segm(unf_aff, d["low"], d["high"], d["thresholds"], d["dustsize"])
     elseif contains(d["remap_type"], "percent")
         # use percentage threshold
         e, count = hist(aff[:], 10000)
@@ -60,7 +60,14 @@ function aff2segm(d::Dict{AbstractString, Any})
 
     # aggromeration
     if d["agg_mode"]=="mean"
-        dend, dendValues = Process.forward(aff, seg)
+        println("mean affinity agglomeration...")
+        if contains(d["agg_aff_source"], "uniform")
+            # use uniform remapped affinity map
+            dend, dendValues = Process.forward(unf_aff, seg)
+        else
+            # use original affinity map
+            dend, dendValues = Process.forward(aff, seg)
+        end
     end
     # save seg and mst
     save_segm(d["fsegm"], seg, dend, dendValues)
