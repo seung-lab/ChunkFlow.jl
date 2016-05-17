@@ -5,14 +5,14 @@ import Escher: Sampler
 """
 the form tile to provide learning curve plotting tile
 """
-function tile_form_evaluate(inp::Signal, s::Sampler)
+function tile_form_evaluate(evs::Sampler)
     return vbox(
                 h2("Choose the segmentation file"),
-                watch!(s, :fseg, textinput("/tmp/seg.h5", label="segmentation file")),
+                watch!(evs, :fseg, textinput("/tmp/seg.h5", label="segmentation file")),
                 vskip(1em),
                 h2("Choose the label file"),
-                watch!(s, :flbl, textinput("/tmp/lbl.h5", label="label file")),
-                trigger!(s, :evaluate, button("Evaluate Segmenation"))
+                watch!(evs, :flbl, textinput("/tmp/lbl.h5", label="label file")),
+                trigger!(evs, :evaluate, button("Evaluate Segmenation"))
                 ) |> maxwidth(400px)
 end
 
@@ -23,9 +23,9 @@ the tile of evaluate result
 """
 function evaluate_result(fseg::AbstractString, flbl::AbstractString)
     if isfile(fseg) && isfile(flbl)
-        return ""
+        return "something"
     else
-        return ""
+        return "nothing"
     end
 end
 
@@ -33,15 +33,16 @@ end
 the page of evaluate
 """
 function evaluate()
-    inp = Signal(Dict())
-    s = Escher.sampler()
+    evinp = Signal(Dict())
+    evs = Escher.sampler()
 
-    form = tile_form_evaluate(inp, s)
-    ret = consume(inp) do dict
+    evform = tile_form_evaluate(evs)
+    ret = map(evinp) do evdict
         vbox(
-             intent(s, form) >>> inp,
+             intent(evs, evform) >>> evinp,
              vskip(2em),
-             evaluate_result(get(dict, :fseg, ""), get(dict,:flbl, ""))
+             evaluate_result(get(evdict, :fseg, ""), get(evdict,:flbl, "")),
+             string(evdict)
              ) |> Escher.pad(2em)
     end
 end
