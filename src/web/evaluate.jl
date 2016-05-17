@@ -12,7 +12,7 @@ function tile_form_evaluate(evs::Sampler)
                 vskip(1em),
                 h2("Choose the label file"),
                 watch!(evs, :flbl, textinput("/tmp/lbl.h5", label="label file")),
-                trigger!(evs, :evaluate, button("Evaluate Segmenation"))
+                trigger!(evs, :submit, button("Evaluate Segmenation"))
                 ) |> maxwidth(400px)
 end
 
@@ -37,7 +37,7 @@ function evaluate()
     evs = Escher.sampler()
 
     evform = tile_form_evaluate(evs)
-    ret = map(evinp) do evdict
+    return map(evinp) do evdict
         vbox(
              intent(evs, evform) >>> evinp,
              vskip(2em),

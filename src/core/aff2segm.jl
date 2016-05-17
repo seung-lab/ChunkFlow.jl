@@ -77,7 +77,7 @@ function aff2segm(aff::Taff, d::Dict{ASCIIString, Any})
     return aff2segm(aff, d["low"], d["high"], d["thresholds"], d["dustsize"])
 end
 
-function aff2segm(aff::Taff, low::AbstractFloat, high::AbstractFloat, thresholds=[(1000,0.3)], dustsize=1000)
+function aff2segm(aff::Taff, low::AbstractFloat=0.2, high::AbstractFloat=0.8, thresholds=[(1000,0.3)], dustsize=1000)
     # watershed
     println("watershed...")
     seg, rt = watershed(aff, low, high, thresholds, dustsize);
