@@ -1,10 +1,10 @@
 using EMIRT
 
-include("aff2segm.jl")
-include("segm2omprj.jl")
-include("zforward.jl")
-include("aws.jl")
-include("task.jl")
+include("core/aff2segm.jl")
+include("core/segm2omprj.jl")
+include("core/zforward.jl")
+include("core/aws.jl")
+include("core/task.jl")
 
 const global env = build_env()
 const global queuename = "spipe-tasks"
