@@ -1,4 +1,5 @@
 import boto3
+import base64
 
 def lambda_handler(event, context):
     s3 = boto3.client('s3')
@@ -22,7 +23,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/boost/lib
 
 cd /opt/spipe
 git pull
-git checkout batch-task
+git checkout master
 git pull
 
 cd /usr/local/share/julia/site/v0.4/EMIRT
@@ -38,9 +39,8 @@ mkdir /data
 mkfs -t ext4 /dev/xvdc
 mount /dev/xvdc /data
 
-cd /opt/spipe
-julia main.jl s3://{}/{}
-shutdown -h 0
+julia /opt/spipe/main.jl s3://{}/{}
+#shutdown -h 0
 """.format(bucket, key)
 
     # launch a node to handle this task
@@ -54,11 +54,11 @@ shutdown -h 0
             'ImageId': 'ami-75698918',
             'KeyName': 'jpwu_workstation',
             'InstanceType': 'r3.8xlarge',
-            'UserData': myscript,
+            'UserData': base64.b64encode(myscript),
             'BlockDeviceMappings':[
                 {
                     'VirtualName': 'ephemeral0',
-                    'DeviceName': '/dev/sdb',
+                    'DeviceName': '/dev/sdb'
                 },
                 {
                     'VirtualName': 'ephemeral1',
