@@ -5,6 +5,7 @@ include("core/segm2omprj.jl")
 include("core/zforward.jl")
 include("core/aws.jl")
 include("core/task.jl")
+include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
 
 const global env = build_env()
 const global queuename = "spipe-tasks"

@@ -41,8 +41,8 @@ function aff2segm(d::Dict{AbstractString, Any})
 
     if contains(d["remap_type"], "uniform")
         # remap the affinity to uniform distribution, will do sorting
-        unf_aff = aff2uniform(aff)
-        seg, dend, dendValues = aff2segm(unf_aff, d["low"], d["high"], d["thresholds"], d["dustsize"])
+        unfaff = aff2uniform(aff)
+        seg, dend, dendValues = aff2segm(unfaff, d["low"], d["high"], d["thresholds"], d["dustsize"])
     elseif contains(d["remap_type"], "percent")
         # use percentage threshold
         e, count = hist(aff[:], 10000)
@@ -63,7 +63,7 @@ function aff2segm(d::Dict{AbstractString, Any})
         println("mean affinity agglomeration...")
         if contains(d["agg_aff_source"], "uniform")
             # use uniform remapped affinity map
-            dend, dendValues = Process.forward(unf_aff, seg)
+            dend, dendValues = Process.forward(unfaff, seg)
         else
             # use original affinity map
             dend, dendValues = Process.forward(aff, seg)
