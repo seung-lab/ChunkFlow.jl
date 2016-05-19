@@ -1,6 +1,6 @@
-using Gadfly
+#using Gadfly
 using HDF5
-import Escher: Sampler
+#import Escher:  @api, render
 
 """
 the form tile to provide learning curve plotting tile
@@ -37,7 +37,7 @@ function evaluate()
     evs = Escher.sampler()
 
     evform = tile_form_evaluate(evs)
-    return map(evinp) do evdict
+    ret = map(evinp) do evdict
         vbox(
              intent(evs, evform) >>> evinp,
              vskip(2em),
@@ -45,4 +45,5 @@ function evaluate()
              string(evdict)
              ) |> Escher.pad(2em)
     end
+    return ret
 end
