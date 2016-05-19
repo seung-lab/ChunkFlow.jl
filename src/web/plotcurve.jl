@@ -1,9 +1,10 @@
 using Gadfly
 using Distributions
 using HDF5
-import Escher: Sampler
+#import Escher:  @api, render
 
-typealias Tcurve Dict{ASCIIString, Dict{ASCIIString,Vector}}
+# type of learning curve
+typealias Tlc Dict{ASCIIString, Dict{ASCIIString,Vector}}
 
 function get_learning_curve(fname::AbstractString)
     if contains(fname, "s3://")
@@ -14,7 +15,7 @@ function get_learning_curve(fname::AbstractString)
         # rename fname to local file name
         fname = lcfname
     end
-    curve = Tcurve()
+    curve = Tlc()
     if isfile(fname)
         curve["train"] = Dict{ASCIIString, Vector}()
         curve["test"]  = Dict{ASCIIString, Vector}()
@@ -29,7 +30,7 @@ function get_learning_curve(fname::AbstractString)
     return curve
 end
 
-function tile_learning_curve(curve::Tcurve)
+function tile_learning_curve(curve::Tlc)
     if length( keys(curve) ) == 0
         return ""
     else
@@ -61,12 +62,12 @@ end
 the form tile to provide learning curve plotting tile
 """
 function tile_form_network_file!(pcs::Sampler)
-    form = vbox(
+    pcform = vbox(
                 h1("Choose your network file"),
                 watch!(pcs, :fname, textinput("/tmp/net_current.h5", label="network file")),
                 trigger!(pcs, :submit, button("Plot Learning Curve", raised=false))
                 ) |> maxwidth(400px)
-    return form
+    return pcform
 end
 
 """
@@ -81,7 +82,13 @@ ret: learning curve plotting tile
 function plotcurve()
     pcinp = Signal(Dict())
     pcs = Escher.sampler()
-    pcform = tile_form_network_file!(pcs)
+    #pcform = tile_form_network_file!(pcs)
+    pcform = vbox(
+                  h1("Choose your network file"),
+                  watch!(pcs, :fname, textinput("/tmp/net_current.h5", label="network file")),
+                  trigger!(pcs, :submit, button("Plot Learning Curve", raised=false))
+                  ) |> maxwidth(400px)
+
     ret = map(pcinp) do pcdict
         vbox(
              intent(pcs, pcform) >>> pcinp,

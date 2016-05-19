@@ -1,6 +1,6 @@
 using HDF5
 using Watershed
-import Escher: Sampler
+#import Escher:  @api, render
 include("../core/aff2segm.jl")
 
 """
