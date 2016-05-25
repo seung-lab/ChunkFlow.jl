@@ -20,14 +20,15 @@ export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:/usr/local/share/julia/site/v0.4/Agglome
 export JULIA_LOAD_PATH=$JULIA_LOAD_PATH:/usr/local/share/julia/site/v0.4/Agglomerator/src/Visualization
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/boost/lib
 
-
 cd /opt/spipe
-git pull
 git checkout master
 git pull
 
 cd /usr/local/share/julia/site/v0.4/EMIRT
+git checkout master
 git pull
+
+cd /usr/local/share/julia/site/v0.4/Agglomerator
 git checkout master
 git pull
 
@@ -42,20 +43,44 @@ mount /dev/xvdc /data
 julia /opt/spipe/main.jl s3://{}/{}
 #shutdown -h 0
 """.format(bucket, key)
-
+    print key
     # launch a node to handle this task
     ec2 = boto3.client('ec2')
-    ec2.request_spot_instances(
-        DryRun = False,
-        SpotPrice = '2.1',
-        InstanceCount = 1,
-        Type = 'one-time',
-        LaunchSpecification = {
-            'ImageId': 'ami-75698918',
-            'KeyName': 'jpwu_workstation',
-            'InstanceType': 'r3.8xlarge',
-            'UserData': base64.b64encode(myscript),
-            'BlockDeviceMappings':[
+    ami = 'ami-75698918'
+    if "spot" in key:
+        ec2.request_spot_instances(
+            DryRun = False,
+            SpotPrice = '2.7',
+            InstanceCount = 1,
+            Type = 'one-time',
+            LaunchSpecification = {
+                'ImageId': ami,
+                'KeyName': 'jpwu_workstation',
+                'InstanceType': 'r3.8xlarge',
+                'UserData': base64.b64encode(myscript),
+                'BlockDeviceMappings':[
+                    {
+                        'VirtualName': 'ephemeral0',
+                        'DeviceName': '/dev/sdb'
+                    },
+                    {
+                        'VirtualName': 'ephemeral1',
+                        'DeviceName': '/dev/sdc'
+                    }
+                ]
+            }
+        )
+    else:
+        ec2.run_instances(
+            DryRun = False,
+            ImageId = ami,
+            MinCount = 1 ,
+            MaxCount = 1 ,
+            KeyName = 'jpwu_workstation',
+            UserData = myscript,
+            InstanceType = 'r3.8xlarge',
+            InstanceInitiatedShutdownBehavior='terminate',
+            BlockDeviceMappings = [
                 {
                     'VirtualName': 'ephemeral0',
                     'DeviceName': '/dev/sdb'
@@ -65,5 +90,4 @@ julia /opt/spipe/main.jl s3://{}/{}
                     'DeviceName': '/dev/sdc'
                 }
             ]
-        }
-    )
+        )   
