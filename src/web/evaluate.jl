@@ -1,5 +1,5 @@
 #using Gadfly
-using HDF5
+#using HDF5
 #import Escher:  @api, render
 
 """
@@ -8,10 +8,10 @@ the form tile to provide learning curve plotting tile
 function tile_form_evaluate(evs::Sampler)
     return vbox(
                 h2("Choose the segmentation file"),
-                watch!(evs, :fseg, textinput("/tmp/seg.h5", label="segmentation file")),
+                watch!(evs, :input1, textinput("/tmp/seg.h5", label="segmentation file")),
                 vskip(1em),
                 h2("Choose the label file"),
-                watch!(evs, :flbl, textinput("/tmp/lbl.h5", label="label file")),
+                watch!(evs, :input2, textinput("/tmp/lbl.h5", label="label file")),
                 trigger!(evs, :submit, button("Evaluate Segmenation"))
                 ) |> maxwidth(400px)
 end
@@ -41,7 +41,7 @@ function evaluate()
         vbox(
              intent(evs, evform) >>> evinp,
              vskip(2em),
-             evaluate_result(get(evdict, :fseg, ""), get(evdict,:flbl, "")),
+             evaluate_result(get(evdict, :input1, ""), get(evdict,:input2, "")),
              string(evdict)
              ) |> Escher.pad(2em)
     end
