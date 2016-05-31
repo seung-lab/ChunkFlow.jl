@@ -36,19 +36,25 @@ function tile_learning_curve(curve::Tlc)
     else
         return vbox(
                     md"## Learning Curve of Cost",
-                    drawing(8Gadfly.inch, 4Gadfly.inch,
+                    drawing(6Gadfly.inch, 3Gadfly.inch,
                             plot(layer(x=curve["train"]["it"]/1000, y=curve["train"]["err"],
-                                       Geom.line, Theme(default_color=color("blue"))),
+                                       Theme(default_color=colorant"blue"),
+                                       Geom.smooth(method=:loess,smoothing=0.2)),
                                  layer(x=curve["test"]["it"] /1000, y=curve["test"]["err"],
-                                       Geom.line, Theme(default_color=color("red"))),
+                                       Theme(default_color=colorant"red"),
+                                       Geom.smooth(method=:loess,smoothing=0.2)),
                                  Guide.xlabel("Iteration (K)"), Guide.ylabel("Cost"))),
         md"## Learning Curve of Pixel Error",
-        drawing(8Gadfly.inch, 4Gadfly.inch,
+        drawing(6Gadfly.inch, 3Gadfly.inch,
                 plot(layer(x=curve["train"]["it"]/1000, y=curve["train"]["cls"],
-                           Geom.line, Theme(default_color=color("blue"))),
+                           Theme(default_color=colorant"blue"),
+                           Geom.smooth(method=:loess,smoothing=0.2)),
                      layer(x=curve["test"]["it"] /1000, y=curve["test"]["cls"],
-                           Geom.line, Theme(default_color=color("red"))),
-                     Guide.xlabel("Iteration (K)"), Guide.ylabel("Pixel Error"))) #,
+                           Theme(default_color=colorant"red" ),
+                           Geom.smooth(method=:loess,smoothing=0.2)),
+                     Guide.xlabel("Iteration (K)"), Guide.ylabel("Pixel Error")
+                     )
+                )
         ) |> Escher.pad(2em)
     end
 end
@@ -89,8 +95,8 @@ function plotcurve()
         vbox(
              intent(pcs, pcform) >>> pcinp,
              vskip(2em),
-             tile_learning_curve(get(pcdict, :input1, "")),
-             string(pcdict)
+             tile_learning_curve(get(pcdict, :input1, ""))
+             #string(pcdict)
              ) |> Escher.pad(2em)
     end
     return ret
