@@ -1,7 +1,8 @@
+import Images
 #using HDF5
 #using Watershed
 #import Escher:  @api, render
-#include("../core/aff2segm.jl")
+include("../core/aff2segm.jl")
 
 """
 the tile containing input form of all parameters
@@ -22,11 +23,17 @@ function tile_result_seg(faff, fseg)
     if !isfile( faff )
         return "I have not found the affinity file!"
     else
-        # read affinity
-        #aff = readaff(faff)
-        #seg, dend, dendValues = aff2segm(aff, 0.1, 0.8)
-        #save_segm(fseg, seg, dend, dendValues)
-        return "done!"
+        # read affinity and segment
+        aff = readaff(faff)
+        sgm = aff2segm(aff, 0.1, 0.8)
+        savesgm(fseg, sgm)
+
+        # show affinity and segmentation
+        #iaff = Images.Image(aff, colordim=4, spatialorder=["x","y","z"], pixelspacing=[1,1,5])
+        iaff = Images.Image(aff[:,:,1,1], spatialorder=["x","y"])
+        iseg = Images.Image(sgm.seg, spatialorder=["x","y","z"], pixelspacing=[1,1,5])
+        exp = Images.load("/usr/people/jingpeng/Pictures/libraries.png")
+        return exp  #hbox([iaff[:,:,1,1], iseg[:,:,1]])
     end
 end
 
@@ -39,8 +46,8 @@ function segmentation()
         vbox(
              intent(ses, seform) >>> seinp,
              vskip(2em),
-             tile_result_seg( get(sed,:faff, ""), get(sed, :fseg,"/tmp/seg.h5") ),
+             tile_result_seg( get(sed,:input1, ""), get(sed, :input2,"") ),
              string(sed)
-             ) #|> Escher.pad(2em)
+             ) |> Escher.pad(2em)
     end
 end
