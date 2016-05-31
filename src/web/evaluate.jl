@@ -1,31 +1,41 @@
-#using Gadfly
-#using HDF5
-#import Escher:  @api, render
+using Gadfly
+using HDF5
+using EMIRT
+#using Escher
+
+ecs = Tecs()
 
 """
 the form tile to provide learning curve plotting tile
 """
 function tile_form_evaluate(evs::Sampler)
-    return vbox(
-                h2("Choose the segmentation file"),
-                watch!(evs, :input1, textinput("/tmp/seg.h5", label="segmentation file")),
-                vskip(1em),
-                h2("Choose the label file"),
-                watch!(evs, :input2, textinput("/tmp/lbl.h5", label="label file")),
-                trigger!(evs, :submit, button("Evaluate Segmenation"))
-                ) |> maxwidth(400px)
+    vbox(
+         h2("Choose the segmentation file"),
+         watch!(evs, :input1, textinput("/tmp/sgm.h5", label="segmentation file with dendrogram")),
+         vskip(1em),
+         h2("Choose the label file"),
+         watch!(evs, :input2, textinput("/tmp/lbl.h5", label="label file")),
+         trigger!(evs, :submit, button("Evaluate Segmenation"))
+         ) |> maxwidth(400px)
 end
-
-
 
 """
 the tile of evaluate result
 """
-function evaluate_result(fseg::AbstractString, flbl::AbstractString)
-    if isfile(fseg) && isfile(flbl)
-        return "something"
+function evaluate_result(fsgm::AbstractString, flbl::AbstractString)
+    if !isfile(fsgm)
+        return "segmentation file not found!"
+    elseif !issgmfile(fsgm)
+        return "this file do not have strandard segmentation with dendrogram format."
+    elseif !isfile(flbl)
+        return "ground truth label not found!"
     else
-        return "nothing"
+        # read files
+        sgm = readsgm(fsgm)
+        lbl = readseg(flbl)
+        ec = sgm2ec(sgm,lbl)
+        push!(ecs, ec)
+        return plot(ecs)
     end
 end
 
