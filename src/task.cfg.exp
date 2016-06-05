@@ -63,6 +63,8 @@ is_stdio = no
 # output size of each epoch, z,y,x
 outsz = 1, 100, 100
 
+conv_mode = fft
+
 [ws]
 # node switch
 # weather to run watershed or not
