@@ -1,5 +1,5 @@
 using EMIRT
-using Agglomerator
+using Agglomeration
 using Process
 
 export segm2omprj
