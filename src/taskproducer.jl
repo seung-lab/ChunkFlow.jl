@@ -1,6 +1,7 @@
-include("aws.jl")
-include("task.jl")
+include("core/aws.jl")
+include("core/task.jl")
 using EMIRT
+include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
 
 const global env = build_env()
 
