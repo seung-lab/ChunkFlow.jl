@@ -1,7 +1,7 @@
 using EMIRT
 
-include("core/aff2segm.jl")
-include("core/segm2omprj.jl")
+include("core/aff2sgm.jl")
+include("core/sgm2omprj.jl")
 include("core/zforward.jl")
 include("core/aws.jl")
 include("core/task.jl")
@@ -58,10 +58,10 @@ function handletask( pd::Tpd )
     zforward( pd["znn"] )
 
     # watershed and aggromeration
-    aff2segm(pd["ws"])
+    aff2sgm(pd["ws"])
 
     # omnification
-    segm2omprj(pd["omni"])
+    sgm2omprj(pd["omni"])
 
     # move results
     mvoutput(pd["omni"])
