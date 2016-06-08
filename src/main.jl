@@ -1,10 +1,11 @@
 using EMIRT
 
-include("aff2segm.jl")
-include("segm2omprj.jl")
-include("zforward.jl")
-include("aws.jl")
-include("task.jl")
+include("core/aff2sgm.jl")
+include("core/sgm2omprj.jl")
+include("core/zforward.jl")
+include("core/aws.jl")
+include("core/task.jl")
+include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
 
 const global env = build_env()
 const global queuename = "spipe-tasks"
@@ -57,10 +58,10 @@ function handletask( pd::Tpd )
     zforward( pd["znn"] )
 
     # watershed and aggromeration
-    aff2segm(pd["ws"])
+    aff2sgm(pd["ws"])
 
     # omnification
-    segm2omprj(pd["omni"])
+    sgm2omprj(pd["omni"])
 
     # move results
     mvoutput(pd["omni"])

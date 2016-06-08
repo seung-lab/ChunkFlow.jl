@@ -1,0 +1,115 @@
+[gn]
+# general section
+# temporary folder in local node, please do not change this for spipe-service in AWS
+tmpdir = /tmp/
+
+# output folder
+outdir = /tmp/
+#s3://spipe-service/outputs/
+
+# raw image file name,
+# gray image, bit depth should be 8
+# support tif and hdf5 (dataset name is "/main")
+# for aws s3 file, it is only a prefix.
+# the files matching the prefix will be submitted to spipe-task SQS queue.
+fimg = s3://spipe-service/assets/piriform.img.h5
+
+# affinity hdf5 file
+# no need to change this in AWS
+faff = /tmp/aff.h5
+#s3://spipe-service/assets/piriform.aff.h5
+
+# segmentation with dendrogram
+fsgm = /tmp/sgm.h5
+
+# voxel size: x,y,z
+voxel_size = 7,7,40
+
+# volume offset: x,y,z
+# the unit is voxel here rather than physical offset
+# will compute physical offset in sgm2omprj.jl
+# if offset is empty or 0,0,0, will try to get offset from fimg
+# for example, fimg = /tmp/test_1-200_2-300_3-400.h5, offset will be 1,2,3
+offset = 0,0,0
+
+# shutdown maching after pipeline: yes | no
+# if you run it in aws, please always set it as yes
+is_auto_shutdown = no
+
+[znn]
+# node switch
+# whether to run forward pass
+# options: on | off
+node_switch = on
+### znn forward
+
+# directory of znn
+dir = /opt/znn-release
+#/opt/znn-release
+
+# net architecture specifications
+fnet_spec = s3://znn/networks/VD2D3D-MS.znn
+
+# networks
+fnet = s3://znn/experiments/piriform/VD2D3D-MS/net_current.h5
+
+# output type
+out_type = affinity
+
+# standard io, this should match with the setting in znn training config.cfg file
+# default is no
+is_stdio = no
+
+# output size of each epoch, z,y,x
+outsz = 1, 100, 100
+
+conv_mode = fft
+
+[ws]
+# node switch
+# weather to run watershed or not
+# options: on | off
+node_switch = on
+
+# exchange x and z channel or not
+# old version znn output affinity as z,y,x, so we need to exchange x and z channel to  make sure that the affinity is organized as x,y,z
+# new version of znn output affinity as x,y,z, which do not need to exchange xz channel
+# you'd better manually check the affinity map to make sure that this is correctly setted.
+# the boundary of z affinity is always much thicker than x,y affinity map.
+is_exchange_aff_xz = yes
+
+# the following thresholds are percentage or absolute?
+# options: uniform | percent | absolute
+# uniform: remap the affinity to uniform distribution, will sort all the affinity edges
+# percent (recommanded): the percentage of number of voxels
+# absolute: the affinity weight value
+remap_type = uniform
+
+# watershed parameters
+high = 0.80
+low = 0.2
+
+# thresholds example: 256,0.3; 500,0.5
+thresholds = (1000,0.2);
+dustsize = 1000
+
+# agglomeration mode: mean | none
+# will support more mode in the future
+agg_mode = mean
+
+# affinity map source of agglomeration
+# options: original | uniform
+agg_aff_source = original
+
+[omni]
+# weather to do omnification or not
+# options: on | off
+node_switch = on
+
+# the path of omnify executable file
+# if running pipeline in AWS, set it as `/opt/omni`
+ombin = /opt/omni
+
+# file name of omni project
+# if empty here, will use fimg file name
+fomprj =
