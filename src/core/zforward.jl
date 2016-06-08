@@ -78,7 +78,7 @@ function create_config(d)
     is_bd_mirror = yes
     forward_net = $(d["fnet"])
     is_stdio = $(stdio)
-    forward_conv_mode = fft
+    forward_conv_mode = $(d["conv_mode"])
     forward_outsz = $(outsz[1]),$(outsz[2]),$(outsz[3])
     output_prefix = $(tmpdir)/out
     """
