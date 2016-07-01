@@ -4,16 +4,19 @@ using Watershed
 
 export aff2segm
 
-function rt2dend(rt)
+"""
+transform region graph to dendrogram
+"""
+function rg2dend(rg::Vector)
     # get dendrogram
     println("get mst for omnifycation...")
-    N = length(rt)
+    N = length(rg)
 
     dendValues = zeros(Float32, N)
     dend = zeros(UInt32, N,2)
 
     for i in 1:N
-        t = rt[i]
+        t = rg[i]
         dendValues[i] = t[1]
         dend[i,1] = t[2]
         dend[i,2] = t[3]
@@ -24,8 +27,8 @@ end
 """
 transform affinity map to segmentation with mst
 """
-function aff2segm(d::Dict{AbstractString, Any})
-    if !d["is_ws"]
+function aff2sgm(d::Dict{AbstractString, Any})
+    if contains(d["node_switch"], "off")
         return
     end
     # read affinity map
@@ -41,8 +44,8 @@ function aff2segm(d::Dict{AbstractString, Any})
 
     if contains(d["remap_type"], "uniform")
         # remap the affinity to uniform distribution, will do sorting
-        aff = aff2uniform(aff)
-        seg, dend, dendValues = aff2segm(aff, d["low"], d["high"], d["thresholds"], d["dustsize"])
+        unfaff = aff2uniform(aff)
+        sgm = aff2sgm(unfaff, d["low"], d["high"], d["thresholds"], d["dustsize"])
     elseif contains(d["remap_type"], "percent")
         # use percentage threshold
         e, count = hist(aff[:], 10000)
@@ -52,40 +55,39 @@ function aff2segm(d::Dict{AbstractString, Any})
         for tp in d["thresholds"]
             push!(thds, tuple(tp[1], percent2thd(e, count, tp[2])))
         end
-        seg, dend, dendValues = aff2segm(aff, low, high, thds, d["dustsize"])
+        sgm = aff2sgm(aff, low, high, thds, d["dustsize"])
     else
         # use absolute threshold
-        seg, dend, dendValues = aff2segm(aff, d)
+        sgm = aff2sgm(aff, d)
     end
 
     # aggromeration
     if d["agg_mode"]=="mean"
-        dend, dendValues = Process.forward(aff, seg)
+        println("mean affinity agglomeration...")
+        if contains(d["agg_aff_source"], "uniform")
+            # use uniform remapped affinity map
+            dend, dendValues = Process.forward(unfaff, sgm.seg)
+        else
+            # use original affinity map
+            dend, dendValues = Process.forward(aff, sgm.seg)
+        end
+        # create a new sgm, because Tsgm is immutable!
+        @show dend
+        sgm = Tsgm(sgm.seg, dend, dendValues)
     end
     # save seg and mst
-    save_segm(d["fsegm"], seg, dend, dendValues)
+    savesgm(d["fsgm"], sgm)
 end
 
-function aff2segm(aff::Taff, d::Dict{ASCIIString, Any})
-    return aff2segm(aff, d["low"], d["high"], d["thresholds"], d["dustsize"])
+function aff2sgm(aff::Taff, d::Dict{ASCIIString, Any})
+    return aff2sgm(aff, d["low"], d["high"], d["thresholds"], d["dustsize"])
 end
 
-function aff2segm(aff::Taff, low::AbstractFloat, high::AbstractFloat, thresholds=[(1000,0.3)], dustsize=1000)
+function aff2sgm(aff::Taff, low::AbstractFloat=0.2, high::AbstractFloat=0.8, thresholds=[(1000,0.3)], dustsize=1000)
     # watershed
     println("watershed...")
-    seg, rt = watershed(aff, low, high, thresholds, dustsize);
-    dend, dendValues = rt2dend(rt)
-    return seg, dend, dendValues
-end
-
-function save_segm(fsegm, seg, dend, dendValues)
-    # remove existing file
-    if isfile(fsegm)
-        rm(fsegm)
-    end
-    # save segments and mst
-    println("save the segments and the mst...")
-    h5write(fsegm, "/dend", dend)
-    h5write(fsegm, "/dendValues", dendValues)
-    h5write(fsegm, "/main", seg)
+    seg, rg = watershed(aff, low, high, thresholds, dustsize)
+    dend, dendValues = rg2dend(rg)
+    ret = Tsgm( seg, dend, dendValues )
+    return ret
 end

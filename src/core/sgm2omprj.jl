@@ -1,18 +1,18 @@
 using EMIRT
-using Agglomerator
+using Agglomeration
 using Process
 
-export segm2omprj
+export sgm2omprj
 
-function segm2omprj(d::Dict{AbstractString, Any})
-    if !d["is_omni"]
+function sgm2omprj(d::Dict{AbstractString, Any})
+    if contains(d["node_switch"], "off")
         return
     end
     println("start omnification...")
-    segm2omprj(d["ombin"], d["fimg"], d["fsegm"], d["voxel_size"], d["fomprj"])
+    sgm2omprj(d["ombin"], d["fimg"], d["fsgm"], d["voxel_size"], d["offset"], d["fomprj"])
 end
 
-function segm2omprj(ombin, fimg, fsegm, vs=[4,4,40], fomprj="/tmp/tmp.omni")
+function sgm2omprj(ombin, fimg, fsgm, vs=[4,4,40], offset = [0,0,0], fomprj="/tmp/tmp.omni")
     fimgh5 = fimg
     if contains(fimg, ".tif")
         # transform tif image to hdf5
@@ -24,15 +24,18 @@ function segm2omprj(ombin, fimg, fsegm, vs=[4,4,40], fomprj="/tmp/tmp.omni")
         end
         imsave(img, fimgh5)
     end
+    # compute physical offset
+    phyOffset = offset .* vs
+
     # prepare the cmd file for omnification
     # make omnify command file
     cmd = """create:$(fomprj)
     loadHDF5chann:$(fimgh5)
     setChanResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
-    setChanAbsOffset:,1,0,0,0
-    loadHDF5seg:$(fsegm)
+    setChanAbsOffset:,1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
+    loadHDF5seg:$(fsgm)
     setSegResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
-    setSegAbsOffset:1,0,0,0
+    setSegAbsOffset:1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
     mesh
     quit
     """

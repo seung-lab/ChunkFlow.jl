@@ -1,10 +1,12 @@
 using EMIRT
 using HDF5
 
-include("aff2segm.jl")
-include("segm2omprj.jl")
-include("zforward.jl")
-include("aws.jl")
+include("core/aff2sgm.jl")
+include("core/sgm2omprj.jl")
+include("core/zforward.jl")
+include("core/aws.jl")
+include("core/task.jl")
+include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
 
 const global env = build_env()
 const global queuename = "spipe-tasks"
@@ -21,7 +23,7 @@ function main()
             is_auto_shutdown = false
             try
                 # the task information was embedded in a dictionary
-                pd = get_task(env)
+                pd = get_task()
                 # update the status of auto shutdown
                 is_auto_shutdown = pd["gn"]["is_auto_shutdown"]
                 # do this task
@@ -50,20 +52,20 @@ end
 """
 handle a task
 """
-function handletask( pd::Dict{AbstractString, Dict{AbstractString, Any}} )
+function handletask( pd::Tpd )
     println("start doing a task...")
     # znn forward pass to get affinity map
     # file name to save affinity map
     zforward( pd["znn"] )
 
     # watershed and aggromeration
-    aff2segm(pd["ws"])
+    aff2sgm(pd["ws"])
 
     # omnification
-    segm2omprj(pd["omni"])
+    sgm2omprj(pd["omni"])
 
     # move results
-    mvoutput(pd["gn"])
+    mvoutput(pd["omni"])
 end
 
 
