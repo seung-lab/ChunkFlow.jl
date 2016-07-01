@@ -74,22 +74,22 @@ preprocess the parameter dictionary
 """
 function preprocess!(pd::Tpd)
     # make default parameters
-    if pd["omni"]["fomprj"]==""
-        bn = basename(pd["gn"]["fimg"])
+    if pd[:omni][:fomprj]==nothing
+        bn = basename(pd[:gn][:fimg])
         name, ext = splitext(bn)
-        pd["omni"]["fomprj"] = joinpath(pd["gn"]["tmpdir"], "$(name).omni")
+        pd[:omni][:fomprj] = joinpath(pd[:gn][:tmpdir], "$(name).omni")
     end
 
     # default offset from image filename
-    if pd["gn"]["offset"]==""
-        pd["gn"]["offset"] = [0,0,0]
+    if pd[:gn][:offset]==nothing
+        pd[:gn][:offset] = [0,0,0]
     end
-    offset = fname2offset(pd["gn"]["fimg"])
-    if pd["gn"]["offset"]==[0,0,0] && offset!=nothing
-        pd["gn"]["offset"] = offset
+    offset = fname2offset(pd[:gn][:fimg])
+    if pd[:gn][:offset]==[0,0,0] && offset!=nothing
+        pd[:gn][:offset] = offset
     end
 
     # share the general parameters in other sections
-    pd = shareprms!(pd, "gn")
+    pd = shareprms!(pd, :gn)
     return pd
 end
