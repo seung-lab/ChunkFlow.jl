@@ -56,29 +56,29 @@ function create_dataset_spec(tmpdir::AbstractString, inps::Dict)
 end
 
 function create_config(d)
-    tmpdir = d["tmpdir"]
+    tmpdir = d[:tmpdir]
 
     # standard IO or not
-    if d["is_stdio"]
+    if d[:is_stdio]
         stdio = "yes"
     else
         stdio = "no"
     end
-    outsz = d["outsz"]
+    outsz = d[:outsz]
     # configuration string
     conf="""
     [parameters]
-    fnet_spec = $(d["fnet_spec"])
+    fnet_spec = $(d[:fnet_spec])
     cost_fn = auto
     fdata_spec = $(tmpdir)/dataset.spec
     num_threads = 0
     dtype = float32
-    out_type = $(d["out_type"])
+    out_type = $(d[:out_type])
     forward_range = 1
     is_bd_mirror = yes
-    forward_net = $(d["fnet"])
+    forward_net = $(d[:fnet])
     is_stdio = $(stdio)
-    forward_conv_mode = $(d["conv_mode"])
+    forward_conv_mode = $(d[:conv_mode])
     forward_outsz = $(outsz[1]),$(outsz[2]),$(outsz[3])
     output_prefix = $(tmpdir)/out
     """
@@ -88,19 +88,19 @@ function create_config(d)
     close(f)
 end
 
-function zforward( d::Dict{AbstractString, Any} )
-    if contains(d["node_switch"], "off")
+function zforward( d::Dict{Symbol, Any} )
+    if contains(d[:node_switch], "off")
         return
     end
     println("znn forward pass...")
-    if isfile(d["faff"])
+    if isfile(d[:faff])
         println("remove existing affinity file...")
-        rm(d["faff"])
+        rm(d[:faff])
     end
 
-    inps = Dict( "img"=> d["fimg"] )
+    inps = Dict( "img"=> d[:fimg] )
 
-    tmpdir = d["tmpdir"]
+    tmpdir = d[:tmpdir]
     # create dataset specification file
     create_dataset_spec( tmpdir, inps )
     # create forward pass stage 1 configuration file
@@ -108,19 +108,19 @@ function zforward( d::Dict{AbstractString, Any} )
     # current path
     cp = pwd()
     # run recursive forward pass
-    cd("$(d["dir"])/python")
-    run(`python forward.py -c $(tmpdir)/forward.cfg -n $(d["fnet"]) -r 1`)
+    cd("$(d[:dir])/python")
+    run(`python forward.py -c $(tmpdir)/forward.cfg -n $(d[:fnet]) -r 1`)
     cd(cp)
     # move the output affinity to destination
     outfname = joinpath(tmpdir, "out_sample1_output.h5")
-    if contains(d["out_type"], "aff")
+    if contains(d[:out_type], "aff")
         fout = joinpath(tmpdir, "aff.h5")
         ret = Dict( "aff"=>fout )
     else
         fout = joinpath(tmpdir, "bdr.h5")
         ret = Dict( "bdr"=>fout )
     end
-    if outfname != d["faff"]
+    if outfname != d[:faff]
         mv(outfname, fout, remove_destination=true)
     end
     return ret

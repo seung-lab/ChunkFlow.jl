@@ -4,12 +4,12 @@ using Process
 
 export sgm2omprj
 
-function sgm2omprj(d::Dict{AbstractString, Any})
-    if contains(d["node_switch"], "off")
+function sgm2omprj(d::Dict{Symbol, Any})
+    if contains(d[:node_switch], "off")
         return
     end
     println("start omnification...")
-    sgm2omprj(d["ombin"], d["fimg"], d["fsgm"], d["voxel_size"], d["offset"], d["fomprj"])
+    sgm2omprj(d[:ombin], d[:fimg], d[:fsgm], d[:voxel_size], d[:offset], d[:fomprj])
 end
 
 function sgm2omprj(ombin, fimg, fsgm, vs=[4,4,40], offset = [0,0,0], fomprj="/tmp/tmp.omni")
