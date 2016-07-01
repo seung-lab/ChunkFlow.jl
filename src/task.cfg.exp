@@ -40,7 +40,7 @@ is_auto_shutdown = no
 # node switch
 # whether to run forward pass
 # options: on | off
-node_switch = on
+node_switch = off
 ### znn forward
 
 # directory of znn
@@ -63,6 +63,7 @@ is_stdio = no
 # output size of each epoch, z,y,x
 outsz = 1, 100, 100
 
+# convolution mode: fft | direct | optimize
 conv_mode = fft
 
 [ws]
@@ -92,6 +93,12 @@ low = 0.2
 # thresholds example: 256,0.3; 500,0.5
 thresholds = (1000,0.2);
 dustsize = 1000
+
+# throw away the surrounding volume,
+# note that this cropping corrupt dendrogram. it should always comes with agglomeration, which rebuild the dendrogram
+# cropsize: x,y,z
+cropsize = 54,54,4
+
 
 # agglomeration mode: mean | none
 # will support more mode in the future
