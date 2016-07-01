@@ -55,18 +55,17 @@ function handletask( pd::Tpd )
     println("start doing a task...")
     # znn forward pass to get affinity map
     # file name to save affinity map
-    zforward( pd["znn"] )
+    zforward( pd[:znn] )
 
     # watershed and aggromeration
-    aff2sgm(pd["ws"])
+    aff2sgm(pd[:ws])
 
     # omnification
-    sgm2omprj(pd["omni"])
+    sgm2omprj(pd[:omni])
 
     # move results
-    mvoutput(pd["omni"])
+    mvoutput(pd[:omni])
 end
-
 
 # run the main function
 main()
