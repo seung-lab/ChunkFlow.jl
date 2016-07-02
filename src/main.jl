@@ -2,7 +2,7 @@ using EMIRT
 
 include("core/aff2sgm.jl")
 include("core/sgm2omprj.jl")
-include("core/zforward.jl")
+include("core/img2aff.jl")
 include("core/aws.jl")
 include("core/task.jl")
 include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
@@ -55,7 +55,7 @@ function handletask( pd::Tpd )
     println("start doing a task...")
     # znn forward pass to get affinity map
     # file name to save affinity map
-    zforward( pd[:znn] )
+    img2aff( pd[:znn] )
 
     # watershed and aggromeration
     aff2sgm(pd[:ws])
