@@ -1,10 +1,9 @@
 export zforward
 
-# here array could also be a hdf5/tif image file
-typealias Tarrfile Any
-#Union{AbstractString, Array}
-
-function arr2path(tmpdir, inps::Dict, key::AbstractString)
+"""
+get image file name from an array or a filename
+"""
+function arr2path(tmpdir, inps::Dict, key::Symbol)
     # automatic input transformation
     if typeof( inps[key] ) <: Array
         farr = joinpath(tmpdir, "$(key).h5")
@@ -59,11 +58,9 @@ function create_config(d)
     tmpdir = d[:tmpdir]
 
     # standard IO or not
-    if d[:is_stdio]
-        stdio = "yes"
-    else
-        stdio = "no"
-    end
+    is_stdio = d[:is_stdio] ? "yes" : "no"
+    is_bd_mirror = d[:is_bd_mirror] ? "yes" : "no"
+
     outsz = d[:outsz]
     # configuration string
     conf="""
@@ -75,9 +72,9 @@ function create_config(d)
     dtype = float32
     out_type = $(d[:out_type])
     forward_range = 1
-    is_bd_mirror = yes
+    is_bd_mirror = $(is_bd_mirror)
     forward_net = $(d[:fnet])
-    is_stdio = $(stdio)
+    is_stdio = $(is_stdio)
     forward_conv_mode = $(d[:conv_mode])
     forward_outsz = $(outsz[1]),$(outsz[2]),$(outsz[3])
     output_prefix = $(tmpdir)/out
@@ -98,7 +95,7 @@ function zforward( d::Dict{Symbol, Any} )
         rm(d[:faff])
     end
 
-    inps = Dict( "img"=> d[:fimg] )
+    inps = Dict( :img=> d[:fimg] )
 
     tmpdir = d[:tmpdir]
     # create dataset specification file
@@ -113,15 +110,20 @@ function zforward( d::Dict{Symbol, Any} )
     cd(cp)
     # move the output affinity to destination
     outfname = joinpath(tmpdir, "out_sample1_output.h5")
-    if contains(d[:out_type], "aff")
-        fout = joinpath(tmpdir, "aff.h5")
-        ret = Dict( "aff"=>fout )
-    else
-        fout = joinpath(tmpdir, "bdr.h5")
-        ret = Dict( "bdr"=>fout )
-    end
+    fout = joinpath(tmpdir, "aff.h5")
+    ret = Dict( :aff=>fout )
+
+    # crop both image and affinity
+    if !is_bd_mirror
+        cropsize = (d[:fov]-1) / 2
+        img = readimg(d[:fimg])
+        img = crop_border(img, cropsize)
+        rm(d[:fimg])
+        saveimg()
+
     if outfname != d[:faff]
         mv(outfname, fout, remove_destination=true)
     end
+
     return ret
 end
