@@ -8,10 +8,10 @@ const global env = build_env()
 # read task config file
 task = readall(ARGS[1])
 pd = configparser(task)
-@assert iss3( pd["gn"]["fimg"] )
+@assert iss3( pd[:gn][:fimg] )
 
 # get list of files, no folders
-bkt, keylst = s3_list_objects(env, pd["gn"]["fimg"])
+bkt, keylst = s3_list_objects(env, pd[:gn][:fimg])
 @show bkt
 @show keylst
 @assert length(keylst)>0
