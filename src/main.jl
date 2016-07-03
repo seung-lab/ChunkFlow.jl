@@ -24,7 +24,7 @@ function main()
                 # the task information was embedded in a dictionary
                 pd = get_task()
                 # update the status of auto shutdown
-                is_auto_shutdown = pd["gn"]["is_auto_shutdown"]
+                is_auto_shutdown = pd[:gn][:is_auto_shutdown]
                 # do this task
                 handletask(pd)
                 # avoid endless loop for local use
