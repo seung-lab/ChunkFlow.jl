@@ -60,36 +60,3 @@ function fname2offset(fname::AbstractString)
         return nothing
     end
 end
-
-"""
-preprocess the parameter dictionary
-- set default parameters
-- auto correct some parameters
-
-`Inputs`:
-- pd: parameter dict
-
-`Outputs`:
-- updated parameter dict
-"""
-function preprocess!(pd::Tpd)
-    # make default parameters
-    if pd[:omni][:fomprj]==nothing
-        bn = basename(pd[:gn][:fimg])
-        name, ext = splitext(bn)
-        pd[:omni][:fomprj] = joinpath(pd[:gn][:tmpdir], "$(name).omni")
-    end
-
-    # default offset from image filename
-    if pd[:gn][:offset]==nothing
-        pd[:gn][:offset] = [0,0,0]
-    end
-    offset = fname2offset(pd[:gn][:fimg])
-    if pd[:gn][:offset]==[0,0,0] && offset!=nothing
-        pd[:gn][:offset] = offset
-    end
-
-    # share the general parameters in other sections
-    pd = shareprms!(pd, :gn)
-    return pd
-end
