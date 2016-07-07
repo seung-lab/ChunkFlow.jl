@@ -29,18 +29,21 @@ function EdgeWatershed(conf::OrderedDict{UTF8String, Any})
 end
 
 function forward!( c::DictChannel, e::EdgeWatershed )
+    println("-----------start watershed------------")
     chk = fetch(c, e.inputs[1])
     aff = chk.data
+    @show size(aff)
     # check it is an affinity map
     @assert isa(aff, Taff)
 
     # use percentage threshold
-    e, count = hist(aff[:], 100000)
-    low  = percent2thd(e, count, e.params[:low])
-    high = percent2thd(e, count, e.params[:high])
+    @show aff
+    b, count = hist(aff[:], 10000)
+    low  = percent2thd(b, count, e.params[:low])
+    high = percent2thd(b, count, e.params[:high])
     thds = Vector{Tuple}()
     for tp in e.params[:thresholds]
-        push!(thds, tuple(tp[1], percent2thd(e, count, tp[2])))
+        push!(thds, tuple(tp[1], percent2thd(b, count, tp[2])))
     end
     dust = e.params[:dust]
 
@@ -51,4 +54,5 @@ function forward!( c::DictChannel, e::EdgeWatershed )
     chk.data = Tsgm( seg, dend, dendValues )
 
     put!(c, e.outputs[1], chk)
+    println("-----------watershed end--------------")
 end
