@@ -28,7 +28,7 @@ function EdgeAgglomeration(conf::OrderedDict{UTF8String, Any})
     EdgeAgglomeration(kind, params, inputs, outputs)
 end
 
-function forward!( c::DictChannel, e::EdgeWatershed )
+function forward!( c::DictChannel, e::EdgeAgglomeration )
     println("------------start agg-----------------")
     chk_sgm = fetch(c, e.inputs[1])
     chk_aff = fetch(c, e.inputs[2])
