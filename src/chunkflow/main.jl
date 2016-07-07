@@ -1,11 +1,14 @@
 import JSON
 import DataStructures
 
-fconfig = ARGS[1]
+include("network.jl")
 
-conf = readall(fconfig)
-dc = JSON.parse(conf, dicttype=DataStructures.OrderedDict)
+ftask = ARGS[1]
 
-net = Tnet(dc)
+task = readall(ftask)
+dtask = JSON.parse(task, dicttype=DataStructures.OrderedDict)
+
+@show dtask
+net = create_net(dtask)
 
 forward(net)

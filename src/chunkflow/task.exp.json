@@ -2,46 +2,33 @@
     "kind": "readh5",
     "params": {
         "fname": "s3://spipe-service/assets/piriform.209x209x10.img.h5",
-        "dname": "main"
+        "dname": "main",
+        "voxelsize": [5,5,45]
     },
     "outputs": ["img"]
 },
 "znni":{
-    "kind": "inference",
+    "kind": "znni",
     "params":{
-        "outsz": [64, 64, 3]
+        "fznni": "/opt/ZNNi/code/multiscale/znni",
+        "outsz": [8, 8, 1],
+        "fov": [109, 109, 9]
     },
     "inputs": ["img"],
-    "outputs": ["aff"]
-},
-"crop_img":{
-    "kind": "crop",
-    "params": {
-        "cropsize": [54, 54, 4]
-    },
-    "inputs": ["img"],
-    "outputs": ["img"]
-},
-"crop_aff":{
-    "kind": "crop",
-    "params": {
-        "cropsize": [54, 54, 4]
-    },
-    "inputs": ["aff"],
-    "outputs": ["aff"]
+    "outputs": ["img", "aff"]
 },
 "watershed":{
     "kind": "watershed",
     "params": {
         "low": 0.1,
-        "high": 0.7,
+        "high": 0.8,
         "thresholds": [
             {
                 "size": 800,
                 "threshold": 0.2
             }
         ],
-        "dust": 800
+        "dust": 600
     },
     "inputs": ["aff"],
     "outputs": ["sgm"]
@@ -57,9 +44,8 @@
 "omnification":{
     "kind": "omnification",
     "params":{
-        "voxelsize": [5,5,45],
         "ombin": "/opt/omni",
-        "fout": "/tmp/"
+        "fprj": "/tmp/"
     },
     "inputs": ["img", "sgm"],
     "outputs": []
