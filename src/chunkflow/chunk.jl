@@ -6,7 +6,6 @@ type Chunk <: AbstractChunk
     data::Union{Array, Tsgm}                  # could be 3-5 Dimension array
     origin::Vector{Integer}     # measured by voxel number
     voxelsize::Vector{Integer}  # physical size of each voxel
-    Chunk() = new(nothing,  Vector{Integer}(), Vector{Integer}())
 end
 
 function crop_border( chk::Chunk, cropsize::Union{Vector,Tuple} )
