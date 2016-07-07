@@ -32,7 +32,7 @@ function forward!( c::DictChannel, e::EdgeWatershed )
     chk = fetch(c, e.inputs[1])
     aff = chk.data
     # check it is an affinity map
-    @assert isaff(aff)
+    @assert isa(aff, Taff)
 
     # use percentage threshold
     e, count = hist(aff[:], 100000)
