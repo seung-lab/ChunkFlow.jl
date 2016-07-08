@@ -31,12 +31,12 @@ function crop_border( chk::Chunk, cropsize::Union{Vector,Tuple} )
     else
         error("only support 3-5 D, current dataay dimention is $(nd)")
     end
-    chk.origin -= cropsize
+    chk.origin += cropsize
     chk
 end
 
 function physical_offset( chk::Chunk )
-    (chk.origin-1) .* voxelsize
+    (chk.origin-1) .* chk.voxelsize
 end
 
 function save(fname::AbstractString, chk::Chunk)
