@@ -18,6 +18,17 @@ function EdgeWatershed(conf::OrderedDict{UTF8String, Any})
     @assert kind == :watershed
     params = Dict{Symbol, Any}()
     for (k,v) in conf["params"]
+        if k == "thresholds"
+            tmpl = Vector{Dict{Symbol,Any}}()
+            for d in v
+                tmpd = Dict{Symbol,Any}()
+                for (k2,v2) in d
+                    tmpd[Symbol(k2)] = v2
+                end
+                push!(tmpl, tmpd)
+            end
+            v = tmpl
+        end
         params[Symbol(k)] = v
     end
     inputs = [Symbol(conf["inputs"][1])]
@@ -30,29 +41,30 @@ end
 
 function forward!( c::DictChannel, e::EdgeWatershed )
     println("-----------start watershed------------")
-    chk = fetch(c, e.inputs[1])
-    aff = chk.data
+    chk_aff = fetch(c, e.inputs[1])
+    aff = chk_aff.data
     @show size(aff)
     # check it is an affinity map
     @assert isa(aff, Taff)
 
     # use percentage threshold
-    @show aff
     b, count = hist(aff[:], 10000)
     low  = percent2thd(b, count, e.params[:low])
     high = percent2thd(b, count, e.params[:high])
     thds = Vector{Tuple}()
-    for tp in e.params[:thresholds]
-        push!(thds, tuple(tp[1], percent2thd(b, count, tp[2])))
+    for st in e.params[:thresholds]
+        push!(thds, tuple(st[:size], percent2thd(b, count, st[:threshold])))
     end
     dust = e.params[:dust]
 
     # watershed
     println("watershed...")
     seg, rg = watershed(aff, low, high, thds, dust)
-    dend, dendValues = rt2dend(rg)
-    chk.data = Tsgm( seg, dend, dendValues )
+    dend, dendValues = rg2dend(rg)
+    sgm = Tsgm( seg, dend, dendValues )
 
-    put!(c, e.outputs[1], chk)
+    # create chunk and put into channel
+    chk_sgm = Chunk(sgm, chk_aff.origin, chk_aff.voxelsize)
+    put!(c, e.outputs[1], chk_sgm)
     println("-----------watershed end--------------")
 end
