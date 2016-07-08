@@ -17,6 +17,7 @@ function EdgeOmni(conf::OrderedDict{UTF8String, Any})
     for (k,v) in conf["params"]
         params[Symbol(k)] = v
     end
+
     inputs = [Symbol(conf["inputs"][1]), Symbol(conf["inputs"][2])]
     @assert length(conf["inputs"]) == 2
     @assert length(conf["outputs"]) == 0
@@ -29,9 +30,21 @@ function forward!( c::DictChannel, e::EdgeOmni)
     chk_sgm = fetch(c, e.inputs[2])
     img = chk_img.data
     sgm = chk_sgm.data
-    @assert isimg(img)
-    @assert issgm(sgm)
+    @assert isa(img, Timg)
+    @assert isa(sgm, Tsgm)
 
+    # assign auto project name
+    fprj = e.params[:fprj]
+    origin = chk_img.origin
+    volend = origin .+ [size(chk_img.data)...] - 1
+    if isdir(fprj)
+        fprj = joinpath(fprj, "chunk_$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
+    elseif !contains(fprj, ".omni")
+        # assume that it is an prefix
+        fprj = string(fprj, "_$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
+    end
+
+    # prepare input files
     fimg = "/tmp/img.h5"
     fsgm = "/tmp/sgm.h5"
     fcmd = "/tmp/omnify.cmd"
@@ -44,7 +57,7 @@ function forward!( c::DictChannel, e::EdgeOmni)
 
     # prepare the cmd file for omnification
     # make omnify command file
-    cmd = """create:$(e.params[:fprj])
+    cmd = """create:$(fprj)
     loadHDF5chann:$(fimg)
     setChanResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
     setChanAbsOffset:,1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
@@ -60,5 +73,5 @@ function forward!( c::DictChannel, e::EdgeOmni)
     close(f)
 
     # run omnifycation
-    run(`$(e.params[:ombin]) --headless --cmdfile=$(fcmd))`)
+    run(`$(e.params[:ombin]) --headless --cmdfile=$(fcmd)`)
 end

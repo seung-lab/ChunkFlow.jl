@@ -45,7 +45,7 @@
     "kind": "omnification",
     "params":{
         "ombin": "/opt/omni",
-        "fprj": "/tmp/"
+        "fprj": "/tmp/test"
     },
     "inputs": ["img", "sgm"],
     "outputs": []
