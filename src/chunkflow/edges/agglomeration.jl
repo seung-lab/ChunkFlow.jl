@@ -1,4 +1,5 @@
 include("edge.jl")
+using EMIRT
 using Agglomeration
 using Process
 using DataStructures
@@ -34,13 +35,16 @@ function forward!( c::DictChannel, e::EdgeAgglomeration )
     chk_aff = fetch(c, e.inputs[2])
 
     # check it is an affinity map
-    @assert isaff(chk_aff.data)
-    @assert issgm(chk_sgm.data)
+    # and segmentation with mst
+    @assert isa(chk_sgm.data, Tsgm)
+    @assert isa(chk_aff.data, Taff)
 
     # run watershed
-    chk_sgm.data = watershed(chk.data)
     dend, dendValues = Process.forward(chk_aff.data, chk_sgm.data.seg)
+    @show dend
+    @show dendValues
     chk_sgm.data = Tsgm(chk_sgm.data.seg, dend, dendValues)
+    #chk_sgm.data = sgm
 
     # put output to channel
     put!(c, e.outputs[1], chk_sgm)
