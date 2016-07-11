@@ -1,40 +1,20 @@
-include("edge.jl")
-using EMIRT
 
-export EdgeOmni, forward!
 
-type EdgeOmni <: AbstractEdge
-    kind::Symbol
-    params::Dict{Symbol, Any}
-    # the inputs and outputs are all nodes, which are in kvstore
-    inputs::Vector{Symbol}
-end
+export ef_omnification
 
-function EdgeOmni(conf::OrderedDict{UTF8String, Any})
-    kind = Symbol(conf["kind"])
-    @assert kind == :omnification
-    params = Dict{Symbol, Any}()
-    for (k,v) in conf["params"]
-        params[Symbol(k)] = v
-    end
-
-    inputs = [Symbol(conf["inputs"][1]), Symbol(conf["inputs"][2])]
-    @assert length(conf["inputs"]) == 2
-    @assert length(conf["outputs"]) == 0
-
-    EdgeOmni(kind, params, inputs)
-end
-
-function forward!( c::DictChannel, e::EdgeOmni)
-    chk_img = fetch(c, e.inputs[1])
-    chk_sgm = fetch(c, e.inputs[2])
+"""
+edge function of omnification
+"""
+function ef_omnification( c::DictChannel, e::Edge)
+    chk_img = fetch(c, e.inputs[:img])
+    chk_sgm = fetch(c, e.inputs[:sgm])
     img = chk_img.data
     sgm = chk_sgm.data
     @assert isa(img, Timg)
     @assert isa(sgm, Tsgm)
 
     # assign auto project name
-    fprj = e.params[:fprj]
+    fprj = e.outputs[:fprj]
     origin = chk_img.origin
     volend = origin .+ [size(chk_img.data)...] - 1
     if isdir(fprj)
