@@ -8,7 +8,7 @@ type Chunk <: AbstractChunk
     voxelsize::Vector{Integer}  # physical size of each voxel
 end
 
-function crop_border( chk::Chunk, cropsize::Union{Vector,Tuple} )
+function crop_border!( chk::Chunk, cropsize::Union{Vector,Tuple} )
     @assert typeof(chk.data) <: Array
     nd = ndims(chk.data)
     @assert nd >= 3
