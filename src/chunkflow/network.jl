@@ -1,47 +1,20 @@
 include("dictchannel.jl")
-include("edges/readh5.jl")
-include("edges/crop.jl")
-include("edges/watershed.jl")
-include("edges/znni.jl")
-include("edges/agglomeration.jl")
-include("edges/omni.jl")
-include("edges/exchangeaffxz.jl")
+include("edges/edge.jl")
 
 using DataStructures
-export create_et, forward
+export Net, forward
 
-typealias Net Vector{AbstractEdge}
-
+typealias Net Vector{Edge}
 
 """
-inputs:
-ec: edge configuration dict
+construct a net from computation graph config file.
+currently, the net was composed by edges/layers
+all the nodes was stored and managed in a DictChannel.
 """
-function create_edge( ec::OrderedDict{UTF8String, Any} )
-    if ec["kind"] == "readh5"
-        return EdgeReadH5( ec )
-    elseif ec["kind"] == "znni"
-        return EdgeZNNi( ec )
-    elseif ec["kind"] == "watershed"
-        return EdgeWatershed( ec )
-    elseif ec["kind"] == "agglomeration"
-        return EdgeAgglomeration( ec )
-    elseif ec["kind"] == "omnification"
-        return EdgeOmni( ec )
-    elseif ec["kind"] == "crop"
-        return EdgeCrop( ec )
-    elseif ec["kind"] == "exchangeaffxz"
-        return EdgeExchangeAffXZ( ec )
-    else
-        error("unsupported edge kind")
-    end
-end
-
-
-function create_net( dtask::OrderedDict{UTF8String, Any} )
+function Net( dtask::OrderedDict{Symbol, Any} )
     net = Net()
     for (ename, de) in dtask
-        e = create_edge(de)
+        e = Edge(de)
         push!(net, e)
     end
     net
@@ -50,6 +23,6 @@ end
 function forward(net::Net)
     c = DictChannel()
     for e in net
-        forward!(c, e)
+        e.forward(c, e)
     end
 end
