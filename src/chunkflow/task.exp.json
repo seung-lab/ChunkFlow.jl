@@ -1,21 +1,30 @@
 {"input": {
     "kind": "readh5",
-    "params": {
-        "fname": "s3://spipe-service/assets/piriform.209x209x10.img.h5",
+    "params":{
         "dname": "main",
         "voxelsize": [5,5,45]
     },
-    "outputs": ["img"]
+    "inputs": {
+        "fname": "s3://spipe-service/assets/piriform.209x209x10.img.h5"
+    },
+    "outputs": {
+        "img": "img"
+    }
 },
 "znni":{
     "kind": "znni",
     "params":{
-        "fznni": "/opt/ZNNi/code/multiscale/znni",
-        "outsz": [8, 8, 1],
+        "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
+        "outsz": [64, 64, 1],
         "fov": [109, 109, 9]
     },
-    "inputs": ["img"],
-    "outputs": ["img", "aff"]
+    "inputs": {
+        "img": "img"
+    },
+    "outputs": {
+        "img": "img",
+        "aff": "aff"
+    }
 },
 "watershed":{
     "kind": "watershed",
@@ -30,24 +39,37 @@
         ],
         "dust": 600
     },
-    "inputs": ["aff"],
-    "outputs": ["sgm"]
+    "inputs": {
+        "aff": "aff"
+    },
+    "outputs": {
+        "sgm": "sgm"
+    }
 },
 "agglomeration":{
     "kind":"agglomeration",
     "params":{
         "mode": "mean"
     },
-    "inputs": ["sgm", "aff"],
-    "outputs": ["sgm"]
+    "inputs": {
+        "sgm": "sgm",
+        "aff": "aff"
+    },
+    "outputs": {
+        "sgm": "sgm"
+    }
 },
 "omnification":{
     "kind": "omnification",
     "params":{
-        "ombin": "/opt/omni",
-        "fprj": "/tmp/test"
+        "ombin": "/opt/omni"
     },
-    "inputs": ["img", "sgm"],
-    "outputs": []
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "fprj": "/tmp/chunk"
+    }
 }
 }

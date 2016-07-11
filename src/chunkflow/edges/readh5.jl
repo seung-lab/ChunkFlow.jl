@@ -1,35 +1,18 @@
 using HDF5
 
-include("edge.jl")
 include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
 include("../chunk.jl")
 
 using DataStructures
 
-export EdgeReadH5, forward!
+export ef_readh5!
 
-type EdgeReadH5 <: AbstractEdge
-    kind::Symbol
-    params::Dict{Symbol, Any}
-    # the inputs and outputs are all nodes, which are in kvstore
-    outputs::Vector{Symbol}
-end
-
-function EdgeReadH5(conf::OrderedDict{UTF8String, Any})
-    kind = Symbol(conf["kind"])
-    @assert kind == :readh5
-    params = Dict{Symbol, Any}()
-    for (k,v) in conf["params"]
-        params[Symbol(k)] = v
-    end
-    outputs = [Symbol(conf["outputs"][1])]
-    @assert length(conf["outputs"]) == 1
-
-    EdgeReadH5(kind, params, outputs)
-end
-
-function forward!( c::DictChannel, e::EdgeReadH5 )
-    fname = e.params[:fname]
+"""
+edge function of readh5
+"""
+function ef_readh5!( c::DictChannel, e::Edge )
+    @assert e.kind == :readh5
+    fname = e.inputs[:fname]
     if iss3(fname)
         # download from s3
         env = build_env()
@@ -48,5 +31,5 @@ function forward!( c::DictChannel, e::EdgeReadH5 )
     voxelsize = e.params[:voxelsize]
     chk = Chunk(arr, origin, voxelsize)
     # put chunk to channel for use
-    put!(c, e.outputs[1], chk)
+    put!(c, e.outputs[:img], chk)
 end
