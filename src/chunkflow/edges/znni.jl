@@ -7,9 +7,12 @@ export ef_znni!
 """
 edge function of znni
 """
-function ef_znni!( c::DictChannel, e::Edge)
+function ef_znni!( c::DictChannel,
+                params::OrderedDict{Symbol, Any},
+                inputs::OrderedDict{Symbol, Any},
+                outputs::OrderedDict{Symbol, Any})
     println("-----------start znni------------")
-    chk_img = fetch(c, e.inputs[:img])
+    chk_img = fetch(c, inputs[:img])
     img = chk_img.data
     @assert isa(img, Timg)
 
@@ -26,8 +29,8 @@ function ef_znni!( c::DictChannel, e::Edge)
 
     # run znni inference
     currentdir = pwd()
-    fznni = e.params[:fznni]
-    outsz = e.params[:outsz]
+    fznni = params[:fznni]
+    outsz = params[:outsz]
     cd(dirname(fznni))
     run(`$(fznni) $(fimg) $(faff) main $(outsz[3]) $(outsz[2]) $(outsz[1])`)
     cd(currentdir)
@@ -36,11 +39,11 @@ function ef_znni!( c::DictChannel, e::Edge)
     aff = readaff(faff)
     chk_aff = Chunk(aff, chk_img.origin, chk_img.voxelsize)
     # crop img and aff
-    cropsize = (e.params[:fov]-1)./2
+    cropsize = (params[:fov]-1)./2
     chk_img = crop_border!(chk_img, cropsize)
     chk_aff = crop_border!(chk_aff, cropsize)
 
-    put!(c, e.outputs[:img], chk_img)
-    put!(c, e.outputs[:aff], chk_aff)
+    put!(c, outputs[:img], chk_img)
+    put!(c, outputs[:aff], chk_aff)
     println("-------znni end-------")
 end

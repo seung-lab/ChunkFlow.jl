@@ -10,16 +10,18 @@ export ef_readh5!
 """
 edge function of readh5
 """
-function ef_readh5!( c::DictChannel, e::Edge )
-    @assert e.kind == :readh5
-    fname = e.inputs[:fname]
+function ef_readh5!(c::DictChannel,
+                    params::OrderedDict{Symbol, Any},
+                    inputs::OrderedDict{Symbol, Any},
+                    outputs::OrderedDict{Symbol, Any} )
+    fname = inputs[:fname]
     if iss3(fname)
         # download from s3
         env = build_env()
         fname = download(env, fname, "/tmp/")
     end
     @show fname
-    arr = h5read(fname, e.params[:dname])
+    arr = h5read(fname, params[:dname])
     origin = ones(UInt32, 3)
     f = h5open(fname)
     if has(f,"x_slice")
@@ -28,8 +30,8 @@ function ef_readh5!( c::DictChannel, e::Edge )
         origin[3] = h5read(fname, "z_slice")[1]
     end
     close(f)
-    voxelsize = e.params[:voxelsize]
+    voxelsize = params[:voxelsize]
     chk = Chunk(arr, origin, voxelsize)
     # put chunk to channel for use
-    put!(c, e.outputs[:img], chk)
+    put!(c, outputs[:img], chk)
 end

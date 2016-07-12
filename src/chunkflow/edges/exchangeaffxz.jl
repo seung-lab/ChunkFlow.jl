@@ -10,11 +10,14 @@ The old version of znn output affinity channels as z,y,x,
 while the inference needs x,y,z in watershed and agglomeration.
 ZNN output x,y,z affinity map when setting up the "is_stdio = yes"
 """
-function ef_exchangeaffxz!( c::DictChannel, e::Edge)
+function ef_exchangeaffxz!( c::DictChannel,
+                    params::OrderedDict{Symbol, Any},
+                    inputs::OrderedDict{Symbol, Any},
+                    outputs::OrderedDict{Symbol, Any})
     println("------------start exchange xz of affinity map ------------")
-    chk = fetch(c, e.inputs[:aff])
+    chk = fetch(c, inputs[:aff])
     @assert isaff(chk.data)
     chk.data = exchangeaffxz!(chk.data)
-    put!(c, e.outputs[:aff], chk)
+    put!(c, outputs[:aff], chk)
     println("-----------exchange aff xz end---------------------")
 end
