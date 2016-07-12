@@ -1,13 +1,16 @@
 using EMIRT
 using DataStructures
 
-function ef_crop!( c::DictChannel, e::Edge)
+function ef_crop!( c::DictChannel,
+                params::OrderedDict{Symbol, Any},
+                inputs::OrderedDict{Symbol, Any},
+                outputs::OrderedDict{Symbol, Any})
     println("-------start crop--------------")
-    for (k,v) in e.inputs
-        @assert haskey(e.outputs, k)
+    for (k,v) in inputs
+        @assert haskey(outputs, k)
         chk = fetch(c, v)
-        chk = crop_border!(chk, e.params[:cropsize])
-        put!(c, e.outputs[k], chk)
+        chk = crop_border!(chk, params[:cropsize])
+        put!(c, outputs[k], chk)
     end
     println("-------crop end----------------")
 end
