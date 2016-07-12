@@ -8,7 +8,7 @@
         "fname": "s3://spipe-service/assets/piriform.209x209x10.img.h5"
     },
     "outputs": {
-        "img": "img"
+        "data": "img"
     }
 },
 "znni":{
