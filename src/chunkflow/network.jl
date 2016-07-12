@@ -23,6 +23,6 @@ end
 function forward(net::Net)
     c = DictChannel()
     for e in net
-        e.forward(c, e)
+        forward!(c, e)
     end
 end
