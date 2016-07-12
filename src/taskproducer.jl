@@ -1,40 +1,34 @@
-include("core/aws.jl")
-include("core/task.jl")
 using EMIRT
-include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
 
-const global env = build_env()
+include("aws/task.jl")
+
+const env = build_env()
+const sqsname = "spipe-tasks"
 
 # read task config file
-task = readall(ARGS[1])
-pd = configparser(task)
-@assert iss3( pd[:gn][:fimg] )
-
+@assert length(ARGS)==1
+task = get_task()
+@show task
 # get list of files, no folders
-bkt, keylst = s3_list_objects(env, pd[:gn][:fimg])
-@show bkt
-@show keylst
+@show task[:input][:inputs][:fname]
+bkt, keylst = s3_list_objects(task[:input][:inputs][:fname])
 @assert length(keylst)>0
 
-if length(keylst)==1
+if length(keylst)==0
+    error("no such file in AWS S3!")
+elseif length(keylst)==1
     # directly send the task to SQS queue
-    sendSQSmessage(env, "spipe-tasks", task)
+    sendSQSmessage(env, sqsname, task)
 else
-    lines = split(task, "\n")
     for key in keylst
-        # a new task
-        newtask = ""
-        # make a new task with this specific file name
-        for i in 1:length(lines)
-            line = lines[i]
-            line = replace(line, " ", "")
-            if ismatch(r"^fimg", line)
-                line = string("fimg=s3://", joinpath(bkt, key))
-            end
-            # add the line to new task
-            newtask = string(newtask, line, "\n")
-        end
+        task[:input][:inputs][:fname] = joinpath("s3://", bkt, key)
+        # convert to string
+        ftmp = tempname()
+        f = open(ftmp, "w")
+        JSON.print(f, task)
+        close(f)
+        str_task = readall(ftmp)
         # send the task to SQS queue
-        sendSQSmessage(env, "spipe-tasks", newtask)
+        sendSQSmessage(env, sqsname, str_task)
     end
 end
