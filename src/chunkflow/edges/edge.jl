@@ -27,22 +27,26 @@ function Edge( ec::OrderedDict{Symbol, Any} )
     outputs = ec[:outputs]
 
     # function
-    if ec[:kind] == "readh5"
+    if kind == :readh5
         forward = ef_readh5!
-    elseif ec[:kind] == "znni"
+    elseif kind == :znni
         forward = ef_znni!
-    elseif ec[:kind] == "watershed"
+    elseif kind == :watershed
         forward = ef_watershed!
-    elseif ec[:kind] == "agglomeration"
+    elseif kind == :agglomeration
         forward = ef_agglomeration!
-    elseif ec[:kind] == "omnification"
+    elseif kind == :omnification
         forward = ef_omnification
-    elseif ec[:kind] == "crop"
+    elseif kind == :crop
         forward = ef_crop!
-    elseif ec[:kind] == "exchangeaffxz"
+    elseif kind == :exchangeaffxz
         forward = ef_exchangeaffxz!
     else
         error("unsupported edge kind")
     end
     Edge(kind, forward, params, inputs, outputs)
+end
+
+function forward!(c::DictChannel, e::Edge)
+    e.forward(c, e.params, e.inputs, e.outputs)
 end
