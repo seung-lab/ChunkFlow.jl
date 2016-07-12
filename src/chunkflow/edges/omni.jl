@@ -5,16 +5,19 @@ export ef_omnification
 """
 edge function of omnification
 """
-function ef_omnification( c::DictChannel, e::Edge)
-    chk_img = fetch(c, e.inputs[:img])
-    chk_sgm = fetch(c, e.inputs[:sgm])
+function ef_omnification( c::DictChannel,
+                params::OrderedDict{Symbol, Any},
+                inputs::OrderedDict{Symbol, Any},
+                outputs::OrderedDict{Symbol, Any})
+    chk_img = fetch(c, inputs[:img])
+    chk_sgm = fetch(c, inputs[:sgm])
     img = chk_img.data
     sgm = chk_sgm.data
     @assert isa(img, Timg)
     @assert isa(sgm, Tsgm)
 
     # assign auto project name
-    fprj = e.outputs[:fprj]
+    fprj = outputs[:fprj]
     origin = chk_img.origin
     volend = origin .+ [size(chk_img.data)...] - 1
     if isdir(fprj)
@@ -53,5 +56,5 @@ function ef_omnification( c::DictChannel, e::Edge)
     close(f)
 
     # run omnifycation
-    run(`$(e.params[:ombin]) --headless --cmdfile=$(fcmd)`)
+    run(`$(params[:ombin]) --headless --cmdfile=$(fcmd)`)
 end
