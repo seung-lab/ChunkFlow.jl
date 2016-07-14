@@ -14,10 +14,8 @@ function ef_exchangeaffxz!( c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any})
-    println("------------start exchange xz of affinity map ------------")
     chk = fetch(c, inputs[:aff])
     @assert isaff(chk.data)
     chk.data = exchangeaffxz!(chk.data)
     put!(c, outputs[:aff], chk)
-    println("-----------exchange aff xz end---------------------")
 end

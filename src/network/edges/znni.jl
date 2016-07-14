@@ -11,7 +11,6 @@ function ef_znni!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})
-    println("-----------start znni------------")
     chk_img = fetch(c, inputs[:img])
     img = chk_img.data
     @assert isa(img, Timg)
@@ -45,5 +44,4 @@ function ef_znni!( c::DictChannel,
 
     put!(c, outputs[:img], chk_img)
     put!(c, outputs[:aff], chk_aff)
-    println("-------znni end-------")
 end
