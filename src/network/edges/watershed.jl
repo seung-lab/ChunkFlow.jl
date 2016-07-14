@@ -10,7 +10,6 @@ function ef_watershed!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})
-    println("-----------start watershed------------")
     chk_aff = fetch(c, inputs[:aff])
     aff = chk_aff.data
     @show size(aff)
@@ -39,5 +38,4 @@ function ef_watershed!( c::DictChannel,
     # create chunk and put into channel
     chk_sgm = Chunk(sgm, chk_aff.origin, chk_aff.voxelsize)
     put!(c, outputs[:sgm], chk_sgm)
-    println("-----------watershed end--------------")
 end
