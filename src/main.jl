@@ -1,9 +1,24 @@
 include("aws/task.jl")
 include("network/network.jl")
 
-task = get_task()
+using Logging
+@Logging.configure(level=INFO)
+Logging.configure(filename="logfile.log")
 
-@show task
 
-net = Net(task)
-forward(net)
+
+while true
+    task = get_task()
+
+    @show task
+
+    net = Net(task)
+    forward(net)
+
+    if length(ARGS)>0
+        # only one specific task
+        break 
+    end
+    sleep(5)
+
+end
