@@ -21,8 +21,17 @@ function Net( dtask::OrderedDict{Symbol, Any} )
 end
 
 function forward(net::Net)
+    info("------------start pipeline------------")
+    info("pipeline input: $(values(net)[1])")
     c = DictChannel()
     for e in net
+        kind = string(e.kind)
+        info("--------start $(kind)-----------")
+        start = time()
         forward!(c, e)
+        elapsed = time() - start
+        info("-------------$(kind) end -------")
+        info("time cost for $(kind): $(elapsed/60) min")
     end
+    info("-----------end pipeline----------------")
 end
