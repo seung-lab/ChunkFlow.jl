@@ -28,11 +28,20 @@ function ef_omnification( c::DictChannel,
     end
 
     # prepare input files
+    # note that omni do not support compression and chunked hdf5
     fimg = "/tmp/img.h5"
     fsgm = "/tmp/sgm.h5"
     fcmd = "/tmp/omnify.cmd"
-    saveimg(fimg, img, "main")
-    savesgm(fsgm, sgm)
+    if isfile(fimg)
+        rm(fimg)
+    end
+    h5write(fimg, "main", img)
+    if isfile(fsgm)
+        rm(fsgm)
+    end
+    h5write(fsgm, "main", sgm.seg)
+    h5write(fsgm, "dend", sgm.dend)
+    h5write(fsgm, "dendValues", sgm.dendValues)
     # compute physical offset
     phyOffset = physical_offset(chk_img)
     # voxel size
