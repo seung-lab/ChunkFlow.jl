@@ -2,10 +2,12 @@ using EMIRT
 
 abstract AbstractChunk
 
+#include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
+
 type Chunk <: AbstractChunk
     data::Union{Array, Tsgm}                  # could be 3-5 Dimension dataay
-    origin::Vector{Integer}     # measured by voxel number
-    voxelsize::Vector{Integer}  # physical size of each voxel
+    origin::Vector     # measured by voxel number
+    voxelsize::Vector  # physical size of each voxel
 end
 
 function crop_border!( chk::Chunk, cropsize::Union{Vector,Tuple} )
@@ -36,20 +38,27 @@ function crop_border!( chk::Chunk, cropsize::Union{Vector,Tuple} )
 end
 
 function physical_offset( chk::Chunk )
-    (chk.origin-1) .* chk.voxelsize
+    Vector{UInt32}((chk.origin-1) .* chk.voxelsize)
 end
 
 function save(fname::AbstractString, chk::Chunk)
-    h5write(fname, "type", "chunk")
+    if isfile(fname)
+        rm(fname)
+    end
+    f = h5open(fname, "w")
+    f["type"] = "chunk"
     if isa(chk.data, Array)
-        h5write(fname, "data", chk.data)
+        f["data"] = chk.data
     elseif isa(chk.data, Tsgm)
-        savesgm(fname, chk.data)
+        f["seg"] = chk.data.seg
+        f["dend"] = chk.data.dend
+        f["dendValues"] = chk.data.dendValues
     else
         error("not a standard chunk data structure")
     end
-    h5write(fname, "origin", chk.origin)
-    h5write(fname, "voxelsize", chk.voxelsize)
+    f["origin"] = chk.origin
+    f["voxelsize"] = chk.voxelsize
+    close(f)
 end
 
 function readchk(fname::AbstractString)

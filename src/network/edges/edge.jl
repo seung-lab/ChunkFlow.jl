@@ -9,6 +9,9 @@ type Edge <: AbstractEdge
     inputs::OrderedDict{Symbol, Any}
     outputs::OrderedDict{Symbol, Any}
 end
+
+include("readchk.jl")
+include("savechk.jl")
 include("readh5.jl")
 include("crop.jl")
 include("watershed.jl")
@@ -16,19 +19,27 @@ include("znni.jl")
 include("agglomeration.jl")
 include("omni.jl")
 include("exchangeaffxz.jl")
+
 """
 inputs:
 ec: edge configuration dict
 """
 function Edge( ec::OrderedDict{Symbol, Any} )
     kind = Symbol(ec[:kind])
+    if kind==:bigarray || kind==:chunks
+        return nothing
+    end
     params = ec[:params]
     inputs = ec[:inputs]
     outputs = ec[:outputs]
 
     # function
-    if kind == :readh5
+    if kind == :readchk
+        forward = ef_readchk!
+    elseif kind == :readh5
         forward = ef_readh5!
+    elseif kind == :savechk
+        forward = ef_savechk
     elseif kind == :znni
         forward = ef_znni!
     elseif kind == :watershed
@@ -42,7 +53,7 @@ function Edge( ec::OrderedDict{Symbol, Any} )
     elseif kind == :exchangeaffxz
         forward = ef_exchangeaffxz!
     else
-        error("unsupported edge kind")
+        error("this kind of edge will not used for forward pass: $(ec[:kind])")
     end
     Edge(kind, forward, params, inputs, outputs)
 end
