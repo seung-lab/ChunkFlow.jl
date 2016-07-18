@@ -1,39 +1,11 @@
-{"bigarray":{
-    "kind": "alignedbigarray",
+{"input": {
+    "kind": "readh5",
     "params":{
+        "dname": "main",
+        "voxelsize": [5,5,45]
     },
     "inputs": {
-        "fdataset": "/usr/people/jingpeng/seungmount/research/Julimaps/datasets/piriform",
-        "faligned": "4_aligned",
-        "fregister": "registry_aligned.txt"
-    },
-    "outputs":{
-        "data": "bigarray"
-    }
-},
-"chunks":{
-    "kind": "chunks",
-    "params": {
-        "origin": [10000,10000,10],
-        "chksz": [1132, 1132, 136],
-        "overlap":[236, 236, 24],
-        "gridsz": [2,2,1],
-        "voxelsize": [7,7,40]
-    },
-    "inputs": {
-        "bigarray": "bigarray"
-    },
-    "outputs":{
-        "fchkpre": "s3://pcortex/chunks/chunk_",
-        "queuename":"spipe-tasks"
-    }
-},
-"input": {
-    "kind": "readchk",
-    "params":{
-    },
-    "inputs": {
-        "fname": "s3://pcortex/chunks/chunk_"
+        "fname": "s3://zfish/dodam_aligned_stacks/2x2x2_2/zebrafish_24501-25632_8001-9132_1-136.h5"
     },
     "outputs": {
         "data": "img"

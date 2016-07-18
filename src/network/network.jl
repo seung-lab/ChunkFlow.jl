@@ -11,18 +11,24 @@ construct a net from computation graph config file.
 currently, the net was composed by edges/layers
 all the nodes was stored and managed in a DictChannel.
 """
-function Net( dtask::OrderedDict{Symbol, Any} )
+function Net( task::OrderedDict{Symbol, Any} )
     net = Net()
-    for (ename, de) in dtask
+
+    # remove popchunk configuration
+    delete!(task, :bigarray)
+    delete!(task, :chunks)
+
+    for (ename, de) in task
         e = Edge(de)
-        push!(net, e)
+        if e!=nothing
+            push!(net, e)
+        end
     end
     net
 end
 
 function forward(net::Net)
     info("------------start pipeline------------")
-    info("pipeline input: $(values(net)[1])")
     c = DictChannel()
     for e in net
         kind = string(e.kind)
