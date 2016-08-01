@@ -2,7 +2,7 @@ using EMIRT
 
 abstract AbstractChunk
 
-#include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
+#include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
 
 type Chunk <: AbstractChunk
     data::Union{Array, Tsgm}                  # could be 3-5 Dimension dataay
@@ -48,7 +48,7 @@ function save(fname::AbstractString, chk::Chunk)
     f = h5open(fname, "w")
     f["type"] = "chunk"
     if isa(chk.data, Array)
-        f["data"] = chk.data
+        f["main"] = chk.data
     elseif isa(chk.data, Tsgm)
         f["seg"] = chk.data.seg
         f["dend"] = chk.data.dend
@@ -63,14 +63,15 @@ end
 
 function readchk(fname::AbstractString)
     f = h5open(fname)
-    if has(f, "data")
-        data = h5read(fname, "data")
+    if has(f, "main")
+        data = read(f["main"])
     elseif has(f, "seg")
         data = readsgm(fname)
     else
         error("not a standard chunk file")
     end
-    origin = h5read(fname, "origin")
-    voxelsize = h5read(fname, "voxelsize")
-    Chunk(data, origin, voxelsize)
+    origin = read(f["origin"])
+    voxelsize = read(f["voxelsize"])
+    close(f)
+    return Chunk(data, origin, voxelsize)
 end
