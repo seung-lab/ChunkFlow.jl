@@ -1,6 +1,6 @@
 import Escher:  Sampler
 
-include(joinpath(Pkg.dir(),"EMIRT/src/plugins/emshow.jl"))
+include(joinpath(Pkg.dir(),"EMIRT/plugins/emshow.jl"))
 include("plotcurve.jl")
 include("segmentation.jl")
 include("evaluate.jl")

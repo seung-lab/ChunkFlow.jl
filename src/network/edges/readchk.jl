@@ -1,6 +1,6 @@
 using HDF5
 
-include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
+include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
 include("../../chunk/chunk.jl")
 
 using DataStructures
