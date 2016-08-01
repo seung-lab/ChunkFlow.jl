@@ -50,15 +50,19 @@ function ef_readh5!(c::DictChannel,
     @show fname
     arr = h5read(fname, params[:dname])
     origin = ones(UInt32, 3)
-    f = h5open(fname)
-    if has(f,"x_slice")
+
+    if haskey(params, :origin) && params[:origin]!=[]
+        origin = params[:origin]
+    elseif has(f,"x_slice")
+        f = h5open(fname)
         origin[1] = h5read(fname, "x_slice")[1]
         origin[2] = h5read(fname, "y_slice")[1]
         origin[3] = h5read(fname, "z_slice")[1]
+        close(f)
     else
         origin = fname2offset(fname)
     end
-    close(f)
+
     voxelsize = params[:voxelsize]
     chk = Chunk(arr, origin, voxelsize)
     # put chunk to channel for use
