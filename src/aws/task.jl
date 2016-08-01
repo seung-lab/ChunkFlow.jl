@@ -3,7 +3,7 @@ using DataStructures
 
 typealias Ttask OrderedDict{Symbol, Any}
 
-include(joinpath(Pkg.dir(), "EMIRT/src/plugins/aws.jl"))
+include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
 
 global const sqsname = "spipe-tasks"
 global const env = build_env()
