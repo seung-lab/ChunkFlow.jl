@@ -1,11 +1,12 @@
 {"input": {
     "kind": "readh5",
     "params":{
-        "dname": "main",
-        "voxelsize": [5,5,45]
+        "origin": [],
+        "voxelsize": [4,4,40],
+        "dname": "img"
     },
     "inputs": {
-        "fname": "s3://zfish/dodam_aligned_stacks/2x2x2_2/zebrafish_24501-25632_8001-9132_1-136.h5"
+        "fname": "s3://zfish/dodam_aligned_stacks/2x2x2_3/zebrafish_aligned_"
     },
     "outputs": {
         "data": "img"
@@ -26,11 +27,21 @@
         "aff": "aff"
     }
 },
+"saveaff":{
+    "kind": "savechk",
+    "params":{},
+    "inputs":{
+        "chunk": "aff"
+    },
+    "outputs": {
+        "prefix": "/usr/people/jingpeng/seungmount/research/Jingpeng/14_zfish/2x2x2_3/chunk_"
+    }
+},
 "watershed":{
     "kind": "watershed",
     "params": {
         "low": 0.1,
-        "high": 0.8,
+        "high": 0.85,
         "thresholds": [
             {
                 "size": 800,
@@ -59,6 +70,16 @@
         "sgm": "sgm"
     }
 },
+"savesgm":{
+    "kind": "savechk",
+    "params": {},
+    "inputs": {
+        "chunk": "sgm"
+    },
+    "outputs": {
+        "prefix": "/usr/people/jingpeng/seungmount/research/Jingpeng/14_zfish/2x2x2_3/chunk_"
+    }
+},
 "omnification":{
     "kind": "omnification",
     "params":{
@@ -69,7 +90,17 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "fprj": "/tmp/chunk"
+        "fprj": "/tmp/chunk_"
+    }
+},
+"moveomniprj":{
+    "kind": "movedata",
+    "params": {},
+    "inputs": {
+        "prefix": "/tmp/chunk_"
+    },
+    "outputs": {
+        "dir": "/usr/people/jingpeng/seungmount/research/Jingpeng/14_zfish/2x2x2_3/"
     }
 }
 }

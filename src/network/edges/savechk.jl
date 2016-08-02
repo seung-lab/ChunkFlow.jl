@@ -16,7 +16,10 @@ function ef_savechk(c::DictChannel,
                     outputs::OrderedDict{Symbol, Any} )
     # get chunk
     chk = fetch(c, inputs[:chunk])
-    fname = outputs[:fname]
+    origin = chk.origin
+    voxelsize = chk
+    prefix = outputs[:prefix]
+    fname = "$(prefix)$(chk.origin[1])_$(chk.origin[2])_$(chk.origin[3]).$(inputs[:chunk]).h5"
     if iss3(fname)
         ftmp = tempname() * ".h5"
         save(ftmp, chk)

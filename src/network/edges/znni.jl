@@ -38,7 +38,8 @@ function ef_znni!( c::DictChannel,
     aff = readaff(faff)
     chk_aff = Chunk(aff, chk_img.origin, chk_img.voxelsize)
     # crop img and aff
-    cropsize = (params[:fov]-1)./2
+    # compute cropsize using integer division
+    cropsize = div(params[:fov]-1, 2)
     chk_img = crop_border!(chk_img, cropsize)
     chk_aff = crop_border!(chk_aff, cropsize)
 
