@@ -12,8 +12,8 @@ function ef_movedata(c::DictChannel,
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )
     # get chunk
-    fin = inputs[:prefix]
-    fot = outputs[:dir]
+    fin = replace(inputs[:prefix], "~", homedir())
+    fot = replace(outputs[:dir], "~", homedir())
     for fbase in readdir(dirname(fin))
         if contains(fbase, basename(fin))
             fout = joinpath(fot, fbase)
