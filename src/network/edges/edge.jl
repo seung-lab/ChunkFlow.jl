@@ -1,6 +1,8 @@
 export AbstractEdge
 abstract AbstractEdge
 
+using DataStructures
+
 type Edge <: AbstractEdge
     kind::Symbol
     forward::Function
@@ -19,6 +21,7 @@ include("znni.jl")
 include("agglomeration.jl")
 include("omni.jl")
 include("exchangeaffxz.jl")
+include("movedata.jl")
 
 """
 inputs:
@@ -52,6 +55,8 @@ function Edge( ec::OrderedDict{Symbol, Any} )
         forward = ef_crop!
     elseif kind == :exchangeaffxz
         forward = ef_exchangeaffxz!
+    elseif kind == :movedata
+        forward = ef_movedata
     else
         error("this kind of edge will not used for forward pass: $(ec[:kind])")
     end

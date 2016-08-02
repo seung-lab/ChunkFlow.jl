@@ -24,7 +24,7 @@ function ef_omnification( c::DictChannel,
         fprj = joinpath(fprj, "chunk_$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
     elseif !contains(fprj, ".omni")
         # assume that it is an prefix
-        fprj = string(fprj, "_$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
+        fprj = string(fprj, "$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
     end
 
     # prepare input files
