@@ -38,32 +38,50 @@ end
 get task from AWS Simple queue
 """
 function get_task()
-    # parse the config file
-    if length(ARGS)==0
-        task = get_sqs_task()
+    get_sqs_task()
+end
+
+function get_task(ftask::AbstractString)
+    if iss3( ftask )
+        task = get_s3_task( ftask )
+    elseif isfile( ftask )
+        task = get_local_task( ftask )
     else
-        if length(ARGS)>1
-            warn("too many input arguments, use the first one only!")
-        end
-        if iss3( ARGS[1] )
-            task = get_s3_task(ARGS[1])
-        elseif isfile(ARGS[1])
-            task = get_local_task(ARGS[1])
-        else
-            error("input should be a s3 or local task configuration file in JSON format!")
-        end
+        error("input should be a s3 or local task configuration file in JSON format!")
     end
-    return task
 end
 
 """
-transfer dict task to string
+produce tasks to AWS SQS
 """
-function task2str(task::Ttask)
-    # convert to string
-    ftmp = tempname()
-    f = open(ftmp, "w")
-    JSON.print(f, task)
-    close(f)
-    str_task = readall(ftmp)
+function produce_tasks_s3img(task::Ttask)
+    # get list of files, no folders
+    @show task[:input][:inputs][:fname]
+    bkt, keylst = s3_list_objects(task[:input][:inputs][:fname])
+    @assert length(keylst)>0
+    for key in keylst
+        task[:input][:inputs][:fname] = joinpath("s3://", bkt, key)
+        # send the task to SQS queue
+        sendSQSmessage(env, sqsname, JSON.json(task))
+    end
+end
+
+
+function produce_tasks_local(task::Ttask)
+    @show task[:input][:inputs][:fname]
+    # directory name and prefix
+    dn, prefix = splitdir(task[:input][:inputs][:fname])
+    fnames = readdir(dn)
+    @assert length(fnames)>0
+    for fname in fnames
+        if !contains(basename(fname), prefix)
+            # contains is not quite accurate
+            # todo: using ismatch to check starting with prefix
+            info("excluding file: $(fname)")
+            continue
+        end
+        task[:input][:inputs][:fname] = joinpath(dn, fname)
+        str_task = task2str(task)
+        sendSQSmessage(env, sqsname, str_task)
+    end
 end
