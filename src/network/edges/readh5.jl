@@ -46,6 +46,8 @@ function ef_readh5!(c::DictChannel,
         # download from s3
         env = build_env()
         fname = download(env, fname, "/tmp/")
+    else
+        fname = replace(fname, "~", homedir())
     end
     @show fname
     f = h5open(fname)

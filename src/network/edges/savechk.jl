@@ -18,7 +18,7 @@ function ef_savechk(c::DictChannel,
     chk = fetch(c, inputs[:chunk])
     origin = chk.origin
     voxelsize = chk
-    prefix = outputs[:prefix]
+    prefix = replace(outputs[:prefix],"~",homedir())
     fname = "$(prefix)$(chk.origin[1])_$(chk.origin[2])_$(chk.origin[3]).$(inputs[:chunk]).h5"
     if iss3(fname)
         ftmp = tempname() * ".h5"
