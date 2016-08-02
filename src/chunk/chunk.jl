@@ -1,4 +1,5 @@
 using EMIRT
+using HDF5
 
 abstract AbstractChunk
 
@@ -56,8 +57,8 @@ function save(fname::AbstractString, chk::Chunk)
     else
         error("not a standard chunk data structure")
     end
-    f["origin"] = chk.origin
-    f["voxelsize"] = chk.voxelsize
+    f["origin"] = Vector{UInt32}(chk.origin)
+    f["voxelsize"] = Vector{UInt32}(chk.voxelsize)
     close(f)
 end
 
@@ -65,6 +66,10 @@ function readchk(fname::AbstractString)
     f = h5open(fname)
     if has(f, "main")
         data = read(f["main"])
+    elseif has(f, "img")
+        data = read(f["img"])
+    elseif has(f, "aff")
+        data = read(f, "aff")
     elseif has(f, "seg")
         data = readsgm(fname)
     else
