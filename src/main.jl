@@ -5,20 +5,18 @@ using Logging
 @Logging.configure(level=INFO)
 Logging.configure(filename="logfile.log")
 
-
-
-while true
-    task = get_task()
-
-    @show task
-
+if length(ARGS) >0
+    task = get_task(ARGS[1])
     net = Net(task)
     forward(net)
+else
+    while true
+        task = get_task()
 
-    if length(ARGS)>0
-        # only one specific task
-        break 
+        @show task
+
+        net = Net(task)
+        forward(net)
+        sleep(5)
     end
-    sleep(5)
-
 end
