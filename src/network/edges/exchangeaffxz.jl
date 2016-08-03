@@ -15,7 +15,7 @@ function ef_exchangeaffxz!( c::DictChannel,
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any})
     chk = fetch(c, inputs[:aff])
-    @assert isaff(chk.data)
+    @assert isa(chk.data, Taff)
     chk.data = exchangeaffxz!(chk.data)
     put!(c, outputs[:aff], chk)
 end
