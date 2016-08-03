@@ -65,5 +65,5 @@ function ef_omnification( c::DictChannel,
     close(f)
 
     # run omnifycation
-    run(`$(params[:ombin]) --headless --cmdfile=$(fcmd)`)
+    run(`LD_LIBRARY_PATH=/usr/lib/libtcmalloc_minimal.so.4 $(params[:ombin]) --headless --cmdfile=$(fcmd)`)
 end
