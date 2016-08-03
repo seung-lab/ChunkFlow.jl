@@ -27,6 +27,16 @@
         "aff": "aff"
     }
 },
+"exchangeaffxz":{
+    "kind": "exchangeaffxz",
+    "params": {},
+    "inputs":{
+        "aff": "aff"
+    },
+    "outputs":{
+        "aff": "aff"
+    }
+},
 "saveaff":{
     "kind": "savechk",
     "params":{},
@@ -41,7 +51,7 @@
     "kind": "watershed",
     "params": {
         "low": 0.1,
-        "high": 0.85,
+        "high": 0.8,
         "thresholds": [
             {
                 "size": 800,
