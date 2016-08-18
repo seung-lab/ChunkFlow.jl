@@ -2,11 +2,11 @@
     "kind": "readh5",
     "params":{
         "origin": [],
-        "voxelsize": [4,4,40],
+        "voxelsize": [5,5,45],
         "dname": "img"
     },
     "inputs": {
-        "fname": "s3://zfish/dodam_aligned_stacks/2x2x2_3/zebrafish_aligned_"
+        "fname": "s3://zfish/dodam_aligned_stacks/2x2x2_4/zebrafish_aligned_"
     },
     "outputs": {
         "data": "img"
@@ -16,8 +16,10 @@
     "kind": "znni",
     "params":{
         "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
+        "fnet": "~/seungmount/research/kisuklee/Workbench/seung-lab/znn-release/experiments/zfish/MS/exp1/iter_100K/network/net_176000.h5",
         "outsz": [256, 256, 17],
-        "fov": [109, 109, 9]
+        "fov": [109, 109, 9],
+        "isexchangeaffxz": true
     },
     "inputs": {
         "img": "img"
@@ -27,28 +29,32 @@
         "aff": "aff"
     }
 },
-"exchangeaffxz":{
-    "kind": "exchangeaffxz",
-    "params": {},
+"saveimg":{
+    "kind": "savechk",
+    "params":{
+        "isdelete": true
+    },
     "inputs":{
-        "aff": "aff"
+        "chunk": "img"
     },
     "outputs":{
-        "aff": "aff"
+        "fname": "/tmp/img.h5"
     }
 },
 "saveaff":{
     "kind": "savechk",
-    "params":{},
+    "params":{
+        "isdelete": false
+    },
     "inputs":{
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/14_zfish/2x2x2_3/chunk_"
+        "prefix": "~/seungmount/research/Jingpeng/14_zfish/2x2x2_4/chunk_"
     }
 },
 "watershed":{
-    "kind": "watershed",
+    "kind": "atomicseg",
     "params": {
         "low": 0.1,
         "high": 0.8,
@@ -64,16 +70,17 @@
         "aff": "aff"
     },
     "outputs": {
-        "sgm": "sgm"
+        "seg": "seg"
     }
 },
 "agglomeration":{
     "kind":"agglomeration",
     "params":{
-        "mode": "mean"
+        "mode": "mean",
+        "isdeleteaff": true
     },
     "inputs": {
-        "sgm": "sgm",
+        "seg": "seg",
         "aff": "aff"
     },
     "outputs": {
@@ -82,12 +89,26 @@
 },
 "savesgm":{
     "kind": "savechk",
-    "params": {},
+    "params": {
+        "isdelete": false
+    },
     "inputs": {
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/14_zfish/2x2x2_3/chunk_"
+        "prefix": "~/seungmount/research/Jingpeng/14_zfish/2x2x2_4/chunk_"
+    }
+},
+"savesgm":{
+    "kind": "savechk",
+    "params": {
+        "isdelete": true
+    },
+    "inputs": {
+        "chunk": "sgm"
+    },
+    "outputs": {
+        "fname": "/tmp/sgm.h5"
     }
 },
 "omnification":{
@@ -96,8 +117,8 @@
         "ombin": "/opt/omni"
     },
     "inputs": {
-        "img": "img",
-        "sgm": "sgm"
+        "fimg": "/tmp/img.h5",
+        "fsgm": "/tmp/sgm.h5"
     },
     "outputs": {
         "fprj": "/tmp/chunk_"
@@ -110,7 +131,7 @@
         "prefix": "/tmp/chunk_"
     },
     "outputs": {
-        "dir": "~/seungmount/research/Jingpeng/14_zfish/2x2x2_3/"
+        "dir": "~/seungmount/research/Jingpeng/14_zfish/2x2x2_4/"
     }
 }
 }

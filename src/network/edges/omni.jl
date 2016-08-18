@@ -1,5 +1,4 @@
 
-
 export ef_omnification
 
 """
@@ -64,6 +63,8 @@ function ef_omnification( c::DictChannel,
     write(f, cmd)
     close(f)
 
+    # use tcmalloc to accelerate meshing. another alternative is jemalloc
+    run(`export LD_PRELOAD=/usr/lib/libtcmalloc_minimal.so.4`)
     # run omnifycation
     run(`$(params[:ombin]) --headless --cmdfile=$(fcmd)`)
 end
