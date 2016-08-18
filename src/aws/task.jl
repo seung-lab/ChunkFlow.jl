@@ -12,10 +12,10 @@ export get_task
 
 function get_sqs_task(queuename::ASCIIString = sqsname)
     env = build_env()
-    msg = takeSQSmessage!(env, queuename)
+    msg = fetchSQSmessage(env, queuename)
     task = msg.body
     # transform text to JSON OrderedDict format
-    return JSON.parse(task, dicttype=OrderedDict{Symbol, Any})
+    return JSON.parse(task, dicttype=OrderedDict{Symbol, Any}), msg
 end
 
 function get_s3_task(fname::AbstractString)
@@ -42,7 +42,7 @@ function get_task()
 end
 
 function get_task(ftask::AbstractString)
-    if iss3( ftask )
+    if contains( ftask, "s3://" )
         task = get_s3_task( ftask )
     elseif isfile( ftask )
         task = get_local_task( ftask )

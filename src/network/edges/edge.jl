@@ -17,6 +17,7 @@ include("savechk.jl")
 include("readh5.jl")
 include("crop.jl")
 include("watershed.jl")
+include("atomicseg.jl")
 include("znni.jl")
 include("agglomeration.jl")
 include("omni.jl")
@@ -47,6 +48,8 @@ function Edge( ec::OrderedDict{Symbol, Any} )
         forward = ef_znni!
     elseif kind == :watershed
         forward = ef_watershed!
+    elseif kind == :atomicseg
+        forward = ef_atomicseg
     elseif kind == :agglomeration
         forward = ef_agglomeration!
     elseif kind == :omnification
