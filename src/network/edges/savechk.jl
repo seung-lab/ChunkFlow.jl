@@ -15,16 +15,20 @@ function ef_savechk(c::DictChannel,
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )
     # get chunk
-    chk = fetch(c, inputs[:chunk])
+    chk = take!(c, inputs[:chunk])
     origin = chk.origin
     voxelsize = chk
     prefix = replace(outputs[:prefix],"~",homedir())
     fname = "$(prefix)$(chk.origin[1])_$(chk.origin[2])_$(chk.origin[3]).$(inputs[:chunk]).h5"
     if iss3(fname)
-        ftmp = tempname() * ".h5"
+        ftmp = "/tmp/chk.h5"
         save(ftmp, chk)
         run(`aws s3 mv $ftmp $fname`)
     else
         save(fname, chk)
+    end
+    # put the input chunk back to channel
+    if !params[:isdelete]
+        put!(c, inputs[:chunk], chk)
     end
 end
