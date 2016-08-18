@@ -1,9 +1,11 @@
 include("aws/task.jl")
-include("network/network.jl")
+include("chunknet/ChunkNet.jl")
 
 using Logging
-@Logging.configure(level=INFO)
+@Logging.configure(level=DEBUG)
 Logging.configure(filename="logfile.log")
+
+using ChunkNet
 
 if length(ARGS) >0
     task = get_task(ARGS[1])
@@ -11,12 +13,14 @@ if length(ARGS) >0
     forward(net)
 else
     while true
-        task = get_task()
+        task, msg = get_task()
 
         @show task
 
         net = Net(task)
         forward(net)
+        # delete task message in SQS
+        deleteSQSmessage!(env, msg, sqsname)
         sleep(5)
     end
 end
