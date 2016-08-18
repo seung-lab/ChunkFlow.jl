@@ -2,10 +2,17 @@ using HDF5
 using DataStructures
 using JSON
 
-include("../../core/config.jl")
 include("../bigarray.jl")
 include("../boundingbox.jl")
 include("../index.jl")
+
+typealias TCfg OrderedDict{Symbol, Any}
+
+function save(fname, cfg)
+    f = open(fname, "w")
+    write(f, JSON.json(cfg))
+    close(f)
+end
 
 immutable H5sBigArray <: AbstractBigArray
     prefix::AbstractString

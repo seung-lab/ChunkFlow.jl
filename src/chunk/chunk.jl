@@ -11,7 +11,7 @@ type Chunk <: AbstractChunk
     voxelsize::Vector  # physical size of each voxel
 end
 
-function crop_border!( chk::Chunk, cropsize::Union{Vector,Tuple} )
+function crop_border!{T}( chk::Chunk, cropsize::Union{Vector{T},Tuple{T}} )
     @assert typeof(chk.data) <: Array
     nd = ndims(chk.data)
     @assert nd >= 3
@@ -20,15 +20,15 @@ function crop_border!( chk::Chunk, cropsize::Union{Vector,Tuple} )
             sz[2]>cropsize[2]*2 &&
             sz[3]>cropsize[3]*2
     if nd == 3
-        chk.data = chk.data[  cropsize[1]+1:sz[1]-cropsize[1],
+        chk.data = chk.data[cropsize[1]+1:sz[1]-cropsize[1],
                             cropsize[2]+1:sz[2]-cropsize[2],
                             cropsize[3]+1:sz[3]-cropsize[3]]
     elseif nd==4
-        chk.data = chk.data[  cropsize[1]+1:sz[1]-cropsize[1],
+        chk.data = chk.data[cropsize[1]+1:sz[1]-cropsize[1],
                             cropsize[2]+1:sz[2]-cropsize[2],
                             cropsize[3]+1:sz[3]-cropsize[3], :]
     elseif nd==5
-        chk.data = chk.data[  cropsize[1]+1:sz[1]-cropsize[1],
+        chk.data = chk.data[cropsize[1]+1:sz[1]-cropsize[1],
                             cropsize[2]+1:sz[2]-cropsize[2],
                             cropsize[3]+1:sz[3]-cropsize[3], :, :]
     else
@@ -48,14 +48,17 @@ function save(fname::AbstractString, chk::Chunk)
     end
     f = h5open(fname, "w")
     f["type"] = "chunk"
-    if isa(chk.data, Array)
-        f["main"] = chk.data
+    if isa(chk.data, Taff)
+        # save with compression
+        f["main", "chunk", (64,64,8,3), "shuffle", (), "deflate", 3] = chk.data
+    elseif isa(chk.data, Timg) || isa(chk.data, Tseg)
+        f["main", "chunk", (64,64,8), "shuffle", (), "deflate", 3] = chk.data
     elseif isa(chk.data, Tsgm)
-        f["seg"] = chk.data.seg
+        f["seg", "chunk", (64,64,8), "shuffle", (), "deflate", 3] = chk.data.seg
         f["dend"] = chk.data.dend
         f["dendValues"] = chk.data.dendValues
     else
-        error("not a standard chunk data structure")
+        error("This is an unsupported type: $(typeof(chk.data))")
     end
     f["origin"] = Vector{UInt32}(chk.origin)
     f["voxelsize"] = Vector{UInt32}(chk.voxelsize)

@@ -1,10 +1,14 @@
+VERSION >=v"0.4.0-dev+6521" && __precompile__()
+
+module ChunkNet
+
 include("dictchannel.jl")
 include("edges/edge.jl")
 
 using DataStructures
 export Net, forward
 
-typealias Net Vector{Edge}
+typealias ChunkNet Vector{Edge}
 
 """
 construct a net from computation graph config file.
@@ -40,4 +44,6 @@ function forward(net::Net)
         info("time cost for $(kind): $(elapsed/60) min")
     end
     info("-----------end pipeline----------------")
+end
+
 end

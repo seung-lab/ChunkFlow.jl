@@ -14,8 +14,10 @@ function ef_exchangeaffxz!( c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any})
-    chk = fetch(c, inputs[:aff])
+    chk = take!(c, inputs[:aff])
     @assert isa(chk.data, Taff)
-    chk.data = exchangeaffxz!(chk.data)
+    # exchange x and z channel
+    chk.data[:,:,:,1], chk.data[:,:,:,3] = chk.data[:,:,:,3], chk.data[:,:,:,1]
+    #chk.data = exchangeaffxz!(chk.data)
     put!(c, outputs[:aff], chk)
 end
