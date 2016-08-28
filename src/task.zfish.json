@@ -64,7 +64,8 @@
                 "threshold": 0.2
             }
         ],
-        "dust": 600
+        "dust": 600,
+        "is_relative_threshold": true
     },
     "inputs": {
         "aff": "aff"

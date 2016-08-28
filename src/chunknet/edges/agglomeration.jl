@@ -27,8 +27,8 @@ function ef_agglomeration!( c::DictChannel,
 
     # put output to channel
     put!(c, outputs[:sgm], chk_sgm)
-
-    # release memory
-    chk_aff = nothing
+    if params[:isdeleteaff]
+      chk_aff = nothing
+    end
     gc()
 end
