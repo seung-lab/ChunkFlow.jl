@@ -79,8 +79,5 @@ function ef_znni!( c::DictChannel,
     chk_aff = Chunk(aff, chk_img.origin, chk_img.voxelsize)
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
-
-    # release memory
-    chk_aff = nothing
     gc()
 end
