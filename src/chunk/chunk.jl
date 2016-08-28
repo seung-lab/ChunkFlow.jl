@@ -50,13 +50,13 @@ function save(fname::AbstractString, chk::Chunk)
     f["type"] = "chunk"
     if isa(chk.data, Taff)
         # save with compression
-        f["main", "chunk", (64,64,8,3), "shuffle", (), "deflate", 3] = chk.data
+        f["affinityMap", "chunk", (64,64,8,3), "shuffle", (), "deflate", 3] = chk.data
     elseif isa(chk.data, Timg) || isa(chk.data, Tseg)
-        f["main", "chunk", (64,64,8), "shuffle", (), "deflate", 3] = chk.data
+        f["image", "chunk", (64,64,8), "shuffle", (), "deflate", 3] = chk.data
     elseif isa(chk.data, Tsgm)
-        f["seg", "chunk", (64,64,8), "shuffle", (), "deflate", 3] = chk.data.seg
-        f["dend"] = chk.data.dend
-        f["dendValues"] = chk.data.dendValues
+        f["segmentation", "chunk", (64,64,8), "shuffle", (), "deflate", 3] = chk.data.seg
+        f["segmentPair"] = chk.data.dend
+        f["segmentAffinity"] = chk.data.dendValues
     else
         error("This is an unsupported type: $(typeof(chk.data))")
     end
@@ -69,11 +69,11 @@ function readchk(fname::AbstractString)
     f = h5open(fname)
     if has(f, "main")
         data = read(f["main"])
-    elseif has(f, "img")
-        data = read(f["img"])
-    elseif has(f, "aff")
-        data = read(f, "aff")
-    elseif has(f, "seg")
+    elseif has(f, "affinityMap")
+        data = read(f["affinityMap"])
+    elseif has(f, "image")
+        data = read(f, "image")
+    elseif has(f, "segmentation")
         data = readsgm(fname)
     else
         error("not a standard chunk file")
