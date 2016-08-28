@@ -13,19 +13,11 @@ function ef_watershed!( c::DictChannel,
     # check it is an affinity map
     @assert isa(chk_aff.data, Taff)
 
-    # use percentage threshold
-    b, count = hist(aff[:], 100000)
-    low  = percent2thd(b, count, params[:low])
-    high = percent2thd(b, count, params[:high])
-    thds = Vector{Tuple}()
-    for st in params[:thresholds]
-        push!(thds, tuple(st[:size], percent2thd(b, count, st[:threshold])))
-    end
-    dust = params[:dust]
-
     # watershed
     println("watershed...")
-    seg, rg = watershed(chk_aff.data, low, high, thds, dust)
+    seg, rg = watershed(chk_aff.data, params[:low], params[:high],
+                        params[:thds], params[:dust];
+                        is_relative_threshold=true)
     @show rg
     @show typeof(rg)
     dend, dendValues = rg2dend(rg)
