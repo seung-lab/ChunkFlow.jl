@@ -16,6 +16,7 @@
     "kind": "znni",
     "params":{
         "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
+        "deviceID": 0,
         "fnet": "~/seungmount/research/kisuklee/Sharing/Jingpeng/blend_test/MS/net_290000.h5",
         "outsz": [256, 256, 17],
         "fov": [109, 109, 9],
@@ -23,10 +24,10 @@
         "affWeight": 0.333333333
     },
     "inputs": {
-        "img": "img"
+        "img": "img",
+        "aff": "aff"
     },
     "outputs": {
-        "img": "img",
         "aff": "aff"
     }
 },
@@ -50,14 +51,14 @@
         "fNet": "/opt/kaffe/experiments/zfish/MSF/train_iter_250000.caffemodel.h5",
         "outsz":    [150, 150,  12],
         "scanParams": "None",
-        "cropSize": [6,   6,    0],
+        "affCropMarginSize": [6,   6,    0],
         "affWeight": 0.33333333
     },
     "inputs": {
-        "img": "img"
+        "img": "img",
+        "aff": "aff"
     },
     "outputs": {
-        "img": "img",
         "aff": "aff"
     }
 },
@@ -69,16 +70,28 @@
         "fNet": "/opt/kaffe/experiments/zfish/JNet/train_iter_250000.caffemodel.h5",
         "outsz":    [158, 158,  32],
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
-        "affCropSize": [54,  54,   4],
+        "affCropMarginSize": [54,  54,   4],
         "affWeight": 0.33333333
     },
     "inputs": {
-        "img": "img"
-    },
-    "outputs": {
         "img": "img",
         "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
     }
+},
+"cropImg":{
+  "kind": "crop",
+  "params": {
+    "cropMarginSize": [54, 54, 4]
+  },
+  "inputs":{
+    "img": "img"
+  },
+  "outputs":{
+    "img": "img"
+  }
 },
 "watershed":{
     "kind": "atomicseg",
@@ -142,11 +155,12 @@
 "omnification":{
     "kind": "omnification",
     "params":{
-        "ombin": "/opt/omni"
+        "ombin": "/opt/omni",
+        "isMeshing": false
     },
     "inputs": {
-        "fimg": "/tmp/img.h5",
-        "fsgm": "/tmp/sgm.h5"
+        "img": "img",
+        "sgm": "sgm"
     },
     "outputs": {
         "fprj": "/tmp/chunk_"
