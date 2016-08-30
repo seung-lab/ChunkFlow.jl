@@ -36,7 +36,6 @@ function ef_omnification( c::DictChannel,
         fprj = string(fprj, "$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
     end
 
-
     # compute physical offset
     phyOffset = physical_offset(chk_sgm)
     # voxel size

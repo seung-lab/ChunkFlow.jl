@@ -5,6 +5,7 @@ function ef_crop!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})
+    info("-----------crop-------------")
     for (k,v) in inputs
         @assert haskey(outputs, k)
         chk = fetch(c, v)
