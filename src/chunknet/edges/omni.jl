@@ -7,16 +7,14 @@ function ef_omnification( c::DictChannel,
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})
     # prepare uncompressed files
-    fimg = inputs[:fimg]
-    chk_img = readchk(fimg)
+    chk_img = fetch(c, inputs[:img])
     fimg = "/tmp/img.h5"
     if isfile(fimg)
         rm(fimg)
     end
     h5write(fimg, "main", chk_img.data)
 
-    fsgm = inputs[:fsgm]
-    chk_sgm = readchk(fsgm)
+    chk_sgm = fetch(c, inputs[:sgm])
     fsgm = "/tmp/sgm.h5"
     # prepare input files
     # note that omni do not support compression and chunked hdf5
@@ -24,8 +22,8 @@ function ef_omnification( c::DictChannel,
         rm(fsgm)
     end
     h5write(fsgm, "main", chk_sgm.seg)
-    h5write(fsgm, "dend", chk_sgm.dend)
-    h5write(fsgm, "dendValues", chk_sgm.dendValues)
+    h5write(fsgm, "dend", chk_sgm.segmentPairs)
+    h5write(fsgm, "dendValues", chk_sgm.segmentPairWeights)
 
     # assign auto project name
     fprj = outputs[:fprj]
@@ -53,9 +51,15 @@ function ef_omnification( c::DictChannel,
     loadHDF5seg:$(fsgm)
     setSegResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
     setSegAbsOffset:1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
-    mesh
-    quit
+
     """
+    # add meshing or not
+    if params[:isMeshing]
+      cmd = string(cmd, "mesh \n quit")
+    else
+      cmd = string(cmd, "quit")
+    end
+
     # write the cmd file
     fcmd = "/tmp/omnify.cmd"
     f = open(fcmd, "w")
