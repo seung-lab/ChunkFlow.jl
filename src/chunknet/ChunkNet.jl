@@ -1,11 +1,11 @@
 VERSION >=v"0.4.0-dev+6521" && __precompile__()
 
-using DataStructures
-
 module ChunkNet
 
+using DataStructures
+
 include("dictchannel.jl")
-include("edges/edge.jl")
+include("edges.jl")
 
 export Net, forward
 

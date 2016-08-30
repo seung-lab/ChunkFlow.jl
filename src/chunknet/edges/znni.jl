@@ -16,8 +16,8 @@ function ef_znni!( c::DictChannel,
     @assert isa(img, Timg)
 
     # save as hdf5 file
-    fimg = "/tmp/img.h5"
-    faff = "/tmp/aff.h5"
+    fimg = string(tempname, ".img.h5")
+    faff = string(tempname, ".aff.h5")
 
     # normalize in 2D section
     imgnor = normalize(img)
@@ -44,38 +44,42 @@ function ef_znni!( c::DictChannel,
 
     # run znni inference
     cd(dirname(fznni))
-    run(`$(fznni) $(fimg) $(faff) main $(outsz[3]) $(outsz[2]) $(outsz[1])`)
+    run(`$(fznni) 0 $(fimg) $(faff) main $(outsz[3]) $(outsz[2]) $(outsz[1])`)
     cd(currentdir)
 
-    # compute cropsize using integer division
+    # compute cropMarginSize using integer division
     sz = size(chk_img.data)
-    cropsize = div(params[:fov]-1, 2)
-
-    # crop image
-    chk_img = crop_border!(chk_img, cropsize)
-    put!(c, outputs[:img], chk_img)
+    cropMarginSize = div(params[:fov]-1, 2)
 
     # read affinity map
     f = h5open(faff)
     if params[:isexchangeaffxz]
-        aff = zeros(Float32, (  sz[1]-cropsize[1]*2,
-                                sz[2]-cropsize[2]*2,
-                                sz[3]-cropsize[3]*2,3))
-        aff[:,:,:,1] = f["main"][   cropsize[1]+1:sz[1]-cropsize[1],
-                                    cropsize[2]+1:sz[2]-cropsize[2],
-                                    cropsize[3]+1:sz[3]-cropsize[3],3]
-        aff[:,:,:,2] = f["main"][   cropsize[1]+1:sz[1]-cropsize[1],
-                                    cropsize[2]+1:sz[2]-cropsize[2],
-                                    cropsize[3]+1:sz[3]-cropsize[3],2]
-        aff[:,:,:,3] = f["main"][   cropsize[1]+1:sz[1]-cropsize[1],
-                                    cropsize[2]+1:sz[2]-cropsize[2],
-                                    cropsize[3]+1:sz[3]-cropsize[3],1]
+        aff = zeros(Float32, (  sz[1]-cropMarginSize[1]*2,
+                                sz[2]-cropMarginSize[2]*2,
+                                sz[3]-cropMarginSize[3]*2,3))
+        aff[:,:,:,1] = f["main"][   cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+                                    cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+                                    cropMarginSize[3]+1:sz[3]-cropMarginSize[3],3]
+        aff[:,:,:,2] = f["main"][   cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+                                    cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+                                    cropMarginSize[3]+1:sz[3]-cropMarginSize[3],2]
+        aff[:,:,:,3] = f["main"][   cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+                                    cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+                                    cropMarginSize[3]+1:sz[3]-cropMarginSize[3],1]
     else
-        aff = f["main"][cropsize[1]+1:sz[1]-cropsize[1],
-                        cropsize[2]+1:sz[2]-cropsize[2],
-                        cropsize[3]+1:sz[3]-cropsize[3],:]
+        aff = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+                        cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+                        cropMarginSize[3]+1:sz[3]-cropMarginSize[3],:]
     end
     close(f)
+
+    # reweight affinity to make ensemble
+    @show eltype(aff)(params[:affWeight])
+    aff .*= eltype(aff)(params[:affWeight])
+    if haskey(c, inputs[:aff])
+      aff .+= take!(c, inputs[:aff]).data
+    end
+
     chk_aff = Chunk(aff, chk_img.origin, chk_img.voxelsize)
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
