@@ -12,19 +12,20 @@ function ef_znni!( c::DictChannel,
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})
     chk_img = fetch(c, inputs[:img])
-    img = chk_img.data
-    @assert isa(img, Timg)
+    @assert isa(chk_img.data, Timg)
 
     # save as hdf5 file
-    fimg = string(tempname, ".img.h5")
-    faff = string(tempname, ".aff.h5")
+    fimg = string(tempname(), ".img.h5")
+    faff = string(tempname(), ".aff.h5")
 
     # normalize in 2D section
-    imgnor = normalize(img)
+    imgnor = normalize(chk_img.data)
     if isfile(fimg)
         rm(fimg)
     end
     h5write(fimg, "main", imgnor)
+    # release memory
+    imgnor = nothing; gc()
 
     # prepare parameters
     currentdir = pwd()
@@ -44,7 +45,7 @@ function ef_znni!( c::DictChannel,
 
     # run znni inference
     cd(dirname(fznni))
-    run(`$(fznni) 0 $(fimg) $(faff) main $(outsz[3]) $(outsz[2]) $(outsz[1])`)
+    run(`$(fznni) $(params[:GPUID]) $(fimg) $(faff) main $(outsz[3]) $(outsz[2]) $(outsz[1])`)
     cd(currentdir)
 
     # compute cropMarginSize using integer division
@@ -73,15 +74,17 @@ function ef_znni!( c::DictChannel,
     end
     close(f)
 
+
     # reweight affinity to make ensemble
-    @show eltype(aff)(params[:affWeight])
     aff .*= eltype(aff)(params[:affWeight])
-    if haskey(c, inputs[:aff])
+    if isready(c, inputs[:aff])
       aff .+= take!(c, inputs[:aff]).data
     end
 
     chk_aff = Chunk(aff, chk_img.origin, chk_img.voxelsize)
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
-    gc()
+
+    # clean files and memory
+    rm(faff); rm(fimg)
 end

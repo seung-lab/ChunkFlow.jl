@@ -73,8 +73,10 @@ function readchk(fname::AbstractString)
         data = read(f["affinityMap"])
     elseif has(f, "image")
         data = read(f, "image")
+    elseif has(f, "segmentPairs")
+      data = readsgm(fname)
     elseif has(f, "segmentation")
-        data = readsgm(fname)
+        data = readseg(fname)
     else
         error("not a standard chunk file")
     end

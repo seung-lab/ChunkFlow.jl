@@ -8,8 +8,7 @@ function ef_kaffe!( c::DictChannel,
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})
     chk_img = fetch(c, inputs[:img])
-    img = chk_img.data
-    @assert isa(img, Timg)
+    @assert isa(chk_img.data, Timg)
 
     # save as hdf5 file
     fImg        = string(tempname(), ".img.h5")
@@ -19,11 +18,11 @@ function ef_kaffe!( c::DictChannel,
     fForwardCfg = string(tempname(), ".cfg")
 
     # normalize in 2D section
-    imgNor = normalize(img)
     if isfile(fImg)
         rm(fImg)
     end
-    h5write(fImg, "main", imgNor)
+    h5write(fImg, "main", chk_img.data)
+    @show fImg
 
     # data specification file
     dataspec = """
@@ -32,7 +31,7 @@ function ef_kaffe!( c::DictChannel,
 
     [image]
     file = img
-    preprocess = {}
+    preprocess = dict(type='standardize',mode='2D')
 
     [dataset]
     input = image
@@ -40,6 +39,7 @@ function ef_kaffe!( c::DictChannel,
     f = open(fDataSpec, "w")
     write(f, dataspec)
     close(f)
+    @show dataspec
 
     forwardCfg = """
     [forward]
@@ -56,12 +56,13 @@ function ef_kaffe!( c::DictChannel,
     f = open(fForwardCfg, "w")
     write(f, forwardCfg)
     close(f)
+    @show forwardCfg
 
     # run znni inference
-    currentdir = pwd()
-    cd(joinpath(params[:kaffeDir],"/python"))
-    run(`python forward.py $(params[:gpuID]) $(fForwardCfg)`)
-    cd(currentdir)
+    # currentdir = pwd()
+    # cd(joinpath(params[:kaffeDir],"/python"))
+    run(`python $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:GPUID]) $(fForwardCfg)`)
+    # cd(currentdir)
 
     # compute cropMarginSize using integer division
     sz = size(chk_img.data)
@@ -69,29 +70,14 @@ function ef_kaffe!( c::DictChannel,
 
     # read affinity map
     f = h5open(fAff)
-    if params[:isexchangeaffxz]
-        aff = zeros(Float32, (  sz[1]-cropMarginSize[1]*2,
-                                sz[2]-cropMarginSize[2]*2,
-                                sz[3]-cropMarginSize[3]*2,3))
-        aff[:,:,:,1] = f["main"][   cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-                                    cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-                                    cropMarginSize[3]+1:sz[3]-cropMarginSize[3],3]
-        aff[:,:,:,2] = f["main"][   cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-                                    cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-                                    cropMarginSize[3]+1:sz[3]-cropMarginSize[3],2]
-        aff[:,:,:,3] = f["main"][   cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-                                    cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-                                    cropMarginSize[3]+1:sz[3]-cropMarginSize[3],1]
-    else
-        aff = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-                        cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-                        cropMarginSize[3]+1:sz[3]-cropMarginSize[3],:]
-    end
+    aff = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+                    cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+                    cropMarginSize[3]+1:sz[3]-cropMarginSize[3],:]
     close(f)
 
     # reweight affinity to make ensemble
     aff .*= eltype(aff)(params[:affWeight])
-    if haskey(c, inputs[:aff])
+    if isready(c, inputs[:aff])
       aff .+= take!(c, inputs[:aff]).data
     end
 
@@ -101,6 +87,4 @@ function ef_kaffe!( c::DictChannel,
 
     # remove temporary files
     rm(fImg);  rm(fAff); rm(fForwardCfg); rm(fDataSpec);
-    # collect garbage to release memory explicitly
-    gc()
 end
