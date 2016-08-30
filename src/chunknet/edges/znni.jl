@@ -11,7 +11,7 @@ function ef_znni!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})
-    chk_img = take!(c, inputs[:img])
+    chk_img = fetch(c, inputs[:img])
     img = chk_img.data
     @assert isa(img, Timg)
 
