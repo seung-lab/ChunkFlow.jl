@@ -33,20 +33,20 @@ function Net( task::OrderedDict{Symbol, Any} )
 end
 
 function forward(net::Net)
-    info("------------start pipeline------------")
+    println("------------start pipeline------------")
     c = DictChannel()
     for e in net
         kind = string(e.kind)
+        println("--------start $(kind)-----------")
         info("--------start $(kind)-----------")
         start = time()
         forward!(c, e)
         # force garbage collector to release memory
         gc()
         elapsed = time() - start
-        info("-------------$(kind) end -------")
         info("time cost for $(kind): $(elapsed/60) min")
     end
-    info("-----------end pipeline----------------")
+    println("-----------end pipeline----------------")
 end
 
 end
