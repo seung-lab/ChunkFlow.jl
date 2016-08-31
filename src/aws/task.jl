@@ -1,14 +1,22 @@
 using JSON
 using DataStructures
 
-typealias Ttask OrderedDict{Symbol, Any}
-
+include("../core/types.jl")
 include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
 
-global const sqsname = "spipe-tasks"
+global const sqsname = "chunkflow-tasks"
 global const env = build_env()
 
-export get_task
+"""
+set the gpuid for all functions
+"""
+function set_gpu_id!(task::ChunkFlowTask, gpuid::Int)
+  for (edgeName, edgeConfig) in task
+    if haskey(edgeConfig[:params], :GPUID)
+      task[edgeName][:params][:GPUID] = gpuid
+    end
+  end
+end
 
 function get_sqs_task(queuename::ASCIIString = sqsname)
     env = build_env()
@@ -54,7 +62,7 @@ end
 """
 produce tasks to AWS SQS
 """
-function produce_tasks_s3img(task::Ttask)
+function produce_tasks_s3img(task::ChunkFlowTask)
     # get list of files, no folders
     @show task[:input][:inputs][:fname]
     bkt, keylst = s3_list_objects(task[:input][:inputs][:fname])
@@ -67,7 +75,7 @@ function produce_tasks_s3img(task::Ttask)
 end
 
 
-function produce_tasks_local(task::Ttask)
+function produce_tasks_local(task::ChunkFlowTask)
     @show task[:input][:inputs][:fname]
     # directory name and prefix
     dn, prefix = splitdir(task[:input][:inputs][:fname])
