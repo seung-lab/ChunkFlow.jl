@@ -17,12 +17,12 @@ function ef_agglomeration!( c::DictChannel,
 
     # check it is an affinity map
     # and segmentation with mst
-    @assert isa(chk_seg.data, Tseg)
-    @assert isa(chk_aff.data, Taff)
+    @assert isa(chk_seg.data, Segmentation)
+    @assert isa(chk_aff.data, AffinityMap)
 
     # run watershed
-    dend, dendValues = Process.forward(chk_aff.data, chk_seg.data)
-    sgm = Tsgm(chk_seg.data, dend, dendValues)
+    segmentPairs, segmentPairAffinities = Process.forward(chk_aff.data, chk_seg.data)
+    sgm = SegMST(chk_seg.data, segmentPairs, segmentPairAffinities)
     chk_sgm = Chunk(sgm, chk_aff.origin, chk_aff.voxelsize)
 
     # put output to channel
