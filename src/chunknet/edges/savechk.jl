@@ -5,8 +5,6 @@ include("../../chunk/chunk.jl")
 
 using DataStructures
 
-export ef_savechk
-
 """
 edge function of readh5
 """
@@ -18,10 +16,15 @@ function ef_savechk(c::DictChannel,
     chk = fetch(c, inputs[:chunk])
     origin = chk.origin
     voxelsize = chk
-    prefix = replace(outputs[:prefix],"~",homedir())
-    fname = "$(prefix)$(chk.origin[1])_$(chk.origin[2])_$(chk.origin[3]).$(inputs[:chunk]).h5"
+    if haskey(outputs, :fname)
+        fname = outputs[:fname]
+        @assert contains(fname, ".h5")
+    else
+        prefix = replace(outputs[:prefix],"~",homedir())
+        fname = "$(prefix)$(chk.origin[1])_$(chk.origin[2])_$(chk.origin[3]).$(inputs[:chunk]).h5"
+    end
     if iss3(fname)
-        ftmp = tempname() * ".h5"
+        ftmp = "/tmp/chk.h5"
         save(ftmp, chk)
         run(`aws s3 mv $ftmp $fname`)
     else
