@@ -3,10 +3,10 @@
     "params":{
         "origin": [],
         "voxelsize": [5,5,45],
-        "datasetName": "img"
+        "datasetName": "image"
     },
     "inputs": {
-        "fname": "s3://zfish/dodam_aligned_stacks/2x2x2_3/zebrafish_aligned_"
+        "fname": "../assets/zfish_25397_8001_1.img.h5"
     },
     "outputs": {
         "data": "img"
@@ -97,7 +97,7 @@
     "img": "img"
   }
 },
-"watershed":{
+"atomicseg":{
     "kind": "atomicseg",
     "params": {
         "low": 0.1,
@@ -109,7 +109,7 @@
             }
         ],
         "dust": 600,
-        "is_relative_threshold": true
+        "isThresholdRelative": true
     },
     "inputs": {
         "aff": "aff"
@@ -135,18 +135,6 @@
 "savesgm":{
     "kind": "savechk",
     "params": {
-        "isdelete": false
-    },
-    "inputs": {
-        "chunk": "sgm"
-    },
-    "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/14_zfish/2x2x2_3/chunk_"
-    }
-},
-"savesgm":{
-    "kind": "savechk",
-    "params": {
         "isdelete": true
     },
     "inputs": {
@@ -160,7 +148,7 @@
     "kind": "omnification",
     "params":{
         "ombin": "/opt/omni",
-        "isMeshing": false
+        "isMeshing": true
     },
     "inputs": {
         "img": "img",
@@ -168,16 +156,6 @@
     },
     "outputs": {
         "fprj": "/tmp/chunk_"
-    }
-},
-"moveomniprj":{
-    "kind": "movedata",
-    "params": {},
-    "inputs": {
-        "prefix": "/tmp/chunk_"
-    },
-    "outputs": {
-        "dir": "~/seungmount/research/Jingpeng/14_zfish/2x2x2_3/"
     }
 }
 }

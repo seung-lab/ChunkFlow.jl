@@ -5,8 +5,6 @@ include("../../chunk/chunk.jl")
 
 using DataStructures
 
-export ef_readchk!
-
 """
 edge function of readh5
 """
@@ -24,4 +22,8 @@ function ef_readchk!(c::DictChannel,
     chk = readchk(fname)
     # put chunk to channel for use
     put!(c, outputs[:data], chk)
+
+    # release memory
+    chk = nothing
+    gc()
 end
