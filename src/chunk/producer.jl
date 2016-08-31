@@ -54,7 +54,7 @@ end
 """
 produce chunks and corresponding tasks to AWS SQS
 """
-function produce_chunks_tasks(task::Ttask)
+function produce_chunks_tasks(task::ChunkFlowTask)
     inputs = task[:bigarray][:inputs]
     @assert contains(task[:bigarray][:kind], "bigarray")
     # get chunk from a big array
