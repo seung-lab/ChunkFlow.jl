@@ -2,8 +2,6 @@
 # to-do: support uploading to S3
 #include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
 
-export ef_movedata
-
 """
 edge function of movedata
 """

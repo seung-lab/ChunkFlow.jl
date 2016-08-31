@@ -1,7 +1,12 @@
-include("dictchannel.jl")
-include("edges/edge.jl")
+VERSION >=v"0.4.0-dev+6521" && __precompile__()
+
+module ChunkNet
 
 using DataStructures
+
+include("dictchannel.jl")
+include("edges.jl")
+
 export Net, forward
 
 typealias Net Vector{Edge}
@@ -28,16 +33,21 @@ function Net( task::OrderedDict{Symbol, Any} )
 end
 
 function forward(net::Net)
-    info("------------start pipeline------------")
+    println("------------start pipeline------------")
     c = DictChannel()
     for e in net
-        kind = string(e.kind)
-        info("--------start $(kind)-----------")
+        # kind = string(e.kind)
+        println("--------start $(e.kind)-----------")
+        info("--------start $(e.kind)-----------")
         start = time()
         forward!(c, e)
+        # force garbage collector to release memory
+        gc()
         elapsed = time() - start
-        info("-------------$(kind) end -------")
-        info("time cost for $(kind): $(elapsed/60) min")
+        info("time cost for $(e.kind): $(elapsed/60) min")
+        info("--------end of $(e.kind)-----------")
     end
-    info("-----------end pipeline----------------")
+    println("-----------end pipeline----------------")
+end
+
 end
