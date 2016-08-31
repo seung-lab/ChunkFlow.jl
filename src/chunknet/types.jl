@@ -1,1 +1,1 @@
-typealias Ttask OrderedDict{Symbol, Any} 
+typealias ChunkFlowTask OrderedDict{Symbol, Dict{Symbol,Any}}
