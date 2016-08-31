@@ -5,8 +5,6 @@ include("../../chunk/chunk.jl")
 
 using DataStructures
 
-export ef_readh5!
-
 """
 extract offset from file name
 """
@@ -51,7 +49,7 @@ function ef_readh5!(c::DictChannel,
     end
     @show fname
     f = h5open(fname)
-    arr = read(f[params[:dname]])
+    arr = read(f[params[:datasetName]])
     origin = ones(UInt32, 3)
     if haskey(params, :origin) && params[:origin]!=[]
         origin = params[:origin]
@@ -67,4 +65,7 @@ function ef_readh5!(c::DictChannel,
     chk = Chunk(arr, origin, voxelsize)
     # put chunk to channel for use
     put!(c, outputs[:data], chk)
+
+    chk = nothing
+    gc()
 end

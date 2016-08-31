@@ -3,7 +3,7 @@ using HDF5
 using EMIRT
 #using Escher
 
-ecs = Tecs()
+ecs = ScoreCurves()
 
 """
 the form tile to provide learning curve plotting tile
@@ -11,7 +11,7 @@ the form tile to provide learning curve plotting tile
 function tile_form_evaluate(evs::Sampler)
     vbox(
          h2("Choose the segmentation file"),
-         watch!(evs, :input1, textinput("/tmp/sgm.h5", label="segmentation file with dendrogram")),
+         watch!(evs, :input1, textinput("/tmp/sgm.h5", label="segmentation file with segmentPairsrogram")),
          vskip(1em),
          h2("Choose the label file"),
          watch!(evs, :input2, textinput("/tmp/lbl.h5", label="label file")),
@@ -26,7 +26,7 @@ function evaluate_result(fsgm::AbstractString, flbl::AbstractString)
     if !isfile(fsgm)
         return "segmentation file not found!"
     elseif !issgmfile(fsgm)
-        return "this file do not have strandard segmentation with dendrogram format."
+        return "this file do not have strandard segmentation with segmentPairsrogram format."
     elseif !isfile(flbl)
         return "ground truth label not found!"
     else
