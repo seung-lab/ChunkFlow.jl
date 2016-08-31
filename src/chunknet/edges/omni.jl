@@ -8,27 +8,27 @@ function ef_omnification( c::DictChannel,
                 outputs::OrderedDict{Symbol, Any})
     # prepare uncompressed files
     chk_img = fetch(c, inputs[:img])
-    fimg = "/tmp/img.h5"
+    fimg = string(tempname(),".img.h5")
     if isfile(fimg)
         rm(fimg)
     end
     h5write(fimg, "main", chk_img.data)
 
     chk_sgm = fetch(c, inputs[:sgm])
-    fsgm = "/tmp/sgm.h5"
+    fsgm = string(tempname(), ".sgm.h5")
     # prepare input files
     # note that omni do not support compression and chunked hdf5
     if isfile(fsgm)
         rm(fsgm)
     end
-    h5write(fsgm, "main", chk_sgm.seg)
-    h5write(fsgm, "dend", chk_sgm.segmentPairs)
-    h5write(fsgm, "dendValues", chk_sgm.segmentPairWeights)
+    h5write(fsgm, "main", chk_sgm.data.segmentation)
+    h5write(fsgm, "dend", chk_sgm.data.segmentPairs)
+    h5write(fsgm, "dendValues", chk_sgm.data.segmentPairAffinities)
 
     # assign auto project name
     fprj = outputs[:fprj]
     origin = chk_sgm.origin
-    volend = origin .+ [size(chk_sgm.data)...] - 1
+    volend = origin .+ [size(chk_sgm.data.segmentation)...] - 1
     if isdir(fprj)
         fprj = joinpath(fprj, "chunk_$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
     elseif !contains(fprj, ".omni")
@@ -37,7 +37,7 @@ function ef_omnification( c::DictChannel,
     end
 
     # compute physical offset
-    phyOffset = physical_offset(chk_sgm)
+    phyOffset = physical_offset(chk_img)
     # voxel size
     vs = chk_sgm.voxelsize
 
@@ -50,17 +50,16 @@ function ef_omnification( c::DictChannel,
     loadHDF5seg:$(fsgm)
     setSegResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
     setSegAbsOffset:1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
-
     """
     # add meshing or not
     if params[:isMeshing]
-      cmd = string(cmd, "mesh \n quit")
+      cmd = string(cmd, "mesh\nquit\n")
     else
-      cmd = string(cmd, "quit")
+      cmd = string(cmd, "quit\n")
     end
-
+    @show cmd
     # write the cmd file
-    fcmd = "/tmp/omnify.cmd"
+    fcmd = string(tempname(),".omnify.cmd")
     f = open(fcmd, "w")
     write(f, cmd)
     close(f)
@@ -69,4 +68,5 @@ function ef_omnification( c::DictChannel,
     #run(`export LD_PRELOAD=/usr/lib/libtcmalloc_minimal.so.4`)
     # run omnifycation
     run(`$(params[:ombin]) --headless --cmdfile=$(fcmd)`)
+    rm(fsgm); rm(fimg); rm(fcmd)
 end

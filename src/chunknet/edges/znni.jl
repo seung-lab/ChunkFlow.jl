@@ -12,7 +12,7 @@ function ef_znni!( c::DictChannel,
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})
     chk_img = fetch(c, inputs[:img])
-    @assert isa(chk_img.data, Timg)
+    @assert isa(chk_img.data, EMImage)
 
     # save as hdf5 file
     fimg = string(tempname(), ".img.h5")

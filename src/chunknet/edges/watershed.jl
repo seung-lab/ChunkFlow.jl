@@ -8,10 +8,10 @@ function ef_watershed!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})
-    chk_aff = take!(c, inputs[:aff])
+    chk_aff = fetch(c, inputs[:aff])
     @show size(chk_aff.data)
     # check it is an affinity map
-    @assert isa(chk_aff.data, Taff)
+    @assert isa(chk_aff.data, AffinityMap)
 
     # watershed
     println("watershed...")
@@ -20,15 +20,13 @@ function ef_watershed!( c::DictChannel,
                         is_relative_threshold=true)
     @show rg
     @show typeof(rg)
-    dend, dendValues = rg2dend(rg)
-    @show dend
-    sgm = Tsgm( seg, dend, dendValues )
+    segmentPairs, segmentPairAffinities = rg2segmentPairs(rg)
+    @show segmentPairs
+    sgm = SegMST( seg, segmentPairs, segmentPairAffinities )
 
     # create chunk and put into channel
     chk_sgm = Chunk(sgm, chk_aff.origin, chk_aff.voxelsize)
     put!(c, outputs[:sgm], chk_sgm)
-    # put affnity back
-    put!(c, inputs[:aff], chk_aff)
 
     # release memory
     sgm = nothing
