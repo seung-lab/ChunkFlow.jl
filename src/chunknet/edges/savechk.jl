@@ -13,7 +13,7 @@ function ef_savechk(c::DictChannel,
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )
     # get chunk
-    chk = take!(c, inputs[:chunk])
+    chk = fetch(c, inputs[:chunk])
     origin = chk.origin
     voxelsize = chk
     if haskey(outputs, :fname)
@@ -29,9 +29,5 @@ function ef_savechk(c::DictChannel,
         run(`aws s3 mv $ftmp $fname`)
     else
         save(fname, chk)
-    end
-    # put the input chunk back to channel
-    if !params[:isdelete]
-        put!(c, inputs[:chunk], chk)
     end
 end
