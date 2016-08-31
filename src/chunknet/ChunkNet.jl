@@ -36,15 +36,16 @@ function forward(net::Net)
     println("------------start pipeline------------")
     c = DictChannel()
     for e in net
-        kind = string(e.kind)
-        println("--------start $(kind)-----------")
-        info("--------start $(kind)-----------")
+        # kind = string(e.kind)
+        println("--------start $(e.kind)-----------")
+        info("--------start $(e.kind)-----------")
         start = time()
         forward!(c, e)
         # force garbage collector to release memory
         gc()
         elapsed = time() - start
-        info("time cost for $(kind): $(elapsed/60) min")
+        info("time cost for $(e.kind): $(elapsed/60) min")
+        info("--------end of $(e.kind)-----------")
     end
     println("-----------end pipeline----------------")
 end
