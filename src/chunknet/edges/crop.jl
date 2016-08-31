@@ -8,8 +8,8 @@ function ef_crop!( c::DictChannel,
     info("-----------crop-------------")
     for (k,v) in inputs
         @assert haskey(outputs, k)
-        chk = fetch(c, v)
-        chk = crop_border!(chk, params[:cropMarginSize])
+        chk = take!(c, v)
+        chk = crop_border(chk, params[:cropMarginSize])
         put!(c, outputs[k], chk)
     end
 end
