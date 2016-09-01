@@ -23,6 +23,7 @@ include("edges/agglomeration.jl")
 include("edges/omni.jl")
 include("edges/movedata.jl")
 include("edges/kaffe.jl")
+include("edges/hypersquare.jl")
 
 """
 library of edge function as a Dict
@@ -37,6 +38,7 @@ const edgeFuncLib = Dict{Symbol, Function}(
   :atomicseg      => ef_atomicseg!,
   :agglomeration  => ef_agglomeration!,
   :omnification   => ef_omnification,
+  :hypersquare    => ef_hypersquare,
   :crop           => ef_crop!,
   :movedata       => ef_movedata,
   :kaffe          => ef_kaffe!
