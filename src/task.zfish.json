@@ -31,18 +31,6 @@
         "aff": "aff"
     }
 },
-"saveImg":{
-    "kind": "savechk",
-    "params":{
-        "isdelete": false
-    },
-    "inputs":{
-        "chunk": "img"
-    },
-    "outputs":{
-        "fname": "/tmp/img.h5"
-    }
-},
 "MSF":{
     "kind": "kaffe",
     "params":{
@@ -109,7 +97,7 @@
             }
         ],
         "dust": 600,
-        "is_relative_threshold": true
+        "isThresholdRelative": true
     },
     "inputs": {
         "aff": "aff"
@@ -144,23 +132,11 @@
         "prefix": "~/seungmount/research/Jingpeng/14_zfish/2x2x2_3/chunk_"
     }
 },
-"savesgm":{
-    "kind": "savechk",
-    "params": {
-        "isdelete": true
-    },
-    "inputs": {
-        "chunk": "sgm"
-    },
-    "outputs": {
-        "fname": "/tmp/sgm.h5"
-    }
-},
 "omnification":{
     "kind": "omnification",
     "params":{
         "ombin": "/opt/omni",
-        "isMeshing": false
+        "isMeshing": true
     },
     "inputs": {
         "img": "img",

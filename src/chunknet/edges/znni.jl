@@ -76,7 +76,9 @@ function ef_znni!( c::DictChannel,
 
 
     # reweight affinity to make ensemble
-    aff .*= eltype(aff)(params[:affWeight])
+    if params[:affWeight] != 1
+      aff .*= eltype(aff)(params[:affWeight])
+    end
     if isready(c, inputs[:aff])
       aff .+= take!(c, inputs[:aff]).data
     end
