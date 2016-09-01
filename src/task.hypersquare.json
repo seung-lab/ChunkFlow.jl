@@ -1,0 +1,39 @@
+{
+"input": {
+    "kind": "readh5",
+    "params":{
+        "origin": [0,0,0],
+        "voxelsize": [5,5,40],
+        "datasetName": "main"
+    },
+    "inputs": {
+        "fname": "/usr/people/ww12/sandbox/lzma/chunk_33405_8905_229.img.h5"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"readchk": {
+    "kind": "readchk",
+    "params":{
+    },
+    "inputs": {
+        "fname": "/usr/people/ww12/sandbox/lzma/chunk_33405_8905_229.sgm.h5"
+    },
+    "outputs": {
+        "data": "sgm"
+    }
+},
+"hypersquare":{
+    "kind": "hypersquare",
+    "params":{
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "fprj": "/usr/people/ww12/sandbox/lzma/juliout2"
+    }
+}
+}
