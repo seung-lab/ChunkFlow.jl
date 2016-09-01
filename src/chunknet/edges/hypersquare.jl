@@ -54,7 +54,7 @@ function ef_hypersquare(c::DictChannel,
 
     println("Writing Graph ...")
     write_graph(chunk_segmentation.data.segmentPairs,
-        chunk_segmentation.data.segmentPairValues, chunk_folder;
+        chunk_segmentation.data.segmentPairAffinities, chunk_folder;
         graph_filename = getkey(params, :graph_filename, DEFAULT_GRAPH_FILENAME))
 
     println("Writing Images ...")
@@ -282,7 +282,7 @@ function write_metadata(chunk_segmentation::Chunk, chunk_folder::AbstractString;
     size_type = UInt32
     # max value + 1 to accommodate segment id 0
     num_segments = maximum(chunk_segmentation.data.segmentation) + 1
-    num_edges = length(chunk_segmentation.data.segmentPairValues)
+    num_edges = length(chunk_segmentation.data.segmentPairAffinities)
     chunk_voxel_dimensions = [size(chunk_segmentation.data.segmentation)...]
     voxel_resolution = chunk_segmentation.voxelsize
     resolution_units = "nanometers"
