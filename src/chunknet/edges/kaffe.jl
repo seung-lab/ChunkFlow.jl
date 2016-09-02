@@ -32,6 +32,13 @@ function ef_kaffe!( c::DictChannel,
     h5write(fImg, "main", chk_img2.data)
     @show fImg
 
+    # download trained network
+    if iss3(params[:fNet])
+      tempFile = string(tempname(), ".kaffe.net.h5")
+      download(awsEnv, params[:fNet], tempFile)
+      params[:fNet] = tempFile
+    end
+
     # data specification file
     dataspec = """
     [files]
