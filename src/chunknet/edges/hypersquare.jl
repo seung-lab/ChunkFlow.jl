@@ -1,10 +1,14 @@
 import HDF5
 import Images
 import JSON
+import EMIRT
 using DataStructures
 
 export ef_hypersquare
 
+# These default constants are configurable parameters
+const DEFAULT_SEGMENT_ID_TYPE = UInt16
+const DEFAULT_AFFINITY_TYPE = Float32
 const DEFAULT_SEGMENTATION_FILENAME = "segmentation.lzma"
 const DEFAULT_IMAGE_QUALITY = 25
 const DEFAULT_IMAGE_FOLDER = "jpg"
@@ -12,8 +16,15 @@ const DEFAULT_BOUNDING_BOX_FILENAME = "segmentation.bbox"
 const DEFAULT_SEGMENT_SIZE_FILENAME = "segmentation.size"
 const DEFAULT_GRAPH_FILENAME = "segmentation.graph"
 const DEFAULT_METADATA_FILENAME = "metadata.json"
+const DEFAULT_RESOLUTION_UNITS = "nanometers"
 
-const WRITE_BUFFER_BYTES = 50 * 1024 * 1024
+# These values are not configurable as parameters
+const SEGMENT_BOUNDING_BOX_TYPE = UInt16
+const SEGMENT_SIZE_TYPE = UInt32
+
+# Helper constants and macros
+const BITS_PER_BYTE = 8
+
 #=
  =type DictChannel end
  =type Chunk end
@@ -24,14 +35,21 @@ function ef_hypersquare(c::DictChannel,
         inputs::OrderedDict{Symbol, Any},
         outputs::OrderedDict{Symbol, Any})
     println("Running Hypersquare")
+
     # fetch all data we need from the DictChannel c
     chunk_segmentation = fetch(c, inputs[:sgm])
-    # we are only operating on the truncated UInt16 datatype for efficiency
-    segmentation = convert(Array{UInt16, 3},
-        chunk_segmentation.data.segmentation)
+    # extract the segmentation data from the chunk
+    println("Extracting and converting segmentation... ")
+    (segmentation, segment_pairs, segment_affinities) =
+        extract(chunk_segmentation.data;
+            segment_id_type = as_type(get(params,
+                :segment_id_type, string(DEFAULT_SEGMENT_ID_TYPE))),
+            affinity_type = as_type(get(params,
+                :affinity_type, string(DEFAULT_AFFINITY_TYPE))))
 
     chunk_image = fetch(c, inputs[:img])
     # we are only operating on the truncated UInt8 datatype for efficiency
+    println("Extracting and converting images... ")
     images = convert(Array{UInt8, 3}, chunk_image.data)
 
     # get/create the chunk_folder
@@ -42,30 +60,119 @@ function ef_hypersquare(c::DictChannel,
     # write all data to disk
     println("Writing Segmentation ...")
     write_segmentation(segmentation, chunk_folder;
-        filename = getkey(params,
+        filename = get(params,
             :segmentation_filename, DEFAULT_SEGMENTATION_FILENAME))
 
     println("Writing Supplementary ...")
     write_supplementary(segmentation, chunk_folder;
-        bounding_box_filename = getkey(params,
+        bounding_box_filename = get(params,
             :bounding_box_filename, DEFAULT_BOUNDING_BOX_FILENAME),
-        segment_size_filename = getkey(params,
+        segment_size_filename = get(params,
             :segment_size_filename, DEFAULT_SEGMENT_SIZE_FILENAME))
 
     println("Writing Graph ...")
-    write_graph(chunk_segmentation.data.segmentPairs,
-        chunk_segmentation.data.segmentPairAffinities, chunk_folder;
-        graph_filename = getkey(params, :graph_filename, DEFAULT_GRAPH_FILENAME))
+    write_graph(segment_pairs, segment_affinities, chunk_folder;
+        graph_filename =
+            get(params, :graph_filename, DEFAULT_GRAPH_FILENAME))
 
     println("Writing Images ...")
     write_images(images, chunk_folder;
-        quality = getkey(params, :image_quality, DEFAULT_IMAGE_QUALITY),
-        image_folder = getkey(params, :image_folder, DEFAULT_IMAGE_FOLDER))
+        quality = get(params, :image_quality, DEFAULT_IMAGE_QUALITY),
+        image_folder = get(params, :image_folder, DEFAULT_IMAGE_FOLDER))
 
     println("Writing Metadata ...")
-    write_metadata(chunk_segmentation, chunk_folder,
-        filename = getkey(params,
+    write_metadata(params, chunk_segmentation, chunk_image, chunk_folder;
+        filename = get(params,
             :metadata_filename, DEFAULT_METADATA_FILENAME))
+end
+
+"""
+    as_type(string::AbstractString)
+
+Evaluates the string as a type.
+"""
+function as_type(string::AbstractString)
+    parsed_type = eval(Symbol(string))
+    if !isa(parsed_type, Type)
+        error("$string is not a type")
+    end
+    return parsed_type
+end
+
+"""
+    extract(chunk_segmentation;
+        segment_id_type::Type = DEFAULT_SEGMENT_ID_TYPE,
+        affinity_type::Type = DEFAULT_AFFINITY_TYPE)
+
+Extract the tuple of (segmentation, segmentPair, and segmentPairAffinities)
+from SegMST and also convert the values to the input types
+"""
+function extract(seg_mst::EMIRT.SegMST;
+        segment_id_type::Type = DEFAULT_SEGMENT_ID_TYPE,
+        affinity_type::Type = DEFAULT_AFFINITY_TYPE)
+    return (smart_downcast(seg_mst.segmentation, seg_mst.segmentPairs,
+            segment_id_type) ...,
+        convert(Array{affinity_type, 1},
+            seg_mst.segmentPairAffinities))
+end
+
+"""
+    smart_downcast{U <: Unsigned}(segmentation::Array{U, 3},
+        segment_pairs::Array{U, 2}, cast_type::Type)
+Downcasts the segment ids to a cast_type.
+"""
+function smart_downcast{U <: Unsigned}(segmentation::Array{U, 3},
+        segment_pairs::Array{U, 2}, cast_type::Type)
+    # Attempt to do conversion first, if we fail due to InexactError, we will
+    # try to handle it in the catch
+    try
+        segmentation = convert(Array{cast_type, 3}, segmentation)
+        segment_pairs = convert(Array{cast_type, 3}, segment_pairs)
+    catch caught_error
+        if !isa(caught_error, InexactError)
+            rethrow(caught_error)
+        else
+            println("Downcasting will lose segments, trying to remap ids...")
+
+            unique_values = unique(segmentation)
+            num_segments = length(unique_values)
+            supported_num_segments = 2 ^ (sizeof(cast_type) * BITS_PER_BYTE)
+
+            if num_segments > supported_num_segments
+                error("TOO MANY SEGMENTS ($num_segments)! " *
+                    "HYPERSQUARE only supports $supported_num_segments with " *
+                    "input typee :$cast_type :(")
+            end
+
+            segmentation = redistribute_ids(unique_values,
+                segmentation, cast_type)
+
+            segment_pairs = redistribute_ids(unique_values,
+                segment_pairs, cast_type)
+        end
+    end
+    return (segmentation, segment_pairs)
+end
+
+"""
+    redistribute_ids{U <: Unsigned}(old_ids::Array{U, 1},
+        old_array::Array{U}, new_id_type::Type)
+
+Linearly redistribute all the old_ids into new_id_type. Then remap all the old
+ids in the old_array into a new ar
+"""
+
+function redistribute_ids{U <: Unsigned}(old_ids::Array{U, 1},
+        old_array::Array{U}, new_id_type::Type)
+    new_array = zeros(new_id_type, size(old_array))
+
+    label_map = Dict{U, new_id_type}(
+        zip(old_ids, UnitRange{new_id_type}(0, length(old_ids) - 1)))
+    for index in 1:length(old_array)
+        new_array[index] = label_map[old_array[index]]
+    end
+
+    return new_array
 end
 
 """
@@ -150,20 +257,21 @@ function write_supplementary{U <: Unsigned}(segmentation::Array{U, 3},
 end
 
 """
-    write_graph(segment_pairs::Array{UInt32, 2},
-        segment_pair_affinities::Array{Float32, 1},
+    write_graph{U <: Unsigned, F <:AbstractFloat}(segment_pairs::Array{U, 2},
+        segment_pair_affinities::Array{F, 1},
         chunk_folder::AbstractString;
         graph_filename = DEFAULT_GRAPH_FILENAME)
 
 writes the graph (MST) into a file in the format of: 
-    [ edge_1_vertex_id_1::UInt32, edge_1_vertex_id_2::UInt32,
-      edge_1_affinity::Float64
+    [ edge_1_vertex_id_1::U, edge_1_vertex_id_2::U,
+      edge_1_affinity::F
       ...
-      edge_N_vertex_id_1::UInt32, edge_N_vertex_id_2::UInt32,
-      edge_N_affinity::Float64]
+      edge_N_vertex_id_1::U, edge_N_vertex_id_2::U,
+      edge_N_affinity::F]
 """
-function write_graph(segment_pairs::Array{UInt32, 2},
-        segment_pair_affinities::Array{Float32, 1},
+function write_graph{U <: Unsigned, F <: AbstractFloat}(
+        segment_pairs::Array{U, 2},
+        segment_pair_affinities::Array{F, 1},
         chunk_folder::AbstractString;
         graph_filename = DEFAULT_GRAPH_FILENAME)
     graph_file = open(joinpath(chunk_folder, graph_filename), "w")
@@ -201,18 +309,19 @@ end
 Find the bounding boxes (min and max coordinates) for each segment ID.
 Also count the number of voxels of each segment id is present in the volume
 Returns:
-* Tuple{Array{UInt16, 1}, Array{UInt32, 1}}
+* Tuple{Array{SEGMENT_BOUNDING_BOX_TYPE, 1}, Array{SEGMENT_SIZE_TYPE, 1}}
 ** First element is an array containing the bounding boxes. 
     [seg_1_min_x, seg_1_min_y, seg_1_min_z, seg_1_max_x, seg_1_max_y, seg_1_max_z ...
      seg_N_min_x, seg_N_min_y, seg_N_min_z, seg_N_max_x, seg_N_max_y, seg_N_max_z]
 ** Second element is an array of segment sizes
     [seg_1_size, seg_2_size ... seg_N_size]
 """
-function get_bounding_boxes_and_sizes(segmentation)
+function get_bounding_boxes_and_sizes{U <: Unsigned}(segmentation::Array{U, 3})
+
     dimensions = size(segmentation)
     num_segments = maximum(segmentation) + 1 # + 1 to accommodate segment id 0
-    bounding_boxes_array = zeros(UInt16, num_segments * 6)
-    sizes = zeros(UInt32, num_segments)
+    bounding_boxes_array = zeros(SEGMENT_BOUNDING_BOX_TYPE, num_segments * 6)
+    sizes = zeros(SEGMENT_SIZE_TYPE, num_segments)
 
     # set the mins to the end of the volume
     for index in 1:6:(num_segments*6)
@@ -255,10 +364,11 @@ HyperSquareMetadata is all the metadata that is required for eyewire to
     function properly
 """
 type HyperSquareMetadata
-    segmentation_type::Type
+    segment_id_type::Type
+    affinity_type::Type
     bounding_box_type::Type
-    image_type::Type
     size_type::Type
+    image_type::Type
     num_segments::Unsigned
     num_edges::Unsigned
     chunk_voxel_dimensions::Array{Unsigned, 1}
@@ -274,27 +384,36 @@ end
 Write the metadata file based off of the chunk. Metadata fields are specified
 in HyperSquareMetadata.
 """
-function write_metadata(chunk_segmentation::Chunk, chunk_folder::AbstractString;
+function write_metadata(
+        params::OrderedDict{Symbol, Any},
+        chunk_segmentation::Chunk,
+        chunk_image::Chunk,
+        chunk_folder::AbstractString;
         filename::AbstractString = DEFAULT_METADATA_FILENAME)
-    segmentation_type = UInt16
-    bounding_box_type = UInt16
-    image_type = UInt8
-    size_type = UInt32
+    segment_id_type = as_type(get(params,
+                :segment_id_type, string(DEFAULT_SEGMENT_ID_TYPE)))
+    affinity_type = as_type(get(params,
+                :affinity_type, string(DEFAULT_AFFINITY_TYPE)))
+    bounding_box_type = SEGMENT_BOUNDING_BOX_TYPE
+    size_type = SEGMENT_SIZE_TYPE
+    image_type = eltype(chunk_image.data)
     # max value + 1 to accommodate segment id 0
-    num_segments = maximum(chunk_segmentation.data.segmentation) + 1
+    num_segments = length(unique(chunk_segmentation.data.segmentation))
     num_edges = length(chunk_segmentation.data.segmentPairAffinities)
-    chunk_voxel_dimensions = [size(chunk_segmentation.data.segmentation)...]
+    chunk_voxel_dimensions = [size(chunk_segmentation.data.segmentation) ...]
     voxel_resolution = chunk_segmentation.voxelsize
-    resolution_units = "nanometers"
+    resolution_units = get(params,
+                :resolution_units, DEFAULT_RESOLUTION_UNITS)
     physical_offset_min = physical_offset(chunk_segmentation)
     physical_offset_max = physical_offset_min +
         chunk_voxel_dimensions .* voxel_resolution
 
     metadata = HyperSquareMetadata(
-        segmentation_type,
+        segment_id_type,
+        affinity_type,
         bounding_box_type,
-        image_type,
         size_type,
+        image_type,
         num_segments,
         num_edges,
         chunk_voxel_dimensions,
