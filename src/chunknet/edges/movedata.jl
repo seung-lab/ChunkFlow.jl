@@ -22,9 +22,13 @@ function ef_movedata(c::DictChannel,
       if iss3(srcFile)
         download(awsEnv, srcFile, dstFile)
       elseif iss3(dstFile)
-        upload(awsEnv, srcFile, dstFile)
+        if isdir(srcFile)
+          run(`aws s3 cp --recursive $(srcFile) $(dstFile)`)
+        else
+          run(`aws s3 cp $(srcFile) $(dstFile)`)
+        end
         if params[:isRemoveSourceFile]
-          rm(srcFile)
+          rm(srcFile; recursive=true)
         end
       else
         if params[:isRemoveSourceFile]
