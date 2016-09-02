@@ -55,7 +55,7 @@ function ef_hypersquare(c::DictChannel,
     # get/create the chunk_folder
     base_folder = outputs[:fprj]
     chunk_folder = to_chunk_folder(base_folder, chunk_image)
-    println("Saving hypersqure to $chunk_folder")
+    println("Saving hypersquare to $chunk_folder")
 
     # write all data to disk
     println("Writing Segmentation ...")
