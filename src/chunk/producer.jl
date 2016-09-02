@@ -84,6 +84,6 @@ function produce_chunks_tasks(task::ChunkFlowTask)
         str_task = task2str(task)
         println("produced a new task: ")
         @show str_task
-        sendSQSmessage(env, sqsname, str_task)
+        sendSQSmessage(awsEnv, sqsname, str_task)
     end
 end
