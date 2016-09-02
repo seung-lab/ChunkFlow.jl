@@ -110,18 +110,24 @@ from SegMST and also convert the values to the input types
 function extract(seg_mst::EMIRT.SegMST;
         segment_id_type::Type = DEFAULT_SEGMENT_ID_TYPE,
         affinity_type::Type = DEFAULT_AFFINITY_TYPE)
-    return (smart_downcast(seg_mst.segmentation, seg_mst.segmentPairs,
+    return (smart_cast(seg_mst.segmentation, seg_mst.segmentPairs,
             segment_id_type) ...,
         convert(Array{affinity_type, 1},
             seg_mst.segmentPairAffinities))
 end
 
 """
-    smart_downcast{U <: Unsigned}(segmentation::Array{U, 3},
+    smart_cast{U <: Unsigned}(segmentation::Array{U, 3},
         segment_pairs::Array{U, 2}, cast_type::Type)
-Downcasts the segment ids to a cast_type.
+
+Cast the segment ids to the input cast_type. Returns a tuple of the new
+segmentation and new segment_pairs using the new cast_type.
+This checks to make sure that the new segment ids can be represented with the
+new cast_type. Throw an error if it is simply not possible to represent
+all the segment ids inside the input type. If it is possible, but we have some
+ids that do not fit, relabel all the ids so they fit inside input cast_type
 """
-function smart_downcast{U <: Unsigned}(segmentation::Array{U, 3},
+function smart_cast{U <: Unsigned}(segmentation::Array{U, 3},
         segment_pairs::Array{U, 2}, cast_type::Type)
     # Attempt to do conversion first, if we fail due to InexactError, we will
     # try to handle it in the catch
@@ -158,8 +164,8 @@ end
     redistribute_ids{U <: Unsigned}(old_ids::Array{U, 1},
         old_array::Array{U}, new_id_type::Type)
 
-Linearly redistribute all the old_ids into new_id_type. Then remap all the old
-ids in the old_array into a new ar
+Linearly redistribute all the old_ids into the new_id_type. Then remap all the old
+ids in the old_array into a new array
 """
 
 function redistribute_ids{U <: Unsigned}(old_ids::Array{U, 1},
@@ -177,6 +183,7 @@ end
 
 """
     to_chunk_folder(base_folder::AbstractString, chunk::Chunk)
+
 Get or create a chunk folder that corresponds to chunk data.
 """
 function to_chunk_folder(base_folder::AbstractString, chunk::Chunk)
@@ -262,7 +269,7 @@ end
         chunk_folder::AbstractString;
         graph_filename = DEFAULT_GRAPH_FILENAME)
 
-writes the graph (MST) into a file in the format of: 
+writes the graph (MST) into a file in the format of:
     [ edge_1_vertex_id_1::U, edge_1_vertex_id_2::U,
       edge_1_affinity::F
       ...
