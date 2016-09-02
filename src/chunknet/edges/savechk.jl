@@ -24,7 +24,7 @@ function ef_savechk(c::DictChannel,
         fname = "$(prefix)$(chk.origin[1])_$(chk.origin[2])_$(chk.origin[3]).$(inputs[:chunk]).h5"
     end
     if iss3(fname)
-        ftmp = "/tmp/chk.h5"
+        ftmp = string(tempname(), ".chk.h5")
         save(ftmp, chk)
         run(`aws s3 mv $ftmp $fname`)
     else

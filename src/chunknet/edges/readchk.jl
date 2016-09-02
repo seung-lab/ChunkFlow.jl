@@ -15,8 +15,7 @@ function ef_readchk!(c::DictChannel,
     fname = inputs[:fname]
     if iss3(fname)
         # download from s3
-        env = build_env()
-        fname = download(env, fname, "/tmp/")
+        fname = download(awsEnv, fname, "/tmp/")
     end
     @show fname
     chk = readchk(fname)
