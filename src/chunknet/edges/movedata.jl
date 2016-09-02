@@ -10,28 +10,31 @@ function ef_movedata(c::DictChannel,
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )
   # get chunk
-  fin = replace(inputs[:prefix], "~", homedir())
-  fot = replace(outputs[:dir], "~", homedir())
-  if iss3(fin)
-    download(awsEnv, fin, fot)
-  elseif iss3(fot)
-    upload(awsEnv, fin, fot)
-    if params[:isRemoveSourceFile]
-      rm(fin)
-    end
-  else
-    # local movement of files
-    for fbase in readdir(dirname(fin))
-        if contains(fbase, basename(fin))
-            fout = joinpath(fot, fbase)
-            if params[:isRemoveSourceFile]
-              mv(joinpath(dirname(fin), fbase),
-                  joinpath(dirname(fot), fbase), remove_destination=true)
-            else
-              cp(joinpath(dirname(fin), fbase),
-                  joinpath(dirname(fot), fbase), remove_destination=true)
-            end
+  srcPrefix = replace(inputs[:prefix],  "~", homedir())
+  srcDir    = dirname(srcPrefix)
+  dstDir    = replace(outputs[:dir],    "~", homedir())
+
+  # local movement of files
+  for baseName in readdir(srcDir)
+    if contains(baseName, basename(srcPrefix))
+      dstFile = joinpath(dstDir, baseName)
+      srcFile = joinpath(srcDir, baseName)
+      if iss3(srcFile)
+        download(awsEnv, srcFile, dstFile)
+      elseif iss3(dstFile)
+        upload(awsEnv, srcFile, dstFile)
+        if params[:isRemoveSourceFile]
+          rm(srcFile)
         end
+      else
+        if params[:isRemoveSourceFile]
+          mv(joinpath(dirname(srcFile), baseName),
+              joinpath(dirname(dstFile), baseName), remove_destination=true)
+        else
+          cp(joinpath(dirname(srcFile), baseName),
+              joinpath(dirname(dstFile), baseName), remove_destination=true)
+        end
+      end
     end
   end
 end
