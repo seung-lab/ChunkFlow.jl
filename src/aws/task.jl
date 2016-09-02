@@ -4,9 +4,6 @@ using DataStructures
 include("../core/types.jl")
 include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
 
-global const sqsname = "chunkflow-tasks"
-global const awsEnv = build_env()
-
 """
 set the gpuid for all functions
 """
@@ -18,8 +15,8 @@ function set_gpu_id!(task::ChunkFlowTask, gpuid::Int)
   end
 end
 
-function get_sqs_task(queuename::ASCIIString = sqsname)
-    msg = fetchSQSmessage(awsEnv, queuename)
+function get_sqs_task(queuename::AbstractString = sqsname)
+    msg = fetchSQSmessage(awsEnv, ASCIIString(queuename))
     task = msg.body
     # transform text to JSON OrderedDict format
     return JSON.parse(task, dicttype=OrderedDict{Symbol, Any}), msg
@@ -63,7 +60,7 @@ produce tasks to AWS SQS
 function produce_tasks_s3img(task::ChunkFlowTask)
     # get list of files, no folders
     @show task[:input][:inputs][:fname]
-    bkt, keylst = s3_list_objects(task[:input][:inputs][:fname])
+    bkt, keylst = s3_list_objects( task[:input][:inputs][:fname] )
     @assert length(keylst)>0
     for key in keylst
         task[:input][:inputs][:fname] = joinpath("s3://", bkt, key)
