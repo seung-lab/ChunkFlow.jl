@@ -82,7 +82,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "s3//zfish/dodam_aligned_stacks/8x8x8/affinityMap/chunk_"
+        "prefix": "s3://zfish/dodam_aligned_stacks/8x8x8/affinityMap/chunk_"
     }
 },
 "cropImg":{
@@ -141,7 +141,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "s3//zfish/dodam_aligned_stacks/8x8x8/segmentation/chunk_"
+        "prefix": "s3://zfish/dodam_aligned_stacks/8x8x8/segmentation/chunk_"
     }
 },
 "omnification":{
