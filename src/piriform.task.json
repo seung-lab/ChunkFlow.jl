@@ -3,10 +3,10 @@
     "params":{
         "origin": [],
         "voxelsize": [4,4,40],
-        "datasetName": "img"
+        "datasetName": "main"
     },
     "inputs": {
-        "fname": "s3://seunglab/datasets/pinky/export/2048x2048x256/pinky_aligned_"
+        "fname": "/usr/people/jingpeng/seungmount/research/Julimaps/datasets/piriform/5_finished/stacks/piriform_20000-22047,20000-22047,257-517.h5"
     },
     "outputs": {
         "data": "img"
@@ -15,13 +15,13 @@
 "znni":{
     "kind": "znni",
     "params":{
-        "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
-        "GPUID": 0,
-        "fnet": "s3://znn/experiments/allen/0722_VD2D3D-MS/net_current.h5",
-        "outsz": [256, 256, 17],
-        "fov": [109, 109, 9],
-        "isexchangeaffxz": false,
-        "affWeight": 1
+      "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
+      "GPUID": 0,
+      "fnet": "s3://znn/experiments/piriform/VD2D3D-MS/net_current.h5",
+      "outsz": [256, 256, 17],
+      "fov": [109, 109, 9],
+      "isexchangeaffxz": true,
+      "affWeight": 1
     },
     "inputs": {
         "img": "img",
@@ -40,7 +40,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/13_neuromancer/pinky/chunk_"
+        "prefix": "~/seungmount/research/Jingpeng/08_piriform/chunk_"
     }
 },
 "cropImg":{
@@ -64,14 +64,14 @@
         "chunk": "img"
     },
     "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/13_neuromancer/pinky/chunk_"
+        "prefix": "~/seungmount/research/Jingpeng/08_piriform/chunk_"
     }
 },
 "watershed":{
     "kind": "atomicseg",
     "params": {
         "low": 0.1,
-        "high": 0.8,
+        "high": 0.7,
         "thresholds": [
             {
                 "size": 800,
@@ -111,7 +111,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/13_neuromancer/pinky/chunk_"
+        "prefix": "~/seungmount/research/Jingpeng/08_piriform/chunk_"
     }
 },
 "omnification":{
@@ -137,7 +137,7 @@
         "prefix": "/tmp/chunk_"
     },
     "outputs": {
-        "dir": "~/seungmount/research/Jingpeng/13_neuromancer/pinky/"
+        "dir": "~/seungmount/research/Jingpeng/08_piriform/"
     }
 }
 }
