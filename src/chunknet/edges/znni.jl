@@ -37,7 +37,7 @@ function ef_znni!( c::DictChannel,
     if !isdir(fnetbin)
         fnet = replace(params[:fnet], "~", homedir())
         if contains(fnet, "s3://")
-            fnet = download(env, fnet, "/tmp/net.h5")
+            fnet = download(awsEnv, fnet, "/tmp/net.h5")
         end
         fnet2bin = joinpath(dirname(fznni), "../../../julia/net2bin.jl")
         run(`julia $(fnet2bin) $(fnet) $(fnetbin)`)
@@ -76,7 +76,9 @@ function ef_znni!( c::DictChannel,
 
 
     # reweight affinity to make ensemble
-    aff .*= eltype(aff)(params[:affWeight])
+    if params[:affWeight] != 1
+      aff .*= eltype(aff)(params[:affWeight])
+    end
     if isready(c, inputs[:aff])
       aff .+= take!(c, inputs[:aff]).data
     end
