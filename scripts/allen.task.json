@@ -3,7 +3,8 @@
     "params":{
         "origin": [],
         "voxelsize": [4,4,40],
-        "datasetName": "img"
+        "datasetName": "img",
+        "isRemoveSourceFile": true
     },
     "inputs": {
         "fname": "s3://seunglab/datasets/pinky/export/2048x2048x256/pinky_aligned_"

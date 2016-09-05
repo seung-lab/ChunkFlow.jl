@@ -3,7 +3,8 @@
     "params":{
         "origin": [],
         "voxelsize": [5,5,45],
-        "datasetName": "img"
+        "datasetName": "img",
+        "isRemoveSourceFile": true
     },
     "inputs": {
         "fname": "s3://zfish/dodam_aligned_stacks/8x8x8/zebrafish_aligned_"

@@ -24,6 +24,7 @@ include("edges/omni.jl")
 include("edges/movedata.jl")
 include("edges/kaffe.jl")
 include("edges/hypersquare.jl")
+include("edges/mergeseg.jl")
 
 """
 library of edge function as a Dict
@@ -41,7 +42,8 @@ const edgeFuncLib = Dict{Symbol, Function}(
   :hypersquare    => ef_hypersquare,
   :crop           => ef_crop!,
   :movedata       => ef_movedata,
-  :kaffe          => ef_kaffe!
+  :kaffe          => ef_kaffe!,
+  :mergeseg       => ef_mergeseg!
 )
 
 """
