@@ -12,11 +12,14 @@ the computation was defined as an edge. The kinds of edge was defined in [a task
 ## Usage using AWS Simple Queue Service
 
 ### produce a bunch of tasks
-- define `task.json` file, the file name can be only a prefix. Task producer will match all the files and produce a bunch of tasks
-- produce tasks
+define `task.json` file, the file name can be only a prefix. Task producer will match all the files and produce a bunch of tasks
+
+produce tasks
+
     julia taskproducer.jl --task=task.json --awssqs=chunkflow-tasks
 
 find help:
+
     julia taskproducer.jl -h
 
 ### Auto Fetch tasks from AWS SQS "chunkflow-tasks"
