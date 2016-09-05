@@ -1,7 +1,7 @@
 # save chunk from dictchannel to local disk or aws s3
 
 include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
-include("../../chunk/chunk.jl")
+include("../chunk/chunk.jl")
 
 using DataStructures
 
