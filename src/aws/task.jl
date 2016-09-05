@@ -1,18 +1,22 @@
 using JSON
 using DataStructures
 
-typealias Ttask OrderedDict{Symbol, Any}
-
+include("../core/types.jl")
 include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
 
-global const sqsname = "spipe-tasks"
-global const env = build_env()
+"""
+set the gpuid for all functions
+"""
+function set_gpu_id!(task::ChunkFlowTask, gpuid::Int)
+  for (edgeName, edgeConfig) in task
+    if haskey(edgeConfig[:params], :GPUID)
+      task[edgeName][:params][:GPUID] = gpuid
+    end
+  end
+end
 
-export get_task
-
-function get_sqs_task(queuename::ASCIIString = sqsname)
-    env = build_env()
-    msg = fetchSQSmessage(env, queuename)
+function get_sqs_task(queuename::AbstractString = sqsname)
+    msg = fetchSQSmessage(awsEnv, ASCIIString(queuename))
     task = msg.body
     # transform text to JSON OrderedDict format
     return JSON.parse(task, dicttype=OrderedDict{Symbol, Any}), msg
@@ -20,8 +24,7 @@ end
 
 function get_s3_task(fname::AbstractString)
     @assert iss3(fname)
-    env = build_env()
-    lcfile = download(env, ARGS[1], "/tmp/")
+    lcfile = download(awsEnv, ARGS[1], "/tmp/")
     str_task = readall( lcfile )
     # transform text to JSON OrderedDict format
     return JSON.parse(str_task, dicttype=OrderedDict{Symbol, Any})
@@ -54,20 +57,20 @@ end
 """
 produce tasks to AWS SQS
 """
-function produce_tasks_s3img(task::Ttask)
+function produce_tasks_s3img(task::ChunkFlowTask)
     # get list of files, no folders
     @show task[:input][:inputs][:fname]
-    bkt, keylst = s3_list_objects(task[:input][:inputs][:fname])
+    bkt, keylst = s3_list_objects( task[:input][:inputs][:fname] )
     @assert length(keylst)>0
     for key in keylst
         task[:input][:inputs][:fname] = joinpath("s3://", bkt, key)
         # send the task to SQS queue
-        sendSQSmessage(env, sqsname, JSON.json(task))
+        sendSQSmessage(awsEnv, sqsname, JSON.json(task))
     end
 end
 
 
-function produce_tasks_local(task::Ttask)
+function produce_tasks_local(task::ChunkFlowTask)
     @show task[:input][:inputs][:fname]
     # directory name and prefix
     dn, prefix = splitdir(task[:input][:inputs][:fname])
@@ -82,6 +85,6 @@ function produce_tasks_local(task::Ttask)
         end
         task[:input][:inputs][:fname] = joinpath(dn, fname)
         str_task = task2str(task)
-        sendSQSmessage(env, sqsname, str_task)
+        sendSQSmessage(awsEnv, sqsname, str_task)
     end
 end

@@ -42,8 +42,7 @@ function ef_readh5!(c::DictChannel,
     fname = inputs[:fname]
     if iss3(fname)
         # download from s3
-        env = build_env()
-        fname = download(env, fname, "/tmp/")
+        fname = download(awsEnv, fname, "/tmp/")
     else
         fname = replace(fname, "~", homedir())
     end
