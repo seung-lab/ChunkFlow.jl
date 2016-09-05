@@ -1,5 +1,5 @@
-include("core/argparser.jl")
-include("chunknet/ChunkNet.jl")
+include("../src/core/argparser.jl")
+include("../src/ChunkNet.jl")
 using ChunkNet
 using Logging
 @Logging.configure(level=DEBUG)
@@ -10,7 +10,7 @@ argDict = parse_commandline()
 @show argDict
 
 global const sqsname = argDict["awssqs"]
-include("aws/task.jl")
+include("../src/aws/task.jl")
 
 if !isa(argDict["task"], Void)
   # has local task definition

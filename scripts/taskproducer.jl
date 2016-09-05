@@ -1,6 +1,6 @@
 using EMIRT
 using DataStructures
-include("core/argparser.jl")
+include("../src/core/argparser.jl")
 
 # parse the arguments as a dictionary, key is string
 argDict = parse_commandline()
@@ -8,7 +8,7 @@ argDict = parse_commandline()
 
 # setup AWS SQS queue name
 global const sqsname = argDict["awssqs"]
-include("aws/task.jl")
+include("../src/aws/task.jl")
 
 # read task config file
 # produce task script
