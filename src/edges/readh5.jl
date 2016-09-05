@@ -65,6 +65,8 @@ function ef_readh5!(c::DictChannel,
     # put chunk to channel for use
     put!(c, outputs[:data], chk)
 
-    chk = nothing
-    gc()
+    # remove local file
+    if params[:isRemoveSourceFile]
+      rm(fname)
+    end
 end
