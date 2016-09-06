@@ -1,6 +1,6 @@
 using HDF5
 
-include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
+include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 include("../chunk/chunk.jl")
 
 using DataStructures
@@ -42,7 +42,7 @@ function ef_readh5!(c::DictChannel,
     fname = inputs[:fname]
     if iss3(fname)
         # download from s3
-        fname = download(awsEnv, fname, "/tmp/")
+        fname = download(fname, "/tmp/")
     else
         fname = replace(fname, "~", homedir())
     end

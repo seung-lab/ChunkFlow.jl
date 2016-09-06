@@ -35,7 +35,7 @@ function ef_kaffe!( c::DictChannel,
     # download trained network
     if iss3(params[:fNet])
       tempFile = string(tempname(), ".kaffe.net.h5")
-      download(awsEnv, params[:fNet], tempFile)
+      download(params[:fNet], tempFile)
       params[:fNet] = tempFile
     end
 
