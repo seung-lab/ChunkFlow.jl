@@ -76,9 +76,7 @@
 },
 "saveaff":{
     "kind": "savechk",
-    "params": {
-        "isdelete": false
-    },
+    "params": {},
     "inputs": {
         "chunk": "aff"
     },
@@ -123,7 +121,7 @@
     "kind":"agglomeration",
     "params":{
         "mode": "mean",
-        "isdeleteaff": true
+        "isDeleteAff": true
     },
     "inputs": {
         "seg": "seg",
@@ -135,9 +133,7 @@
 },
 "savesgm":{
     "kind": "savechk",
-    "params": {
-        "isdelete": false
-    },
+    "params": {},
     "inputs": {
         "chunk": "sgm"
     },
