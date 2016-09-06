@@ -1,14 +1,13 @@
 # save chunk from dictchannel to local disk or aws s3
 
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
-include("../chunk/chunk.jl")
-
+using BigArrays
 using DataStructures
 
 """
 edge function of readh5
 """
-function ef_savechk(c::DictChannel,
+function ef_savechunk(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )

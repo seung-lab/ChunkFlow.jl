@@ -12,8 +12,8 @@ type Edge <: AbstractEdge
     outputs::OrderedDict{Symbol, Any}
 end
 
-include("edges/readchk.jl")
-include("edges/savechk.jl")
+include("edges/readchunk.jl")
+include("edges/savechunk.jl")
 include("edges/readh5.jl")
 include("edges/crop.jl")
 include("edges/watershed.jl")
@@ -31,9 +31,9 @@ library of edge function as a Dict
 register a new function here for any new edge type
 """
 const edgeFuncLib = Dict{Symbol, Function}(
-  :readchk        => ef_readchk!,
+  :readchunk        => ef_readchunk!,
   :readh5         => ef_readh5!,
-  :savechk        => ef_savechk,
+  :savechunk        => ef_savechunk,
   :znni           => ef_znni!,
   :watershed      => ef_watershed!,
   :atomicseg      => ef_atomicseg!,
