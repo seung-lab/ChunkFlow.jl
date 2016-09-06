@@ -4,8 +4,6 @@ import JSON
 import EMIRT
 using DataStructures
 
-export ef_hypersquare
-
 # These default constants are configurable parameters
 const DEFAULT_SEGMENT_ID_TYPE = UInt16
 const DEFAULT_AFFINITY_TYPE = Float32
@@ -53,7 +51,7 @@ function ef_hypersquare(c::DictChannel,
     images = convert(Array{UInt8, 3}, chunk_image.data)
 
     # get/create the chunk_folder
-    base_folder = outputs[:fprj]
+    base_folder = outputs[:projectFile]
     chunk_folder = to_chunk_folder(base_folder, chunk_image)
     println("Saving hypersquare to $chunk_folder")
 
@@ -302,7 +300,9 @@ function write_images{U <: Unsigned}(images::Array{U, 3},
         chunk_folder::AbstractString;
         quality = DEFAULT_IMAGE_QUALITY, image_folder = DEFAULT_IMAGE_FOLDER)
 
-    mkdir(joinpath(chunk_folder, image_folder))
+    if !isdir(joinpath(chunk_folder, image_folder))
+      mkdir(joinpath(chunk_folder, image_folder))
+    end 
     for i in 1:size(images)[3]
         image = Images.grayim(images[:, :, i])
         Images.save(joinpath(chunk_folder, image_folder, "$(i-1).jpg"),
@@ -317,7 +317,7 @@ Find the bounding boxes (min and max coordinates) for each segment ID.
 Also count the number of voxels of each segment id is present in the volume
 Returns:
 * Tuple{Array{SEGMENT_BOUNDING_BOX_TYPE, 1}, Array{SEGMENT_SIZE_TYPE, 1}}
-** First element is an array containing the bounding boxes. 
+** First element is an array containing the bounding boxes.
     [seg_1_min_x, seg_1_min_y, seg_1_min_z, seg_1_max_x, seg_1_max_y, seg_1_max_z ...
      seg_N_min_x, seg_N_min_y, seg_N_min_z, seg_N_max_x, seg_N_max_y, seg_N_max_z]
 ** Second element is an array of segment sizes

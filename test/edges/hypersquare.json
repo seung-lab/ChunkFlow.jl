@@ -2,12 +2,12 @@
     "kind": "readh5",
     "params":{
         "origin": [],
-        "voxelsize": [4,4,40],
-        "datasetName": "img",
-        "isRemoveSourceFile": true
+        "voxelsize": [5,5,45],
+        "datasetName": "image",
+        "isRemoveSourceFile": false
     },
     "inputs": {
-        "fname": "s3://seunglab/datasets/pinky/export/2048x2048x256/pinky_aligned_"
+        "fname": "../assets/zfish_25397_8001_1.img.h5"
     },
     "outputs": {
         "data": "img"
@@ -18,10 +18,10 @@
     "params":{
         "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
         "GPUID": 0,
-        "fnet": "s3://znn/experiments/allen/0722_VD2D3D-MS/net_current.h5",
+        "fnet": "~/seungmount/research/kisuklee/Sharing/Jingpeng/blend_test/MS/net_290000.h5",
         "outsz": [256, 256, 17],
         "fov": [109, 109, 9],
-        "isexchangeaffxz": false,
+        "isexchangeaffxz": true,
         "affWeight": 1
     },
     "inputs": {
@@ -30,16 +30,6 @@
     },
     "outputs": {
         "aff": "aff"
-    }
-},
-"saveaff":{
-    "kind": "savechk",
-    "params": {},
-    "inputs": {
-        "chunk": "aff"
-    },
-    "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/13_neuromancer/pinky/chunk_"
     }
 },
 "cropImg":{
@@ -54,17 +44,7 @@
     "img": "img"
   }
 },
-"saveimg":{
-    "kind": "savechk",
-    "params": {},
-    "inputs": {
-        "chunk": "img"
-    },
-    "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/13_neuromancer/pinky/chunk_"
-    }
-},
-"watershed":{
+"atomicseg":{
     "kind": "atomicseg",
     "params": {
         "low": 0.1,
@@ -99,40 +79,18 @@
         "sgm": "sgm"
     }
 },
-"savesgm":{
-    "kind": "savechk",
-    "params": {},
-    "inputs": {
-        "chunk": "sgm"
-    },
-    "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/13_neuromancer/pinky/chunk_"
-    }
-},
-"omnification":{
-    "kind": "omnification",
+"hypersquare":{
+    "kind": "hypersquare",
     "params":{
-        "ombin": "/opt/omni",
-        "isMeshing": true
+        "segment_id_type" : "UInt16",
+        "affinity_type" : "Float32"
     },
     "inputs": {
         "img": "img",
         "sgm": "sgm"
     },
     "outputs": {
-        "fprj": "/tmp/chunk_"
-    }
-},
-"moveomniprj":{
-    "kind": "movedata",
-    "params": {
-      "isRemoveSourceFile": true
-    },
-    "inputs": {
-        "prefix": "/tmp/chunk_"
-    },
-    "outputs": {
-        "dir": "~/seungmount/research/Jingpeng/13_neuromancer/pinky/"
+        "projectFile": "/tmp/lzma"
     }
 }
 }
