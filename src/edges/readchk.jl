@@ -1,6 +1,6 @@
 using HDF5
 
-include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
+include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 include("../chunk/chunk.jl")
 
 using DataStructures
@@ -15,7 +15,7 @@ function ef_readchk!(c::DictChannel,
     fname = inputs[:fname]
     if iss3(fname)
         # download from s3
-        fname = download(awsEnv, fname, "/tmp/")
+        fname = download(fname, "/tmp/")
     end
     @show fname
     chk = readchk(fname)
