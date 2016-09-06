@@ -1,14 +1,14 @@
 using HDF5
+using BigArrays
 
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
-include("../chunk/chunk.jl")
 
 using DataStructures
 
 """
 edge function of readh5
 """
-function ef_readchk!(c::DictChannel,
+function ef_readchunk!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )
@@ -18,7 +18,7 @@ function ef_readchk!(c::DictChannel,
         fname = download(fname, "/tmp/")
     end
     @show fname
-    chk = readchk(fname)
+    chk = readchunk(fname)
     # put chunk to channel for use
     put!(c, outputs[:data], chk)
 

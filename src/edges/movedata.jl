@@ -19,14 +19,10 @@ function ef_movedata(c::DictChannel,
     if contains(baseName, basename(srcPrefix))
       dstFile = joinpath(dstDir, baseName)
       srcFile = joinpath(srcDir, baseName)
-      if iss3(srcFile)
+      if iss3(srcFile) || isGoogleStorage(srcFile)
         download(srcFile, dstFile)
-      elseif iss3(dstFile)
-        if isdir(srcFile)
-          run(`aws s3 cp --recursive $(srcFile) $(dstFile)`)
-        else
-          run(`aws s3 cp $(srcFile) $(dstFile)`)
-        end
+      elseif iss3(dstFile) || isGoogleStorage(dstFile)
+        upload(srcFile, dstFile)
         if params[:isRemoveSourceFile]
           rm(srcFile; recursive=true)
         end

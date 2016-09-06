@@ -33,7 +33,7 @@
     }
 },
 "saveImg":{
-    "kind": "savechk",
+    "kind": "savechunk",
     "params":{},
     "inputs":{
         "chunk": "img"
@@ -132,7 +132,7 @@
     }
 },
 "savesgm":{
-    "kind": "savechk",
+    "kind": "savechunk",
     "params": {},
     "inputs": {
         "chunk": "sgm"
