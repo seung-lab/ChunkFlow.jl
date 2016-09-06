@@ -75,7 +75,7 @@
     }
 },
 "saveaff":{
-    "kind": "savechk",
+    "kind": "savechunk",
     "params": {},
     "inputs": {
         "chunk": "aff"
@@ -132,7 +132,7 @@
     }
 },
 "savesgm":{
-    "kind": "savechk",
+    "kind": "savechunk",
     "params": {},
     "inputs": {
         "chunk": "sgm"
