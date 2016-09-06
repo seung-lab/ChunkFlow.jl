@@ -3,7 +3,8 @@
     "params":{
         "origin": [],
         "voxelsize": [5,5,45],
-        "datasetName": "image"
+        "datasetName": "image",
+        "isRemoveSourceFile": false
     },
     "inputs": {
         "fname": "../assets/zfish_25397_8001_1.img.h5"
@@ -33,9 +34,7 @@
 },
 "saveImg":{
     "kind": "savechk",
-    "params":{
-        "isdelete": false
-    },
+    "params":{},
     "inputs":{
         "chunk": "img"
     },
@@ -122,7 +121,7 @@
     "kind":"agglomeration",
     "params":{
         "mode": "mean",
-        "isdeleteaff": true
+        "isDeleteAff": true
     },
     "inputs": {
         "seg": "seg",
@@ -134,9 +133,7 @@
 },
 "savesgm":{
     "kind": "savechk",
-    "params": {
-        "isdelete": true
-    },
+    "params": {},
     "inputs": {
         "chunk": "sgm"
     },
