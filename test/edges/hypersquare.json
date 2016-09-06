@@ -90,7 +90,19 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectFile": "/tmp/lzma"
+        "projectFile": "/tmp/hypersquare/"
+    }
+},
+"movehypersquare":{
+    "kind": "movedata",
+    "params": {
+      "isRemoveSourceFile": true
+    },
+    "inputs": {
+        "prefix": "/tmp/hypersquare/chunk_"
+    },
+    "outputs": {
+        "dir": "/tmp/"
     }
 }
 }
