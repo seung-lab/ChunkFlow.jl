@@ -10,7 +10,7 @@ argDict = parse_commandline()
 @show argDict
 
 global const sqsname = argDict["awssqs"]
-include("../src/aws/task.jl")
+include("../src/core/task.jl")
 
 if !isa(argDict["task"], Void)
   # has local task definition
