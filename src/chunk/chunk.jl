@@ -7,8 +7,8 @@ abstract AbstractChunk
 
 type Chunk <: AbstractChunk
     data::Union{Array, SegMST}                  # could be 3-5 Dimension dataay
-    origin::Vector     # measured by voxel number
-    voxelsize::Vector  # physical size of each voxel
+    origin::Vector{UInt32}     # measured by voxel number
+    voxelsize::Vector{UInt32}  # physical size of each voxel
 end
 
 """
@@ -45,7 +45,7 @@ end
 compute the physical offset
 """
 function physical_offset( chk::Chunk )
-    Vector{UInt32}((chk.origin-1) .* chk.voxelsize)
+    Vector{UInt32}((chk.origin.-UInt32(1)) .* chk.voxelsize)
 end
 
 """
