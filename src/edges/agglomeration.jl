@@ -9,7 +9,7 @@ function ef_agglomeration!( c::DictChannel,
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any})
     chk_seg = fetch(c, inputs[:seg])
-    if params[:isdeleteaff]
+    if params[:isDeleteAff]
         chk_aff = take!(c, inputs[:aff])
     else
         chk_aff = fetch(c, inputs[:aff])
@@ -27,7 +27,7 @@ function ef_agglomeration!( c::DictChannel,
 
     # put output to channel
     put!(c, outputs[:sgm], chk_sgm)
-    if params[:isdeleteaff]
+    if params[:isDeleteAff]
       chk_aff = nothing
     end
     gc()
