@@ -2,7 +2,7 @@ using EMIRT
 using HDF5
 using DataStructures
 
-#include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
+#include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 
 """
 edge function of znni
@@ -37,7 +37,7 @@ function ef_znni!( c::DictChannel,
     if !isdir(fnetbin)
         fnet = replace(params[:fnet], "~", homedir())
         if contains(fnet, "s3://")
-            fnet = download(awsEnv, fnet, "/tmp/net.h5")
+            fnet = download(fnet, "/tmp/net.h5")
         end
         fnet2bin = joinpath(dirname(fznni), "../../../julia/net2bin.jl")
         run(`julia $(fnet2bin) $(fnet) $(fnetbin)`)

@@ -34,7 +34,7 @@ else
     net = Net(task)
     forward(net)
     # delete task message in SQS
-    deleteSQSmessage!(awsEnv, msg, sqsname)
+    deleteSQSmessage!(msg, sqsname)
     sleep(5)
   end
 end

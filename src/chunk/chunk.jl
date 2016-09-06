@@ -3,7 +3,7 @@ using HDF5
 
 abstract AbstractChunk
 
-#include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
+#include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 
 type Chunk <: AbstractChunk
     data::Union{Array, SegMST}                  # could be 3-5 Dimension dataay

@@ -1,6 +1,6 @@
 # move data
 # to-do: support uploading to S3
-#include(joinpath(Pkg.dir(), "EMIRT/plugins/aws.jl"))
+#include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 
 """
 edge function of movedata
@@ -20,7 +20,7 @@ function ef_movedata(c::DictChannel,
       dstFile = joinpath(dstDir, baseName)
       srcFile = joinpath(srcDir, baseName)
       if iss3(srcFile)
-        download(awsEnv, srcFile, dstFile)
+        download(srcFile, dstFile)
       elseif iss3(dstFile)
         if isdir(srcFile)
           run(`aws s3 cp --recursive $(srcFile) $(dstFile)`)
