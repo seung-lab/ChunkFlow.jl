@@ -6,7 +6,7 @@ using DataStructures
 
 include("dictchannel.jl")
 include("edges.jl")
-include("aws/task.jl")
+include("core/task.jl")
 
 export Net, forward
 

@@ -8,7 +8,7 @@ argDict = parse_commandline()
 
 # setup AWS SQS queue name
 global const sqsname = argDict["awssqs"]
-include("../src/aws/task.jl")
+include("../src/core/task.jl")
 
 # read task config file
 # produce task script

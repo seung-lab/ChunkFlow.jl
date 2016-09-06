@@ -1,5 +1,7 @@
-include("../bigarray/bigarray.jl")
-include("chunk.jl")
+using BigArrays
+
+#include("../bigarray/bigarray.jl")
+#include(joinpath(Pkg.dir(), "BigArrays/src/chunk.jl")
 
 typealias Tcoord Vector{Int}
 typealias Tsz Vector{Int}
