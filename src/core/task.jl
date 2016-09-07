@@ -1,7 +1,7 @@
 using JSON
 using DataStructures
 
-include("../core/types.jl")
+include("types.jl")
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 
 """

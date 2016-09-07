@@ -9,7 +9,7 @@ function ef_crop!( c::DictChannel,
     for (k,v) in inputs
         @assert haskey(outputs, k)
         chk = take!(c, v)
-        chk = crop_border(chk, params[:cropMarginSize])
+        chk = BigArrays.crop_border(chk, params[:cropMarginSize])
         put!(c, outputs[k], chk)
     end
 end
