@@ -1,4 +1,5 @@
 using HDF5
+using BigArrays
 
 """
 edge function of kaffe forward pass
@@ -25,7 +26,7 @@ function ef_kaffe!( c::DictChannel,
     end
     if params[:isCropImg]
       # Note that
-      chk_img2 = crop_border(chk_img, params[:cropMarginSize])
+      chk_img2 = BigArrays.crop_border(chk_img, params[:cropMarginSize])
     else
       chk_img2 = chk_img
     end

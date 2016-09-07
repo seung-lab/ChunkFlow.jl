@@ -1,6 +1,5 @@
 # move data
-# to-do: support uploading to S3
-#include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
+include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 
 """
 edge function of movedata
@@ -11,8 +10,8 @@ function ef_movedata(c::DictChannel,
                     outputs::OrderedDict{Symbol, Any} )
   # get chunk
   srcPrefix = replace(inputs[:prefix],  "~", homedir())
-  srcDir    = dirname(srcPrefix)
   dstDir    = replace(outputs[:dir],    "~", homedir())
+  srcDir    = dirname(srcPrefix)
 
   # local movement of files
   for baseName in readdir(srcDir)
