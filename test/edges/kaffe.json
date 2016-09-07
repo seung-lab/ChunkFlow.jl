@@ -1,0 +1,37 @@
+{"input": {
+    "kind": "readh5",
+    "params":{
+        "origin": [],
+        "voxelsize": [5,5,45],
+        "datasetName": "image",
+        "isRemoveSourceFile": false
+    },
+    "inputs": {
+        "fname": "../assets/zfish_25397_8001_1.img.h5"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"JNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "fModel": "/opt/kaffe/models/JNet/deploy.prototxt",
+        "fNet": "/opt/kaffe/experiments/zfish/JNet/train_iter_215000.caffemodel.h5",
+        "outsz":    [158, 158,  32],
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "GPUID": 0,
+        "isCropImg": false,
+        "cropMarginSize": [54,  54,   4],
+        "affWeight": 0.33333333
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+}
+}
