@@ -14,6 +14,7 @@ end
 
 include("edges/readchunk.jl")
 include("edges/savechunk.jl")
+include("edges/blendchunk.jl")
 include("edges/readh5.jl")
 include("edges/crop.jl")
 include("edges/watershed.jl")
@@ -31,9 +32,10 @@ library of edge function as a Dict
 register a new function here for any new edge type
 """
 const edgeFuncLib = Dict{Symbol, Function}(
-  :readchunk        => ef_readchunk!,
+  :readchunk      => ef_readchunk!,
   :readh5         => ef_readh5!,
-  :savechunk        => ef_savechunk,
+  :savechunk      => ef_savechunk,
+  :blendchunk     => ef_blendchunk,
   :znni           => ef_znni!,
   :watershed      => ef_watershed!,
   :atomicseg      => ef_atomicseg!,

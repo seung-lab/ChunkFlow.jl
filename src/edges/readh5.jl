@@ -57,7 +57,7 @@ function ef_readh5!(c::DictChannel,
         origin[2] = h5read(fname, "y_slice")[1]
         origin[3] = h5read(fname, "z_slice")[1]
     else
-        origin = fname2offset(fname)
+        origin = fname2offset(fname) + 1
     end
     close(f)
     voxelsize = params[:voxelsize]
