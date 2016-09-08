@@ -24,7 +24,7 @@ function ef_savechunk(c::DictChannel,
     end
     if iss3(fname)
         ftmp = string(tempname(), ".chk.h5")
-        save(ftmp, chk)
+        BigArrays.save(ftmp, chk)
         run(`aws s3 mv $ftmp $fname`)
     else
         BigArrays.save(fname, chk)
