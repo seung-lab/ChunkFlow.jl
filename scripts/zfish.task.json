@@ -19,8 +19,8 @@
         "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
         "GPUID": 0,
         "fnet": "s3://znn/experiments/zfish/net_290000.h5",
-        "outsz": [256, 256, 17],
-        "fov": [109, 109, 9],
+        "outputPatchSize": [256, 256, 17],
+        "fieldOfView": [109, 109, 9],
         "isexchangeaffxz": true,
         "affWeight": 0.333333333
     },
@@ -38,11 +38,12 @@
         "kaffeDir": "/opt/kaffe",
         "fModel": "/opt/kaffe/models/MSF/deploy.prototxt",
         "fNet": "/opt/kaffe/experiments/zfish/MSF/train_iter_250000.caffemodel.h5",
-        "outsz":    [150, 150,  12],
+        "outputPatchSize":    [150, 150,  12],
         "scanParams": "None",
         "GPUID": 0,
         "isCropImg": true,
         "cropMarginSize": [6,   6,    0],
+        "originOffset": [54, 54, 4],
         "affWeight": 0.33333333
     },
     "inputs": {
@@ -59,11 +60,12 @@
         "kaffeDir": "/opt/kaffe",
         "fModel": "/opt/kaffe/models/JNet/deploy.prototxt",
         "fNet": "/opt/kaffe/experiments/zfish/JNet-f/train_iter_325000.caffemodel.h5",
-        "outsz":    [158, 158,  32],
+        "outputPatchSize":    [158, 158,  32],
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
         "GPUID": 0,
         "isCropImg": false,
         "cropMarginSize": [54,  54,   4],
+        "originOffset": [54, 54, 4],
         "affWeight": 0.33333333
     },
     "inputs": {
