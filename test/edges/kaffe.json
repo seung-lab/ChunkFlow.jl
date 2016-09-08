@@ -19,7 +19,7 @@
         "kaffeDir": "/opt/kaffe",
         "fModel": "/opt/kaffe/models/JNet/deploy.prototxt",
         "fNet": "/opt/kaffe/experiments/zfish/JNet/train_iter_215000.caffemodel.h5",
-        "outsz":    [158, 158,  32],
+        "outputPatchSize":    [158, 158,  32],
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
         "GPUID": 0,
         "isCropImg": false,
