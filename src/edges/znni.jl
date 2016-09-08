@@ -30,7 +30,7 @@ function ef_znni!( c::DictChannel,
     # prepare parameters
     currentdir = pwd()
     fznni = replace(params[:fznni], "~", homedir())
-    outsz = params[:outsz]
+    outputPatchSize = params[:outputPatchSize]
 
     # checke the existance of binary network file
     fnetbin = joinpath(dirname(fznni), "VD2D3D-MS")
@@ -45,12 +45,12 @@ function ef_znni!( c::DictChannel,
 
     # run znni inference
     cd(dirname(fznni))
-    run(`$(fznni) $(params[:GPUID]) $(fimg) $(faff) main $(outsz[3]) $(outsz[2]) $(outsz[1])`)
+    run(`$(fznni) $(params[:GPUID]) $(fimg) $(faff) main $(outputPatchSize[3]) $(outputPatchSize[2]) $(outputPatchSize[1])`)
     cd(currentdir)
 
     # compute cropMarginSize using integer division
     sz = size(chk_img.data)
-    cropMarginSize = div(params[:fov]-1, 2)
+    cropMarginSize = div(params[:fieldOfView]-1, 2)
 
     # read affinity map
     f = h5open(faff)
@@ -83,7 +83,7 @@ function ef_znni!( c::DictChannel,
       aff .+= take!(c, inputs[:aff]).data
     end
 
-    chk_aff = Chunk(aff, chk_img.origin, chk_img.voxelsize)
+    chk_aff = Chunk(aff, chk_img.origin.+cropMarginSize, chk_img.voxelsize)
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
 
