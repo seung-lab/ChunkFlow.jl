@@ -19,8 +19,8 @@
         "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
         "GPUID": 0,
         "fnet": "s3://znn/experiments/allen/0722_VD2D3D-MS/net_current.h5",
-        "outsz": [256, 256, 17],
-        "fov": [109, 109, 9],
+        "outputPatchSize": [256, 256, 17],
+        "fieldOfView": [109, 109, 9],
         "isexchangeaffxz": false,
         "affWeight": 1
     },
