@@ -19,8 +19,8 @@
         "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
         "GPUID": 0,
         "fnet": "~/seungmount/research/kisuklee/Sharing/Jingpeng/blend_test/MS/net_290000.h5",
-        "outsz": [256, 256, 17],
-        "fov": [109, 109, 9],
+        "outputPatchSize": [256, 256, 17],
+        "fieldOfView": [109, 109, 9],
         "isexchangeaffxz": true,
         "affWeight": 1
     },

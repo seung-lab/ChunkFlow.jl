@@ -85,12 +85,10 @@ function ef_kaffe!( c::DictChannel,
     f = h5open(fAff)
     if params[:isCropImg]
       aff = read(f["main"])
-      affOrigin = chk_img2.origin
     else
       aff = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
                       cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-                      cropMarginSize[3]+1:sz[3]-cropMarginSize[3],:]
-      affOrigin = chk_img2.origin .+ cropMarginSize
+                      cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
     end
     close(f)
 
@@ -100,6 +98,7 @@ function ef_kaffe!( c::DictChannel,
       aff .+= take!(c, inputs[:aff]).data
     end
 
+    affOrigin = chk_img2.origin .+ params[:originOffset]
     chk_aff = Chunk(aff, affOrigin, chk_img2.voxelsize)
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
