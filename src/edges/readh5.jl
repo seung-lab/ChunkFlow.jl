@@ -1,18 +1,15 @@
 using HDF5
 using BigArrays
-
-include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
-
 using DataStructures
 
 """
 extract offset from file name
 """
-function fname2offset(fname::AbstractString)
+function filename2offset(fileName::AbstractString)
     # initialize the offset
     offset = Vector{Int64}()
 
-    bn = basename(fname)
+    bn = basename(fileName)
     name, ext = splitext(bn)
     # substring list
     strlst = split(name, "_")
@@ -39,25 +36,25 @@ function ef_readh5!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )
-    fname = inputs[:fname]
-    if iss3(fname)
+    fileName = inputs[:fileName]
+    if iss3(fileName)
         # download from s3
-        fname = download(fname, "/tmp/")
+        fileName = download(fileName, "/tmp/")
     else
-        fname = replace(fname, "~", homedir())
+        fileName = replace(fileName, "~", homedir())
     end
-    @show fname
-    f = h5open(fname)
+    @show fileName
+    f = h5open(fileName)
     arr = read(f[params[:datasetName]])
     origin = ones(UInt32, 3)
     if haskey(params, :origin) && params[:origin]!=[]
         origin = params[:origin]
     elseif has(f,"x_slice")
-        origin[1] = h5read(fname, "x_slice")[1]
-        origin[2] = h5read(fname, "y_slice")[1]
-        origin[3] = h5read(fname, "z_slice")[1]
+        origin[1] = h5read(fileName, "x_slice")[1]
+        origin[2] = h5read(fileName, "y_slice")[1]
+        origin[3] = h5read(fileName, "z_slice")[1]
     else
-        origin = fname2offset(fname) + 1
+        origin = filename2offset(fileName) + 1
     end
     close(f)
     voxelsize = params[:voxelsize]
@@ -67,6 +64,6 @@ function ef_readh5!(c::DictChannel,
 
     # remove local file
     if params[:isRemoveSourceFile]
-      rm(fname)
+      rm(fileName)
     end
 end
