@@ -82,7 +82,7 @@ function produce_chunks_tasks(task::ChunkFlowTask)
         end
 
         # produce task json file to aws simple queue
-        task[:input][:inputs][:fname] = fchk
+        task[:input][:inputs][:fileName] = fchk
         str_task = task2str(task)
         println("produced a new task: ")
         @show str_task
