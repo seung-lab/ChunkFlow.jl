@@ -7,7 +7,7 @@
         "isRemoveSourceFile": false
     },
     "inputs": {
-        "fname": "../assets/zfish_25397_8001_1.img.h5"
+        "fileName": "../assets/zfish_25397_8001_1.img.h5"
     },
     "outputs": {
         "data": "img"
@@ -90,19 +90,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectFile": "/tmp/hypersquare/"
-    }
-},
-"movehypersquare":{
-    "kind": "movedata",
-    "params": {
-      "isRemoveSourceFile": true
-    },
-    "inputs": {
-        "prefix": "/tmp/hypersquare/chunk_"
-    },
-    "outputs": {
-        "dir": "/tmp/"
+        "projectsDirectory": "/tmp/"
     }
 }
 }

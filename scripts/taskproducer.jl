@@ -19,7 +19,7 @@ if !isa(argDict["gpuid"], Void)
   set_gpu_id!(task, argDict["gpuid"])
 end
 
-if iss3(task[:input][:inputs][:fname])
+if iss3(task[:input][:inputs][:fileName])
     produce_tasks_s3img(task)
 else
     produce_tasks_local(task)
