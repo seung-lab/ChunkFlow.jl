@@ -16,12 +16,12 @@
 "znni":{
     "kind": "znni",
     "params":{
-      "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
+      "znniBinaryFile": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
       "GPUID": 0,
       "fnet": "s3://znn/experiments/piriform/VD2D3D-MS/net_current.h5",
       "outputPatchSize": [256, 256, 17],
       "fieldOfView": [109, 109, 9],
-      "isexchangeaffxz": true,
+      "isExchangeAffXZ": true,
       "affWeight": 1
     },
     "inputs": {
@@ -120,7 +120,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "fprj": "/tmp/chunk_"
+        "prefix": "/tmp/chunk_"
     }
 },
 "moveomniprj":{
