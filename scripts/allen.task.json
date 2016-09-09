@@ -7,7 +7,7 @@
         "isRemoveSourceFile": true
     },
     "inputs": {
-        "fname": "s3://seunglab/datasets/pinky/export/2048x2048x256/pinky_aligned_"
+        "fileName": "s3://seunglab/datasets/pinky/export/2048x2048x256/pinky_aligned_"
     },
     "outputs": {
         "data": "img"
@@ -16,12 +16,12 @@
 "znni":{
     "kind": "znni",
     "params":{
-        "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
+        "znniBinaryFile": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
         "GPUID": 0,
         "fnet": "s3://znn/experiments/allen/0722_VD2D3D-MS/net_current.h5",
         "outputPatchSize": [256, 256, 17],
         "fieldOfView": [109, 109, 9],
-        "isexchangeaffxz": false,
+        "isExchangeAffXZ": false,
         "affWeight": 1
     },
     "inputs": {
@@ -120,19 +120,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "fprj": "/tmp/chunk_"
-    }
-},
-"moveomniprj":{
-    "kind": "movedata",
-    "params": {
-      "isRemoveSourceFile": true
-    },
-    "inputs": {
-        "prefix": "/tmp/chunk_"
-    },
-    "outputs": {
-        "dir": "~/seungmount/research/Jingpeng/13_neuromancer/pinky/"
+        "prefix": "~/seungmount/research/Jingpeng/13_neuromancer/pinky/chunk_"
     }
 }
 }

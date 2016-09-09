@@ -1,5 +1,4 @@
 # move data
-include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 
 """
 edge function of movedata
