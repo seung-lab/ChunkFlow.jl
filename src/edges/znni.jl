@@ -2,8 +2,6 @@ using EMIRT
 using HDF5
 using DataStructures
 
-#include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
-
 """
 edge function of znni
 """
@@ -29,23 +27,23 @@ function ef_znni!( c::DictChannel,
 
     # prepare parameters
     currentdir = pwd()
-    fznni = replace(params[:fznni], "~", homedir())
+    znniBinaryFile = replace(params[:znniBinaryFile], "~", homedir())
     outputPatchSize = params[:outputPatchSize]
 
     # checke the existance of binary network file
-    fnetbin = joinpath(dirname(fznni), "VD2D3D-MS")
+    fnetbin = joinpath(dirname(znniBinaryFile), "VD2D3D-MS")
     if !isdir(fnetbin)
         fnet = replace(params[:fnet], "~", homedir())
         if contains(fnet, "s3://")
             fnet = download(fnet, "/tmp/net.h5")
         end
-        fnet2bin = joinpath(dirname(fznni), "../../../julia/net2bin.jl")
+        fnet2bin = joinpath(dirname(znniBinaryFile), "../../../julia/net2bin.jl")
         run(`julia $(fnet2bin) $(fnet) $(fnetbin)`)
     end
 
     # run znni inference
-    cd(dirname(fznni))
-    run(`$(fznni) $(params[:GPUID]) $(fimg) $(faff) main $(outputPatchSize[3]) $(outputPatchSize[2]) $(outputPatchSize[1])`)
+    cd(dirname(znniBinaryFile))
+    run(`$(znniBinaryFile) $(params[:GPUID]) $(fimg) $(faff) main $(outputPatchSize[3]) $(outputPatchSize[2]) $(outputPatchSize[1])`)
     cd(currentdir)
 
     # compute cropMarginSize using integer division
@@ -54,7 +52,7 @@ function ef_znni!( c::DictChannel,
 
     # read affinity map
     f = h5open(faff)
-    if params[:isexchangeaffxz]
+    if params[:isExchangeAffXZ]
         aff = zeros(Float32, (  sz[1]-cropMarginSize[1]*2,
                                 sz[2]-cropMarginSize[2]*2,
                                 sz[3]-cropMarginSize[3]*2,3))
