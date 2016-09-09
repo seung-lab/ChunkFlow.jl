@@ -6,26 +6,26 @@ using HDF5
 # type of learning curve
 typealias Tlc Dict{ASCIIString, Dict{ASCIIString,Vector}}
 
-function get_learning_curve(fname::AbstractString)
-    if contains(fname, "s3://")
+function get_learning_curve(fileName::AbstractString)
+    if contains(fileName, "s3://")
         # local file name
-        lcfname = "/tmp/net_current.h5"
+        localFileName = "/tmp/net_current.h5"
         # download from  AWS S3
-        run(`aws s3 cp $(fname) $(lcfname)`)
-        # rename fname to local file name
-        fname = lcfname
+        run(`aws s3 cp $(fileName) $(localFileName)`)
+        # rename fileName to local file name
+        fileName = localFileName
     end
     curve = Tlc()
-    if isfile(fname)
+    if isfile(fileName)
         curve["train"] = Dict{ASCIIString, Vector}()
         curve["test"]  = Dict{ASCIIString, Vector}()
 
-        curve["train"]["it"]  = h5read(fname, "/processing/znn/train/statistics/train/it")
-        curve["train"]["err"] = h5read(fname, "/processing/znn/train/statistics/train/err")
-        curve["train"]["cls"] = h5read(fname, "/processing/znn/train/statistics/train/cls")
-        curve["test"]["it"]   = h5read(fname, "/processing/znn/train/statistics/test/it")
-        curve["test"]["err"]  = h5read(fname, "/processing/znn/train/statistics/test/err")
-        curve["test"]["cls"]  = h5read(fname, "/processing/znn/train/statistics/test/cls")
+        curve["train"]["it"]  = h5read(fileName, "/processing/znn/train/statistics/train/it")
+        curve["train"]["err"] = h5read(fileName, "/processing/znn/train/statistics/train/err")
+        curve["train"]["cls"] = h5read(fileName, "/processing/znn/train/statistics/train/cls")
+        curve["test"]["it"]   = h5read(fileName, "/processing/znn/train/statistics/test/it")
+        curve["test"]["err"]  = h5read(fileName, "/processing/znn/train/statistics/test/err")
+        curve["test"]["cls"]  = h5read(fileName, "/processing/znn/train/statistics/test/cls")
     end
     return curve
 end
@@ -59,8 +59,8 @@ function tile_learning_curve(curve::Tlc)
     end
 end
 
-function tile_learning_curve(fname::AbstractString)
-    curve = get_learning_curve(fname)
+function tile_learning_curve(fileName::AbstractString)
+    curve = get_learning_curve(fileName)
     return tile_learning_curve(curve)
 end
 
