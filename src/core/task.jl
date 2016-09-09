@@ -22,17 +22,17 @@ function get_sqs_task(queuename::AbstractString = sqsname)
     return JSON.parse(task, dicttype=OrderedDict{Symbol, Any}), msg
 end
 
-function get_s3_task(fname::AbstractString)
-    @assert iss3(fname)
+function get_s3_task(fileName::AbstractString)
+    @assert iss3(fileName)
     lcfile = download(ARGS[1], "/tmp/")
     str_task = readall( lcfile )
     # transform text to JSON OrderedDict format
     return JSON.parse(str_task, dicttype=OrderedDict{Symbol, Any})
 end
 
-function get_local_task(fname::AbstractString)
+function get_local_task(fileName::AbstractString)
     # just simple local file
-    str_task = readall( fname )
+    str_task = readall( fileName )
     # transform text to JSON OrderedDict format
     return JSON.parse(str_task, dicttype=OrderedDict{Symbol, Any})
 end
@@ -59,31 +59,32 @@ produce tasks to AWS SQS
 """
 function produce_tasks_s3img(task::ChunkFlowTask)
     # get list of files, no folders
-    @show task[:input][:inputs][:fname]
-    bkt, keylst = s3_list_objects( task[:input][:inputs][:fname] )
+    @show task[:input][:inputs][:fileName]
+    bkt, keylst = s3_list_objects( task[:input][:inputs][:fileName] )
     @assert length(keylst)>0
     for key in keylst
-        task[:input][:inputs][:fname] = joinpath("s3://", bkt, key)
-        # send the task to SQS queue
-        sendSQSmessage(sqsname, JSON.json(task))
+      @show joinpath("s3://", bkt, key)
+      task[:input][:inputs][:fileName] = joinpath("s3://", bkt, key)
+      # send the task to SQS queue
+      sendSQSmessage(sqsname, JSON.json(task))
     end
 end
 
 
 function produce_tasks_local(task::ChunkFlowTask)
-    @show task[:input][:inputs][:fname]
+    @show task[:input][:inputs][:fileName]
     # directory name and prefix
-    dn, prefix = splitdir(task[:input][:inputs][:fname])
-    fnames = readdir(dn)
-    @assert length(fnames)>0
-    for fname in fnames
-        if !contains(basename(fname), prefix)
+    dn, prefix = splitdir(task[:input][:inputs][:fileName])
+    fileNames = readdir(dn)
+    @assert length(fileNames)>0
+    for fileName in fileNames
+        if !contains(basename(fileName), prefix)
             # contains is not quite accurate
             # todo: using ismatch to check starting with prefix
-            info("excluding file: $(fname)")
+            info("excluding file: $(fileName)")
             continue
         end
-        task[:input][:inputs][:fname] = joinpath(dn, fname)
+        task[:input][:inputs][:fileName] = joinpath(dn, fileName)
         str_task = task2str(task)
         sendSQSmessage(sqsname, str_task)
     end
