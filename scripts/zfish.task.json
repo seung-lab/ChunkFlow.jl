@@ -3,11 +3,11 @@
     "params":{
         "origin": [],
         "voxelsize": [5,5,45],
-        "datasetName": "img",
+        "datasetName": "main",
         "isRemoveSourceFile": true
     },
     "inputs": {
-        "fileName": "s3://zfish/dodam_aligned_stacks/8x8x8/zebrafish_aligned_"
+        "fileName": "s3://zfish/dodam_aligned_stacks/2x2x2_2/zebrafish_"
     },
     "outputs": {
         "data": "img"
@@ -83,7 +83,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "s3://zfish/dodam_aligned_stacks/8x8x8/affinityMap/chunk_"
+        "prefix": "s3://zfish/dodam_aligned_stacks/2x2x2_2/affinityMap/chunk_"
     }
 },
 "cropImg":{
@@ -140,21 +140,21 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "s3://zfish/dodam_aligned_stacks/8x8x8/segmentation/chunk_"
+        "prefix": "s3://zfish/dodam_aligned_stacks/2x2x2_2/segmentation/chunk_"
     }
 },
-"omnification":{
-    "kind": "omnification",
+"hypersquare":{
+    "kind": "hypersquare",
     "params":{
-        "ombin": "/opt/omni",
-        "isMeshing": false
+        "segment_id_type" : "UInt16",
+        "affinity_type" : "Float32"
     },
     "inputs": {
         "img": "img",
         "sgm": "sgm"
     },
     "outputs": {
-        "prefix": "s3://zfish/dodam_aligned_stacks/8x8x8/omniProjects/chunk_"
+        "projectsDirectory": "s3://zfish/dodam_aligned_stacks/2x2x2_2/hypersquare/"
     }
 }
 }

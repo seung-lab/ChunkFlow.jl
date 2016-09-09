@@ -9,13 +9,13 @@ function ef_readchunk!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )
-    fname = inputs[:fname]
-    if iss3(fname)
+    fileName = inputs[:fileName]
+    if iss3(fileName)
         # download from s3
-        fname = download(fname, "/tmp/")
+        fileName = download(fileName, "/tmp/")
     end
-    @show fname
-    chk = readchunk(fname)
+    @show fileName
+    chk = readchunk(fileName)
     # put chunk to channel for use
     put!(c, outputs[:data], chk)
 
