@@ -7,7 +7,7 @@
         "isRemoveSourceFile": false
     },
     "inputs": {
-        "fname": "../assets/zfish_25397_8001_1.img.h5"
+        "fileName": "../assets/zfish_25397_8001_1.img.h5"
     },
     "outputs": {
         "data": "img"
@@ -16,12 +16,12 @@
 "znni":{
     "kind": "znni",
     "params":{
-        "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
+        "znniBinaryFile": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
         "GPUID": 0,
         "fnet": "~/seungmount/research/kisuklee/Sharing/Jingpeng/blend_test/MS/net_290000.h5",
         "outputPatchSize": [256, 256, 17],
         "fieldOfView": [109, 109, 9],
-        "isexchangeaffxz": true,
+        "isExchangeAffXZ": true,
         "affWeight": 0.333333333
     },
     "inputs": {
@@ -39,15 +39,15 @@
         "chunk": "img"
     },
     "outputs":{
-        "fname": "/tmp/img.h5"
+        "chunkFileName": "/tmp/img.h5"
     }
 },
 "MSF":{
     "kind": "kaffe",
     "params":{
         "kaffeDir": "/opt/kaffe",
-        "fModel": "/opt/kaffe/models/MSF/deploy.prototxt",
-        "fNet": "/opt/kaffe/experiments/zfish/MSF/train_iter_250000.caffemodel.h5",
+        "caffeModelFile": "/opt/kaffe/models/MSF/deploy.prototxt",
+        "caffeNetFile": "/opt/kaffe/experiments/zfish/MSF/train_iter_250000.caffemodel.h5",
         "outputPatchSize":    [150, 150,  12],
         "scanParams": "None",
         "GPUID": 0,
@@ -68,8 +68,8 @@
     "kind": "kaffe",
     "params":{
         "kaffeDir": "/opt/kaffe",
-        "fModel": "/opt/kaffe/models/JNet/deploy.prototxt",
-        "fNet": "/opt/kaffe/experiments/zfish/JNet/train_iter_215000.caffemodel.h5",
+        "caffeModelFile": "/opt/kaffe/models/JNet/deploy.prototxt",
+        "caffeNetFile": "/opt/kaffe/experiments/zfish/JNet/train_iter_215000.caffemodel.h5",
         "outputPatchSize":    [158, 158,  32],
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
         "GPUID": 0,
@@ -140,7 +140,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "fname": "/tmp/sgm.h5"
+        "chunkFileName": "/tmp/sgm.h5"
     }
 },
 "omnification":{
@@ -154,7 +154,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "fprj": "/tmp/chunk_"
+        "prefix": "/tmp/chunk_"
     }
 }
 }

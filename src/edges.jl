@@ -12,6 +12,9 @@ type Edge <: AbstractEdge
     outputs::OrderedDict{Symbol, Any}
 end
 
+include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
+
+
 include("edges/readchunk.jl")
 include("edges/savechunk.jl")
 include("edges/blendchunk.jl")
