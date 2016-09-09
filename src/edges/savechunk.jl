@@ -1,6 +1,4 @@
 # save chunk from dictchannel to local disk or aws s3
-
-include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 using BigArrays
 using DataStructures
 
@@ -15,19 +13,19 @@ function ef_savechunk(c::DictChannel,
     chk = fetch(c, inputs[:chunk])
     origin = chk.origin
     voxelsize = chk
-    if haskey(outputs, :fname)
-        fname = outputs[:fname]
-        @assert contains(fname, ".h5")
+    if haskey(outputs, :chunkFileName)
+        chunkFileName = outputs[:chunkFileName]
+        @assert contains(chunkFileName, ".h5")
     else
         prefix = replace(outputs[:prefix],"~",homedir())
-        fname = "$(prefix)$(chk.origin[1])_$(chk.origin[2])_$(chk.origin[3]).$(inputs[:chunk]).h5"
+        chunkFileName = "$(prefix)$(chk.origin[1]-1)_$(chk.origin[2]-1)_$(chk.origin[3]-1).$(inputs[:chunk]).h5"
     end
-    if iss3(fname)
+    if iss3(chunkFileName)
         ftmp = string(tempname(), ".chk.h5")
         BigArrays.save(ftmp, chk)
-        run(`aws s3 mv $ftmp $fname`)
+        run(`aws s3 mv $ftmp $chunkFileName`)
     else
-        BigArrays.save(fname, chk)
+        BigArrays.save(chunkFileName, chk)
     end
 
 end

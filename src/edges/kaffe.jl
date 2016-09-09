@@ -34,10 +34,10 @@ function ef_kaffe!( c::DictChannel,
     @show fImg
 
     # download trained network
-    if iss3(params[:fNet])
+    if iss3(params[:caffeNetFile])
       tempFile = string(tempname(), ".kaffe.net.h5")
-      download(params[:fNet], tempFile)
-      params[:fNet] = tempFile
+      download(params[:caffeNetFile], tempFile)
+      params[:caffeNetFile] = tempFile
     end
 
     # data specification file
@@ -61,8 +61,8 @@ function ef_kaffe!( c::DictChannel,
     [forward]
     kaffe_root  = $(params[:kaffeDir])
     dspec_path  = $fDataSpec
-    model       = $(params[:fModel])
-    weights     = $(params[:fNet])
+    model       = $(params[:caffeModelFile])
+    weights     = $(params[:caffeNetFile])
     test_range  = [0]
     border      = None
     scan_list   = ['output']

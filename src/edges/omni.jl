@@ -25,16 +25,15 @@ function ef_omnification( c::DictChannel,
     h5write(fsgm, "dend", chk_sgm.data.segmentPairs)
     h5write(fsgm, "dendValues", chk_sgm.data.segmentPairAffinities)
 
-    # assign auto project name
-    fprj = outputs[:fprj]
+    # the origin and end of this chunk
     origin = chk_sgm.origin
     volend = origin .+ [size(chk_sgm.data.segmentation)...] - 1
-    if isdir(fprj)
-        fprj = joinpath(fprj, "chunk_$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
-    elseif !contains(fprj, ".omni")
-        # assume that it is an prefix
-        fprj = string(fprj, "$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
-    end
+
+    # assign auto project name
+    omniProjectDir = tempname()
+    mkdir(omniProjectDir)
+    omniProjectName = joinpath(omniProjectDir,
+        "$(basename(outputs[:prefix]))$(origin[1]-1)-$(volend[1]-1)_$(origin[2]-1)-$(volend[2]-1)_$(origin[3]-1)-$(volend[3]-1).omni")
 
     # compute physical offset
     phyOffset = physical_offset(chk_img)
@@ -43,7 +42,7 @@ function ef_omnification( c::DictChannel,
 
     # prepare the cmd file for omnification
     # make omnify command file
-    cmd = """create:$(fprj)
+    cmd = """create:$(omniProjectName)
     loadHDF5chann:$(fimg)
     setChanResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
     setChanAbsOffset:1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
@@ -69,4 +68,13 @@ function ef_omnification( c::DictChannel,
     # run omnifycation
     run(`$(params[:ombin]) --headless --cmdfile=$(fcmd)`)
     rm(fsgm); rm(fimg); rm(fcmd)
+
+    # move omni project
+    prefix = replace(outputs[:prefix],"~",homedir())
+    if iss3(prefix) || isGoogleStorage(prefix)
+      upload( omniProjectName, dirname(prefix) )
+    else
+      mv(omniProjectName, joinpath(dirname(prefix), basename(omniProjectName)))
+      mv("$(omniProjectName).files", joinpath(dirname(prefix), "$(basename(omniProjectName)).files"))
+    end
 end

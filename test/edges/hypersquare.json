@@ -16,12 +16,12 @@
 "znni":{
     "kind": "znni",
     "params":{
-        "fznni": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
+        "znniBinaryFile": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
         "GPUID": 0,
         "fnet": "~/seungmount/research/kisuklee/Sharing/Jingpeng/blend_test/MS/net_290000.h5",
         "outputPatchSize": [256, 256, 17],
         "fieldOfView": [109, 109, 9],
-        "isexchangeaffxz": true,
+        "isExchangeAffXZ": true,
         "affWeight": 1
     },
     "inputs": {

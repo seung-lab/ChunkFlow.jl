@@ -1,8 +1,5 @@
 using HDF5
 using BigArrays
-
-include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
-
 using DataStructures
 
 """
