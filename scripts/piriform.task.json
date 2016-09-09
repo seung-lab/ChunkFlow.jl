@@ -7,7 +7,7 @@
         "isRemoveSourceFile": true
     },
     "inputs": {
-        "fname": "/usr/people/jingpeng/seungmount/research/Julimaps/datasets/piriform/5_finished/stacks/piriform_20000-22047,20000-22047,257-517.h5"
+        "fileName": "/usr/people/jingpeng/seungmount/research/Julimaps/datasets/piriform/5_finished/stacks/piriform_20000-22047,20000-22047,257-517.h5"
     },
     "outputs": {
         "data": "img"

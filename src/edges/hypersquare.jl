@@ -51,7 +51,8 @@ function ef_hypersquare(c::DictChannel,
     images = convert(Array{UInt8, 3}, chunk_image.data)
 
     # get/create the chunk_folder
-    base_folder = outputs[:projectFile]
+    base_folder = tempname()
+    mkdir(base_folder)
     chunk_folder = to_chunk_folder(base_folder, chunk_image)
     println("Saving hypersquare to $chunk_folder")
 
@@ -82,6 +83,15 @@ function ef_hypersquare(c::DictChannel,
     write_metadata(params, chunk_segmentation, chunk_image, chunk_folder;
         filename = get(params,
             :metadata_filename, DEFAULT_METADATA_FILENAME))
+
+    # move hypersquare folder to destination
+    dstDir = replace(outputs[:projectsDirectory],"~",homedir())
+    dstDir = joinpath(dstDir, basename(chunk_folder))
+    if iss3(dstDir) || isGoogleStorage(dstDir)
+      upload( chunk_folder, dstDir )
+    else
+      mv(chunk_folder, dstDir; remove_destination=true)
+    end
 end
 
 """
@@ -302,7 +312,7 @@ function write_images{U <: Unsigned}(images::Array{U, 3},
 
     if !isdir(joinpath(chunk_folder, image_folder))
       mkdir(joinpath(chunk_folder, image_folder))
-    end 
+    end
     for i in 1:size(images)[3]
         image = Images.grayim(images[:, :, i])
         Images.save(joinpath(chunk_folder, image_folder, "$(i-1).jpg"),
