@@ -13,8 +13,9 @@ function produce_chunks_tasks(task::ChunkFlowTask)
     # get chunks
     params = task[:chunks][:params]
     @assert contains(task[:chunks][:kind], "chunks")
-    chks = Chunks(barr, params[:origin], params[:chksz],
-                params[:overlap], params[:gridsz], params[:voxelSize])
+    chks = Chunks(barr, params[:origin],    params[:chksz],
+                        params[:overlap],   params[:gridsz],
+                        params[:voxelSize])
 
     # produce chunks
     for chk in chks
