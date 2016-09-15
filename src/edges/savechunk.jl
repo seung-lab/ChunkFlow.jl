@@ -12,7 +12,7 @@ function ef_savechunk(c::DictChannel,
     # get chunk
     chk = fetch(c, inputs[:chunk])
     origin = chk.origin
-    voxelsize = chk
+    voxelSize = chk
     if haskey(outputs, :chunkFileName)
         chunkFileName = outputs[:chunkFileName]
         @assert contains(chunkFileName, ".h5")
