@@ -24,6 +24,6 @@ function ef_atomicseg!( c::DictChannel,
                     thds, params[:dust];
                     is_threshold_relative=params[:isThresholdRelative])
     # create chunk and put into channel
-    chk_seg = Chunk(seg, chk_aff.origin, chk_aff.voxelsize)
+    chk_seg = Chunk(seg, chk_aff.origin, chk_aff.voxelSize)
     put!(c, outputs[:seg], chk_seg)
 end
