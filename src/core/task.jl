@@ -1,25 +1,28 @@
 using JSON
 using DataStructures
 
-include("types.jl")
+typealias ChunkFlowTask OrderedDict{Symbol, Any}
+
+typealias ChunkFlowTaskList Vector{ChunkFlowTask}
+
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 
 """
-set the gpuid for all functions
+set the some key to specific value
 """
-function set_gpu_id!(task::ChunkFlowTask, gpuid::Int)
+function set!(task::ChunkFlowTask, key::Symbol, value::Any)
   for (edgeName, edgeConfig) in task
-    if haskey(edgeConfig[:params], :GPUID)
-      task[edgeName][:params][:GPUID] = gpuid
+    if haskey(edgeConfig[:params], key)
+      task[edgeName][:params][key] = value
     end
   end
 end
 
-function get_sqs_task(queuename::AbstractString = sqsname)
+function get_sqs_task(queuename::AbstractString = AWS_SQS_QUEUE_NAME)
     msg = fetchSQSmessage(ASCIIString(queuename))
     task = msg.body
     # transform text to JSON OrderedDict format
-    return JSON.parse(task, dicttype=OrderedDict{Symbol, Any}), msg
+    return JSON.parse(task, dicttype=ChunkFlowTask), msg
 end
 
 function get_s3_task(fileName::AbstractString)
@@ -27,14 +30,14 @@ function get_s3_task(fileName::AbstractString)
     lcfile = download(ARGS[1], "/tmp/")
     str_task = readall( lcfile )
     # transform text to JSON OrderedDict format
-    return JSON.parse(str_task, dicttype=OrderedDict{Symbol, Any})
+    return JSON.parse(str_task, dicttype=ChunkFlowTask)
 end
 
 function get_local_task(fileName::AbstractString)
     # just simple local file
     str_task = readall( fileName )
     # transform text to JSON OrderedDict format
-    return JSON.parse(str_task, dicttype=OrderedDict{Symbol, Any})
+    return JSON.parse(str_task, dicttype=ChunkFlowTask)
 end
 
 """
@@ -55,23 +58,46 @@ function get_task(ftask::AbstractString)
 end
 
 """
+submit tasks to AWS SQS
+"""
+function submit(tasks::ChunkFlowTaskList; sqsQueueName::AbstractString = AWS_SQS_QUEUE_NAME)
+    for task in tasks
+        # send the task to SQS queue
+        sendSQSmessage(awsEnv, sqsQueueName, JSON.json(task))
+    end
+end
+
+"""
 produce tasks to AWS SQS
 """
+function produce_tasks(task::ChunkFlowTask)
+    @assert task[:input][:kind] == :readh5
+    if iss3(task[:input][:inputs][:fileName])
+        return produce_tasks_s3img(task)
+    else
+        return produce_tasks_local(task)
+    end
+end
+
 function produce_tasks_s3img(task::ChunkFlowTask)
+    # a list of tasks
+    ret = ChunkFlowTaskList()
     # get list of files, no folders
     @show task[:input][:inputs][:fileName]
     bkt, keylst = s3_list_objects( task[:input][:inputs][:fileName] )
     @assert length(keylst)>0
     for key in keylst
-      @show joinpath("s3://", bkt, key)
-      task[:input][:inputs][:fileName] = joinpath("s3://", bkt, key)
-      # send the task to SQS queue
-      sendSQSmessage(sqsname, JSON.json(task))
+        @show joinpath("s3://", bkt, key)
+        task[:input][:inputs][:fileName] = joinpath("s3://", bkt, key)
+        push!(ret, task)
     end
+    return ret
 end
 
 
 function produce_tasks_local(task::ChunkFlowTask)
+    ret = ChunkFlowTaskList()
+
     @show task[:input][:inputs][:fileName]
     # directory name and prefix
     dn, prefix = splitdir(task[:input][:inputs][:fileName])
@@ -85,7 +111,7 @@ function produce_tasks_local(task::ChunkFlowTask)
             continue
         end
         task[:input][:inputs][:fileName] = joinpath(dn, fileName)
-        str_task = task2str(task)
-        sendSQSmessage(sqsname, str_task)
+        push!(ret, task)
     end
+    return ret
 end

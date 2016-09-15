@@ -99,7 +99,7 @@ function ef_kaffe!( c::DictChannel,
     end
 
     affOrigin = chk_img.origin .+ params[:originOffset]
-    chk_aff = Chunk(aff, affOrigin, chk_img.voxelsize)
+    chk_aff = Chunk(aff, affOrigin, chk_img.voxelSize)
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
 
