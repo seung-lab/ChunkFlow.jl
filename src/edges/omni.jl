@@ -38,7 +38,7 @@ function ef_omnification( c::DictChannel,
     # compute physical offset
     phyOffset = physical_offset(chk_img)
     # voxel size
-    vs = chk_sgm.voxelsize
+    vs = chk_sgm.voxelSize
 
     # prepare the cmd file for omnification
     # make omnify command file

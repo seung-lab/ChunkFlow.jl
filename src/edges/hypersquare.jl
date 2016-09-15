@@ -418,7 +418,7 @@ function write_metadata(
     num_segments = length(unique(chunk_segmentation.data.segmentation))
     num_edges = length(chunk_segmentation.data.segmentPairAffinities)
     chunk_voxel_dimensions = [size(chunk_segmentation.data.segmentation) ...]
-    voxel_resolution = chunk_segmentation.voxelsize
+    voxel_resolution = chunk_segmentation.voxelSize
     resolution_units = get(params,
                 :resolution_units, DEFAULT_RESOLUTION_UNITS)
     physical_offset_min = physical_offset(chunk_segmentation)
