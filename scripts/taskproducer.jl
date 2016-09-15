@@ -7,20 +7,35 @@ argDict = parse_commandline()
 @show argDict
 
 # setup AWS SQS queue name
-global const sqsname = argDict["awssqs"]
+global const AWS_SQS_QUEUE_NAME = argDict["awssqs"]
 include("../src/core/task.jl")
 
 # read task config file
 # produce task script
 task = get_task( argDict["task"] )
+@show task
 
 # set gpu id
 if !isa(argDict["gpuid"], Void)
-  set_gpu_id!(task, argDict["gpuid"])
+    set!(task, :GPUID, argDict["gpuid"])
 end
 
-if iss3(task[:input][:inputs][:fileName])
-    produce_tasks_s3img(task)
+tasks = ChunkFlowTaskList()
+if contains(task[:input][:kind], "readh5")
+    tasks = produce_tasks(task)
+elseif contains(task[:input][:kind], "cutoutchunk")
+    for gridz in 1:argDict["gridsize"][3]
+        for gridy in 1:argDict["gridsize"][2]
+            for gridx in 1:argDict["gridsize"][1]
+                gridIndex = [gridx, gridy, gridz]
+                origin = argDict["origin"].+1 .+ (gridIndex .- 1) .* argDict["stride"]
+                set!(task, :origin, origin)
+                push!(tasks, task)
+            end
+        end
+    end
 else
-    produce_tasks_local(task)
+    error("invalid input method: $(task[:input][:kind])")
 end
+
+submit(tasks)

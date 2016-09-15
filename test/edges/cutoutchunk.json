@@ -1,13 +1,12 @@
 {"input": {
-    "kind": "readh5",
+    "kind": "cutoutchunk",
     "params":{
-        "origin": [],
-        "voxelSize": [5,5,45],
-        "datasetName": "image",
-        "isRemoveSourceFile": false
+      "origin": [1000, 1000, 0],
+      "size": [300, 300, 64],
+      "voxelSize": [5,5,45]
     },
     "inputs": {
-        "fileName": "../assets/zfish_25397_8001_1.img.h5"
+      "registerFile": ""
     },
     "outputs": {
         "data": "img"
