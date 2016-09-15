@@ -4,7 +4,7 @@ module ChunkNet
 
 using DataStructures
 
-include("dictchannel.jl")
+include("core/dictchannel.jl")
 include("edges.jl")
 include("core/task.jl")
 

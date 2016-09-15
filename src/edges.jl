@@ -15,40 +15,45 @@ end
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 
 
-include("edges/readchunk.jl")
-include("edges/savechunk.jl")
-include("edges/blendchunk.jl")
-include("edges/readh5.jl")
-include("edges/crop.jl")
-include("edges/watershed.jl")
-include("edges/atomicseg.jl")
-include("edges/znni.jl")
 include("edges/agglomeration.jl")
-include("edges/omni.jl")
-include("edges/movedata.jl")
-include("edges/kaffe.jl")
+include("edges/atomicseg.jl")
+include("edges/blendchunk.jl")
+include("edges/crop.jl")
+include("edges/cutoutchunk.jl")
 include("edges/hypersquare.jl")
+include("edges/kaffe.jl")
 include("edges/mergeseg.jl")
+include("edges/movedata.jl")
+include("edges/omni.jl")
+include("edges/readchunk.jl")
+include("edges/readh5.jl")
+include("edges/relabelseg.jl")
+include("edges/savechunk.jl")
+include("edges/watershed.jl")
+include("edges/znni.jl")
 
 """
 library of edge function as a Dict
 register a new function here for any new edge type
+if the function name has a "!", the function will change the data in dictchannel
 """
 const edgeFuncLib = Dict{Symbol, Function}(
+  :agglomeration  => ef_agglomeration!,
+  :atomicseg      => ef_atomicseg!,
+  :blendchunk     => ef_blendchunk,
+  :crop           => ef_crop!,
+  :cutoutchunk    => ef_cutoutchunk!,
+  :hypersquare    => ef_hypersquare,
+  :kaffe          => ef_kaffe!,
+  :mergeseg       => ef_mergeseg!,
+  :movedata       => ef_movedata,
+  :omnification   => ef_omnification,
   :readchunk      => ef_readchunk!,
   :readh5         => ef_readh5!,
+  :relabelseg     => ef_relabelseg!,
   :savechunk      => ef_savechunk,
-  :blendchunk     => ef_blendchunk,
-  :znni           => ef_znni!,
   :watershed      => ef_watershed!,
-  :atomicseg      => ef_atomicseg!,
-  :agglomeration  => ef_agglomeration!,
-  :omnification   => ef_omnification,
-  :hypersquare    => ef_hypersquare,
-  :crop           => ef_crop!,
-  :movedata       => ef_movedata,
-  :kaffe          => ef_kaffe!,
-  :mergeseg       => ef_mergeseg!
+  :znni           => ef_znni!
 )
 
 """
