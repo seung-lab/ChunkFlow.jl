@@ -40,6 +40,14 @@ function ef_kaffe!( c::DictChannel,
       params[:caffeNetFile] = tempFile
     end
 
+    if contains(params[:preprocess], "ormaliz")
+        preprocess = "dict(type='standardize',mode='2D')"
+    elseif contains(params[:preprocess], "rescale")
+        preprocess = "dict(type='rescale')"
+    else
+        error("invalid preprocessing type: $(params[:preprocess])")
+    end
+
     # data specification file
     dataspec = """
     [files]
@@ -47,7 +55,8 @@ function ef_kaffe!( c::DictChannel,
 
     [image]
     file = img
-    preprocess = dict(type='standardize',mode='2D')
+    # preprocess = dict(type='standardize',mode='2D')
+    preprocess = $(preprocess)
 
     [dataset]
     input = image
