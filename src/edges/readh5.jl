@@ -57,8 +57,8 @@ function ef_readh5!(c::DictChannel,
         origin = filename2offset(fileName) + 1
     end
     close(f)
-    voxelsize = params[:voxelsize]
-    chk = Chunk(arr, origin, voxelsize)
+    voxelSize = params[:voxelSize]
+    chk = Chunk(arr, origin, voxelSize)
     # put chunk to channel for use
     put!(c, outputs[:data], chk)
 
