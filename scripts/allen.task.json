@@ -2,7 +2,7 @@
     "kind": "readh5",
     "params":{
         "origin": [],
-        "voxelsize": [4,4,40],
+        "voxelSize": [4,4,40],
         "datasetName": "img",
         "isRemoveSourceFile": true
     },

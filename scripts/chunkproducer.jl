@@ -17,13 +17,13 @@ immutable Tchks
     # grid of chunks. let's say gridsz=(2,2,2), will produce 16 chunks
     gridsz::Tsz
     # voxel size
-    voxelsize::Tsz
+    voxelSize::Tsz
 end
 
 function Tchks(ba::AbstractBigArray, origin::Tcoord=[0,0,0],
                 chksz::Tsz=[1024,1024,10], overlap::Tsz=[0,0,0],
-                gridsz::Tsz=[1,1,1], voxelsize::Tsz=[1,1,1])
-    Tchks(ba, origin, chksz, overlap, gridsz, voxelsize)
+                gridsz::Tsz=[1,1,1], voxelSize::Tsz=[1,1,1])
+    Tchks(ba, origin, chksz, overlap, gridsz, voxelSize)
 end
 # iteration functions
 # grid index as state, start from the first grid
@@ -36,7 +36,7 @@ function Base.next(chks::Tchks, grididx::Vector)
     start = chks.origin + (grididx-1) .* step
     stop = start + chks.chksz - 1
     arr = chks.ba[start[1]:stop[1], start[2]:stop[2], start[3]:stop[3]]
-    chk = Chunk(arr, start, chks.voxelsize)
+    chk = Chunk(arr, start, chks.voxelSize)
 
     # next grid index
     if grididx[1] < chks.gridsz[1]
@@ -67,7 +67,7 @@ function produce_chunks_tasks(task::ChunkFlowTask)
     params = task[:chunks][:params]
     @assert contains(task[:chunks][:kind], "chunks")
     chks = Tchks(barr, params[:origin], params[:chksz],
-                params[:overlap], params[:gridsz], params[:voxelsize])
+                params[:overlap], params[:gridsz], params[:voxelSize])
 
     # produce chunks
     for chk in chks
