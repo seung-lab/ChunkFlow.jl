@@ -17,7 +17,7 @@
     "kind": "znni",
     "params":{
         "znniBinaryFile": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
-        "GPUID": 0,
+        "deviceID": 0,
         "fnet": "s3://znn/experiments/allen/0722_VD2D3D-MS/net_current.h5",
         "outputPatchSize": [256, 256, 17],
         "fieldOfView": [109, 109, 9],
