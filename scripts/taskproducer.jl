@@ -16,9 +16,8 @@ task = get_task( argDict["task"] )
 @show task
 
 # set gpu id
-if !isa(argDict["gpuid"], Void)
-    set!(task, :GPUID, argDict["gpuid"])
-end
+set!(task, :GPUID, argDict["deviceid"])
+
 
 tasks = ChunkFlowTaskList()
 if contains(task[:input][:kind], "readh5")
