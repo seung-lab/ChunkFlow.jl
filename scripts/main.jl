@@ -12,15 +12,7 @@ argDict = parse_commandline()
 global const AWS_SQS_QUEUE_NAME = argDict["awssqs"]
 include("../src/core/task.jl")
 
-if !isa(argDict["task"], Void)
-    # has local task definition
-    task = get_task(argDict["task"])
-    if !isa(argDict["deviceid"], Void)
-        set!(task, :deviceID, argDict["deviceid"])
-    end
-    net = Net(task)
-    forward(net)
-else
+if argDict["task"]==nothing || isa(argDict["task"], Void)
     # fetch task from AWS SQS
     while true
         task, msg = get_task()
@@ -37,4 +29,12 @@ else
         deleteSQSmessage!(msg, AWS_SQS_QUEUE_NAME)
         sleep(5)
     end
+else
+    # has local task definition
+    task = get_task(argDict["task"])
+    if !isa(argDict["deviceid"], Void)
+        set!(task, :deviceID, argDict["deviceid"])
+    end
+    net = Net(task)
+    forward(net)
 end
