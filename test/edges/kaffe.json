@@ -22,7 +22,7 @@
         "outputPatchSize":    [158, 158,  32],
         "preprocess": "2dnormalize",
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
-        "GPUID": 0,
+        "deviceID": 0,
         "isCropImg": false,
         "cropMarginSize": [54,  54,   4],
         "affWeight": 0.33333333
