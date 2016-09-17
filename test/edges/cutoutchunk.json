@@ -3,7 +3,7 @@
     "params":{
         "bigArrayType": "aligned",
         "origin": [22000, 27000, 0],
-        "blockSize": [512, 512, 34],
+        "chunkSize": [512, 512, 34],
         "voxelSize": [4,4,40]
     },
     "inputs": {
