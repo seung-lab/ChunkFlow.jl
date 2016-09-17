@@ -16,7 +16,7 @@ task = get_task( argDict["task"] )
 @show task
 
 # set gpu id
-set!(task, :GPUID, argDict["deviceid"])
+set!(task, :deviceID, argDict["deviceid"])
 
 
 tasks = ChunkFlowTaskList()

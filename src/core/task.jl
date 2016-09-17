@@ -11,11 +11,12 @@ include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 set the some key to specific value
 """
 function set!(task::ChunkFlowTask, key::Symbol, value::Any)
-    if value!=Void
-        for (edgeName, edgeConfig) in task
-            if haskey(edgeConfig[:params], key)
-                task[edgeName][:params][key] = value
-            end
+    if value==Void || value==nothing
+        return task
+    end
+    for (edgeName, edgeConfig) in task
+        if haskey(edgeConfig[:params], key)
+            task[edgeName][:params][key] = value
         end
     end
 end

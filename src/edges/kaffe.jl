@@ -84,7 +84,7 @@ function ef_kaffe!( c::DictChannel,
     @show forwardCfg
 
     # run znni inference
-    run(`python $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:GPUID]) $(fForwardCfg)`)
+    run(`python $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg)`)
 
     # compute cropMarginSize using integer division
     sz = size(chk_img2.data)
