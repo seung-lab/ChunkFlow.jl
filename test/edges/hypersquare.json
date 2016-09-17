@@ -17,7 +17,7 @@
     "kind": "znni",
     "params":{
         "znniBinaryFile": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
-        "GPUID": 0,
+        "deviceID": 0,
         "fnet": "~/seungmount/research/kisuklee/Sharing/Jingpeng/blend_test/MS/net_290000.h5",
         "outputPatchSize": [256, 256, 17],
         "fieldOfView": [109, 109, 9],

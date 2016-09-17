@@ -2,7 +2,7 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "origin": [22000, 27000, 4000],
+        "origin": [21001, 21001, 4000],
         "blockSize": [1132, 1132, 260],
         "voxelSize": [4,4,40]
     },
@@ -22,7 +22,7 @@
         "outputPatchSize":    [150, 150,  12],
         "scanParams": "None",
         "preprocess": "rescale",
-        "GPUID": 0,
+        "deviceID": 0,
         "isCropImg": true,
         "cropMarginSize": [0,   0,    0],
         "originOffset": [54, 54, 4],
