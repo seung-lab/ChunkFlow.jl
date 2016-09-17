@@ -4,30 +4,24 @@ function parse_commandline()
     s = ArgParseSettings()
 
     @add_arg_table s begin
-        "--gpuid", "-g"
+        "--deviceid", "-d"
             help = "which gpu to use"
             arg_type = Int
         "--task", "-t"
-            default = "test"
             help = "task definition json file"
             arg_type = AbstractString
-        "--awssqs", "-q"
+        "--awssqs", "-a"
             help = "AWS SQS queue name. default is chunkflow-tasks"
             arg_type = AbstractString
             default = "chunkflow-tasks"
         "--origin", "-o"
             help = "the origin of chunk grids"
             arg_type = Vector{Int}
-            default = [0,0,0]
-        "--chunksize", "-c"
-            help = "size of each chunk"
-            arg_type = Vector{Int}
-            default = [1024+108, 1024+108, 128+8]
         "--stride", "-s"
             help = "stride of chunks"
             arg_type = Vector{Int}
             default = [0,0,0]
-        "--gridsize", "-d"
+        "--gridsize", "-g"
             help = "size of chunks grid"
             arg_type = Vector{Int}
             default = [1,1,1]
