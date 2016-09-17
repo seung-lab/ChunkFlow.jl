@@ -24,7 +24,7 @@ function ef_cutoutchunk!(c::DictChannel,
     end
 
     # get range
-    origin = params[:origin] .+ 1
+    origin = params[:origin]
     size = params[:blockSize]
     # cutout as chunk
     if ndims(ba)==3

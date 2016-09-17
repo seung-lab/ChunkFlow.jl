@@ -16,7 +16,7 @@ if !isa(argDict["task"], Void)
     # has local task definition
     task = get_task(argDict["task"])
     if !isa(argDict["deviceid"], Void)
-        set!(task, :GPUID, argDict["deviceid"])
+        set!(task, :deviceID, argDict["deviceid"])
     end
     net = Net(task)
     forward(net)
@@ -27,7 +27,7 @@ else
 
         # set the gpu device id to use
         if !isa(argDict["deviceid"], Void)
-            set!(task, :GPUID, argDict["deviceid"])
+            set!(task, :deviceID, argDict["deviceid"])
         end
         @show task
 
