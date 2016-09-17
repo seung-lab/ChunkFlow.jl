@@ -1,0 +1,90 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "aligned",
+        "origin":       [20055, 25055,  4005],
+        "chunkSize":    [512,   512,    252],
+        "voxelSize":    [4,     4,      40]
+    },
+    "inputs": {
+      "registerFile": "/mnt/data01/datasets/pinky/4_aligned/registry.txt"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"input2": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "h5s",
+        "origin":       [20055, 25055,  4005],
+        "chunkSize":    [512,   512,    252],
+        "voxelSize":    [4,     4,      40]
+    },
+    "inputs": {
+      "h5sDir": "/mnt/data02/jingpeng/pinky/affinitymap/"
+    },
+    "outputs": {
+        "data": "aff"
+    }
+},
+"watershed":{
+    "kind": "atomicseg",
+    "params": {
+        "low": 0.1,
+        "high": 0.8,
+        "thresholds": [
+            {
+                "size": 800,
+                "threshold": 0.2
+            }
+        ],
+        "dust": 600,
+        "isThresholdRelative": true
+    },
+    "inputs": {
+        "aff": "aff"
+    },
+    "outputs": {
+        "seg": "seg"
+    }
+},
+"agglomeration":{
+    "kind":"agglomeration",
+    "params":{
+        "mode": "mean",
+        "isDeleteAff": true
+    },
+    "inputs": {
+        "seg": "seg",
+        "aff": "aff"
+    },
+    "outputs": {
+        "sgm": "sgm"
+    }
+},
+"savesgm":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "sgm"
+    },
+    "outputs": {
+        "prefix": "/mnt/data02/jingpeng/pinky/segmentation/chunk_"
+    }
+},
+"omnification":{
+    "kind": "omnification",
+    "params":{
+        "ombin": "/opt/omni",
+        "isMeshing": true
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "prefix": "/mnt/data02/jingpeng/pinky/omniprojects/chunk_"
+    }
+}
+}
