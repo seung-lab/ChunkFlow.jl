@@ -6,7 +6,7 @@ the computation was defined as an edge. The kinds of edge was defined in [a task
     julia main.jl -h
 ## Running pipeline using local task configuration json file
 
-    julia main.jl --task=task.json --gpuid=0
+    julia main.jl --task=task.json --deviceid=0
     julia main.jl -t task.json -g 0
 
 ## Usage using AWS Simple Queue Service
