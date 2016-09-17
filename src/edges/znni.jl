@@ -43,7 +43,7 @@ function ef_znni!( c::DictChannel,
 
     # run znni inference
     cd(dirname(znniBinaryFile))
-    run(`$(znniBinaryFile) $(params[:GPUID]) $(fimg) $(faff) main $(outputPatchSize[3]) $(outputPatchSize[2]) $(outputPatchSize[1])`)
+    run(`$(znniBinaryFile) $(params[:deviceID]) $(fimg) $(faff) main $(outputPatchSize[3]) $(outputPatchSize[2]) $(outputPatchSize[1])`)
     cd(currentdir)
 
     # compute cropMarginSize using integer division
