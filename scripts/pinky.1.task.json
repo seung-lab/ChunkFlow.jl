@@ -2,8 +2,8 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "origin": [21001, 21001, 4000],
-        "blockSize": [1132, 1132, 260],
+        "origin":   [20001, 25001, 4001],
+        "chunkSize":     [1132, 1132, 260],
         "voxelSize": [4,4,40]
     },
     "inputs": {
@@ -13,18 +13,18 @@
         "data": "img"
     }
 },
-"MS":{
+"JNet":{
     "kind": "kaffe",
     "params":{
         "kaffeDir": "/opt/kaffe",
-        "caffeModelFile": "/opt/kaffe/models/MSF/deploy.prototxt",
-        "caffeNetFile": "/opt/kaffe/experiments/pinky/MS/train_iter_80000.caffemodel.h5",
-        "outputPatchSize":    [150, 150,  12],
-        "scanParams": "None",
-        "preprocess": "rescale",
+        "caffeModelFile": "/opt/kaffe/models/JNet/deploy.prototxt",
+        "caffeNetFile": "/opt/kaffe/experiments/pinky/JNet/train_iter_300000.caffemodel.h5",
+        "outputPatchSize":    [158, 158,  32],
+        "preprocess": "2dnormalization",
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
         "deviceID": 0,
-        "isCropImg": true,
-        "cropMarginSize": [0,   0,    0],
+        "isCropImg": false,
+        "cropMarginSize": [54,  54,   4],
         "originOffset": [54, 54, 4],
         "affWeight": 1
     },
@@ -45,7 +45,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "bigArrayDir": "/tmp/testBigArray"
+        "bigArrayDir": "/mnt/data02/jingpeng/pinky/affinitymap"
     }
 }
 }
