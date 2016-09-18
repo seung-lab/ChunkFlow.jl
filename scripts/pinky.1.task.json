@@ -13,18 +13,18 @@
         "data": "img"
     }
 },
-"JNet":{
+"MS":{
     "kind": "kaffe",
     "params":{
         "kaffeDir": "/opt/kaffe",
-        "caffeModelFile": "/opt/kaffe/models/JNet/deploy.prototxt",
-        "caffeNetFile": "/opt/kaffe/experiments/pinky/JNet/train_iter_300000.caffemodel.h5",
-        "outputPatchSize":    [158, 158,  32],
-        "preprocess": "2dnormalization",
-        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "caffeModelFile": "/opt/kaffe/caffe.models/VD2D3D/MS/deploy.prototxt",
+        "caffeNetFile": "/opt/kaffe/experiments/pinky/MS/train_iter_80000.caffemodel.h5",
+        "outputPatchSize":    [128, 128,  16],
+        "scanParams": "None",
+        "preprocess": "rescale",
         "deviceID": 0,
-        "isCropImg": false,
-        "cropMarginSize": [54,  54,   4],
+        "isCropImg": true,
+        "cropMarginSize": [0,   0,    0],
         "originOffset": [54, 54, 4],
         "affWeight": 1
     },
