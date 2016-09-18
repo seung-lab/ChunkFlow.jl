@@ -74,7 +74,9 @@ function ef_omnification( c::DictChannel,
     if iss3(prefix) || isGoogleStorage(prefix)
       upload( omniProjectName, dirname(prefix) )
     else
-      mv(omniProjectName, joinpath(dirname(prefix), basename(omniProjectName)))
-      mv("$(omniProjectName).files", joinpath(dirname(prefix), "$(basename(omniProjectName)).files"))
+      mv(omniProjectName, joinpath(dirname(prefix), basename(omniProjectName));
+            remove_destination=true)
+      mv("$(omniProjectName).files", joinpath(dirname(prefix), "$(basename(omniProjectName)).files");
+            remove_destination=true)
     end
 end
