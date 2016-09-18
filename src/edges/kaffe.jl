@@ -55,7 +55,6 @@ function ef_kaffe!( c::DictChannel,
 
     [image]
     file = img
-    # preprocess = dict(type='standardize',mode='2D')
     preprocess = $(preprocess)
 
     [dataset]
@@ -111,6 +110,9 @@ function ef_kaffe!( c::DictChannel,
     chk_aff = Chunk(aff, affOrigin, chk_img.voxelSize)
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
+
+    @show chk_aff.data[101:200, 101:200, 200, 1]
+    # @show chk_aff
 
     # remove temporary files
     rm(fImg);  rm(fAff); rm(fForwardCfg); rm(fDataSpec);
