@@ -3,7 +3,7 @@
     "params":{
         "bigArrayType": "aligned",
         "origin":       [20055, 25055,  4005],
-        "chunkSize":    [512,   512,    252],
+        "chunkSize":    [1024,   1024,    252],
         "voxelSize":    [4,     4,      40]
     },
     "inputs": {
@@ -18,7 +18,7 @@
     "params":{
         "bigArrayType": "h5s",
         "origin":       [20055, 25055,  4005],
-        "chunkSize":    [512,   512,    252],
+        "chunkSize":    [1024,  1024,   252],
         "voxelSize":    [4,     4,      40]
     },
     "inputs": {
