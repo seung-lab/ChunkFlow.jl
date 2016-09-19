@@ -27,7 +27,7 @@ elseif contains(task[:input][:kind], "cutoutchunk")
         for gridy in 1:argDict["gridsize"][2]
             for gridx in 1:argDict["gridsize"][1]
                 gridIndex = [gridx, gridy, gridz]
-                origin = argDict["origin"].+1 .+ (gridIndex .- 1) .* argDict["stride"]
+                origin = argDict["origin"] .+ (gridIndex .- 1) .* argDict["stride"]
                 set!(task, :origin, origin)
                 push!(tasks, task)
             end

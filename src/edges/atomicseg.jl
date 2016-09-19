@@ -1,4 +1,5 @@
 using Watershed
+using EMIRT
 
 """
 edge function of watershed to produce atomic seg
@@ -18,12 +19,21 @@ function ef_atomicseg!( c::DictChannel,
       push!(thds, tuple(st[:size], st[:threshold]))
     end
 
+
     # watershed
     println("watershed...")
     seg = atomicseg(chk_aff.data,   params[:low], params[:high],
                     thds, params[:dust];
                     is_threshold_relative=params[:isThresholdRelative])
+
     # create chunk and put into channel
     chk_seg = Chunk(seg, chk_aff.origin, chk_aff.voxelSize)
+
+    if haskey(params, :cropSegMarginSize)
+        chk = BigArrays.crop_border(chk, params[:cropSegMarginSize])
+        # relabel segments in case some segments was broken by cropping
+        chk.data = relabel_seg(chk.data)
+    end
+
     put!(c, outputs[:seg], chk_seg)
 end
