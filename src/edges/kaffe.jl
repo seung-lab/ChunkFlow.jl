@@ -44,6 +44,8 @@ function ef_kaffe!( c::DictChannel,
         preprocess = "dict(type='standardize',mode='2D')"
     elseif contains(params[:preprocess], "rescale")
         preprocess = "dict(type='rescale')"
+    elseif contains(params[:preprocess], "divideby")
+        preprocess = "dict(type='divideby')"
     else
         error("invalid preprocessing type: $(params[:preprocess])")
     end
