@@ -14,7 +14,6 @@ end
 
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 
-
 include("edges/agglomeration.jl")
 include("edges/atomicseg.jl")
 include("edges/blendchunk.jl")

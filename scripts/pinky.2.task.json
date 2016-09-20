@@ -1,24 +1,9 @@
 {"input": {
     "kind": "cutoutchunk",
     "params":{
-        "bigArrayType": "aligned",
-        "origin":       [20055, 25055,  4005],
-        "chunkSize":    [1024,   1024,    252],
-        "voxelSize":    [4,     4,      40]
-    },
-    "inputs": {
-      "registerFile": "/mnt/data01/datasets/pinky/4_aligned/registry.txt"
-    },
-    "outputs": {
-        "data": "img"
-    }
-},
-"input2": {
-    "kind": "cutoutchunk",
-    "params":{
         "bigArrayType": "h5s",
-        "origin":       [20055, 25055,  4005],
-        "chunkSize":    [1024,  1024,   252],
+        "origin":       [20001, 25001,  4003],
+        "chunkSize":    [1536,  1536,   254],
         "voxelSize":    [4,     4,      40]
     },
     "inputs": {
@@ -28,11 +13,11 @@
         "data": "aff"
     }
 },
-"watershed":{
+"atomicseg":{
     "kind": "atomicseg",
     "params": {
         "low": 0.1,
-        "high": 0.8,
+        "high": 0.7,
         "thresholds": [
             {
                 "size": 800,
@@ -40,7 +25,8 @@
             }
         ],
         "dust": 600,
-        "isThresholdRelative": true
+        "isThresholdRelative": true,
+        "cropSegMarginSize": []
     },
     "inputs": {
         "aff": "aff"
@@ -71,6 +57,21 @@
     },
     "outputs": {
         "prefix": "/mnt/data02/jingpeng/pinky/segmentation/chunk_"
+    }
+},
+"input_img": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "aligned",
+        "chunkSize":    [1024,   1024,    252],
+        "voxelSize":    [4,     4,      40]
+    },
+    "inputs": {
+      "registerFile": "/mnt/data01/datasets/pinky/4_aligned/registry.txt",
+      "originReferenceChunk": "sgm"
+    },
+    "outputs": {
+        "data": "img"
     }
 },
 "omnification":{
