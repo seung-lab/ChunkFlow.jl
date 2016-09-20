@@ -49,7 +49,7 @@ function forward(net::Net)
         info("time cost for $(e.kind): $(elapsed/60) min")
         info("--------end of $(e.kind)-----------")
     end
-    info("complete pipeline time cost: $(time()-pipeline_start) min")
+    info("complete pipeline time cost: $((time()-pipeline_start)/60) min")
     println("-----------end pipeline----------------")
 end
 
