@@ -22,7 +22,12 @@ function ef_cutoutchunk!(c::DictChannel,
     end
 
     # get range
-    origin = params[:origin]
+    if params[:origin]=="auto"
+        @assert haskey(inputs[:originReferenceChunk])
+        origin = inputs[:originReferenceChunk].origin
+    else
+        origin = params[:origin]
+    end
     chunkSize = params[:chunkSize]
     # cutout as chunk
     if ndims(ba)==3

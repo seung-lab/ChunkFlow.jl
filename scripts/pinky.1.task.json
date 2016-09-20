@@ -2,9 +2,9 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "origin":       [12235, 4043, 4001],
-        "chunkSize":    [2156, 2156, 260],
-        "voxelSize":    [4,4,40]
+        "origin":   [20001, 25001, 4001],
+        "chunkSize": [1132, 1132, 260],
+        "voxelSize": [4,4,40]
     },
     "inputs": {
       "registerFile": "/mnt/data01/datasets/pinky/4_aligned/registry.txt"
