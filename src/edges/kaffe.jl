@@ -10,7 +10,7 @@ function ef_kaffe!( c::DictChannel,
                 outputs::OrderedDict{Symbol, Any})
     # note that the fetch only use reference rather than copy
     # anychange for chk_img could affect the img in dickchannel
-    chk_img = fetch(c, inputs[:img])
+    chk_img = take!(c, inputs[:img])
     @assert isa(chk_img.data, EMImage)
 
     # save as hdf5 file
@@ -83,6 +83,9 @@ function ef_kaffe!( c::DictChannel,
     write(f, forwardCfg)
     close(f)
     @show forwardCfg
+
+    # log the chunk coordinate for debug
+    info("processing chunk origin from: $(chk_img2.origin) with a size of $(size(chk_img2.data))")
 
     # run znni inference
     run(`python $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg)`)
