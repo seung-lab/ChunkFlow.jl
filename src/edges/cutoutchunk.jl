@@ -22,9 +22,8 @@ function ef_cutoutchunk!(c::DictChannel,
     end
 
     # get range
-    if params[:origin]=="auto"
-        @assert haskey(inputs[:originReferenceChunk])
-        origin = inputs[:originReferenceChunk].origin
+    if haskey(inputs, :originReferenceChunk)
+        origin = fetch(c, inputs[:originReferenceChunk]).origin
     else
         origin = params[:origin]
     end
