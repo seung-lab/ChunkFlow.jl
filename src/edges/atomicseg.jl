@@ -16,9 +16,8 @@ function ef_atomicseg!( c::DictChannel,
     # make the threshold data structure
     thds = Vector{Tuple}()
     for st in params[:thresholds]
-      push!(thds, tuple(st[:size], st[:threshold]))
+        push!(thds, tuple(st[:size], st[:threshold]))
     end
-
 
     # watershed
     println("watershed...")
