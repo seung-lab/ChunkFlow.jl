@@ -3,7 +3,7 @@
     "params":{
         "bigArrayType": "h5s",
         "origin":       [22529, 14337,  4003],
-        "chunkSize":    [1536,  1536,   256],
+        "chunkSize":    [2304,  2304,   256],
         "voxelSize":    [4,     4,      40]
     },
     "inputs": {
@@ -26,17 +26,17 @@
 "atomicseg":{
     "kind": "atomicseg",
     "params": {
-        "low": 0.1,
-        "high": 0.7,
+        "low": 0.07,
+        "high": 0.9999,
         "thresholds": [
             {
                 "size": 800,
-                "threshold": 0.2
+                "threshold": 0.1
             }
         ],
         "dust": 600,
-        "isThresholdRelative": true,
-        "cropSegMarginSize": [256,256,0]
+        "isThresholdRelative": false,
+        "cropSegMarginSize": [128,128,0]
     },
     "inputs": {
         "aff": "aff"
@@ -48,7 +48,7 @@
 "cropaff":{
   "kind": "crop",
   "params": {
-    "cropMarginSize": [54, 54, 2]
+    "cropMarginSize": [128, 128, 0]
   },
   "inputs":{
     "img": "aff"
@@ -70,14 +70,6 @@
     "outputs": {
         "sgm": "sgm"
     }
-},
-"removeaff":{
-    "kind": "remove",
-    "params": {},
-    "inputs": {
-        "datas": ["aff"]
-    },
-    "outputs": {}
 },
 "savesgm":{
     "kind": "savechunk",

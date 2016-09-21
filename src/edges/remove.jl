@@ -9,5 +9,6 @@ function ef_remove!( c::DictChannel,
     for data in inputs[:datas]
         tmp = take!(c, data)
         tmp = nothing
-    end 
+    end
+    gc()
 end
