@@ -18,7 +18,8 @@ function ef_savechunk(c::DictChannel,
         @assert contains(chunkFileName, ".h5")
     else
         prefix = replace(outputs[:prefix],"~",homedir())
-        chunkFileName = "$(prefix)$(chk.origin[1]-1)_$(chk.origin[2]-1)_$(chk.origin[3]-1).$(inputs[:chunk]).h5"
+        chksz = size(chk)
+        chunkFileName = "$(prefix)$(chk.origin[1])-$(chk.origin[1]+chksz[1]-1)_$(chk.origin[2])-$(chk.origin[2]+chksz[2]-1)_$(chk.origin[3])-$(chk.origin[3]+chksz[3]-1).$(inputs[:chunk]).h5"
     end
     if iss3(chunkFileName)
         ftmp = string(tempname(), ".chk.h5")
