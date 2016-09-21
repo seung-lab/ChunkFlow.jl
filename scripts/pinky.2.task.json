@@ -45,6 +45,18 @@
         "seg": "seg"
     }
 },
+"cropaff":{
+  "kind": "crop",
+  "params": {
+    "cropMarginSize": [54, 54, 2]
+  },
+  "inputs":{
+    "img": "aff"
+  },
+  "outputs":{
+    "img": "aff"
+  }
+},
 "agglomeration":{
     "kind":"agglomeration",
     "params":{
@@ -58,6 +70,14 @@
     "outputs": {
         "sgm": "sgm"
     }
+},
+"removeaff":{
+    "kind": "remove",
+    "params": {},
+    "inputs": {
+        "datas": ["aff"]
+    },
+    "outputs": {}
 },
 "savesgm":{
     "kind": "savechunk",
@@ -73,12 +93,11 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "chunkSize":    [1024,   1024,    252],
         "voxelSize":    [4,     4,      40]
     },
     "inputs": {
       "registerFile": "/mnt/data01/datasets/pinky/4_aligned/registry.txt",
-      "originReferenceChunk": "sgm"
+      "referenceChunk": "sgm"
     },
     "outputs": {
         "data": "img"
