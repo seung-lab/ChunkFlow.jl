@@ -27,6 +27,7 @@ include("edges/omni.jl")
 include("edges/readchunk.jl")
 include("edges/readh5.jl")
 include("edges/relabelseg.jl")
+include("edges/remove.jl")
 include("edges/savechunk.jl")
 include("edges/watershed.jl")
 include("edges/znni.jl")
@@ -50,6 +51,7 @@ const edgeFuncLib = Dict{Symbol, Function}(
   :readchunk      => ef_readchunk!,
   :readh5         => ef_readh5!,
   :relabelseg     => ef_relabelseg!,
+  :remove         => ef_remove!,
   :savechunk      => ef_savechunk,
   :watershed      => ef_watershed!,
   :znni           => ef_znni!
