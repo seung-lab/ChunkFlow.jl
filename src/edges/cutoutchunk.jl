@@ -22,12 +22,14 @@ function ef_cutoutchunk!(c::DictChannel,
     end
 
     # get range
-    if haskey(inputs, :originReferenceChunk)
-        origin = fetch(c, inputs[:originReferenceChunk]).origin
+    if haskey(inputs, :referenceChunk)
+        origin      = fetch(c, inputs[:referenceChunk]).origin
+        chunkSize   = size(fetch(c, inputs[:referenceChunk]).data)
     else
         origin = params[:origin]
+        chunkSize = params[:chunkSize]
     end
-    chunkSize = params[:chunkSize]
+
     # cutout as chunk
     if ndims(ba)==3
       data = ba[origin[1] : origin[1]+chunkSize[1]-1,
