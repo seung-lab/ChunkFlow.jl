@@ -30,9 +30,9 @@ function ef_atomicseg!( c::DictChannel,
     chk_seg = Chunk(seg, chk_aff.origin, chk_aff.voxelSize)
 
     if haskey(params, :cropSegMarginSize)
-        chk = BigArrays.crop_border(chk, params[:cropSegMarginSize])
+        chk_seg = BigArrays.crop_border(chk_seg, params[:cropSegMarginSize])
         # relabel segments in case some segments was broken by cropping
-        chk.data = relabel_seg(chk.data)
+        chk_seg.data = relabel_seg(chk_seg.data)
     end
 
     put!(c, outputs[:seg], chk_seg)
