@@ -72,7 +72,8 @@ function ef_omnification( c::DictChannel,
     # move omni project
     prefix = replace(outputs[:prefix],"~",homedir())
     if iss3(prefix) || isGoogleStorage(prefix)
-      upload( omniProjectName,  joinpath(dirname(prefix), "$(basename(omniProjectName)).files" ))
+      upload( omniProjectName,  joinpath(dirname(prefix), "$(basename(omniProjectName))" ))
+      upload( "$(omniProjectName).files",  joinpath(dirname(prefix), "$(basename(omniProjectName)).files" ))
     else
       mv(omniProjectName, joinpath(dirname(prefix), basename(omniProjectName));
             remove_destination=true)
