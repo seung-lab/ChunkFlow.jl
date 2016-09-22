@@ -2,7 +2,7 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "origin":   [12235, 4043, 4001],
+        "origin":   [10187, 16331, 4001],
         "chunkSize": [2156, 2156, 260],
         "voxelSize": [4,4,40]
     },
