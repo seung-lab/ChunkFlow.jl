@@ -29,9 +29,14 @@ function ef_atomicseg!( c::DictChannel,
     chk_seg = Chunk(seg, chk_aff.origin, chk_aff.voxelSize)
 
     if haskey(params, :cropSegMarginSize)
+        stt = time()
+        println("start crop segmentation and relabel using connected component analysis...")
         chk_seg = BigArrays.crop_border(chk_seg, params[:cropSegMarginSize])
         # relabel segments in case some segments was broken by cropping
+        segid1N!(chk_seg.data)
         chk_seg.data = relabel_seg(chk_seg.data)
+        segid1N!(chk_seg.data)
+        println("time cost of cropping and relabelling: $((time()-stt)/60) min")
     end
 
     put!(c, outputs[:seg], chk_seg)
