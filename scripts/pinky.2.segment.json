@@ -2,7 +2,7 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "h5s",
-        "origin":       [22529, 14337,  4003],
+        "origin":       [10241, 16385,  4003],
         "chunkSize":    [2304,  2304,   256],
         "voxelSize":    [4,     4,      40]
     },
@@ -20,18 +20,18 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "/mnt/data02/jingpeng/pinky/affinitychunks/chunk_"
+        "prefix": "s3://seunglab/pinky/all/affinitychunks/chunk_"
     }
 },
 "atomicseg":{
     "kind": "atomicseg",
     "params": {
-        "low": 0.07,
-        "high": 0.9999,
+        "low": 0.022009,
+        "high": 0.999998,
         "thresholds": [
             {
                 "size": 800,
-                "threshold": 0.1
+                "threshold": 0.206746
             }
         ],
         "dust": 600,
@@ -78,7 +78,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "/mnt/data02/jingpeng/pinky/segmentation/chunk_"
+        "prefix": "s3://seunglab/pinky/all/segmentation/chunk_"
     }
 },
 "input_img": {
@@ -102,7 +102,7 @@
         "chunk": "img"
     },
     "outputs": {
-        "prefix": "/mnt/data02/jingpeng/pinky/imagechunks/chunk_"
+        "prefix": "s3://seunglab/pinky/all/imagechunks/chunk_"
     }
 },
 "omnification":{
