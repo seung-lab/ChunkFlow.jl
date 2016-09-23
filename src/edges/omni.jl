@@ -33,7 +33,7 @@ function ef_omnification( c::DictChannel,
     omniProjectDir = tempname()
     mkdir(omniProjectDir)
     omniProjectName = joinpath(omniProjectDir,
-        "$(basename(outputs[:prefix]))$(origin[1]-1)-$(volend[1]-1)_$(origin[2]-1)-$(volend[2]-1)_$(origin[3]-1)-$(volend[3]-1).omni")
+        "$(basename(outputs[:prefix]))$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
 
     # compute physical offset
     phyOffset = physical_offset(chk_img)
