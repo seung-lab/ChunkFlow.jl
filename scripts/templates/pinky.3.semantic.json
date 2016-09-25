@@ -18,9 +18,9 @@
     "params":{
         "kaffeDir": "/opt/kaffe",
         "caffeModelFile": "/opt/kaffe/caffe.models/JNet-semantic/deploy.prototxt",
-        "caffeNetFile": "/opt/kaffe/experiments/pinky/JNet-semantic/train_iter_300000.caffemodel.h5",
+        "caffeNetFile": "/opt/kaffe/experiments/pinky/JNet-semantic/train_iter_137500.caffemodel.h5",
         "outputPatchSize":    [158, 158,  32],
-        "preprocess": "divideby",
+        "preprocess": "2dnormalize",
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
         "deviceID": 0,
         "isCropImg": false,
@@ -45,7 +45,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "bigArrayDir": "/mnt/data02/jingpeng/pinky/affinitymap"
+        "bigArrayDir": "/mnt/data02/jingpeng/pinky/semanticmap/"
     }
 }
 }

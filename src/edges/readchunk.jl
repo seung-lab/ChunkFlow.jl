@@ -9,7 +9,17 @@ function ef_readchunk!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )
-    fileName = inputs[:fileName]
+    # get file name
+    if haskey(inputs, :fileName)
+        fileName = inputs[:fileName]
+    else
+        @assert haskey(inputs, :prefix)
+        start = params[:origin]
+        stop  = start .+ params[:chunkSize] -1
+        fileName = "$(inputs[:prefix])$(start[1])-$(stop[1])_$(start[2])-$(stop[2])_$(start[3])-$(stop[3])$(inputs[:suffix])"
+    end
+    @show fileName
+    
     if iss3(fileName)
         # download from s3
         fileName = download(fileName, "/tmp/")
@@ -19,7 +29,5 @@ function ef_readchunk!(c::DictChannel,
     # put chunk to channel for use
     put!(c, outputs[:data], chk)
 
-    # release memory
-    chk = nothing
-    gc()
+    rm(fileName)
 end

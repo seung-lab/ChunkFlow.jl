@@ -22,7 +22,8 @@ set!(task, :deviceID, argDict["deviceid"])
 tasks = ChunkFlowTaskList()
 if contains(task[:input][:kind], "readh5")
     tasks = produce_tasks(task)
-elseif contains(task[:input][:kind], "cutoutchunk")
+elseif  contains(task[:input][:kind], "cutoutchunk") ||
+        contains(task[:input][:kind], "readchunk")
     for gridz in 1:argDict["gridsize"][3]
         for gridy in 1:argDict["gridsize"][2]
             for gridx in 1:argDict["gridsize"][1]
