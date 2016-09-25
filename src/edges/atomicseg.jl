@@ -35,10 +35,9 @@ function ef_atomicseg!( c::DictChannel,
         # relabel segments in case some segments was broken by cropping
         segid1N!(chk_seg.data)
         chk_seg.data = relabel_seg(chk_seg.data)
-        segid1N!(chk_seg.data)
         info("time cost of cropping and relabelling: $((time()-stt)/60) min")
         println("time cost of cropping and relabelling: $((time()-stt)/60) min")
     end
-
+    segid1N!(chk_seg.data)
     put!(c, outputs[:seg], chk_seg)
 end
