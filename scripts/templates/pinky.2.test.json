@@ -2,8 +2,8 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "h5s",
-        "origin":       [10241, 16385,  4003],
-        "chunkSize":    [2304,  2304,   256],
+        "origin":       [15187, 21331,  4003],
+        "chunkSize":    [1280,  1280,   128],
         "voxelSize":    [4,     4,      40]
     },
     "inputs": {
@@ -20,7 +20,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "s3://seunglab/pinky/all/affinitychunks/chunk_"
+        "prefix": "s3://seunglab/pinky/3x3x2_3/affinitymap/chunk_"
     }
 },
 "atomicseg":{
@@ -78,7 +78,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "s3://seunglab/pinky/all/segmentation/chunk_"
+        "prefix": "s3://seunglab/pinky/3x3x2_3/segmentation/chunk_"
     }
 },
 "input_img": {
@@ -102,21 +102,35 @@
         "chunk": "img"
     },
     "outputs": {
-        "prefix": "s3://seunglab/pinky/all/imagechunks/chunk_"
+        "prefix": "s3://seunglab/pinky/3x3x2_3/imagechunk/chunk_"
     }
 },
-"omnification":{
-    "kind": "omnification",
+"hypersquare":{
+    "kind": "hypersquare",
     "params":{
-        "ombin": "/opt/omni",
-        "isMeshing": true
+        "segment_id_type" : "UInt16",
+        "affinity_type" : "Float32"
     },
     "inputs": {
         "img": "img",
         "sgm": "sgm"
     },
     "outputs": {
-        "prefix": "/mnt/data02/jingpeng/pinky/omniprojects/chunk_"
+        "projectsDirectory": "s3://seunglab/pinky/3x3x2_3/hypersquare/"
+    }
+},
+"omnification":{
+    "kind": "omnification",
+    "params":{
+        "ombin": "/opt/omni",
+        "isMeshing": false
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "prefix": "s3://seunglab/pinky/3x3x2_3/omniprojects/chunk_"
     }
 }
 }
