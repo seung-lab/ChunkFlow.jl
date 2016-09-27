@@ -17,7 +17,7 @@ function ef_znni!( c::DictChannel,
     faff = string(tempname(), ".aff.h5")
 
     # normalize in 2D section
-    imgnor = normalize(chk_img.data)
+    imgnor = EMIRT.normalize(chk_img.data)
     if isfile(fimg)
         rm(fimg)
     end
