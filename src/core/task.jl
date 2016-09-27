@@ -38,7 +38,7 @@ end
 
 function get_local_task(fileName::AbstractString)
     # just simple local file
-    str_task = readstring( fileName )
+    str_task = readall( fileName )
     # transform text to JSON OrderedDict format
     return JSON.parse(str_task, dicttype=ChunkFlowTask)
 end

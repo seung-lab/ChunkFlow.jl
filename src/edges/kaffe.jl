@@ -10,7 +10,7 @@ function ef_kaffe!( c::DictChannel,
                 outputs::OrderedDict{Symbol, Any})
     # note that the fetch only use reference rather than copy
     # anychange for chk_img could affect the img in dickchannel
-    chk_img = take!(c, inputs[:img])
+    chk_img = fetch(c, inputs[:img])
     @assert isa(chk_img.data, EMImage)
 
     # save as hdf5 file
@@ -116,7 +116,7 @@ function ef_kaffe!( c::DictChannel,
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
 
-    @show chk_aff.data[101:200, 101:200, 200, 1]
+    # @show chk_aff.data[101:200, 101:200, 10, 1]
     # @show chk_aff
 
     # remove temporary files
