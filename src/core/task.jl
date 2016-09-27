@@ -22,7 +22,7 @@ function set!(task::ChunkFlowTask, key::Symbol, value::Any)
 end
 
 function get_sqs_task(queuename::AbstractString = AWS_SQS_QUEUE_NAME)
-    msg = fetchSQSmessage(ASCIIString(queuename))
+    msg = fetchSQSmessage(String(queuename))
     task = msg.body
     # transform text to JSON OrderedDict format
     return JSON.parse(task, dicttype=ChunkFlowTask), msg
@@ -31,14 +31,14 @@ end
 function get_s3_task(fileName::AbstractString)
     @assert iss3(fileName)
     lcfile = download(ARGS[1], "/tmp/")
-    str_task = readall( lcfile )
+    str_task = readstring( lcfile )
     # transform text to JSON OrderedDict format
     return JSON.parse(str_task, dicttype=ChunkFlowTask)
 end
 
 function get_local_task(fileName::AbstractString)
     # just simple local file
-    str_task = readall( fileName )
+    str_task = readstring( fileName )
     # transform text to JSON OrderedDict format
     return JSON.parse(str_task, dicttype=ChunkFlowTask)
 end
