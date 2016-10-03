@@ -1,5 +1,7 @@
 using EMIRT
 using DataStructures
+# using Base.Threads
+
 include("../src/core/argparser.jl")
 
 # parse the arguments as a dictionary, key is string
@@ -18,25 +20,22 @@ task = get_task( argDict["task"] )
 # set gpu id
 set!(task, :deviceID, argDict["deviceid"])
 
-
-tasks = ChunkFlowTaskList()
 if contains(task[:input][:kind], "readh5")
+    # tasks = ChunkFlowTaskList()
     tasks = produce_tasks(task)
+    submit(tasks)
 elseif  contains(task[:input][:kind], "cutoutchunk") ||
         contains(task[:input][:kind], "readchunk")
     for gridz in 1:argDict["gridsize"][3]
         for gridy in 1:argDict["gridsize"][2]
             for gridx in 1:argDict["gridsize"][1]
-                tmptask = deepcopy(task)
                 gridIndex = [gridx, gridy, gridz]
                 origin = argDict["origin"] .+ (gridIndex .- 1) .* argDict["stride"]
-                set!(tmptask, :origin, origin)
-                push!(tasks, tmptask)
+                set!(task, :origin, origin)
+                submit(task)
             end
         end
     end
 else
     error("invalid input method: $(task[:input][:kind])")
 end
-
-submit(tasks)
