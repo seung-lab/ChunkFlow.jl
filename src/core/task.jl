@@ -70,6 +70,11 @@ function submit(tasks::ChunkFlowTaskList; sqsQueueName::AbstractString = AWS_SQS
     end
 end
 
+function submit(task::ChunkFlowTask; sqsQueueName::AbstractString = AWS_SQS_QUEUE_NAME)
+    # send the task to SQS queue
+    sendSQSmessage(awsEnv, sqsQueueName, JSON.json(task))
+end
+
 """
 produce tasks to AWS SQS
 """
