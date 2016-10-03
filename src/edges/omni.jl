@@ -42,14 +42,22 @@ function ef_omnification( c::DictChannel,
 
     # prepare the cmd file for omnification
     # make omnify command file
-    cmd = """create:$(omniProjectName)
-    loadHDF5chann:$(fimg)
-    setChanResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
-    setChanAbsOffset:1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
-    loadHDF5seg:$(fsgm)
+    cmd = "create:$(omniProjectName)\n"
+
+    if !(haskey(params, :isChannel) && !params[:isChannel])
+        cmd = string(cmd, """
+        loadHDF5chann:$(fimg)
+        setChanResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
+        setChanAbsOffset:1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
+        """)
+    end
+
+    # add segmentation
+    cmd = string(cmd, """loadHDF5seg:$(fsgm)
     setSegResolution:1,$(vs[1]),$(vs[2]),$(vs[3])
     setSegAbsOffset:1,$(phyOffset[1]),$(phyOffset[2]),$(phyOffset[3])
-    """
+    """)
+
     # add meshing or not
     if params[:isMeshing]
       cmd = string(cmd, "mesh\nquit\n")
