@@ -1,26 +1,57 @@
 {"input": {
-    "kind": "cutoutchunk",
+    "kind": "readchunk",
     "params":{
-        "bigArrayType": "h5s",
-        "origin":       [10241, 16385,  4003],
+        "origin": [],
         "chunkSize":    [2304,  2304,   256],
         "voxelSize":    [4,     4,      40]
     },
     "inputs": {
-      "h5sDir": "/mnt/data02/jingpeng/pinky/affinitymap/"
+        "prefix": "s3://seunglab/pinky/all/affinitychunks/chunk_",
+        "suffix": ".aff.h5"
     },
     "outputs": {
         "data": "aff"
     }
 },
-"saveaff":{
-    "kind": "savechunk",
-    "params": {},
+"inputimg": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "aligned",
+        "origin":   [12235, 4043, 4001],
+        "chunkSize": [2304, 2304, 256],
+        "voxelSize": [4,4,40]
+    },
     "inputs": {
-        "chunk": "aff"
+      "registerFile": "/mnt/data01/datasets/pinky/4_aligned/registry.txt"
     },
     "outputs": {
-        "prefix": "s3://seunglab/pinky/all/affinitychunks/chunk_"
+        "data": "img"
+    }
+},
+"maskaff":{
+    "kind": "maskaffinity",
+    "params": {
+        "threshold": 1,
+        "sizeThreshold": 400,
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"cropimg":{
+    "kind": "crop",
+    "params": {
+        "cropMarginSize": [128, 128, 0]
+    },
+    "inputs":{
+        "img": "img"
+    },
+    "outputs":{
+        "img": "img"
     }
 },
 "atomicseg":{
@@ -79,21 +110,6 @@
     },
     "outputs": {
         "prefix": "s3://seunglab/pinky/all/segmentation/chunk_"
-    }
-},
-"input_img": {
-    "kind": "cutoutchunk",
-    "params":{
-        "bigArrayType": "aligned",
-        "chunkSize":    [2048,   2048,    256],
-        "voxelSize":    [4,     4,      40]
-    },
-    "inputs": {
-      "registerFile": "/mnt/data01/datasets/pinky/4_aligned/registry.txt",
-      "referenceChunk": "sgm"
-    },
-    "outputs": {
-        "data": "img"
     }
 },
 "saveimg":{
