@@ -92,10 +92,10 @@
     "cropMarginSize": [128, 128, 0]
   },
   "inputs":{
-    "img": "aff"
+    "img": "img"
   },
   "outputs":{
-    "img": "aff"
+    "img": "img"
   }
 },
 "saveimg":{
@@ -106,6 +106,20 @@
     },
     "outputs": {
         "prefix": "s3://seunglab/pinky/neo/omnichannelchunks/chunk_"
+    }
+},
+"hypersquare":{
+    "kind": "hypersquare",
+    "params":{
+        "segment_id_type" : "UInt16",
+        "affinity_type" : "Float32"
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "projectsDirectory": "s3://seunglab/pinky/neo/hypersquare/"
     }
 },
 "omnification":{
