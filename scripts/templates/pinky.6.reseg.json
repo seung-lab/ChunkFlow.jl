@@ -1,0 +1,73 @@
+{"input": {
+    "kind": "readchunk",
+    "params":{
+        "origin": [],
+        "chunkSize": [2304,2304,256],
+        "voxelSize": [4,4,40]
+    },
+    "inputs": {
+        "prefix": "s3://seunglab/pinky/all/affinitychunks/chunk_",
+        "suffix": ".aff.h5"
+    },
+    "outputs": {
+        "data": "aff"
+    }
+},"atomicseg":{
+    "kind": "atomicseg",
+    "params": {
+        "low": 0.022,
+        "high": 0.999998,
+        "thresholds": [
+            {
+                "size": 800,
+                "threshold": 0.206746
+            }
+        ],
+        "dust": 600,
+        "isThresholdRelative": false,
+        "cropSegMarginSize": [128,128,0]
+    },
+    "inputs": {
+        "aff": "aff"
+    },
+    "outputs": {
+        "seg": "seg"
+    }
+},
+"cropaff":{
+  "kind": "crop",
+  "params": {
+    "cropMarginSize": [128, 128, 0]
+  },
+  "inputs":{
+    "img": "aff"
+  },
+  "outputs":{
+    "img": "aff"
+  }
+},
+"agglomeration":{
+    "kind":"agglomeration",
+    "params":{
+        "mode": "mean",
+        "isDeleteAff": true
+    },
+    "inputs": {
+        "seg": "seg",
+        "aff": "aff"
+    },
+    "outputs": {
+        "sgm": "sgm"
+    }
+},
+"savesgm":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "sgm"
+    },
+    "outputs": {
+        "prefix": "s3://seunglab/pinky/all/segmentation80/chunk_"
+    }
+}
+}

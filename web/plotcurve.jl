@@ -4,7 +4,7 @@ using HDF5
 #import Escher:  @api, render
 
 # type of learning curve
-typealias Tlc Dict{ASCIIString, Dict{ASCIIString,Vector}}
+typealias Tlc Dict{String, Dict{String,Vector}}
 
 function get_learning_curve(fileName::AbstractString)
     if contains(fileName, "s3://")
@@ -17,8 +17,8 @@ function get_learning_curve(fileName::AbstractString)
     end
     curve = Tlc()
     if isfile(fileName)
-        curve["train"] = Dict{ASCIIString, Vector}()
-        curve["test"]  = Dict{ASCIIString, Vector}()
+        curve["train"] = Dict{String, Vector}()
+        curve["test"]  = Dict{String, Vector}()
 
         curve["train"]["it"]  = h5read(fileName, "/processing/znn/train/statistics/train/it")
         curve["train"]["err"] = h5read(fileName, "/processing/znn/train/statistics/train/err")
