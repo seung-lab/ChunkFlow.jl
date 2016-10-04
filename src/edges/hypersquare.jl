@@ -141,7 +141,7 @@ function smart_cast{U <: Unsigned}(segmentation::Array{U, 3},
     # try to handle it in the catch
     try
         segmentation = convert(Array{cast_type, 3}, segmentation)
-        segment_pairs = convert(Array{cast_type, 3}, segment_pairs)
+        segment_pairs = convert(Array{cast_type, 2}, segment_pairs)
     catch caught_error
         if !isa(caught_error, InexactError)
             rethrow(caught_error)
