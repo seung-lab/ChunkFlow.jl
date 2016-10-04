@@ -19,6 +19,7 @@ include("edges/crop.jl")
 include("edges/cutoutchunk.jl")
 include("edges/hypersquare.jl")
 include("edges/kaffe.jl")
+include("edges/maskaffinity.jl")
 include("edges/mergeseg.jl")
 include("edges/movedata.jl")
 include("edges/omni.jl")
@@ -43,6 +44,7 @@ const edgeFuncLib = Dict{Symbol, Function}(
   :cutoutchunk    => ef_cutoutchunk!,
   :hypersquare    => ef_hypersquare,
   :kaffe          => ef_kaffe!,
+  :maskaffinity   => ef_maskaffinity!,
   :mergeseg       => ef_mergeseg!,
   :movedata       => ef_movedata,
   :omnification   => ef_omnification,
