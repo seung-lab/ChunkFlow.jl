@@ -5,8 +5,9 @@ module ChunkNet
 using DataStructures
 
 include("core/dictchannel.jl")
-include("edges.jl")
+include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 include("core/task.jl")
+include("edges.jl")
 
 export Net, forward
 
