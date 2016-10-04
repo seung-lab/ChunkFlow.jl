@@ -13,7 +13,7 @@ function ef_maskaffinity!( c::DictChannel,
     @show size(chk_aff.data)
     # check it is an affinity map
     @assert isa(chk_aff.data, AffinityMap)
-    @assert all( size(chk_aff)[1:3] == size(chk_img)
+    @assert all( size(chk_aff)[1:3] == size(chk_img))
 
     mask = image2mask(  chk_img.data;
                         threshold=UInt8(params[:threshold]),
