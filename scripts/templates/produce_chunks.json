@@ -37,7 +37,7 @@
         "data": "img"
     }
 },
-"saveaff":{
+"saveimg":{
     "kind": "savechunk",
     "params": {},
     "inputs": {
