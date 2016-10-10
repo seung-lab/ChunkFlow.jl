@@ -1,4 +1,4 @@
-include("../src/core/argparser.jl")
+# include("../src/core/argparser.jl")
 include("../src/ChunkNet.jl")
 using ChunkNet
 using Logging
@@ -23,8 +23,17 @@ if argDict["task"]==nothing || isa(argDict["task"], Void)
         end
         @show task
 
-        net = Net(task)
-        forward(net)
+        try
+            forward( Net(task) )
+        catch err
+            if isa(err, LoadError) && argDict["shutdown"]
+                # automatically terminate the instance / machine
+                run(`sudo shutdown -h 0`)
+            else
+                rethrow()
+            end
+        end
+
         # delete task message in SQS
         deleteSQSmessage!(msg, AWS_SQS_QUEUE_NAME)
         sleep(5)
