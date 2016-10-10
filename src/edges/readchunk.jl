@@ -19,7 +19,7 @@ function ef_readchunk!(c::DictChannel,
         fileName = "$(inputs[:prefix])$(start[1])-$(stop[1])_$(start[2])-$(stop[2])_$(start[3])-$(stop[3])$(inputs[:suffix])"
     end
     @show fileName
-    
+
     if iss3(fileName)
         # download from s3
         fileName = download(fileName, "/tmp/")

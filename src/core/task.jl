@@ -38,7 +38,7 @@ end
 
 function get_local_task(fileName::AbstractString)
     # just simple local file
-    str_task = readall( fileName )
+    str_task = readstring( fileName )
     # transform text to JSON OrderedDict format
     return JSON.parse(str_task, dicttype=ChunkFlowTask)
 end
@@ -58,6 +58,10 @@ function get_task(ftask::AbstractString)
     else
         error("input should be a s3 or local task configuration file in JSON format! \n input task file: $ftask")
     end
+end
+
+function get_task(ftask::Void)
+    return nothing
 end
 
 """
