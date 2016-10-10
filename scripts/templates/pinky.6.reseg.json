@@ -16,7 +16,7 @@
     "kind": "atomicseg",
     "params": {
         "low": 0.022,
-        "high": 0.999998,
+        "high": 0.999982,
         "thresholds": [
             {
                 "size": 800,
@@ -67,7 +67,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "s3://seunglab/pinky/all/segmentation80/chunk_"
+        "prefix": "s3://seunglab/pinky/all/segmentation-1007/chunk_"
     }
 }
 }

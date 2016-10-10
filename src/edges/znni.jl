@@ -1,4 +1,3 @@
-using EMIRT
 using HDF5
 using DataStructures
 

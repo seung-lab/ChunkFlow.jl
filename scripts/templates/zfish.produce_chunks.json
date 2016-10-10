@@ -1,0 +1,27 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "aligned",
+        "origin": [-2047, -6143, 1],
+        "chunkSize": [2156, 2156, 264],
+        "voxelSize":    [5,     5,      45],
+        "nonzeroRatioThreshold": 0.25
+    },
+    "inputs": {
+      "registerFile": "/mnt/data01/datasets/pinky/4_aligned/registry.txt"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"saveimg":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "img"
+    },
+    "outputs": {
+        "prefix": "gs://jpwu/zfish/all/imagechunks/chunk_"
+    }
+}
+}
