@@ -1,4 +1,3 @@
-using EMIRT
 
 """
 edge function of watershed

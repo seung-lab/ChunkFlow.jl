@@ -1,5 +1,7 @@
 using ArgParse
 
+export parse_commandline
+
 function parse_commandline()
     s = ArgParseSettings()
 
@@ -7,6 +9,9 @@ function parse_commandline()
         "--deviceid", "-d"
             help = "which gpu to use"
             arg_type = Int
+        "--producer", "-p"
+            help = "producer task"
+            arg_type = AbstractString
         "--task", "-t"
             help = "task definition json file"
             arg_type = AbstractString
@@ -25,6 +30,10 @@ function parse_commandline()
             help = "size of chunks grid"
             arg_type = Vector{Int}
             default = [1,1,1]
+        "--shutdown", "-u"
+            help = "automatically shutdown this machine if no more task to do"
+            arg_type = Bool
+            default = false
     end
     return parse_args(s)
 end
