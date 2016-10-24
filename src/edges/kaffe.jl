@@ -87,7 +87,7 @@ function ef_kaffe!( c::DictChannel,
     @show forwardCfg
 
     # log the chunk coordinate for debug
-    info("processing chunk origin from: $(chk_img2.origin) with a size of $(size(chk_img2.data))")
+    # info("processing chunk origin from: $(chk_img2.origin) with a size of $(size(chk_img2.data))")
 
     # run znni inference
     run(`python $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg)`)
@@ -112,14 +112,13 @@ function ef_kaffe!( c::DictChannel,
     if isready(c, inputs[:aff])
       aff .+= take!(c, inputs[:aff]).data
     end
+    @show aff[1:10]
+    @assert aff[1] != NaN
 
     affOrigin = chk_img.origin .+ params[:originOffset]
     chk_aff = Chunk(aff, affOrigin, chk_img.voxelSize)
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
-
-    # @show chk_aff.data[101:200, 101:200, 10, 1]
-    # @show chk_aff
 
     # remove temporary files
     rm(fImg);  rm(fAff); rm(fForwardCfg); rm(fDataSpec);
