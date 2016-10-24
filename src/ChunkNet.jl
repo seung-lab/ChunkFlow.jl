@@ -58,4 +58,8 @@ function forward(net::Net)
     println("-----------end pipeline----------------")
 end
 
+function forward(task::OrderedDict{Symbol, Any})
+    return forward( Net(task) )
 end
+
+end # end of module ChunkNet
