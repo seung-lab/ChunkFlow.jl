@@ -1,13 +1,13 @@
 {"input": {
-    "kind": "readh5",
+    "kind": "cutoutchunk",
     "params":{
-        "origin": [],
-        "voxelSize": [5,5,45],
-        "datasetName": "main",
-        "isRemoveSourceFile": true
+        "bigArrayType": "aligned",
+        "origin":   [20481, 20481, 2049],
+        "chunkSize": [1132, 1132,  136],
+        "voxelSize": [5,5,45]
     },
     "inputs": {
-        "fileName": "s3://zfish/dodam_aligned_stacks/2x2x2_2/zebrafish_"
+      "registerFile": "/mnt/data01/datasets/zebrafish/4_aligned/registry.txt"
     },
     "outputs": {
         "data": "img"
@@ -40,6 +40,7 @@
         "caffeNetFile": "/opt/kaffe/experiments/zfish/MSF/train_iter_250000.caffemodel.h5",
         "outputPatchSize":    [150, 150,  12],
         "scanParams": "None",
+        "preprocess": "normalize",
         "deviceID": 0,
         "isCropImg": true,
         "cropMarginSize": [6,   6,    0],
@@ -62,6 +63,7 @@
         "caffeNetFile": "/opt/kaffe/experiments/zfish/JNet-f/train_iter_325000.caffemodel.h5",
         "outputPatchSize":    [158, 158,  32],
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess": "normalize",
         "deviceID": 0,
         "isCropImg": false,
         "cropMarginSize": [54,  54,   4],
@@ -83,7 +85,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "s3://zfish/dodam_aligned_stacks/2x2x2_2/affinityMap/chunk_"
+        "prefix": "gs://jpwu/zfish/old3nets/affinityMap/chunk_"
     }
 },
 "cropImg":{
@@ -140,7 +142,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "s3://zfish/dodam_aligned_stacks/2x2x2_2/segmentation/chunk_"
+        "prefix": "gs://jpwu/zfish/old3nets/segmentation/chunk_"
     }
 },
 "hypersquare":{
@@ -154,7 +156,33 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectsDirectory": "s3://zfish/dodam_aligned_stacks/2x2x2_2/hypersquare/"
+        "projectsDirectory": "gs://jpwu/zfish/old3nets/hypersquare/"
+    }
+},
+"omnification":{
+    "kind": "omnification",
+    "params":{
+        "ombin": "/opt/omni",
+        "isMeshing": false
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "prefix": "/tmp/chunk_"
+    }
+},
+"moveomniprj":{
+    "kind": "movedata",
+    "params": {
+      "isRemoveSourceFile": true
+    },
+    "inputs": {
+        "prefix": "/tmp/chunk_"
+    },
+    "outputs": {
+        "dir": "~/seungmount/research/Jingpeng/14_zfish/old3nets/"
     }
 }
 }
