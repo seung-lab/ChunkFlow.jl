@@ -39,6 +39,8 @@ function ef_kaffe!( c::DictChannel,
       download(params[:caffeNetFile], tempFile)
       params[:caffeNetFile] = tempFile
     end
+    @assert isfile(params[:caffeNetFile])
+    @assert isfile(params[:caffeModelFile])
 
     if contains(params[:preprocess], "ormaliz")
         preprocess = "dict(type='standardize',mode='2D')"
