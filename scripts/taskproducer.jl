@@ -1,7 +1,7 @@
-@everywhere include("../src/ChunkNet.jl")
-@everywhere using EMIRT
-@everywhere using DataStructures
-@everywhere using ChunkNet
+include("../src/ChunkNet.jl")
+using EMIRT
+using DataStructures
+using ChunkNet
 
 # parse the arguments as a dictionary, key is string
 global const argDict = parse_commandline()
@@ -11,11 +11,19 @@ global const argDict = parse_commandline()
 global const AWS_SQS_QUEUE_NAME = argDict["awssqs"]
 include("../src/core/task.jl")
 
+task = get_task( argDict["task"] )
+@show task
 
-@everywhere function process_task(task::ChunkFlowTask, producer::ChunkFlowTask, origin::Vector{Int})
+producer = get_task( argDict["producer"] )
+# set gpu id
+set!(task, :deviceID, argDict["deviceid"])
+
+
+function process_task(gridIndex::Tuple)
     if producer != nothing
         # produce chunk
         try
+            origin = argDict["origin"] .+ ([gridIndex...] .- 1) .* argDict["stride"]
             set!(producer, :origin, origin)
             forward( Net(producer) )
         catch err
@@ -31,25 +39,9 @@ include("../src/core/task.jl")
     submit(task)
 end
 
-function process_tasks(task::ChunkFlowTask, producer::ChunkFlowTask, gridIndexList::Vector)
-    # gc_enable(false)
-    @parallel for gridIndex in gridIndexList
-        origin = argDict["origin"] .+ ([gridIndex...] .- 1) .* argDict["stride"]
-        process_task(task, producer, origin)
-    end
-    # gc_enable(true)
-end
-
 function main()
     # read task config file
     # produce task script
-    task = get_task( argDict["task"] )
-    @show task
-
-    producer = get_task( argDict["producer"] )
-    # set gpu id
-    set!(task, :deviceID, argDict["deviceid"])
-
     if contains(task[:input][:kind], "readh5")
         # tasks = ChunkFlowTaskList()
         tasks = produce_tasks(task)
@@ -65,7 +57,7 @@ function main()
                 end
             end
         end
-        process_tasks(task, producer, gridIndexList)
+        map(process_task, gridIndexList)
     else
         error("invalid input method: $(task[:input][:kind])")
     end
