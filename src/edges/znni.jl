@@ -71,6 +71,7 @@ function ef_znni!( c::DictChannel,
     end
     close(f)
 
+    @show aff[1:100]
 
     # reweight affinity to make ensemble
     if params[:affWeight] != 1

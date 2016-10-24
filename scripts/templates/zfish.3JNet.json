@@ -14,58 +14,6 @@
         "data": "img"
     }
 },
-"saveimg":{
-    "kind": "savechunk",
-    "params": {},
-    "inputs": {
-        "chunk": "img"
-    },
-    "outputs": {
-        "prefix": "gs://jpwu/zfish/old3nets/image/chunk_"
-    }
-},
-"znni":{
-    "kind": "znni",
-    "params":{
-        "znniBinaryFile": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
-        "deviceID": 0,
-        "fnet": "s3://znn/experiments/zfish/net_290000.h5",
-        "outputPatchSize": [256, 256, 17],
-        "fieldOfView": [109, 109, 9],
-        "isExchangeAffXZ": true,
-        "affWeight": 0.333333333
-    },
-    "inputs": {
-        "img": "img",
-        "aff": "aff"
-    },
-    "outputs": {
-        "aff": "aff"
-    }
-},
-"MSF":{
-    "kind": "kaffe",
-    "params":{
-        "kaffeDir": "/opt/kaffe",
-        "caffeModelFile": "/opt/kaffe/caffe.models/MSF/deploy.prototxt",
-        "caffeNetFile": "/opt/kaffe/experiments/zfish/MSF/train_iter_250000.caffemodel.h5",
-        "outputPatchSize":    [150, 150,  12],
-        "scanParams": "None",
-        "preprocess": "normalize",
-        "deviceID": 0,
-        "isCropImg": true,
-        "cropMarginSize": [6,   6,    0],
-        "originOffset": [54, 54, 4],
-        "affWeight": 0.33333333
-    },
-    "inputs": {
-        "img": "img",
-        "aff": "aff"
-    },
-    "outputs": {
-        "aff": "aff"
-    }
-},
 "JNet":{
     "kind": "kaffe",
     "params":{
@@ -89,6 +37,52 @@
         "aff": "aff"
     }
 },
+"JKNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "/opt/kaffe/caffe.models/JKNet/deploy.prototxt",
+        "caffeNetFile": "/usr/people/jingpeng/seungmount/research/kisuklee/Workbench/deep_learning/kaffe/experiments/zfish/retrain/JKNet/snapshot/train_iter_700000.caffemodel.h5",
+        "outputPatchSize":    [158, 158,  32],
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess": "normalize",
+        "deviceID": 0,
+        "isCropImg": false,
+        "cropMarginSize": [54,  54,   4],
+        "originOffset": [54, 54, 4],
+        "affWeight": 0.333333333
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"newJNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "/opt/kaffe/caffe.models/JNet/deploy.prototxt",
+        "caffeNetFile": "/usr/people/jingpeng/seungmount/research/kisuklee/Workbench/deep_learning/kaffe/experiments/zfish/retrain/JNet-f/snapshot/train_iter_1000000.caffemodel.h5",
+        "outputPatchSize":    [158, 158,  32],
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess": "normalize",
+        "deviceID": 0,
+        "isCropImg": false,
+        "cropMarginSize": [54,  54,   4],
+        "originOffset": [54, 54, 4],
+        "affWeight": 0.333333333
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
 "saveaff":{
     "kind": "savechunk",
     "params": {},
@@ -96,7 +90,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "gs://jpwu/zfish/old3nets/affinityMap/chunk_"
+        "prefix": "gs://jpwu/zfish/3jnet/affinityMap/chunk_"
     }
 },
 "cropImg":{
@@ -153,7 +147,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "gs://jpwu/zfish/old3nets/segmentation/chunk_"
+        "prefix": "gs://jpwu/zfish/3jnet/segmentation/chunk_"
     }
 },
 "hypersquare":{
@@ -167,7 +161,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectsDirectory": "gs://jpwu/zfish/old3nets/hypersquare/"
+        "projectsDirectory": "gs://jpwu/zfish/3jnet/hypersquare/"
     }
 },
 "omnification":{
@@ -181,19 +175,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "prefix": "/tmp/chunk_"
-    }
-},
-"moveomniprj":{
-    "kind": "movedata",
-    "params": {
-      "isRemoveSourceFile": true
-    },
-    "inputs": {
-        "prefix": "/tmp/chunk_"
-    },
-    "outputs": {
-        "dir": "~/seungmount/research/Jingpeng/14_zfish/old3nets/"
+        "prefix": "/usr/people/jingpeng/seungmount/research/Jingpeng/14_zfish/3jnet/chunk_"
     }
 }
 }
