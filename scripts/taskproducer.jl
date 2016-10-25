@@ -20,10 +20,10 @@ set!(task, :deviceID, argDict["deviceid"])
 
 
 function process_task(gridIndex::Tuple)
+    origin = argDict["origin"] .+ ([gridIndex...] .- 1) .* argDict["stride"]
     if producer != nothing
         # produce chunk
         try
-            origin = argDict["origin"] .+ ([gridIndex...] .- 1) .* argDict["stride"]
             set!(producer, :origin, origin)
             forward( Net(producer) )
         catch err
