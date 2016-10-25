@@ -1,0 +1,49 @@
+{"input": {
+    "kind": "readchunk",
+    "params":{
+        "origin": [-2047,-6143,1],
+        "chunkSize": [2156,2156,264],
+        "voxelSize": [4,4,40]
+    },
+    "inputs": {
+        "prefix": "gs://jpwu/zfish/all/imagechunks/chunk_",
+        "suffix": ".img.h5"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"JNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "/opt/kaffe/caffe.models/JNet/deploy.prototxt",
+        "caffeNetFile": "/opt/kaffe/experiments/pinky/JNet/train_iter_300000.caffemodel.h5",
+        "outputPatchSize":    [158, 158,  32],
+        "preprocess": "divideby",
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "deviceID": 0,
+        "isCropImg": false,
+        "cropMarginSize": [54,  54,   4],
+        "originOffset": [54, 54, 4],
+        "affWeight": 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"saveaff":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
+        "prefix": "gs://jpwu/zfish/all/affinitymap/chunk_"
+    }
+}
+}

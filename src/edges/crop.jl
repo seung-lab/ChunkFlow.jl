@@ -1,4 +1,3 @@
-using EMIRT
 using DataStructures
 
 function ef_crop!( c::DictChannel,
