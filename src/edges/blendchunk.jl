@@ -14,7 +14,7 @@ function ef_blendchunk(c::DictChannel,
     # get chunk
     chk = fetch(c, inputs[:chunk])
     @show size(chk)
-    
+
     if contains(params[:backend], "h5s")
       ba = H5sBigArray(outputs[:bigArrayDir])
       blendchunk(ba, chk)
