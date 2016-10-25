@@ -34,13 +34,23 @@ function ef_kaffe!( c::DictChannel,
     @show fImg
 
     # download trained network
-    if iss3(params[:caffeNetFile])
-      tempFile = string(tempname(), ".kaffe.net.h5")
-      download(params[:caffeNetFile], tempFile)
-      params[:caffeNetFile] = tempFile
+    if iss3(params[:caffeNetFile]) || isgs(params[:caffeNetFile])
+        caffeNetFile = replace(params[:caffeNetFile], "gs://", "/tmp/")
+        caffeNetFile = replace(caffeNetFile         , "s3://", "/tmp/")
+        if !isfile(caffeNetFile)
+            download(params[:caffeNetFile], caffeNetFile)
+        end
     end
-    @assert isfile(params[:caffeNetFile])
-    @assert isfile(params[:caffeModelFile])
+    @assert isfile(caffeNetFile)
+
+    if iss3(params[:caffeModelFile]) || isgs(params[:caffeModelFile])
+        caffeModelFile = replace(params[:caffeModelFile], "gs://", "/tmp/")
+        caffeModelFile = replace(caffeModelFile         , "s3://", "/tmp/")
+        if !isfile(caffeModelFile)
+            download(params[:caffeModelFile], caffeModelFile)
+        end
+    end
+    @assert isfile(caffeModelFile)
 
     if contains(params[:preprocess], "ormaliz")
         preprocess = "dict(type='standardize',mode='2D')"
@@ -73,8 +83,8 @@ function ef_kaffe!( c::DictChannel,
     [forward]
     kaffe_root  = $(params[:kaffeDir])
     dspec_path  = $fDataSpec
-    model       = $(params[:caffeModelFile])
-    weights     = $(params[:caffeNetFile])
+    model       = $(caffeModelFile)
+    weights     = $(caffeNetFile)
     test_range  = [0]
     border      = None
     scan_list   = ['output']
