@@ -70,8 +70,8 @@
     "kind": "kaffe",
     "params":{
         "kaffeDir": "/opt/kaffe",
-        "caffeModelFile": "/opt/kaffe/caffe.models/JNet/deploy.prototxt",
-        "caffeNetFile": "/opt/kaffe/experiments/pinky/JNet/train_iter_300000.caffemodel.h5",
+        "caffeModelFile": "gs://jpwu/kaffe/caffe.models/JNet/deploy.prototxt",
+        "caffeNetFile": "gs://jpwu/kaffe/experiments/zfish/JNet/train_iter_325000.caffemodel.h5",
         "outputPatchSize":    [158, 158,  32],
         "preprocess": "divideby",
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
