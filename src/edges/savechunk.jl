@@ -25,6 +25,10 @@ function ef_savechunk(c::DictChannel,
         ftmp = string(tempname(), ".chk.h5")
         BigArrays.save(ftmp, chk)
         run(`aws s3 mv $ftmp $chunkFileName`)
+    elseif ismatch(r"^gs://*", chunkFileName)
+        ftmp = string(tempname(), ".chk.h5")
+        BigArrays.save(ftmp, chk)
+        run(`gsutil mv $ftmp $chunkFileName`)
     else
         BigArrays.save(chunkFileName, chk)
     end
