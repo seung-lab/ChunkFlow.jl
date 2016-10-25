@@ -29,11 +29,13 @@ function ef_omnification( c::DictChannel,
     origin = chk_sgm.origin
     volend = origin .+ [size(chk_sgm.data.segmentation)...] - 1
 
+    prefix = expanduser(outputs[:prefix])
+
     # assign auto project name
     omniProjectDir = tempname()
     mkdir(omniProjectDir)
     omniProjectName = joinpath(omniProjectDir,
-        "$(basename(outputs[:prefix]))$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
+        "$(basename(prefix))$(origin[1])-$(volend[1])_$(origin[2])-$(volend[2])_$(origin[3])-$(volend[3]).omni")
 
     # compute physical offset
     phyOffset = physical_offset(chk_img)
@@ -79,14 +81,13 @@ function ef_omnification( c::DictChannel,
     rm(fsgm); rm(fimg); rm(fcmd)
 
     # move omni project
-    prefix = replace(outputs[:prefix],"~",homedir())
     if iss3(prefix) || isGoogleStorage(prefix)
-      upload( omniProjectName,  joinpath(dirname(prefix), "$(basename(omniProjectName))" ))
-      upload( "$(omniProjectName).files",  joinpath(dirname(prefix), "$(basename(omniProjectName)).files" ))
+        upload( omniProjectName,  joinpath(dirname(prefix), "$(basename(omniProjectName))" ))
+        upload( "$(omniProjectName).files",  joinpath(dirname(prefix), "$(basename(omniProjectName)).files" ))
     else
-      mv(omniProjectName, joinpath(dirname(prefix), basename(omniProjectName));
+        mv(omniProjectName, joinpath(dirname(prefix), basename(omniProjectName));
             remove_destination=true)
-      mv("$(omniProjectName).files", joinpath(dirname(prefix), "$(basename(omniProjectName)).files");
+        mv("$(omniProjectName).files", joinpath(dirname(prefix), "$(basename(omniProjectName)).files");
             remove_destination=true)
     end
 end
