@@ -42,6 +42,14 @@ function ef_cutoutchunk!(c::DictChannel,
                 origin[3] : origin[3]+chunkSize[3]-1, :]
     end
 
+    nonzeroRatio = Float64(countnz(data)) / Float64(length(data))
+    info("ratio of nonzero voxels in this chunk: $(nonzeroRatio)")
+    if haskey(params, :nonzeroRatioThreshold) &&
+        nonzeroRatio < params[:nonzeroRatioThreshold]
+        warn("ratio of nonzeros $(nonzeroRatio) less than threshold:$(params[:nonzeroRatioThreshold]), origin: $(origin)")
+        throw( ZeroOverFlowError() )
+    end
+
     chk = Chunk(data, origin, params[:voxelSize])
 
     println("cout out chunk size: $(size(data))")
