@@ -81,7 +81,9 @@ function ef_znni!( c::DictChannel,
       aff .+= take!(c, inputs[:aff]).data
     end
 
-    chk_aff = Chunk(aff, chk_img.origin.+cropMarginSize, chk_img.voxelSize)
+    chk_aff = Chunk(aff, [chk_img.origin...,0x00000001].+
+                    Vector{typeof(chk_img.origin)}(cropMarginSize),
+                    chk_img.voxelSize)
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
 
