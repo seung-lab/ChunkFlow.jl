@@ -49,11 +49,18 @@ function main()
     elseif  contains(task[:input][:kind], "cutoutchunk") ||
             contains(task[:input][:kind], "readchunk")
         # cut out from a big
+        N = length(argDict["gridSize"])
         gridIndexList = Vector{Tuple}()
         for gridz in 1:argDict["gridsize"][3]
             for gridy in 1:argDict["gridsize"][2]
                 for gridx in 1:argDict["gridsize"][1]
-                    push!(gridIndexList, (gridx, gridy, gridz))
+                    if 3 < N
+                        push!(gridIndexList,
+                                (gridx, gridy, gridz,
+                                    ones(Int, N - 3)...))
+                    else
+                        push!(gridIndexList, (gridx, gridy, gridz))
+                    end
                 end
             end
         end
