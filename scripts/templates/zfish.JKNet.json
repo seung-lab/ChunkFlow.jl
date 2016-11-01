@@ -2,10 +2,10 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "origin":   [32955, 10187, 1],
+        "origin":   [20427, 10187, 1],
         "chunkSize": [1132, 1132,  136],
         "voxelSize": [5,5,45],
-        "nonzeroRatioThreshold": 0.75
+        "nonzeroRatioThreshold": 0.5
     },
     "inputs": {
       "registerFile": "/mnt/data01/datasets/zebrafish/4_aligned/registry.txt"
@@ -28,8 +28,8 @@
     "kind": "kaffe",
     "params":{
         "kaffeDir": "/opt/kaffe",
-        "caffeModelFile": "/opt/kaffe/caffe.models/JKNet/deploy.prototxt",
-        "caffeNetFile": "/usr/people/jingpeng/seungmount/research/kisuklee/Workbench/deep_learning/kaffe/experiments/zfish/retrain/JKNet/snapshot/train_iter_700000.caffemodel.h5",
+        "caffeModelFile": "gs://jpwu/kaffe/caffe.models/JKNet/deploy.prototxt",
+        "caffeNetFile": "gs://jpwu/kaffe/experiments/zfish/JKNet/train_iter_700000.caffemodel.h5",
         "outputPatchSize":    [158, 158,  32],
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
         "preprocess": "normalize",
@@ -73,10 +73,10 @@
     "kind": "atomicseg",
     "params": {
         "low": 0.003655,
-        "high": 0.999992,
+        "high": 0.999999,
         "thresholds": [
             {
-                "size": 800,
+                "size": 600,
                 "threshold": 0.021569
             }
         ],

@@ -2,7 +2,8 @@ using HDF5
 using BigArrays
 using BigArrays.H5sBigArrays
 using BigArrays.AlignedBigArrays
-
+using DVID
+using DVID.ImageTileArrays
 """
 edge function of cutting out chunk from bigarray
 """
@@ -16,7 +17,9 @@ function ef_cutoutchunk!(c::DictChannel,
     elseif  contains( params[:bigArrayType], "H5" ) ||
             contains(params[:bigArrayType], "h5") ||
             contains( params[:bigArrayType], "hdf5" )
-      ba = H5sBigArray( inputs[:h5sDir] )
+        ba = H5sBigArray( inputs[:h5sDir] )
+    elseif contains( params[:bigArrayType], "imagetile" )
+        ba = ImageTileArray(inputs[:address], params[:port], params[:node])
     else
       error("invalid bigarray type: $(params[:bigArrayType])")
     end
