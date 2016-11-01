@@ -36,6 +36,7 @@ function ef_hypersquare(c::DictChannel,
 
     # fetch all data we need from the DictChannel c
     chunk_segmentation = fetch(c, inputs[:sgm])
+    @assert length(chunk_segmentation.origin) == ndims(chunk_segmentation) == 3
     # extract the segmentation data from the chunk
     println("Extracting and converting segmentation... ")
     (segmentation, segment_pairs, segment_affinities) =
@@ -46,6 +47,7 @@ function ef_hypersquare(c::DictChannel,
                 :affinity_type, string(DEFAULT_AFFINITY_TYPE))))
 
     chunk_image = fetch(c, inputs[:img])
+    @assert length(chunk_image.origin) == ndims(chunk_image) == 3
     # we are only operating on the truncated UInt8 datatype for efficiency
     println("Extracting and converting images... ")
     images = convert(Array{UInt8, 3}, chunk_image.data)
