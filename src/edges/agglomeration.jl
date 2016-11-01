@@ -24,7 +24,7 @@ function ef_agglomeration!( c::DictChannel,
     # run watershed
     segmentPairs, segmentPairAffinities = Process.forward(chk_aff.data, chk_seg.data)
     sgm = SegMST(chk_seg.data, segmentPairs, segmentPairAffinities)
-    chk_sgm = Chunk(sgm, chk_aff.origin, chk_aff.voxelSize)
+    chk_sgm = Chunk(sgm, chk_aff.origin[1:3], chk_aff.voxelSize)
 
     # put output to channel
     put!(c, outputs[:sgm], chk_sgm)
