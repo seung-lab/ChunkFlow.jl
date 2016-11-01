@@ -15,10 +15,19 @@ function ef_blendchunk(c::DictChannel,
     chk = fetch(c, inputs[:chunk])
     @show size(chk)
 
+    N = ndims(chk)
+    globalRange = CartesianRange(
+            CartesianIndex((ones(Int,N).*typemax(Int)...)),
+            CartesianIndex((zeros(Int,N)...)))
     if contains(params[:backend], "h5s")
-      ba = H5sBigArray(outputs[:bigArrayDir])
-      blendchunk(ba, chk)
+        ba = H5sBigArray(expanduser(outputs[:bigArrayDir]);
+                        blockSize = (params[:blockSize]...),
+                        chunkSize = (params[:chunkSize]...),
+                        globalOffset = (params[:globalOffset]...),
+                        globalRange = globalRange
+                        )
+        blendchunk(ba, chk)
     else
-      error("unsupported bigarray backend: $(params[:backend])")
+        error("unsupported bigarray backend: $(params[:backend])")
     end
 end

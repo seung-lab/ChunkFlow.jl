@@ -25,7 +25,7 @@ function ef_watershed!( c::DictChannel,
     sgm = SegMST( seg, segmentPairs, segmentPairAffinities )
 
     # create chunk and put into channel
-    chk_sgm = Chunk(sgm, chk_aff.origin, chk_aff.voxelSize)
+    chk_sgm = Chunk(sgm, chk_aff.origin[1:3], chk_aff.voxelSize)
     put!(c, outputs[:sgm], chk_sgm)
 
     # release memory
