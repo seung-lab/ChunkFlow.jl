@@ -16,7 +16,7 @@ include("core/producer.jl")
 
 export Net, forward
 
-typealias Net Vector{Edge}
+typealias Net OrderedDict{Symbol, Edge}
 
 """
 construct a net from computation graph config file.
@@ -31,10 +31,8 @@ function Net( task::OrderedDict{Symbol, Any} )
     delete!(task, :chunks)
 
     for (ename, de) in task
-        e = Edge(de)
-        if e!=nothing
-            push!(net, e)
-        end
+        @assert !haskey(net, ename)
+        net[ename] = Edge(de)
     end
     net
 end
@@ -43,17 +41,17 @@ function forward(net::Net)
     println("------------start pipeline------------")
     pipeline_start = time()
     c = DictChannel()
-    for e in net
+    for (name, e) in net
         # kind = string(e.kind)
-        println("--------start $(e.kind)-----------")
-        info("--------start $(e.kind)-----------")
+        println("--------start $(name)-----------")
+        info("--------start $(name)-----------")
         start = time()
         forward!(c, e)
         # force garbage collector to release memory
         gc()
         elapsed = time() - start
-        info("time cost for $(e.kind): $(elapsed/60) min")
-        info("--------end of $(e.kind)-----------")
+        info("time cost for $(name): $(elapsed/60) min")
+        info("--------end of $(name)-----------")
     end
     info("complete pipeline time cost: $((time()-pipeline_start)/60) min")
     println("-----------end pipeline----------------")
