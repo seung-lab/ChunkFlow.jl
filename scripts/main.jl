@@ -29,6 +29,8 @@ if argDict["task"]==nothing || isa(argDict["task"], Void)
             if isa(err, LoadError) && argDict["shutdown"]
                 # automatically terminate the instance / machine
                 run(`sudo shutdown -h 0`)
+            elseif isa(err, ChunkNet.ZeroOverFlowError)
+                warn("zero overflow!")
             else
                 rethrow()
             end
