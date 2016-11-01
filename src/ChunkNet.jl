@@ -12,6 +12,7 @@ include("core/task.jl")
 include("edges.jl")
 include("core/error.jl")
 include("core/argparser.jl")
+include("core/producer.jl")
 
 export Net, forward
 

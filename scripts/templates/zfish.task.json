@@ -73,7 +73,7 @@
         "caffeModelFile": "gs://jpwu/kaffe/caffe.models/JNet/deploy.prototxt",
         "caffeNetFile": "gs://jpwu/kaffe/experiments/zfish/JNet/train_iter_325000.caffemodel.h5",
         "outputPatchSize":    [158, 158,  32],
-        "preprocess": "divideby",
+        "preprocess": "normalize",
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
         "deviceID": 0,
         "isCropImg": false,
