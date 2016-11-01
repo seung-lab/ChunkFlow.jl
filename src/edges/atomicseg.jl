@@ -25,7 +25,7 @@ function ef_atomicseg!( c::DictChannel,
                     is_threshold_relative=params[:isThresholdRelative])
 
     # create chunk and put into channel
-    chk_seg = Chunk(seg, chk_aff.origin, chk_aff.voxelSize)
+    chk_seg = Chunk(seg, chk_aff.origin[1:3], chk_aff.voxelSize)
 
     if haskey(params, :cropSegMarginSize)
         stt = time()
@@ -38,5 +38,6 @@ function ef_atomicseg!( c::DictChannel,
         println("time cost of cropping and relabelling: $((time()-stt)/60) min")
     end
     segid1N!(chk_seg.data)
+    @assert length(chk_seg.origin) == ndims(chk_seg) == 3
     put!(c, outputs[:seg], chk_seg)
 end
