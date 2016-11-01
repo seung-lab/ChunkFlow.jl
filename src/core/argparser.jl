@@ -44,12 +44,7 @@ customized parsing type.
 http://argparsejl.readthedocs.io/en/latest/argparse.html#parsing-to-custom-types
 """
 function ArgParse.parse_item(::Type{Vector{Int}}, x::AbstractString)
-    ret = Vector{Int}()
     x = replace(x, "[", "")
     x = replace(x, "]", "")
-    x = replace(x, " ", "")
-    for i in split(x, ',')
-        push!(ret, parse(Int, i))
-    end
-    return ret
+    map(parse, split(x, ","))
 end
