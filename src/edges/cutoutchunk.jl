@@ -42,16 +42,7 @@ function ef_cutoutchunk!(c::DictChannel,
     end
 
     # cutout as chunk
-    if ndims(ba)==3
-      data = ba[origin[1] : origin[1]+chunkSize[1]-1,
-                origin[2] : origin[2]+chunkSize[2]-1,
-                origin[3] : origin[3]+chunkSize[3]-1]
-    else
-      @assert ndims(ba)==4
-      data = ba[origin[1] : origin[1]+chunkSize[1]-1,
-                origin[2] : origin[2]+chunkSize[2]-1,
-                origin[3] : origin[3]+chunkSize[3]-1, :]
-    end
+    data = ba[map((x,y)->x:x+y-1, origin, chunkSize)...]
 
     nonzeroRatio = Float64(countnz(data)) / Float64(length(data))
     info("ratio of nonzero voxels in this chunk: $(nonzeroRatio)")
