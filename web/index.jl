@@ -1,27 +1,37 @@
-import Escher:  Sampler
+using  EMIRT
 
-include(joinpath(Pkg.dir(),"EMIRT/plugins/emshow.jl"))
-include("plotcurve.jl")
-include("segmentation.jl")
-include("evaluate.jl")
 
-main(window) = begin
-    push!(window.assets, "layout2")
-    push!(window.assets, "icons")
+function submit_tasks(d::Dict)
+    @show d
+    d[:stride]   = map(parse, split(d[:stride],   ","))
+    d[:gridSize] = map(parse, split(d[:gridSize], ","))
+    d[:origin]   = map(parse, split(d[:origin],   ","))
+    @show d
+
+end
+
+function main(window)
     push!(window.assets, "widgets")
 
-    tabbar = tabs([hbox(icon("autorenew"),     hskip(1em), "Train"),
-                   hbox(icon("trending-down"), hskip(1em), "LearningCurve"),
-                   hbox(icon("forward"),       hskip(1em), "Inference"),
-                   hbox(icon("dashboard"),     hskip(1em), "Segmentation"),
-                   hbox(icon("assessment"),    hskip(1em), "Evaluate"),
-                   hbox(icon("polymer"),       hskip(1em), "Pipeline"),
-                   hbox(icon("help"),          hskip(1em), "Help")] )
-    tabcontents = pages([ "training"; plotcurve(); "inference"; segmentation(); evaluate(); "Pipeline"; "help"])
+    inp = Signal(Dict())
 
-    t, p = wire( tabbar, tabcontents, :tabschannel, :selected)
+    s = Escher.sampler()
+    form = vbox(
+        h1("Submit your jobs"),
+        watch!(s, :computeGraph, textinput("", label="Computation Graph", multiline=true)),
+        watch!(s, :origin, textinput("1,1,1", label="origin", multiline=false)),
+        watch!(s, :stride, textinput("1024,1024,128", label="stride", multiline=false)),
+        watch!(s, :gridSize, textinput("1,1,1", label="Chunk Grid Size", multiline=false)),
+        watch!(s, :queueName, textinput("chunkflow-tasks", label="AWS SQS Queue Name", multiline=false)),
+        trigger!(s, :submit, button("Submit"))
+    ) |> maxwidth(400px)
 
-    vbox(toolbar(["Reconstruction as a Service @", iconbutton("cloud"), flex()]),
-         Escher.pad(1em, t),
-         Escher.pad(1em, p))
+    map(inp) do dict
+        vbox(
+            intent(s, form) >>> inp,
+            submit_tasks(dict),
+            vskip(2em),
+            string(dict)
+        ) |> Escher.pad(2em)
+    end
 end

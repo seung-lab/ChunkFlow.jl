@@ -57,6 +57,9 @@ function main()
                 end
             end
         end
+        # Threads.@threads for idx in gridIndexList
+        #     process_task(idx)
+        # end
         map(process_task, gridIndexList)
     else
         error("invalid input method: $(task[:input][:kind])")

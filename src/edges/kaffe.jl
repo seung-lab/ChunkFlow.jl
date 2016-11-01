@@ -31,7 +31,11 @@ function ef_kaffe!( c::DictChannel,
       chk_img2 = chk_img
     end
     h5write(fImg, "main", chk_img2.data)
-    @show fImg
+
+    @show chk_img.origin
+    @show params[:originOffset]
+    originOffset = Vector{UInt32}(params[:originOffset])
+    affOrigin = [chk_img.origin..., 0x00000001] .+ originOffset
 
     # download trained network
     if iss3(params[:caffeNetFile]) || isgs(params[:caffeNetFile])
@@ -122,10 +126,9 @@ function ef_kaffe!( c::DictChannel,
     if isready(c, inputs[:aff])
       aff .+= take!(c, inputs[:aff]).data
     end
-    @show aff[1:10]
     @assert aff[1] != NaN
 
-    affOrigin = chk_img.origin .+ params[:originOffset]
+
     chk_aff = Chunk(aff, affOrigin, chk_img.voxelSize)
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)

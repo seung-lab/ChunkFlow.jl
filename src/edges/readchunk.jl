@@ -15,7 +15,7 @@ function ef_readchunk!(c::DictChannel,
     else
         @assert haskey(inputs, :prefix)
         start = params[:origin]
-        stop  = start .+ params[:chunkSize] -1
+        stop  = start .+ params[:chunkSize] .-1
         fileName = "$(inputs[:prefix])$(start[1])-$(stop[1])_$(start[2])-$(stop[2])_$(start[3])-$(stop[3])$(inputs[:suffix])"
     end
     @show fileName
