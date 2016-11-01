@@ -1,13 +1,9 @@
-using  EMIRT
-
-
 function submit_tasks(d::Dict)
     @show d
     d[:stride]   = map(parse, split(d[:stride],   ","))
     d[:gridSize] = map(parse, split(d[:gridSize], ","))
     d[:origin]   = map(parse, split(d[:origin],   ","))
-    @show d
-
+    return string(d)
 end
 
 function main(window)
@@ -29,9 +25,9 @@ function main(window)
     map(inp) do dict
         vbox(
             intent(s, form) >>> inp,
-            submit_tasks(dict),
             vskip(2em),
-            string(dict)
+            # string(dict)
+            submit_tasks(dict)
         ) |> Escher.pad(2em)
     end
 end
