@@ -5,7 +5,7 @@
         "origin":       [19457, 9217,  129, 1],
         "chunkSize":    [1152,  1152,   144, 3],
         "voxelSize":    [5,     5,      45],
-        "nonzeroRatioThreshold": 0.5
+        "nonzeroRatioThreshold": 0.01
     },
     "inputs": {
       "h5sDir": "~/seungmount/research/Jingpeng/14_zfish/jknet/4x4x4/affinitymap/"
@@ -21,15 +21,14 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "gs://zfish/jknet_2/affinitychunks/chunk_"
+        "prefix": "gs://zfish/jknet_4/affinitychunks/chunk_"
     }
 },
 "input_img": {
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "chunkSize":    [2048,   2048,    256],
-        "voxelSize":    [4,     4,      40]
+        "voxelSize":    [5,     5,      45]
     },
     "inputs": {
       "registerFile": "/mnt/data01/datasets/zebrafish/4_aligned/registry.txt",
@@ -119,7 +118,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "gs://zfish/jknet_2/segmentation/chunk_"
+        "prefix": "gs://zfish/jknet_4/segmentation/chunk_"
     }
 },
 "hypersquare":{
@@ -133,7 +132,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectsDirectory": "gs://zfish/jknet_2/hypersquare/"
+        "projectsDirectory": "gs://zfish/jknet_4/hypersquare/"
     }
 },
 "omnification":{

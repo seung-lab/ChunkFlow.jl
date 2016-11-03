@@ -1,27 +1,18 @@
 {"input": {
     "kind": "cutoutchunk",
     "params":{
-        "bigArrayType": "aligned",
-        "origin":   [19403, 9163, 112],
-        "chunkSize": [1132, 1132,  136],
-        "voxelSize": [5,5,45],
-        "nonzeroRatioThreshold": 0.01
+        "bigArrayType": "dvidimagetile",
+        "port": 8000,
+        "node": "5c",
+        "origin":   [2304,1472,1280],
+        "chunkSize": [256, 256, 64],
+        "voxelSize": [4,4,40]
     },
     "inputs": {
-      "registerFile": "/mnt/data01/datasets/zebrafish/4_aligned/registry.txt"
+      "address": "130.211.134.112"
     },
     "outputs": {
         "data": "img"
-    }
-},
-"saveimg":{
-    "kind": "savechunk",
-    "params": {},
-    "inputs": {
-        "chunk": "img"
-    },
-    "outputs": {
-        "prefix": "gs://jpwu/zfish/jknet/image/chunk_"
     }
 },
 "JKNet":{
@@ -45,21 +36,6 @@
     },
     "outputs": {
         "aff": "aff"
-    }
-},
-"blendaffinity":{
-    "kind": "blendchunk",
-    "params":{
-      "backend": "h5s",
-      "blockSize": [1024,1024,128,3],
-      "chunkSize": [256,256,32,3],
-      "globalOffset": [0,0,0,0]
-    },
-    "inputs": {
-        "chunk": "aff"
-    },
-    "outputs": {
-        "bigArrayDir": "~/seungmount/research/Jingpeng/14_zfish/jknet/4x4x4/affinitymap"
     }
 }
 }
