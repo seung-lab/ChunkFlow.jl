@@ -1,3 +1,8 @@
+using Escher
+using Reactive
+
+import Escher:  Sampler
+
 function submit_tasks(d::Dict)
     @show d
     d[:stride]   = map(parse, split(d[:stride],   ","))
