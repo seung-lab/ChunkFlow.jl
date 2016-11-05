@@ -5,9 +5,11 @@ import Escher:  Sampler
 
 function submit_tasks(d::Dict)
     @show d
-    d[:stride]   = map(parse, split(d[:stride],   ","))
-    d[:gridSize] = map(parse, split(d[:gridSize], ","))
-    d[:origin]   = map(parse, split(d[:origin],   ","))
+    if !isempty(d)
+        d[:stride]   = map(parse, split(d[:stride],   ","))
+        d[:gridSize] = map(parse, split(d[:gridSize], ","))
+        d[:origin]   = map(parse, split(d[:origin],   ","))
+    end
     return string(d)
 end
 
@@ -18,7 +20,7 @@ function main(window)
 
     s = Escher.sampler()
     form = vbox(
-        h1("Submit your jobs"),
+        h1("Submit Your Jobs"),
         watch!(s, :computeGraph, textinput("", label="Computation Graph", multiline=true)),
         watch!(s, :origin, textinput("1,1,1", label="origin", multiline=false)),
         watch!(s, :stride, textinput("1024,1024,128", label="stride", multiline=false)),
