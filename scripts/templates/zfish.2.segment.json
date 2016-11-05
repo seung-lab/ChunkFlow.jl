@@ -21,7 +21,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "gs://zfish/jknet_4/affinitychunks/chunk_"
+        "prefix": "gs://zfish/jknet_5/affinitychunks/chunk_"
     }
 },
 "input_img": {
@@ -118,7 +118,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "gs://zfish/jknet_4/segmentation/chunk_"
+        "prefix": "gs://zfish/jknet_5/segmentation/chunk_"
     }
 },
 "hypersquare":{
@@ -132,7 +132,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectsDirectory": "gs://zfish/jknet_4/hypersquare/"
+        "projectsDirectory": "gs://zfish/jknet_5/hypersquare/"
     }
 },
 "omnification":{
