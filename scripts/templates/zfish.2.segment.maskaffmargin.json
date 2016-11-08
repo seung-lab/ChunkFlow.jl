@@ -21,7 +21,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "gs://zfish/jknet_7/affinitychunks/chunk_"
+        "prefix": "gs://zfish/jknet_6/affinitychunks/chunk_"
     }
 },
 "input_img": {
@@ -75,7 +75,8 @@
             }
         ],
         "dust": 600,
-        "isThresholdRelative": false
+        "isThresholdRelative": false,
+        "cropSegMarginSize": [64,64,8]
     },
     "inputs": {
         "aff": "aff"
@@ -84,11 +85,23 @@
         "seg": "seg"
     }
 },
+"cropaff":{
+    "kind": "crop",
+    "params": {
+        "cropMarginSize": [64, 64, 8, 0]
+    },
+    "inputs":{
+        "img": "aff"
+    },
+    "outputs":{
+        "img": "aff"
+    }
+},
 "agglomeration":{
     "kind":"agglomeration",
     "params":{
         "mode": "mean",
-        "cropSegMarginSize": [64,64,8],
+        "maskAffinityMarginSize": [8,8,2,0],
         "isDeleteAff": true
     },
     "inputs": {
@@ -106,7 +119,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "gs://zfish/jknet_7/segmentation/chunk_"
+        "prefix": "gs://zfish/jknet_6/segmentation/chunk_"
     }
 },
 "hypersquare":{
@@ -120,7 +133,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectsDirectory": "gs://zfish/jknet_7/hypersquare/"
+        "projectsDirectory": "gs://zfish/jknet_6/hypersquare/"
     }
 },
 "omnification":{
@@ -134,7 +147,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/14_zfish/jknet/4x4x4/omni_7/chunk_"
+        "prefix": "~/seungmount/research/Jingpeng/14_zfish/jknet/4x4x4/omni/chunk_"
     }
 }
 }
