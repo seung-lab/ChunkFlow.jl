@@ -8,8 +8,4 @@ using ChunkNet.Producer
 global const argDict = parse_commandline()
 @show argDict
 
-# setup AWS SQS queue name
-global const AWS_SQS_QUEUE_NAME = argDict["awssqs"]
-include("../src/core/task.jl")
-
 taskproducer( argDict )
