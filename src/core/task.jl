@@ -1,8 +1,10 @@
 using JSON
 using DataStructures
 
-typealias ChunkFlowTask OrderedDict{Symbol, Any}
+export ChunkFlowTask, ChunkFlowTaskList
+export set!, get_task, submit, produce_tasks
 
+typealias ChunkFlowTask OrderedDict{Symbol, Any}
 typealias ChunkFlowTaskList Vector{ChunkFlowTask}
 
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
