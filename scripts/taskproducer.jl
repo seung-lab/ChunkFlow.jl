@@ -2,6 +2,7 @@ include("../src/ChunkNet.jl")
 using EMIRT
 using DataStructures
 using ChunkNet
+using ChunkNet.Producer
 
 # parse the arguments as a dictionary, key is string
 global const argDict = parse_commandline()
@@ -11,66 +12,4 @@ global const argDict = parse_commandline()
 global const AWS_SQS_QUEUE_NAME = argDict["awssqs"]
 include("../src/core/task.jl")
 
-task = get_task( argDict["task"] )
-@show task
-
-producer = get_task( argDict["producer"] )
-# set gpu id
-set!(task, :deviceID, argDict["deviceid"])
-
-
-function process_task(gridIndex::Tuple)
-    origin = argDict["origin"] .+ ([gridIndex...] .- 1) .* argDict["stride"]
-    if producer != nothing
-        # produce chunk
-        try
-            set!(producer, :origin, origin)
-            forward( Net(producer) )
-        catch err
-            if isa( err, ZeroOverFlowError )
-                return
-            else
-                rethrow()
-            end
-        end
-    end
-    # submit the corr
-    set!(task, :origin, origin)
-    submit(task)
-end
-
-function main()
-    # read task config file
-    # produce task script
-    if contains(task[:input][:kind], "readh5")
-        # tasks = ChunkFlowTaskList()
-        tasks = produce_tasks(task)
-        submit(tasks)
-    elseif  contains(task[:input][:kind], "cutoutchunk") ||
-            contains(task[:input][:kind], "readchunk")
-        # cut out from a big
-        N = length(argDict["gridsize"])
-        gridIndexList = Vector{Tuple}()
-        for gridz in 1:argDict["gridsize"][3]
-            for gridy in 1:argDict["gridsize"][2]
-                for gridx in 1:argDict["gridsize"][1]
-                    if 3 < N
-                        push!(gridIndexList,
-                                (gridx, gridy, gridz,
-                                    ones(Int, N - 3)...))
-                    else
-                        push!(gridIndexList, (gridx, gridy, gridz))
-                    end
-                end
-            end
-        end
-        # Threads.@threads for idx in gridIndexList
-        #     process_task(idx)
-        # end
-        map(process_task, gridIndexList)
-    else
-        error("invalid input method: $(task[:input][:kind])")
-    end
-end
-
-main()
+taskproducer( argDict )

@@ -2,6 +2,19 @@ using ArgParse
 
 export parse_commandline
 
+"""
+    key2symbol(argDict::Dict{String, Any})
+
+make the key to be type of symbol
+"""
+function key2symbol(argDict::Dict{String, Any})
+    ret = Dict{Symbol, Any}
+    for k,v in argDict
+        ret[Symbol(k)] = v
+    end
+    ret
+end
+
 function parse_commandline()
     s = ArgParseSettings()
 
@@ -35,7 +48,7 @@ function parse_commandline()
             arg_type = Bool
             default = false
     end
-    return parse_args(s)
+    return key2symbol( parse_args(s) )
 end
 
 """
