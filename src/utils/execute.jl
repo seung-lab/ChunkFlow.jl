@@ -2,11 +2,13 @@ module Execute
 
 using ..ChunkNet
 
+export execute
+
 function execute(argDict::Dict{Symbol, Any})
     if argDict[:task]==nothing || isa(argDict[:task], Void)
         # fetch task from AWS SQS
         while true
-            task, msg = get_task()
+            task, msg = get_sqs_task(queuename=argDict[:awssqs])
 
             # set the gpu device id to use
             if !isa(argDict[:deviceid], Void)
@@ -28,7 +30,7 @@ function execute(argDict::Dict{Symbol, Any})
             end
 
             # delete task message in SQS
-            deleteSQSmessage!(msg, AWS_SQS_QUEUE_NAME)
+            deleteSQSmessage!(msg, argDict[:awssqs])
             sleep(5)
         end
     else

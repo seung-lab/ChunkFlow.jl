@@ -2,7 +2,8 @@ using JSON
 using DataStructures
 
 export ChunkFlowTask, ChunkFlowTaskList
-export set!, get_task, submit, produce_tasks
+export set!, get_task, get_sqs_task, submit, produce_tasks
+export deleteSQSmessage!
 
 typealias ChunkFlowTask OrderedDict{Symbol, Any}
 typealias ChunkFlowTaskList Vector{ChunkFlowTask}
@@ -23,7 +24,7 @@ function set!(task::ChunkFlowTask, key::Symbol, value::Any)
     end
 end
 
-function get_sqs_task(queuename::AbstractString = AWS_SQS_QUEUE_NAME)
+function get_sqs_task(;queuename::AbstractString = AWS_SQS_QUEUE_NAME)
     msg = fetchSQSmessage(String(queuename))
     task = msg.body
     # transform text to JSON OrderedDict format

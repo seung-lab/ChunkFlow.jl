@@ -3,7 +3,8 @@ module Producer
 using ..ChunkNet
 using DataStructures
 
-export taskproducer
+export submit_chunk_task, taskproducer
+
 
 function submit_chunk_task(argDict::Dict{Symbol, Any},
                             gridIndex::Tuple,
@@ -28,10 +29,10 @@ function submit_chunk_task(argDict::Dict{Symbol, Any},
     end
     # submit the corr
     set!(task, :origin, origin)
-    submit(task)
+    submit(task; sqsQueueName = argDict[:awssqs])
 end
 
-function taskproducer( argDict::Dict{String, Any} )
+function taskproducer( argDict::Dict{Symbol, Any} )
     task = get_task( argDict[:task] )
     # set gpu id
     set!(task, :deviceID, argDict[:deviceid])
@@ -64,7 +65,7 @@ function taskproducer( argDict::Dict{String, Any} )
         # Threads.@threads for idx in gridIndexList
         #     process_task(idx)
         # end
-        map(submit_chunk_task, argDict, gridIndexList, task)
+        map(x-> submit_chunk_task(argDict, x, task), gridIndexList)
     else
         error("invalid input method: $(task[:input][:kind])")
     end

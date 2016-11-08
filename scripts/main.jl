@@ -10,7 +10,4 @@ Logging.configure(filename="logfile.log")
 argDict = parse_commandline()
 @show argDict
 
-global const AWS_SQS_QUEUE_NAME = argDict["awssqs"]
-include("../src/core/task.jl")
-
 execute( argDict )
