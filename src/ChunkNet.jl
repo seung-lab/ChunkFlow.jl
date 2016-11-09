@@ -3,8 +3,8 @@ VERSION >=v"0.4.0-dev+6521" && __precompile__()
 module ChunkNet
 
 using DataStructures
-using Agglomeration
-using Process
+# using Agglomeration
+# using Process
 
 include("core/dictchannel.jl")
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
