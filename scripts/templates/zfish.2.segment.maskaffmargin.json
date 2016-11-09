@@ -2,7 +2,7 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "h5s",
-        "origin":       [19457, 9217,  129, 1],
+        "origin":       [20427, 10187,  129, 1],
         "chunkSize":    [1152,  1152,   144, 3],
         "voxelSize":    [5,     5,      45],
         "nonzeroRatioThreshold": 0.01
