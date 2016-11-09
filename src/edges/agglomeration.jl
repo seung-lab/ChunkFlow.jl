@@ -1,5 +1,6 @@
-# using Agglomeration
-# using Process
+using Agglomeration
+using Process
+using EMIRT
 
 """
 edge function of agglomeration
@@ -22,13 +23,7 @@ function ef_agglomeration!( c::DictChannel,
     # @assert size(chk_aff)[1:3] == size(chk_seg)
 
     if haskey(params, :maskAffinityMarginSize)
-        maskAffinityMarginSize = params[:maskAffinityMarginSize]
-        chk_aff.data[   1:maskAffinityMarginSize[1],
-                        1:maskAffinityMarginSize[2],
-                        1:maskAffinityMarginSize[3], :] = 0f0
-        chk_aff.data[   end-maskAffinityMarginSize[1]:end,
-                        end-maskAffinityMarginSize[2]:end,
-                        end- maskAffinityMarginSize[3]:end, : ] = 0f0
+        mask_margin!( chk_aff.data, params[:maskAffinityMarginSize])
     end
 
     if haskey(params, :cropSegMarginSize)
