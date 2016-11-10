@@ -126,8 +126,13 @@ function ef_kaffe!( c::DictChannel,
     if isready(c, inputs[:aff])
       aff .+= take!(c, inputs[:aff]).data
     end
-    @assert aff[1] != NaN
 
+    ZERO = convert(eltype(aff), 0)
+    for i in eachindex(aff)
+        if isnan(aff[i])
+            aff[i] = ZERO
+        end
+    end
 
     chk_aff = Chunk(aff, affOrigin, chk_img.voxelSize)
     # crop img and aff
