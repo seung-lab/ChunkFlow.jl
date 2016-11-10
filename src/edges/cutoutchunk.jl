@@ -44,6 +44,15 @@ function ef_cutoutchunk!(c::DictChannel,
     # cutout as chunk
     data = ba[map((x,y)->x:x+y-1, origin, chunkSize)...]
 
+    if haskey(params[:isRemoveNaN]) && params[:isRemoveNaN]
+        ZERO = convert(eltype(data), 0)
+        for i in eachindex(data)
+            if isnan(data[i])
+                data[i] = ZERO
+            end
+        end
+    end
+
     nonzeroRatio = Float64(countnz(data)) / Float64(length(data))
     info("ratio of nonzero voxels in this chunk: $(nonzeroRatio)")
     if haskey(params, :nonzeroRatioThreshold) &&
