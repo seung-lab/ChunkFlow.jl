@@ -23,7 +23,7 @@ function ef_agglomeration!( c::DictChannel,
     # @assert size(chk_aff)[1:3] == size(chk_seg)
 
     if haskey(params, :maskAffinityMarginSize)
-        mask_margin!( chk_aff.data, params[:maskAffinityMarginSize])
+        mask_margin!( chk_aff.data, params[:maskAffinityMarginSize] )
     end
 
     if haskey(params, :cropSegMarginSize)
@@ -34,11 +34,13 @@ function ef_agglomeration!( c::DictChannel,
         end
         segmentPairs, segmentPairAffinities = Process.forward(chk_aff.data, chk_seg.data, segids)
         sgm = SegMST(chk_seg_out.data, segmentPairs, segmentPairAffinities)
+        chk_sgm = Chunk(sgm, chk_seg_out.origin, chk_aff.voxelSize)
     else
         segmentPairs, segmentPairAffinities = Process.forward(chk_aff.data, chk_seg.data)
         sgm = SegMST(chk_seg.data, segmentPairs, segmentPairAffinities)
+        chk_sgm = Chunk(sgm, chk_aff.origin[1:3], chk_aff.voxelSize)
     end
-    chk_sgm = Chunk(sgm, chk_aff.origin[1:3], chk_aff.voxelSize)
+
 
     # put output to channel
     put!(c, outputs[:sgm], chk_sgm)
