@@ -29,7 +29,10 @@ function submit_chunk_task(argDict::Dict{Symbol, Any},
     end
     # submit the corr
     set!(task, :origin, origin)
-    submit(task; sqsQueueName = argDict[:awssqs])
+    if any(origin.<0)
+        submit(task; sqsQueueName = argDict[:awssqs])
+    end
+    # submit(task; sqsQueueName = argDict[:awssqs])
 end
 
 function taskproducer( argDict::Dict{Symbol, Any} )
