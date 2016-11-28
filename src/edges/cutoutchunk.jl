@@ -14,6 +14,7 @@ function ef_cutoutchunk!(c::DictChannel,
     if contains( params[:bigArrayType], "align") || contains( params[:bigArrayType], "Align")
       @assert isfile( inputs[:registerFile] )
       ba = AlignedBigArray(inputs[:registerFile])
+      params[:origin] = params[:origin][1:3]
     elseif  contains( params[:bigArrayType], "H5" ) ||
             contains(params[:bigArrayType], "h5") ||
             contains( params[:bigArrayType], "hdf5" )
@@ -44,7 +45,7 @@ function ef_cutoutchunk!(c::DictChannel,
     # cutout as chunk
     data = ba[map((x,y)->x:x+y-1, origin, chunkSize)...]
 
-    if haskey(params[:isRemoveNaN]) && params[:isRemoveNaN]
+    if haskey(params, :isRemoveNaN) && params[:isRemoveNaN]
         ZERO = convert(eltype(data), 0)
         for i in eachindex(data)
             if isnan(data[i])
@@ -61,6 +62,13 @@ function ef_cutoutchunk!(c::DictChannel,
         throw( ZeroOverFlowError() )
     end
 
+
+    # add offset to chunk
+    if haskey(params, :offset)
+        origin .+= params[:offset]
+    end
+    @show typeof(data)
+    @show origin, params[:voxelSize]
     chk = Chunk(data, origin, params[:voxelSize])
 
     println("cout out chunk size: $(size(data))")
