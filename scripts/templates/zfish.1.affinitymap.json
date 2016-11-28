@@ -2,7 +2,7 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "origin":   [19403, 9163, 112],
+        "origin":   [-53, -53, -3],
         "chunkSize": [1132, 1132,  136],
         "voxelSize": [5,5,45],
         "nonzeroRatioThreshold": 0.01
@@ -29,10 +29,10 @@
     "params":{
         "kaffeDir": "/opt/kaffe",
         "caffeModelFile": "gs://jpwu/kaffe/caffe.models/JKNet/deploy.prototxt",
-        "caffeNetFile": "gs://jpwu/kaffe/experiments/zfish/JKNet/train_iter_700000.caffemodel.h5",
+        "caffeNetFile": "gs://jpwu/kaffe/experiments/zfish/JKNet/divideby/train_iter_800000.caffemodel.h5",
         "outputPatchSize":    [158, 158,  32],
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
-        "preprocess": "normalize",
+        "preprocess": "divideby",
         "deviceID": 0,
         "isCropImg": false,
         "cropMarginSize": [54, 54, 4,0],
