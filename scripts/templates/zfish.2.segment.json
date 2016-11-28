@@ -2,13 +2,15 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "h5s",
-        "origin":       [19457, 9217,  129, 1],
+        "origin":       [19457,9217,129,1],
+        "offset":       [16384,16384,16384,0],
         "chunkSize":    [1152,  1152,   144, 3],
         "voxelSize":    [5,     5,      45],
-        "nonzeroRatioThreshold": 0.01
+        "nonzeroRatioThreshold": 0.01,
+        "isRemoveNaN": true
     },
     "inputs": {
-      "h5sDir": "~/seungmount/research/Jingpeng/14_zfish/jknet/4x4x4/affinitymap/"
+      "h5sDir": "/mnt/data02/jingpeng/zfish/affinitymap/"
     },
     "outputs": {
         "data": "aff"
@@ -21,18 +23,19 @@
         "chunk": "aff"
     },
     "outputs": {
-        "prefix": "gs://zfish/jknet_7/affinitychunks/chunk_"
+        "prefix": "gs://zfish/all/affinitychunks/chunk_"
     }
 },
 "input_img": {
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "voxelSize":    [5,     5,      45]
+        "voxelSize":    [5,     5,      45],
+        "origin":       [19457,9217,129],
+        "offset":       [16384,16384,16384]
     },
     "inputs": {
-      "registerFile": "/mnt/data01/datasets/zebrafish/4_aligned/registry.txt",
-      "referenceChunk": "aff"
+      "registerFile": "/mnt/data01/datasets/zebrafish/4_aligned/registry.txt"
     },
     "outputs": {
         "data": "img"
@@ -66,16 +69,17 @@
 "watershed":{
     "kind": "atomicseg",
     "params": {
-        "low": 0.003655,
-        "high": 0.999999,
+        "low": 0.006821,
+        "high": 0.999996,
         "thresholds": [
             {
-                "size": 600,
-                "threshold": 0.021569
+                "size": 800,
+                "threshold": 0.04515
             }
         ],
         "dust": 600,
-        "isThresholdRelative": false
+        "isThresholdRelative": false,
+        "cropSegMarginSize": [64,64,8]
     },
     "inputs": {
         "aff": "aff"
@@ -84,11 +88,23 @@
         "seg": "seg"
     }
 },
+"cropaff":{
+    "kind": "crop",
+    "params": {
+        "cropMarginSize": [64, 64, 8, 0]
+    },
+    "inputs":{
+        "img": "aff"
+    },
+    "outputs":{
+        "img": "aff"
+    }
+},
 "agglomeration":{
     "kind":"agglomeration",
     "params":{
         "mode": "mean",
-        "cropSegMarginSize": [64,64,8],
+        "maskAffinityMarginSize": [32,32,4,0],
         "isDeleteAff": true
     },
     "inputs": {
@@ -106,7 +122,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "gs://zfish/jknet_7/segmentation/chunk_"
+        "prefix": "gs://zfish/all/segmentation/chunk_"
     }
 },
 "hypersquare":{
@@ -120,21 +136,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectsDirectory": "gs://zfish/jknet_7/hypersquare/"
-    }
-},
-"omnification":{
-    "kind": "omnification",
-    "params":{
-        "ombin": "/opt/omni",
-        "isMeshing": false
-    },
-    "inputs": {
-        "img": "img",
-        "sgm": "sgm"
-    },
-    "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/14_zfish/jknet/4x4x4/omni_7/chunk_"
+        "projectsDirectory": "gs://zfish/all/hypersquare/"
     }
 }
 }
