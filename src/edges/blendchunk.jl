@@ -23,8 +23,7 @@ function ef_blendchunk(c::DictChannel,
         ba = H5sBigArray(expanduser(outputs[:bigArrayDir]);
                         blockSize = (params[:blockSize]...),
                         chunkSize = (params[:chunkSize]...),
-                        globalOffset = (params[:globalOffset]...),
-                        globalRange = globalRange
+                        globalOffset = (params[:globalOffset]...)
                         )
         blendchunk(ba, chk)
     else
