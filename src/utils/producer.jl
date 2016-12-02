@@ -1,6 +1,6 @@
 module Producer
 
-using ..ChunkNet
+using ..ChunkFlow
 using DataStructures
 
 export submit_chunk_task, taskproducer
