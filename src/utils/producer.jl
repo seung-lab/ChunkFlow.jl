@@ -29,10 +29,27 @@ function submit_chunk_task(argDict::Dict{Symbol, Any},
     end
     # submit the corr
     set!(task, :origin, origin)
-    if any(origin.<0)
-        submit(task; sqsQueueName = argDict[:awssqs])
-    end
-    # submit(task; sqsQueueName = argDict[:awssqs])
+
+    ## ignore positive part
+    # if any(origin.<0)
+    #     submit(task; sqsQueueName = argDict[:awssqs])
+    # end
+
+    ## ignore existing files
+    #dstOrigin = origin .+ [54,54,4]
+    #dstSize = [1024,1024,128]
+    #dstStop = dstOrigin .+ dstSize .- 1
+    #dstFileName = "/usr/people/jingpeng/seungmount/research/Jingpeng/14_zfish/"*
+     #               "jknet/4x4x4/affinitymap/block_"*
+     #               "$(dstOrigin[1])-$(dstStop[1])_"*
+     #               "$(dstOrigin[2])-$(dstStop[2])_"*
+     #               "$(dstOrigin[3])-$(dstStop[3])_1-3.h5"
+    #if !isfile(dstFileName)
+     #   submit(task; sqsQueueName = argDict[:awssqs])
+   # end
+
+    ## submit all the tasks
+    submit(task; sqsQueueName = argDict[:awssqs])
 end
 
 function taskproducer( argDict::Dict{Symbol, Any} )
