@@ -3,7 +3,7 @@ VERSION >=v"0.4.0-dev+6521" && __precompile__()
 module ChunkFlow
 
 using DataStructures
-# using Agglomeration, Process
+using Agglomeration, Process
 # @everywhere using Agglomeration, Process
 
 include("core/dictchannel.jl")
