@@ -29,8 +29,8 @@ function ef_cutoutchunk!(c::DictChannel,
     N = ndims(ba)
     if haskey(inputs, :referenceChunk)
         referenceChunk = fetch(c, inputs[:referenceChunk])
-        origin      = referenceChunk.origin
-        chunkSize   = size(referenceChunk)
+        origin      = referenceChunk.origin[1:N]
+        chunkSize   = size(referenceChunk)[1:N]
         if length(origin) > N
             origin = origin[1:N]
             chunkSize = chunkSize[1:N]
