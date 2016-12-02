@@ -1,5 +1,6 @@
-using Agglomeration
-using Process
+using Agglomeration, Process
+# @everywhere using Agglomeration, Process
+# @everywhere using EMIRT
 using EMIRT
 
 """
