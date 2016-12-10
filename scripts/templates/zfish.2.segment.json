@@ -3,7 +3,6 @@
     "params":{
         "bigArrayType": "h5s",
         "origin":       [19457,9217,129,1],
-        "offset":       [16384,16384,16384,0],
         "chunkSize":    [1152,  1152,   144, 3],
         "voxelSize":    [5,     5,      45],
         "nonzeroRatioThreshold": 0.01,
@@ -14,16 +13,6 @@
     },
     "outputs": {
         "data": "aff"
-    }
-},
-"saveaff":{
-    "kind": "savechunk",
-    "params": {},
-    "inputs": {
-        "chunk": "aff"
-    },
-    "outputs": {
-        "prefix": "gs://zfish/all/affinitychunks/chunk_"
     }
 },
 "input_img": {
@@ -79,8 +68,7 @@
             }
         ],
         "dust": 600,
-        "isThresholdRelative": false,
-        "cropSegMarginSize": [64,64,8]
+        "isThresholdRelative": false
     },
     "inputs": {
         "aff": "aff"
@@ -89,23 +77,11 @@
         "seg": "seg"
     }
 },
-"cropaff":{
-    "kind": "crop",
-    "params": {
-        "cropMarginSize": [64, 64, 8, 0]
-    },
-    "inputs":{
-        "img": "aff"
-    },
-    "outputs":{
-        "img": "aff"
-    }
-},
 "agglomeration":{
     "kind":"agglomeration",
     "params":{
         "mode": "mean",
-        "maskAffinityMarginSize": [32,32,4,0],
+        "cropSegMarginSize": [64,64,8],
         "isDeleteAff": true
     },
     "inputs": {
