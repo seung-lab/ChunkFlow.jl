@@ -3,6 +3,7 @@ import Images
 import JSON
 import EMIRT
 using DataStructures
+# import GoogleCloud.Utils.Storage
 
 # These default constants are configurable parameters
 const DEFAULT_SEGMENT_ID_TYPE = UInt16
@@ -90,9 +91,11 @@ function ef_hypersquare(c::DictChannel,
     dstDir = replace(outputs[:projectsDirectory],"~",homedir())
     dstDir = joinpath(dstDir, basename(chunk_folder))
     if iss3(dstDir) || isGoogleStorage(dstDir)
-      upload( chunk_folder, dstDir )
+        upload( chunk_folder, dstDir )
+    # elseif isGoogleStorage(dstDir)
+    #     GoogleCloud.Utils.Storage.upload(chunk_folder, dstDir)
     else
-      mv(chunk_folder, dstDir; remove_destination=true)
+        mv(chunk_folder, dstDir; remove_destination=true)
     end
 end
 
