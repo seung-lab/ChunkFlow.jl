@@ -7,10 +7,10 @@ export submit_chunk_task, taskproducer
 
 
 function submit_chunk_task(argDict::Dict{Symbol, Any},
-                            gridIndex::Tuple,
+                            origin::Vector,
                             task::ChunkFlowTask)
 
-    origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
+    # origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
 
     producer = get_task( argDict[:producer] )
     if producer != nothing
@@ -49,6 +49,7 @@ function submit_chunk_task(argDict::Dict{Symbol, Any},
     # end
 
     ## submit all the tasks
+    info("submitting task with origin: $(origin) to queue $(argDict[:awssqs])")
     submit(task; sqsQueueName = argDict[:awssqs])
 end
 
@@ -58,6 +59,7 @@ function taskproducer( argDict::Dict{Symbol, Any} )
     set!(task, :deviceID, argDict[:deviceid])
     @show task
 
+    flag = false
     # read task config file
     # produce task script
     if contains(task[:input][:kind], "readh5")
@@ -69,23 +71,34 @@ function taskproducer( argDict::Dict{Symbol, Any} )
         # cut out from a big
         N = length(argDict[:gridsize])
         gridIndexList = Vector{Tuple}()
+        originList = Vector{Vector}()
         for gridz in 1:argDict[:gridsize][3]
             for gridy in 1:argDict[:gridsize][2]
                 for gridx in 1:argDict[:gridsize][1]
                     if 3 < N
-                        push!(gridIndexList,
-                                (gridx, gridy, gridz,
-                                    ones(Int, N - 3)...))
+                        # push!(gridIndexList,
+                        #         (gridx, gridy, gridz,
+                        #             ones(Int, N - 3)...))
+                        gridIndex = (gridx, gridy, gridz,
+                                        ones(Int, N - 3)...)
                     else
-                        push!(gridIndexList, (gridx, gridy, gridz))
+                        # push!(gridIndexList, (gridx, gridy, gridz))
+                        gridIndex = (gridx, gridy, gridz)
                     end
+                    origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
+                    #if flag
+                        push!(originList, origin)
+                    #end
+                    #if origin == [62411,51147,1021]
+                     #   flag = true
+                    #end
                 end
             end
         end
         # Threads.@threads for idx in gridIndexList
         #     process_task(idx)
         # end
-        map(x-> submit_chunk_task(argDict, x, task), gridIndexList)
+        map(x-> submit_chunk_task(argDict, x, task), originList)
     else
         error("invalid input method: $(task[:input][:kind])")
     end
