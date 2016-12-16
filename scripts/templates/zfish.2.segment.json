@@ -21,6 +21,7 @@
         "bigArrayType": "aligned",
         "voxelSize":    [5,     5,      45],
         "origin":       [19457,9217,129],
+        "originOffset": [-16384,-16384,-16384],
         "chunkSize":    [1152,  1152,   144],
         "offset":       [16384,16384,16384]
     },
