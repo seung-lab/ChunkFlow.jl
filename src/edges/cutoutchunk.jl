@@ -12,9 +12,10 @@ function ef_cutoutchunk!(c::DictChannel,
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )
     if contains( params[:bigArrayType], "align") || contains( params[:bigArrayType], "Align")
-      @assert isfile( inputs[:registerFile] )
-      ba = AlignedBigArray(inputs[:registerFile])
-      params[:origin] = params[:origin][1:3]
+        inputs[:registerFile] = expanduser(inputs[:registerFile])
+        @assert isfile( inputs[:registerFile] )
+        ba = AlignedBigArray(inputs[:registerFile])
+        params[:origin] = params[:origin][1:3]
     elseif  contains( params[:bigArrayType], "H5" ) ||
             contains(params[:bigArrayType], "h5") ||
             contains( params[:bigArrayType], "hdf5" )
@@ -41,6 +42,10 @@ function ef_cutoutchunk!(c::DictChannel,
         origin = params[:origin]
         chunkSize = params[:chunkSize]
     end
+
+    if haskey(params, :originOffset)
+        origin .-= params[:originOffset]
+    end 
 
     # cutout as chunk
     data = ba[map((x,y)->x:x+y-1, origin, chunkSize)...]
