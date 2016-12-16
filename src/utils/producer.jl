@@ -35,9 +35,10 @@ function submit_chunk_task(argDict::Dict{Symbol, Any},
     #     submit(task; sqsQueueName = argDict[:awssqs])
     # end
 
-    ## ignore existing files
-    # dstOrigin = origin .+ [54,54,4]
+    # ignore existing files
     # dstSize = [1024,1024,128]
+    # offset = [16384,16384,16384]
+    # dstOrigin = origin .+ [54,54,4] .+ offset
     # dstStop = dstOrigin .+ dstSize .- 1
     # dstFileName = "/usr/people/jingpeng/seungmount/research/Jingpeng/14_zfish/"*
     #                "jknet/4x4x4/affinitymap/block_"*
@@ -45,7 +46,10 @@ function submit_chunk_task(argDict::Dict{Symbol, Any},
     #                "$(dstOrigin[2])-$(dstStop[2])_"*
     #                "$(dstOrigin[3])-$(dstStop[3])_1-3.h5"
     # if !isfile(dstFileName)
+    #     info("submitting task with origin: $(origin) to queue $(argDict[:awssqs])")
     #     submit(task; sqsQueueName = argDict[:awssqs])
+    # else
+    #     info("affinity chunk exist: $(dstFileName)")
     # end
 
     ## submit all the tasks
@@ -86,12 +90,12 @@ function taskproducer( argDict::Dict{Symbol, Any} )
                         gridIndex = (gridx, gridy, gridz)
                     end
                     origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
-                    #if flag
+                    # if flag
                         push!(originList, origin)
-                    #end
-                    #if origin == [62411,51147,1021]
-                     #   flag = true
-                    #end
+                    # end
+                    if origin == [63435,56267,1149]
+                       flag = true
+                    end
                 end
             end
         end
