@@ -4,6 +4,7 @@
         "bigArrayType": "aligned",
         "origin":   [-53, -53, -3],
         "chunkSize": [1132, 1132,  136],
+        "offset":    [16384,16384,16384],
         "voxelSize": [5,5,45],
         "nonzeroRatioThreshold": 0.01
     },
@@ -12,16 +13,6 @@
     },
     "outputs": {
         "data": "img"
-    }
-},
-"saveimg":{
-    "kind": "savechunk",
-    "params": {},
-    "inputs": {
-        "chunk": "img"
-    },
-    "outputs": {
-        "prefix": "gs://jpwu/zfish/jknet/image/chunk_"
     }
 },
 "JKNet":{

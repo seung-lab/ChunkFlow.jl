@@ -1,6 +1,8 @@
 # save chunk from dictchannel to local disk or aws s3
 using BigArrays
 using DataStructures
+# using GoogleCloud
+# using GoogleCloud.Utils.Storage
 
 """
 edge function of readh5
@@ -11,6 +13,12 @@ function ef_savechunk(c::DictChannel,
                     outputs::OrderedDict{Symbol, Any} )
     # get chunk
     chk = fetch(c, inputs[:chunk])
+    #@schedule savechunk(chk, outputs)
+    savechunk(chk, outputs)
+end
+
+
+function savechunk(chk::Chunk, outputs::OrderedDict{Symbol, Any})
     origin = chk.origin
     voxelSize = chk
     if haskey(outputs, :chunkFileName)
@@ -28,9 +36,9 @@ function ef_savechunk(c::DictChannel,
     elseif ismatch(r"^gs://*", chunkFileName)
         ftmp = string(tempname(), ".chk.h5")
         BigArrays.save(ftmp, chk)
+        # GoogleCloud.Utils.Storage.upload(ftmp, chunkFileName)
         run(`gsutil mv $ftmp $chunkFileName`)
     else
         BigArrays.save(chunkFileName, chk)
     end
-
 end
