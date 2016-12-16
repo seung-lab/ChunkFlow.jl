@@ -1,6 +1,6 @@
 module Execute
 
-using ..ChunkNet
+using ..ChunkFlow
 
 export execute
 
@@ -22,7 +22,7 @@ function execute(argDict::Dict{Symbol, Any})
                 if isa(err, LoadError) && argDict[:shutdown]
                     # automatically terminate the instance / machine
                     run(`sudo shutdown -h 0`)
-                elseif isa(err, ChunkNet.ZeroOverFlowError)
+                elseif isa(err, ChunkFlow.ZeroOverFlowError)
                     warn("zero overflow!")
                 else
                     rethrow()

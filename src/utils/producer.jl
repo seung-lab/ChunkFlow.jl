@@ -1,16 +1,16 @@
 module Producer
 
-using ..ChunkNet
+using ..ChunkFlow
 using DataStructures
 
 export submit_chunk_task, taskproducer
 
 
 function submit_chunk_task(argDict::Dict{Symbol, Any},
-                            gridIndex::Tuple,
+                            origin::Vector,
                             task::ChunkFlowTask)
 
-    origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
+    # origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
 
     producer = get_task( argDict[:producer] )
     if producer != nothing
@@ -35,20 +35,25 @@ function submit_chunk_task(argDict::Dict{Symbol, Any},
     #     submit(task; sqsQueueName = argDict[:awssqs])
     # end
 
-    ## ignore existing files
-    #dstOrigin = origin .+ [54,54,4]
-    #dstSize = [1024,1024,128]
-    #dstStop = dstOrigin .+ dstSize .- 1
-    #dstFileName = "/usr/people/jingpeng/seungmount/research/Jingpeng/14_zfish/"*
-     #               "jknet/4x4x4/affinitymap/block_"*
-     #               "$(dstOrigin[1])-$(dstStop[1])_"*
-     #               "$(dstOrigin[2])-$(dstStop[2])_"*
-     #               "$(dstOrigin[3])-$(dstStop[3])_1-3.h5"
-    #if !isfile(dstFileName)
-     #   submit(task; sqsQueueName = argDict[:awssqs])
-   # end
+    # ignore existing files
+    # dstSize = [1024,1024,128]
+    # offset = [16384,16384,16384]
+    # dstOrigin = origin .+ [54,54,4] .+ offset
+    # dstStop = dstOrigin .+ dstSize .- 1
+    # dstFileName = "/usr/people/jingpeng/seungmount/research/Jingpeng/14_zfish/"*
+    #                "jknet/4x4x4/affinitymap/block_"*
+    #                "$(dstOrigin[1])-$(dstStop[1])_"*
+    #                "$(dstOrigin[2])-$(dstStop[2])_"*
+    #                "$(dstOrigin[3])-$(dstStop[3])_1-3.h5"
+    # if !isfile(dstFileName)
+    #     info("submitting task with origin: $(origin) to queue $(argDict[:awssqs])")
+    #     submit(task; sqsQueueName = argDict[:awssqs])
+    # else
+    #     info("affinity chunk exist: $(dstFileName)")
+    # end
 
     ## submit all the tasks
+    info("submitting task with origin: $(origin) to queue $(argDict[:awssqs])")
     submit(task; sqsQueueName = argDict[:awssqs])
 end
 
@@ -58,6 +63,7 @@ function taskproducer( argDict::Dict{Symbol, Any} )
     set!(task, :deviceID, argDict[:deviceid])
     @show task
 
+    flag = false
     # read task config file
     # produce task script
     if contains(task[:input][:kind], "readh5")
@@ -69,15 +75,26 @@ function taskproducer( argDict::Dict{Symbol, Any} )
         # cut out from a big
         N = length(argDict[:gridsize])
         gridIndexList = Vector{Tuple}()
+        originList = Vector{Vector}()
         for gridz in 1:argDict[:gridsize][3]
             for gridy in 1:argDict[:gridsize][2]
                 for gridx in 1:argDict[:gridsize][1]
                     if 3 < N
-                        push!(gridIndexList,
-                                (gridx, gridy, gridz,
-                                    ones(Int, N - 3)...))
+                        # push!(gridIndexList,
+                        #         (gridx, gridy, gridz,
+                        #             ones(Int, N - 3)...))
+                        gridIndex = (gridx, gridy, gridz,
+                                        ones(Int, N - 3)...)
                     else
-                        push!(gridIndexList, (gridx, gridy, gridz))
+                        # push!(gridIndexList, (gridx, gridy, gridz))
+                        gridIndex = (gridx, gridy, gridz)
+                    end
+                    origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
+                    # if flag
+                        push!(originList, origin)
+                    # end
+                    if origin == [63435,56267,1149]
+                       flag = true
                     end
                 end
             end
@@ -85,7 +102,7 @@ function taskproducer( argDict::Dict{Symbol, Any} )
         # Threads.@threads for idx in gridIndexList
         #     process_task(idx)
         # end
-        map(x-> submit_chunk_task(argDict, x, task), gridIndexList)
+        map(x-> submit_chunk_task(argDict, x, task), originList)
     else
         error("invalid input method: $(task[:input][:kind])")
     end
