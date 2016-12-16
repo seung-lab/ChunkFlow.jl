@@ -1,10 +1,10 @@
 VERSION >=v"0.4.0-dev+6521" && __precompile__()
 
-module ChunkNet
+module ChunkFlow
 
 using DataStructures
-# using Agglomeration
-# using Process
+using Agglomeration, Process
+# @everywhere using Agglomeration, Process
 
 include("core/dictchannel.jl")
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
@@ -62,4 +62,4 @@ function forward(task::OrderedDict{Symbol, Any})
     return forward( Net(task) )
 end
 
-end # end of module ChunkNet
+end # end of module ChunkFlow
