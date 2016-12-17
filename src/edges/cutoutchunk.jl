@@ -44,7 +44,7 @@ function ef_cutoutchunk!(c::DictChannel,
     end
 
     if haskey(params, :originOffset)
-        origin .-= params[:originOffset]
+        origin .+= params[:originOffset]
     end 
 
     # cutout as chunk
