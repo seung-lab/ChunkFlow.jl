@@ -1,8 +1,26 @@
 {"input": {
     "kind": "cutoutchunk",
     "params":{
+        "bigArrayType": "aligned",
+        "voxelSize":    [5,     5,      45],
+        "origin":       [16385,16385,16385],
+        "originOffset": [-16384,-16384,-16384],
+        "chunkSize":    [1152,  1152,   144],
+        "nonzeroRatioThreshold": 0.20,
+        "offset":       [16384,16384,16384]
+    },
+    "inputs": {
+      "registerFile": "~/seungmount/research/Jingpeng/14_zfish/dataset/registry.txt"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"input_aff": {
+    "kind": "cutoutchunk",
+    "params":{
         "bigArrayType": "h5s",
-        "origin":       [19457,9217,129,1],
+        "origin":       [16385,16385,16385],
         "chunkSize":    [1152,  1152,   144, 3],
         "voxelSize":    [5,     5,      45],
         "nonzeroRatioThreshold": 0.01,
@@ -15,23 +33,7 @@
         "data": "aff"
     }
 },
-"input_img": {
-    "kind": "cutoutchunk",
-    "params":{
-        "bigArrayType": "aligned",
-        "voxelSize":    [5,     5,      45],
-        "origin":       [19457,9217,129],
-        "originOffset": [-16384,-16384,-16384],
-        "chunkSize":    [1152,  1152,   144],
-        "offset":       [16384,16384,16384]
-    },
-    "inputs": {
-      "registerFile": "~/seungmount/research/Jingpeng/14_zfish/dataset/registry.txt"
-    },
-    "outputs": {
-        "data": "img"
-    }
-},
+
 "maskaff":{
     "kind": "maskaffinity",
     "params": {
@@ -100,7 +102,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "gs://zfish/all/segmentation/chunk_"
+        "prefix": "gs://zfish/all_7/segmentation/chunk_"
     }
 },
 "hypersquare":{
@@ -114,7 +116,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectsDirectory": "gs://zfish/all/hypersquare/"
+        "projectsDirectory": "gs://zfish/all_7/hypersquare/"
     }
 }
 }

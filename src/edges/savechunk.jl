@@ -14,11 +14,13 @@ function ef_savechunk(c::DictChannel,
     # get chunk
     chk = fetch(c, inputs[:chunk])
     #@schedule savechunk(chk, outputs)
-    savechunk(chk, outputs)
+    savechunk(chk, inputs, outputs)
 end
 
 
-function savechunk(chk::Chunk, outputs::OrderedDict{Symbol, Any})
+function savechunk(chk::Chunk,
+                    inputs::OrderedDict{Symbol, Any},
+                    outputs::OrderedDict{Symbol, Any})
     origin = chk.origin
     voxelSize = chk
     if haskey(outputs, :chunkFileName)
