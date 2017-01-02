@@ -20,7 +20,7 @@ function ef_atomicseg!( c::DictChannel,
 
     # watershed
     println("watershed...")
-    seg = atomicseg(chk_aff.data,   params[:low], params[:high],
+    @time seg = atomicseg(chk_aff.data,   params[:low], params[:high],
                     thds, params[:dust];
                     is_threshold_relative=params[:isThresholdRelative])
 
