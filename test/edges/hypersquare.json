@@ -1,0 +1,96 @@
+{"input": {
+    "kind": "readh5",
+    "params":{
+        "origin": [],
+        "voxelSize": [5,5,45],
+        "datasetName": "image",
+        "isRemoveSourceFile": false
+    },
+    "inputs": {
+        "fileName": "../assets/zfish_25397_8001_1.img.h5"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"znni":{
+    "kind": "znni",
+    "params":{
+        "znniBinaryFile": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
+        "deviceID": 0,
+        "fnet": "~/seungmount/research/kisuklee/Sharing/Jingpeng/blend_test/MS/net_290000.h5",
+        "outputPatchSize": [256, 256, 17],
+        "fieldOfView": [109, 109, 9],
+        "isExchangeAffXZ": true,
+        "affWeight": 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"cropImg":{
+  "kind": "crop",
+  "params": {
+    "cropMarginSize": [54, 54, 4]
+  },
+  "inputs":{
+    "img": "img"
+  },
+  "outputs":{
+    "img": "img"
+  }
+},
+"atomicseg":{
+    "kind": "atomicseg",
+    "params": {
+        "low": 0.1,
+        "high": 0.8,
+        "thresholds": [
+            {
+                "size": 800,
+                "threshold": 0.2
+            }
+        ],
+        "dust": 600,
+        "isThresholdRelative": true
+    },
+    "inputs": {
+        "aff": "aff"
+    },
+    "outputs": {
+        "seg": "seg"
+    }
+},
+"agglomeration":{
+    "kind":"agglomeration",
+    "params":{
+        "mode": "mean",
+        "isDeleteAff": true
+    },
+    "inputs": {
+        "seg": "seg",
+        "aff": "aff"
+    },
+    "outputs": {
+        "sgm": "sgm"
+    }
+},
+"hypersquare":{
+    "kind": "hypersquare",
+    "params":{
+        "segment_id_type" : "UInt16",
+        "affinity_type" : "Float32"
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "projectsDirectory": "/tmp/"
+    }
+}
+}
