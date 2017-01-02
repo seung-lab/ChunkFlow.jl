@@ -1,0 +1,145 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "aligned",
+        "origin":   [20427, 10187, 1],
+        "chunkSize": [1132, 1132,  136],
+        "voxelSize": [5,5,45],
+        "nonzeroRatioThreshold": 0.5
+    },
+    "inputs": {
+      "registerFile": "/mnt/data01/datasets/zebrafish/4_aligned/registry.txt"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"saveimg":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "img"
+    },
+    "outputs": {
+        "prefix": "gs://jpwu/zfish/jknet/image/chunk_"
+    }
+},
+"JKNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "gs://jpwu/kaffe/caffe.models/JKNet/deploy.prototxt",
+        "caffeNetFile": "gs://jpwu/kaffe/experiments/zfish/JKNet/train_iter_700000.caffemodel.h5",
+        "outputPatchSize":    [158, 158,  32],
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess": "normalize",
+        "deviceID": 0,
+        "isCropImg": false,
+        "cropMarginSize": [54,  54,   4],
+        "originOffset": [54, 54, 4],
+        "affWeight": 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"saveaff":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
+        "prefix": "gs://jpwu/zfish/jknet/affinityMap/chunk_"
+    }
+},
+"cropImg":{
+  "kind": "crop",
+  "params": {
+    "cropMarginSize": [54, 54, 4]
+  },
+  "inputs":{
+    "img": "img"
+  },
+  "outputs":{
+    "img": "img"
+  }
+},
+"watershed":{
+    "kind": "atomicseg",
+    "params": {
+        "low": 0.003655,
+        "high": 0.999999,
+        "thresholds": [
+            {
+                "size": 600,
+                "threshold": 0.021569
+            }
+        ],
+        "dust": 600,
+        "isThresholdRelative": false
+    },
+    "inputs": {
+        "aff": "aff"
+    },
+    "outputs": {
+        "seg": "seg"
+    }
+},
+"agglomeration":{
+    "kind":"agglomeration",
+    "params":{
+        "mode": "mean",
+        "isDeleteAff": true
+    },
+    "inputs": {
+        "seg": "seg",
+        "aff": "aff"
+    },
+    "outputs": {
+        "sgm": "sgm"
+    }
+},
+"savesgm":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "sgm"
+    },
+    "outputs": {
+        "prefix": "gs://jpwu/zfish/jknet/segmentation/chunk_"
+    }
+},
+"hypersquare":{
+    "kind": "hypersquare",
+    "params":{
+        "segment_id_type" : "UInt16",
+        "affinity_type" : "Float32"
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "projectsDirectory": "gs://jpwu/zfish/jknet/hypersquare/"
+    }
+},
+"omnification":{
+    "kind": "omnification",
+    "params":{
+        "ombin": "/opt/omni",
+        "isMeshing": false
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "prefix": "~/seungmount/research/Jingpeng/14_zfish/jknet/chunk_"
+    }
+}
+}

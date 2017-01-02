@@ -1,19 +1,63 @@
 using ArgParse
 
+export parse_commandline
+
+"""
+    key2symbol(argDict::Dict{String, Any})
+
+make the key to be type of symbol
+"""
+function key2symbol(argDict::Dict{AbstractString, Any})
+    ret = Dict{Symbol, Any}()
+    for (k,v) in argDict
+        ret[Symbol(k)] = v
+    end
+    ret
+end
+
 function parse_commandline()
     s = ArgParseSettings()
 
     @add_arg_table s begin
-        "--gpuid", "-g"
+        "--deviceid", "-d"
             help = "which gpu to use"
             arg_type = Int
+        "--producer", "-p"
+            help = "producer task"
+            arg_type = AbstractString
         "--task", "-t"
             help = "task definition json file"
             arg_type = AbstractString
-        "--awssqs", "-s"
+        "--awssqs", "-a"
             help = "AWS SQS queue name. default is chunkflow-tasks"
             arg_type = AbstractString
             default = "chunkflow-tasks"
+        "--origin", "-o"
+            help = "the origin of chunk grids"
+            arg_type = Vector{Int}
+        "--stride", "-s"
+            help = "stride of chunks"
+            arg_type = Vector{Int}
+            default = [0,0,0]
+        "--gridsize", "-g"
+            help = "size of chunks grid"
+            arg_type = Vector{Int}
+            default = [1,1,1]
+        "--shutdown", "-u"
+            help = "automatically shutdown this machine if no more task to do"
+            arg_type = Bool
+            default = false
     end
-    return parse_args(s)
+    return key2symbol( parse_args(s) )
+end
+
+"""
+ArgParse do not support parsing vector
+customized parsing type.
+http://argparsejl.readthedocs.io/en/latest/argparse.html#parsing-to-custom-types
+"""
+function ArgParse.parse_item(::Type{Vector{Int}}, x::AbstractString)
+    x = replace(x, "[", "")
+    x = replace(x, "]", "")
+    map(parse, split(x, ","))
 end

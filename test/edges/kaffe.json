@@ -1,0 +1,62 @@
+{"input": {
+    "kind": "readh5",
+    "params":{
+        "origin": [],
+        "voxelSize": [5,5,45],
+        "datasetName": "image",
+        "isRemoveSourceFile": false
+    },
+    "inputs": {
+        "fileName": "../assets/zfish_25397_8001_1.img.h5"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"JNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "/opt/kaffe/caffe.models/JNet/deploy.prototxt",
+        "caffeNetFile": "/opt/kaffe/experiments/pinky/JNet/train_iter_300000.caffemodel.h5",
+        "outputPatchSize":    [158, 158,  32],
+        "preprocess": "rescale",
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "deviceID": 0,
+        "isCropImg": false,
+        "cropMarginSize": [54,  54,   4],
+        "originOffset": [54, 54, 4],
+        "affWeight": 0.5
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"MS":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "/opt/kaffe/caffe.models/VD2D3D/MS/deploy.prototxt",
+        "caffeNetFile": "/opt/kaffe/experiments/pinky/MS/train_iter_80000.caffemodel.h5",
+        "outputPatchSize":    [128, 128,  16],
+        "scanParams": "None",
+        "preprocess": "rescale",
+        "deviceID": 0,
+        "isCropImg": true,
+        "cropMarginSize": [0,   0,    0],
+        "originOffset": [54, 54, 4],
+        "affWeight": 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+}
+}
