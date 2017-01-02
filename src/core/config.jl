@@ -3,8 +3,8 @@ using JSON
 
 typealias TCfg OrderedDict{Symbol, Any}
 
-function save(fname, cfg)
-    f = open(fname, "w")
+function save(fileName, cfg)
+    f = open(fileName, "w")
     write(f, JSON.json(cfg))
     close(f)
 end

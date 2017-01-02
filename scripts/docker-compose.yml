@@ -1,0 +1,10 @@
+version: '2'
+services:
+  chunkflow:
+    image: 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v0.6.7
+    network_mode: "host"
+    volumes:
+     - /mnt/data01:/mnt/data01
+     - /mnt/data02:/mnt/data02
+     - /usr/people/jingpeng/seungmount:/root/seungmount
+    command: bash -c 'source /root/.bashrc  && julia /opt/ChunkFlow.jl/scripts/main.jl -a pinky-stage-1 -d 0'
