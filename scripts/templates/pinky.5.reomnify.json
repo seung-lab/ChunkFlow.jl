@@ -1,0 +1,45 @@
+{"input": {
+    "kind": "readchunk",
+    "params":{
+        "origin": [],
+        "chunkSize": [2048,2048,256],
+        "voxelSize": [4,4,40]
+    },
+    "inputs": {
+        "prefix": "s3://seunglab/pinky/all/imagechunks/chunk_",
+        "suffix": ".img.h5"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"inputsgm": {
+    "kind": "readchunk",
+    "params":{
+        "origin": [],
+        "chunkSize": [2048,2048,256],
+        "voxelSize": [4,4,40]
+    },
+    "inputs": {
+        "prefix": "s3://seunglab/pinky/all/segmentation/chunk_",
+        "suffix": ".sgm.h5"
+    },
+    "outputs": {
+        "data": "sgm"
+    }
+},
+"omnification":{
+    "kind": "omnification",
+    "params":{
+        "ombin": "/opt/omni",
+        "isMeshing": true
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "prefix": "/mnt/data02/jingpeng/pinky/omniprojects/chunk_"
+    }
+}
+}

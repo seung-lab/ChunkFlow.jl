@@ -1,0 +1,28 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "h5s",
+        "origin":       [10241, 16385,  4003],
+        "chunkSize":    [512,  512,   64],
+        "voxelSize":    [4,     4,      40]
+    },
+    "inputs": {
+      "h5sDir": "/mnt/data01/affinitymap/"
+    },
+    "outputs": {
+        "data": "aff"
+    }
+},
+"blendaffinity":{
+    "kind": "blendchunk",
+    "params":{
+      "backend": "h5s"
+    },
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
+        "bigArrayDir": "/mnt/data01/affinitymap-512"
+    }
+}
+}
