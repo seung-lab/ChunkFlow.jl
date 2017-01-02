@@ -44,6 +44,8 @@ function ef_kaffe!( c::DictChannel,
         if !isfile(caffeNetFile)
             download(params[:caffeNetFile], caffeNetFile)
         end
+    else
+        caffeNetFile = params[:caffeNetFile]
     end
     @assert isfile(caffeNetFile)
 
@@ -53,6 +55,8 @@ function ef_kaffe!( c::DictChannel,
         if !isfile(caffeModelFile)
             download(params[:caffeModelFile], caffeModelFile)
         end
+    else
+        caffeModelFile = params[:caffeModelFile]
     end
     @assert isfile(caffeModelFile)
 
