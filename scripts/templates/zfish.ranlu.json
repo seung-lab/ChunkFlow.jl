@@ -1,0 +1,109 @@
+{"input": {
+    "kind": "readh5",
+    "params":{
+        "origin": [],
+        "voxelsize": [5,5,45],
+        "datasetName": "img",
+        "isRemoveSourceFile": true
+    },
+    "inputs": {
+        "fileName": "s3://zfish/dodam_aligned_stacks/8x8x8/zebrafish_aligned_30512-31643_12000-13131_129-264.h5"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"znni":{
+    "kind": "znni",
+    "params":{
+        "znniBinaryFile": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
+        "deviceID": 0,
+        "fnet": "s3://znn/experiments/zfish/net_290000.h5",
+        "outputPatchSize": [256, 256, 17],
+        "fieldOfView": [109, 109, 9],
+        "isExchangeAffXZ": true,
+        "affWeight": 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff-ms"
+    }
+},
+"saveaff-ms":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "aff-ms"
+    },
+    "outputs": {
+        "prefix": "s3://zfish/dodam_aligned_stacks/8x8x8/affinityMap-ran/chunk_"
+    }
+},
+"MSF":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "/opt/kaffe/models/MSF/deploy.prototxt",
+        "caffeNetFile": "/opt/kaffe/experiments/zfish/MSF/train_iter_250000.caffemodel.h5",
+        "outputPatchSize":    [150, 150,  12],
+        "scanParams": "None",
+        "deviceID": 0,
+        "isCropImg": true,
+        "cropMarginSize": [6,   6,    0],
+        "additionalOffset": [54, 54, 4],
+        "affWeight": 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff-msf"
+    }
+},
+"saveaff-msf":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "aff-msf"
+    },
+    "outputs": {
+        "prefix": "s3://zfish/dodam_aligned_stacks/8x8x8/affinityMap-ran/chunk_"
+    }
+},
+"JNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "/opt/kaffe/models/JNet/deploy.prototxt",
+        "caffeNetFile": "/opt/kaffe/experiments/zfish/JNet-f/train_iter_325000.caffemodel.h5",
+        "outputPatchSize":    [158, 158,  32],
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "deviceID": 0,
+        "isCropImg": false,
+        "cropMarginSize": [54,  54,   4],
+        "additionalOffset": [54, 54, 4],
+        "affWeight": 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff-jnet"
+    }
+},
+"saveaff-jnet":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "aff-jnet"
+    },
+    "outputs": {
+        "prefix": "s3://zfish/dodam_aligned_stacks/8x8x8/affinityMap-ran/chunk_"
+    }
+}
+}
