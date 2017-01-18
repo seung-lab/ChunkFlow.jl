@@ -5,6 +5,8 @@ module ChunkFlow
 using DataStructures
 using Agglomeration, Process
 # @everywhere using Agglomeration, Process
+using BigArrays.Chunks
+
 
 include("core/dictchannel.jl")
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))

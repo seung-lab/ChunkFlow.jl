@@ -1,0 +1,30 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "aligned",
+        "origin":   [-15413, -6197, -3],
+        "chunkSize": [1132, 1132,  136],
+        "offset":    [16384,16384,16384],
+        "voxelSize": [4,4,40],
+        "nonzeroRatioThreshold": 0.01
+    },
+    "inputs": {
+      "registerFile": "/mnt/data01/datasets/pinky40/4_aligned/registry.txt"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"blend2gs":{
+    "kind": "blendchunk",
+    "params":{
+      "backend": "gs",
+    },
+    "inputs": {
+        "chunk": "img"
+    },
+    "outputs": {
+        "path": "gs://jpwu/pinky40/images/"
+    }
+}
+}
