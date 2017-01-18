@@ -28,10 +28,10 @@ function ef_blendchunk(c::DictChannel,
                         globalOffset = (params[:globalOffset]...)
                         )
     elseif contains(params[:backend], "gs")
-        d = GSDict( params[:path] )
+        d = GSDict( outputs[:path] )
         ba = BigArray(d)
     elseif contains(params[:backend], "s3")
-        d = S3Dict( params[:path] )
+        d = S3Dict( outputs[:path] )
         ba = BigArray(d)
     else
         error("unsupported bigarray backend: $(params[:backend])")
