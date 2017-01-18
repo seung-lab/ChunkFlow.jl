@@ -1,5 +1,6 @@
 # save chunk from dictchannel to local disk or aws s3
 using BigArrays
+using BigArrays.Chunks
 using DataStructures
 # using GoogleCloud
 # using GoogleCloud.Utils.Storage
@@ -41,6 +42,6 @@ function savechunk(chk::Chunk,
         # GoogleCloud.Utils.Storage.upload(ftmp, chunkFileName)
         run(`gsutil mv $ftmp $chunkFileName`)
     else
-        BigArrays.save(chunkFileName, chk)
+        BigArrays.Chunks.save(chunkFileName, chk)
     end
 end
