@@ -2,6 +2,8 @@
 
 using BigArrays
 using BigArrays.H5sBigArrays
+using GSDicts
+using S3Dicts
 using DataStructures
 
 """
@@ -25,8 +27,14 @@ function ef_blendchunk(c::DictChannel,
                         chunkSize = (params[:chunkSize]...),
                         globalOffset = (params[:globalOffset]...)
                         )
-        blendchunk(ba, chk)
+    elseif contains(params[:backend], "gs")
+        d = GSDict( params[:path] )
+        ba = BigArray(d)
+    elseif contains(params[:backend], "s3")
+        d = S3Dict( params[:path] )
+        ba = BigArray(d)
     else
         error("unsupported bigarray backend: $(params[:backend])")
     end
+    blendchunk(ba, chk)
 end
