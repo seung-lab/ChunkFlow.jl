@@ -117,10 +117,10 @@ function taskproducer( argDict::Dict{Symbol, Any} )
                         gridIndex = (gridx, gridy, gridz)
                     end
                     origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
-                    # if flag
+                    if flag
                         push!(originList, origin)
-                    # end
-                    if origin ==  [41473,53121,16609,1]
+                    end
+                    if origin ==  [9163,56267,125]
                        flag = true
                     end
                 end
