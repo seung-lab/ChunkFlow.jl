@@ -18,7 +18,7 @@
 "blend2gs":{
     "kind": "blendchunk",
     "params":{
-      "backend": "gs",
+      "backend": "gs"
     },
     "inputs": {
         "chunk": "img"
