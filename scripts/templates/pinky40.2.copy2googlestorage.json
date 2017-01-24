@@ -2,8 +2,8 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "origin":   [-15413, -6197, -3],
-        "chunkSize": [1132, 1132,  136],
+        "origin":   [-15359, -6143, 1],
+        "chunkSize": [1024, 1024,  128],
         "offset":    [16384,16384,16384],
         "voxelSize": [4,4,40],
         "nonzeroRatioThreshold": 0.01
