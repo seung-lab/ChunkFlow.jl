@@ -28,7 +28,7 @@ function ef_agglomeration!( c::DictChannel,
     end
 
     if haskey(params, :cropSegMarginSize)
-        chk_seg_out = BigArrays.crop_border(chk_seg, params[:cropSegMarginSize])
+        chk_seg_out = BigArrays.Chunks.crop_border(chk_seg, params[:cropSegMarginSize])
         segids = Set{eltype(chk_seg_out.data)}()
         for i in eachindex(chk_seg_out.data)
            push!(segids, chk_seg_out.data[i])

@@ -34,11 +34,11 @@ function savechunk(chk::Chunk,
     end
     if iss3(chunkFileName)
         ftmp = string(tempname(), ".chk.h5")
-        BigArrays.save(ftmp, chk)
+        BigArrays.Chunks.save(ftmp, chk)
         run(`aws s3 mv $ftmp $chunkFileName`)
     elseif ismatch(r"^gs://*", chunkFileName)
         ftmp = string(tempname(), ".chk.h5")
-        BigArrays.save(ftmp, chk)
+        BigArrays.Chunks.save(ftmp, chk)
         # GoogleCloud.Utils.Storage.upload(ftmp, chunkFileName)
         run(`gsutil mv $ftmp $chunkFileName`)
     else
