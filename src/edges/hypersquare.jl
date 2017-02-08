@@ -303,10 +303,12 @@ function write_images{U <: Unsigned}(images::Array{U, 3},
     if !isdir(joinpath(chunk_folder, image_folder))
       mkdir(joinpath(chunk_folder, image_folder))
     end
+
     for i in 1:size(images)[3]
-        image = Images.grayim(images[:, :, i])
+        # image = Images.grayim(images[:, :, i])
         Images.save(joinpath(chunk_folder, image_folder, "$(i-1).jpg"),
-            image; quality = quality)
+            permutedims(images[:,:,i],[2,1]);
+            quality = quality)
     end
 end
 
