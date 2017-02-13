@@ -62,15 +62,15 @@
 "watershed":{
     "kind": "atomicseg",
     "params": {
-        "low": 0.006821,
-        "high": 0.999996,
+        "low": 0.022,
+        "high": 0.999982,
         "thresholds": [
             {
                 "size": 800,
-                "threshold": 0.04515
+                "threshold": 0.3
             }
         ],
-        "dust": 600,
+        "dust": 100,
         "isThresholdRelative": false
     },
     "inputs": {
