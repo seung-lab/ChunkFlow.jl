@@ -1,0 +1,108 @@
+{"input": {
+    "kind": "readh5",
+    "params":{
+        "origin": [],
+        "voxelSize": [4,4,40],
+        "datasetName": "main",
+        "isRemoveSourceFile": false
+    },
+    "inputs": {
+        "fileName": "/usr/people/jingpeng/seungmount/research/kisuklee/Workbench/deep_learning/kaffe/datasets/pinky/ground_truth/vol34/img.h5"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"JKNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "~/seungmount/research/kisuklee/Workbench/deep_learning/kaffe/experiments/DeltaNet/pinky/JKNet-large/exps/base/deploy.prototxt",
+        "caffeNetFile": "~/seungmount/research/kisuklee/Workbench/deep_learning/kaffe/experiments/DeltaNet/pinky/JKNet-large/exps/base/snapshot/train_iter_500000.caffemodel.h5",
+        "outputPatchSize":    [318, 318,  18],
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess": "divideby",
+        "deviceID": 0,
+        "isCropImg": false,
+        "cropMarginSize": [0, 0, 0, 0],
+        "originOffset": [0, 0, 0, 0],
+        "affWeight": 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"saveaff":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
+        "prefix": "/usr/people/jingpeng/seungmount/research/Jingpeng/17_pinky40/testjklarge/vol34_"
+    }
+},
+"watershed":{
+    "kind": "atomicseg",
+    "params": {
+        "low": 0.1,
+        "high": 0.8,
+        "thresholds": [
+            {
+                "size": 800,
+                "threshold": 0.2
+            }
+        ],
+        "dust": 600,
+        "isThresholdRelative": true
+    },
+    "inputs": {
+        "aff": "aff"
+    },
+    "outputs": {
+        "seg": "seg"
+    }
+},
+"agglomeration":{
+    "kind":"agglomeration",
+    "params":{
+        "mode": "mean",
+        "isDeleteAff": true
+    },
+    "inputs": {
+        "seg": "seg",
+        "aff": "aff"
+    },
+    "outputs": {
+        "sgm": "sgm"
+    }
+},
+"savesgm":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "sgm"
+    },
+    "outputs": {
+        "prefix": "/usr/people/jingpeng/seungmount/research/Jingpeng/17_pinky40/testjklarge/vol34_"
+    }
+},
+"omnification":{
+    "kind": "omnification",
+    "params":{
+        "ombin": "/opt/omni",
+        "isMeshing": true
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "prefix": "/usr/people/jingpeng/seungmount/research/Jingpeng/17_pinky40/testjklarge/vol34_"
+    }
+}
+}

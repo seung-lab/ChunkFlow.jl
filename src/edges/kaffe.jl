@@ -44,8 +44,10 @@ function ef_kaffe!( c::DictChannel,
         if !isfile(caffeNetFile)
             download(params[:caffeNetFile], caffeNetFile)
         end
+    else
+        caffeNetFile = expanduser( params[:caffeNetFile] )
     end
-    @assert isfile(caffeNetFile)
+    @assert isfile(caffeNetFile) "caffe net file not found: $(caffeNetFile)"
 
     if iss3(params[:caffeModelFile]) || isgs(params[:caffeModelFile])
         caffeModelFile = replace(params[:caffeModelFile], "gs://", "/tmp/")
@@ -53,8 +55,10 @@ function ef_kaffe!( c::DictChannel,
         if !isfile(caffeModelFile)
             download(params[:caffeModelFile], caffeModelFile)
         end
+    else
+        caffeModelFile = expanduser( params[:caffeModelFile] )
     end
-    @assert isfile(caffeModelFile)
+    @assert isfile(caffeModelFile) "caffe model file not found: $(caffeModelFile)"
 
     if contains(params[:preprocess], "ormaliz")
         preprocess = "dict(type='standardize',mode='2D')"
