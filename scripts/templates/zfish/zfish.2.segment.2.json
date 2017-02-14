@@ -2,15 +2,15 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "voxelSize":    [4,     4,      40],
+        "voxelSize":    [5,     5,      45],
         "origin":       [16385,16385,16385],
         "originOffset": [-16384,-16384,-16384],
         "chunkSize":    [1152,  1152,   144],
-        "nonzeroRatioThreshold": 0.20,
+        "nonzeroRatioThreshold": 0.01,
         "offset":       [16384,16384,16384]
     },
     "inputs": {
-      "registerFile": "/mnt/data01/datasets/pinky40/4_aligned/registry.txt"
+      "registerFile": "/mnt/data01/datasets/zebrafish/4_aligned/registry.txt"
     },
     "outputs": {
         "data": "img"
@@ -22,12 +22,12 @@
         "bigArrayType": "h5s",
         "origin":       [16385,16385,16385],
         "chunkSize":    [1152,  1152,   144, 3],
-        "voxelSize":    [4,     4,      40],
+        "voxelSize":    [5,     5,      45],
         "nonzeroRatioThreshold": 0.01,
         "isRemoveNaN": true
     },
     "inputs": {
-      "h5sDir": "~/seungmount/research/Jingpeng/17_pinky40/affinitymap"
+      "h5sDir": "~/seungmount/research/Jingpeng/14_zfish/affinitymap/"
     },
     "outputs": {
         "data": "aff"
@@ -62,15 +62,15 @@
 "watershed":{
     "kind": "atomicseg",
     "params": {
-        "low": 0.022,
-        "high": 0.999982,
+        "low": 0.006821,
+        "high": 0.999996,
         "thresholds": [
             {
                 "size": 800,
-                "threshold": 0.3
+                "threshold": 0.04515
             }
         ],
-        "dust": 100,
+        "dust": 600,
         "isThresholdRelative": false
     },
     "inputs": {
@@ -102,35 +102,21 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "gs://jpwu/pinky40/segmentation/chunk_"
-    }
-},
-"hypersquare":{
-    "kind": "hypersquare",
-    "params":{
-        "segment_id_type" : "UInt16",
-        "affinity_type" : "Float32"
-    },
-    "inputs": {
-        "img": "img",
-        "sgm": "sgm"
-    },
-    "outputs": {
-        "projectsDirectory": "gs://jpwu/pinky40/hypersquare/"
+        "prefix": "gs://zfish/all_7/segmentation/chunk_"
     }
 },
 "omnification":{
     "kind": "omnification",
     "params":{
         "ombin": "/opt/omni",
-        "isMeshing": true
+        "isMeshing": false
     },
     "inputs": {
         "img": "img",
         "sgm": "sgm"
     },
     "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/17_pinky40/omni/chunk_"
+        "prefix": "~/seungmount/research/Jingpeng/14_zfish/omni/chunk_"
     }
 }
 }
