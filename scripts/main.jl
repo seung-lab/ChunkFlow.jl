@@ -5,6 +5,8 @@ using Agglomeration, Process
 @everywhere using ChunkFlow
 @everywhere using ChunkFlow.Execute
 @everywhere using Logging
+@everywhere using Retry
+
 @Logging.configure(level=DEBUG)
 Logging.configure(filename="logfile.log")
 
