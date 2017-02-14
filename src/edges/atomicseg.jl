@@ -20,8 +20,11 @@ function ef_atomicseg!( c::DictChannel,
 
     # watershed
     println("watershed...")
-    seg = atomicseg(chk_aff.data,   params[:low], params[:high],
-                    thds, params[:dust];
+    @time seg = atomicseg(chk_aff.data;
+                    low         =  params[:low],
+                    high        = params[:high],
+                    thresholds  = thds,
+                    dust_size   = params[:dust],
                     is_threshold_relative=params[:isThresholdRelative])
 
     # create chunk and put into channel
