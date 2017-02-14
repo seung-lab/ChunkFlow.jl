@@ -25,6 +25,10 @@ function parse_commandline()
         "--producer", "-p"
             help = "producer task"
             arg_type = AbstractString
+        "--workers", "-w"
+            help = "number of works"
+            arg_type = Int
+            default = 1
         "--task", "-t"
             help = "task definition json file"
             arg_type = AbstractString

@@ -4,6 +4,8 @@ using BigArrays.H5sBigArrays
 using BigArrays.AlignedBigArrays
 using DVID
 using DVID.ImageTileArrays
+using GSDicts, S3Dicts
+using BOSSArrays
 """
 edge function of cutting out chunk from bigarray
 """
@@ -22,6 +24,20 @@ function ef_cutoutchunk!(c::DictChannel,
         ba = H5sBigArray( inputs[:h5sDir] )
     elseif contains( params[:bigArrayType], "imagetile" )
         ba = ImageTileArray(inputs[:address], params[:port], params[:node])
+    elseif contains( params[:bigArrayType], "gs" )
+        d = GSDict( inputs[:path] )
+        ba = BigArray( d )
+    elseif contains( params[:bigArrayType], "s3" )
+        d = S3Dict( inputs[:path] )
+        ba = BigArray( d )
+    elseif  contains( params[:bigArrayType], "boss" ) ||
+            contains( params[:bigArrayType], "BOSS" )
+        ba = BOSSArray(
+                T               = eval(Symbol(params[:dataType])),
+                N               = params[:dimension],
+                collectionName  = params[:collectionName],
+                channelName     = params[:channelName],
+                resolutionLevel = params[:resolutionLevel] )
     else
       error("invalid bigarray type: $(params[:bigArrayType])")
     end
@@ -45,7 +61,7 @@ function ef_cutoutchunk!(c::DictChannel,
 
     if haskey(params, :originOffset)
         origin .+= params[:originOffset]
-    end 
+    end
 
     # cutout as chunk
     data = ba[map((x,y)->x:x+y-1, origin, chunkSize)...]
