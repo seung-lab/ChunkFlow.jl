@@ -9,3 +9,7 @@ Logging
 ArgParse
 Images
 ImageMagick
+BigArrays
+BOSSArrays
+S3Dicts
+GSDicts

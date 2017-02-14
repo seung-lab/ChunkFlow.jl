@@ -5,6 +5,7 @@ using BigArrays.H5sBigArrays
 using GSDicts
 using S3Dicts
 using DataStructures
+using BOSSArrays
 
 """
 edge function of blendchunk
@@ -33,6 +34,13 @@ function ef_blendchunk(c::DictChannel,
     elseif contains(params[:backend], "s3")
         d = S3Dict( outputs[:path] )
         ba = BigArray(d)
+    elseif contains(params[:backend], "boss")
+        ba = BOSSArray(
+                T               = eval(Symbol(params[:dataType])),
+                N               = params[:dimension],
+                collectionName  = params[:collectionName],
+                channelName     = params[:channelName],
+                resolutionLevel = params[:resolutionLevel])
     else
         error("unsupported bigarray backend: $(params[:backend])")
     end
