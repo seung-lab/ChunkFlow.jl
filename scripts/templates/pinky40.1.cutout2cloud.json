@@ -1,0 +1,30 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "aligned",
+        "origin":   [-16383, -4095, 1],
+        "chunkSize": [4096, 4096,  16],
+        "offset":    [16384,16384,16384],
+        "voxelSize": [4,4,40],
+        "nonzeroRatioThreshold": 0.01
+    },
+    "inputs": {
+      "registerFile": "/mnt/data01/datasets/pinky40_realigned/registry.txt"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"blend2cloud":{
+    "kind": "blendchunk",
+    "params":{
+      "backend": "s3"
+    },
+    "inputs": {
+        "chunk": "img"
+    },
+    "outputs": {
+        "path": "s3://seunglab/pinky40/images/"
+    }
+}
+}
