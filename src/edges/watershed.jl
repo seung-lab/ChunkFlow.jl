@@ -15,9 +15,12 @@ function ef_watershed!( c::DictChannel,
 
     # watershed
     println("watershed...")
-    seg, rg = watershed(chk_aff.data, params[:low], params[:high],
-                        params[:thds], params[:dust];
-                        is_relative_threshold=true)
+    seg, rg = watershed(chk_aff.data,
+                    low         =  params[:low],
+                    high        = params[:high],
+                    thresholds  = thds,
+                    dust_size   = params[:dust],
+                    is_threshold_relative=params[:isThresholdRelative])
     @show rg
     @show typeof(rg)
     segmentPairs, segmentPairAffinities = rg2segmentPairs(rg)

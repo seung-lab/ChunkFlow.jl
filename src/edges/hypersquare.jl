@@ -24,6 +24,9 @@ const SEGMENT_SIZE_TYPE = UInt32
 # Helper constants and macros
 const BITS_PER_BYTE = 8
 
+# default return flag for asyncronized writting
+const DEFAULT_RETURN_FLAG = true
+
 #=
  =type DictChannel end
  =type Chunk end
@@ -61,31 +64,37 @@ function ef_hypersquare(c::DictChannel,
 
     # write all data to disk
     println("Writing Segmentation ...")
-    write_segmentation(segmentation, chunk_folder;
-        filename = get(params,
-            :segmentation_filename, DEFAULT_SEGMENTATION_FILENAME))
+    writeSegmentationFutureFlag = @spawn write_segmentation(segmentation,
+        chunk_folder;   filename = get(params,
+        :segmentation_filename, DEFAULT_SEGMENTATION_FILENAME))
 
     println("Writing Supplementary ...")
-    write_supplementary(segmentation, chunk_folder;
+    writeSupplementataryFutureFlag = @spawn write_supplementary(segmentation, chunk_folder;
         bounding_box_filename = get(params,
             :bounding_box_filename, DEFAULT_BOUNDING_BOX_FILENAME),
         segment_size_filename = get(params,
             :segment_size_filename, DEFAULT_SEGMENT_SIZE_FILENAME))
 
     println("Writing Graph ...")
-    write_graph(segment_pairs, segment_affinities, chunk_folder;
-        graph_filename =
-            get(params, :graph_filename, DEFAULT_GRAPH_FILENAME))
+    writeGraphFutureFlag = @spawn write_graph(segment_pairs, segment_affinities,
+        chunk_folder;
+        graph_filename = get(params, :graph_filename, DEFAULT_GRAPH_FILENAME))
 
     println("Writing Images ...")
-    write_images(images, chunk_folder;
+    writeImagesFutureFlag = @spawn write_images(images, chunk_folder;
         quality = get(params, :image_quality, DEFAULT_IMAGE_QUALITY),
         image_folder = get(params, :image_folder, DEFAULT_IMAGE_FOLDER))
 
     println("Writing Metadata ...")
-    write_metadata(params, chunk_segmentation, chunk_image, chunk_folder;
-        filename = get(params,
-            :metadata_filename, DEFAULT_METADATA_FILENAME))
+    writeMetadataFutureFlag = @spawn write_metadata(params, chunk_segmentation, chunk_image, chunk_folder;
+        filename = get(params, :metadata_filename, DEFAULT_METADATA_FILENAME))
+
+    # fetch all the flags
+    fetch(writeSegmentationFutureFlag)
+    fetch(writeSupplementataryFutureFlag)
+    fetch(writeGraphFutureFlag)
+    fetch(writeImagesFutureFlag)
+    fetch(writeMetadataFutureFlag)
 
     # move hypersquare folder to destination
     dstDir = replace(outputs[:projectsDirectory],"~",homedir())
@@ -236,6 +245,7 @@ function write_segmentation{U <: Unsigned}(segmentation::Array{U, 3},
     lzma(segmentation, segmentation_file)
 
     close(segmentation_file)
+    return DEFAULT_RETURN_FLAG
 end
 
 """
@@ -259,6 +269,7 @@ function write_supplementary{U <: Unsigned}(segmentation::Array{U, 3},
     segment_size_file = open(joinpath(chunk_folder, segment_size_filename), "w")
     write(segment_size_file, sizes)
     close(segment_size_file)
+    return DEFAULT_RETURN_FLAG
 end
 
 """
@@ -287,6 +298,7 @@ function write_graph{U <: Unsigned, F <: AbstractFloat}(
         write(graph_file, segment_pair_affinities[edge_index])
     end
     close(graph_file)
+    return DEFAULT_RETURN_FLAG
 end
 
 """
@@ -303,11 +315,14 @@ function write_images{U <: Unsigned}(images::Array{U, 3},
     if !isdir(joinpath(chunk_folder, image_folder))
       mkdir(joinpath(chunk_folder, image_folder))
     end
-    for i in 1:size(images)[3]
-        image = Images.grayim(images[:, :, i])
+
+    @sync @parallel for i in 1:size(images)[3]
+        # image = Images.grayim(images[:, :, i])
         Images.save(joinpath(chunk_folder, image_folder, "$(i-1).jpg"),
-            image; quality = quality)
+            permutedims(images[:,:,i],[2,1]);
+            quality = quality)
     end
+    return DEFAULT_RETURN_FLAG
 end
 
 """
@@ -433,4 +448,5 @@ function write_metadata(
     metadata_file = open(joinpath(chunk_folder, filename), "w")
     write(metadata_file, JSON.json(metadata, 4))
     close(metadata_file)
+    return DEFAULT_RETURN_FLAG
 end
