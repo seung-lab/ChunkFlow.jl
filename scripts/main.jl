@@ -5,6 +5,8 @@ using Agglomeration, Process
 @everywhere using ChunkFlow
 @everywhere using ChunkFlow.Execute
 @everywhere using Logging
+@everywhere using Retry
+
 @Logging.configure(level=DEBUG)
 Logging.configure(filename="logfile.log")
 
@@ -13,13 +15,9 @@ Logging.configure(filename="logfile.log")
 @show argDict
 
 @sync begin
-    for p in 1:nworkers()
+    for w in 1:argDict[:workers]
         @async begin
-            remotecall_wait(execute, p, argDict)
+            remotecall_wait(execute, w, argDict)
         end
     end
 end
-
-# @parallel for i in 1:nworkers()
-#     execute( argDict )
-# end
