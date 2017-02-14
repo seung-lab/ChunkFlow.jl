@@ -1,7 +1,7 @@
 {"input": {
     "kind": "cutoutchunk",
     "params":{
-        "bigArrayType": "aligned",
+        "bigArrayType": "s3",
         "origin":   [-15413, -6197, -3],
         "chunkSize": [1132, 1132,  136],
         "offset":    [16384,16384,16384],
@@ -9,7 +9,7 @@
         "nonzeroRatioThreshold": 0.01
     },
     "inputs": {
-      "registerFile": "/mnt/data01/datasets/pinky40/4_aligned/registry.txt"
+      "path": "s3://seunglab/pinky40/images/"
     },
     "outputs": {
         "data": "img"
@@ -19,9 +19,9 @@
     "kind": "kaffe",
     "params":{
         "kaffeDir": "/opt/kaffe",
-        "caffeModelFile": "/opt/kaffe/caffe.models/JNet/deploy.prototxt",
-        "caffeNetFile": "/opt/kaffe/experiments/pinky/JNet/train_iter_300000.caffemodel.h5",
-        "outputPatchSize":    [158, 158,  32],
+        "caffeModelFile": "s3://seunglab/pinky40/convnet/JNet/deploy.prototxt",
+        "caffeNetFile": "s3://seunglab/pinky40/convnet/JNet/train_iter_2000000.caffemodel.h5",
+        "outputPatchSize":    [158, 158,  24],
         "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
         "preprocess": "divideby",
         "deviceID": 0,
