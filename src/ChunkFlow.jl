@@ -1,10 +1,12 @@
-VERSION >=v"0.4.0-dev+6521" && __precompile__()
+VERSION >=v"0.4.0-dev+6521" && __precompile__(false)
 
 module ChunkFlow
 
 using DataStructures
 using Agglomeration, Process
 # @everywhere using Agglomeration, Process
+using BigArrays.Chunks
+
 
 include("core/dictchannel.jl")
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))

@@ -5,6 +5,25 @@ using DataStructures
 
 export submit_chunk_task, taskproducer
 
+function get_origin_set()
+    fileNames = readstring(`gsutil ls gs://zfish/all_7/hypersquare/`)
+    fileList = split(fileNames)
+    originSet = Set()
+    for fileName in fileList
+        fileName = split(fileName,"/")[end-1]
+        #     @show fileName
+        fields = split(fileName, "_")[2:end]
+        origin = map(x->parse(split(x,"-")[1]), fields)
+        #     @show origin
+        origin .-= [64,64,8]
+        push!(origin, 1)
+        push!(originSet, origin)
+    end
+    return originSet
+end
+
+# const originSet = get_origin_set()
+# println("originSet = $(originSet)")
 
 function submit_chunk_task(argDict::Dict{Symbol, Any},
                             origin::Vector,
@@ -52,6 +71,14 @@ function submit_chunk_task(argDict::Dict{Symbol, Any},
     #     info("affinity chunk exist: $(dstFileName)")
     # end
 
+    # ignore existing files
+    # if origin in originSet
+    #     println("origin exists: $(origin)")
+    # else
+    #     info("submitting task with origin: $(origin) to queue $(argDict[:awssqs])")
+    #     submit(task; sqsQueueName = argDict[:awssqs])
+    # end
+
     ## submit all the tasks
     info("submitting task with origin: $(origin) to queue $(argDict[:awssqs])")
     submit(task; sqsQueueName = argDict[:awssqs])
@@ -90,10 +117,10 @@ function taskproducer( argDict::Dict{Symbol, Any} )
                         gridIndex = (gridx, gridy, gridz)
                     end
                     origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
-                    # if flag
+                    if flag
                         push!(originList, origin)
-                    # end
-                    if origin == [63435,56267,1149]
+                    end
+                    if origin ==  [-16383,49153,945]
                        flag = true
                     end
                 end
