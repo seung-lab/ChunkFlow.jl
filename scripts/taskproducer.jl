@@ -8,4 +8,8 @@ using ChunkFlow.Producer
 global const argDict = parse_commandline()
 @show argDict
 
-taskproducer( argDict )
+@repeat 4 try
+    taskproducer( argDict )
+catch err
+    @show err, typeof(err)
+end
