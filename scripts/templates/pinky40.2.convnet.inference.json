@@ -2,7 +2,7 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "s3",
-        "origin":   [-15413, -6197, -3],
+        "origin":   [-53, -53, -3],
         "chunkSize": [1132, 1132,  136],
         "offset":    [16384,16384,16384],
         "voxelSize": [4,4,40],
@@ -41,7 +41,7 @@
 "blendaffinity":{
     "kind": "blendchunk",
     "params":{
-      "backend": "h5s",
+      "backend": "s3",
       "blockSize": [1024,1024,128,3],
       "chunkSize": [256,256,32,3],
       "globalOffset": [0,0,0,0]
@@ -50,7 +50,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "bigArrayDir": "~/seungmount/research/Jingpeng/17_pinky40/affinitymap"
+        "path": "s3://seunglab/pinky40/affinitymap/"
     }
 }
 }
