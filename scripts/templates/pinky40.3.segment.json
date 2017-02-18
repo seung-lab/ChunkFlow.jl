@@ -1,16 +1,14 @@
 {"input": {
     "kind": "cutoutchunk",
     "params":{
-        "bigArrayType": "aligned",
-        "voxelSize":    [4,     4,      40],
-        "origin":       [16385,16385,16385],
-        "originOffset": [-16384,-16384,-16384],
-        "chunkSize":    [1152,  1152,   144],
-        "nonzeroRatioThreshold": 0.20,
-        "offset":       [16384,16384,16384]
+        "bigArrayType": "s3",
+        "origin":   [51201, 51201, 16513],
+        "chunkSize": [1152, 1152,  144],
+        "voxelSize": [4,4,40],
+        "nonzeroRatioThreshold": 0.01
     },
     "inputs": {
-      "registerFile": "/mnt/data01/datasets/pinky40/4_aligned/registry.txt"
+      "path": "s3://seunglab/pinky40/images/"
     },
     "outputs": {
         "data": "img"
@@ -19,32 +17,17 @@
 "input_aff": {
     "kind": "cutoutchunk",
     "params":{
-        "bigArrayType": "h5s",
-        "origin":       [16385,16385,16385],
-        "chunkSize":    [1152,  1152,   144, 3],
-        "voxelSize":    [4,     4,      40],
-        "nonzeroRatioThreshold": 0.01,
-        "isRemoveNaN": true
+        "bigArrayType": "s3",
+        "origin":   [51201, 51201, 16513, 1],
+        "chunkSize": [1152, 1152,  144, 3],
+        "voxelSize": [4,4,40],
+        "nonzeroRatioThreshold": 0.01
     },
     "inputs": {
-      "h5sDir": "~/seungmount/research/Jingpeng/17_pinky40/affinitymap"
+      "path": "s3://seunglab/pinky40/affinitymap/"
     },
     "outputs": {
         "data": "aff"
-    }
-},
-
-"maskaff":{
-    "kind": "maskaffinity",
-    "params": {
-        "threshold": 1
-    },
-    "inputs": {
-        "img": "img",
-        "aff": "aff"
-    },
-    "outputs": {
-        "aff": "aff"
     }
 },
 "cropimg":{
@@ -63,14 +46,14 @@
     "kind": "atomicseg",
     "params": {
         "low": 0.022,
-        "high": 0.999982,
+        "high": 0.999962,
         "thresholds": [
             {
                 "size": 800,
-                "threshold": 0.3
+                "threshold": 0.022
             }
         ],
-        "dust": 100,
+        "dust": 300,
         "isThresholdRelative": false
     },
     "inputs": {
@@ -102,7 +85,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "gs://jpwu/pinky40/segmentation/chunk_"
+        "prefix": "s3://seunglab/pinky40/segmentation/chunk_"
     }
 },
 "hypersquare":{
@@ -116,21 +99,21 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectsDirectory": "gs://jpwu/pinky40/hypersquare/"
+        "projectsDirectory": "gs://seunglab/pinky40/hypersquare/"
     }
 },
 "omnification":{
     "kind": "omnification",
     "params":{
         "ombin": "/opt/omni",
-        "isMeshing": true
+        "isMeshing": false
     },
     "inputs": {
         "img": "img",
         "sgm": "sgm"
     },
     "outputs": {
-        "prefix": "~/seungmount/research/Jingpeng/17_pinky40/omni/chunk_"
+        "prefix": "/mnt/data02/jingpeng/pinky40/omni/chunk_"
     }
 }
 }
