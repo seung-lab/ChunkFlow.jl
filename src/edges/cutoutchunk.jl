@@ -55,7 +55,7 @@ function ef_cutoutchunk!(c::DictChannel,
             origin = [origin..., ones(typeof(origin), N-length(origin))...]
         end
     else
-        origin = params[:origin]
+        origin = params[:origin][1:ndims(ba)]
         chunkSize = params[:chunkSize]
     end
 
