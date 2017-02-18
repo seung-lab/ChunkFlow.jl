@@ -38,27 +38,9 @@ function ef_kaffe!( c::DictChannel,
     affOrigin = [chk_img.origin..., 0x00000001] .+ originOffset
 
     # download trained network
-    if iss3(params[:caffeNetFile]) || isgs(params[:caffeNetFile])
-        caffeNetFile = replace(params[:caffeNetFile], "gs://", "/tmp/")
-        caffeNetFile = replace(caffeNetFile         , "s3://", "/tmp/")
-        if !isfile(caffeNetFile)
-            download(params[:caffeNetFile], caffeNetFile)
-        end
-    else
-        caffeNetFile = expanduser( params[:caffeNetFile] )
-    end
-    @assert isfile(caffeNetFile) "caffe net file not found: $(caffeNetFile)"
-
-    if iss3(params[:caffeModelFile]) || isgs(params[:caffeModelFile])
-        caffeModelFile = replace(params[:caffeModelFile], "gs://", "/tmp/")
-        caffeModelFile = replace(caffeModelFile         , "s3://", "/tmp/")
-        if !isfile(caffeModelFile)
-            download(params[:caffeModelFile], caffeModelFile)
-        end
-    else
-        caffeModelFile = expanduser( params[:caffeModelFile] )
-    end
-    @assert isfile(caffeModelFile) "caffe model file not found: $(caffeModelFile)"
+    futureLocalCaffeNetFile     = @spawn download_net(params[:caffeNetFile];
+                                        md5 = params[:caffeNetFileMD5])
+    futureLocalCaffeModelFile   = @spawn download_net(params[:caffeModelFile])
 
     if contains(params[:preprocess], "ormaliz")
         preprocess = "dict(type='standardize',mode='2D')"
@@ -69,6 +51,9 @@ function ef_kaffe!( c::DictChannel,
     else
         error("invalid preprocessing type: $(params[:preprocess])")
     end
+
+    caffeNetFile    = fetch( futureLocalCaffeNetFile )
+    caffeModelFile  = fetch( futureLocalCaffeModelFile )
 
     # data specification file
     dataspec = """
@@ -108,7 +93,7 @@ function ef_kaffe!( c::DictChannel,
     # info("processing chunk origin from: $(chk_img2.origin) with a size of $(size(chk_img2.data))")
 
     # run znni inference
-    run(`python $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg)`)
+    run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg)`)
 
     # compute cropMarginSize using integer division
     sz = size(chk_img2.data)
@@ -144,4 +129,41 @@ function ef_kaffe!( c::DictChannel,
 
     # remove temporary files
     rm(fImg);  rm(fAff); rm(fForwardCfg); rm(fDataSpec);
+end
+
+"""
+    download_net( netFileName::AbstractString )
+download
+"""
+function download_net( fileName::AbstractString; md5::AbstractString = "" )
+    # download trained network
+    if iss3(fileName) || isgs(fileName)
+        localFileName = replace(fileName, "gs://", "/tmp/")
+        localFileName = replace(fileName, "s3://", "/tmp/")
+        if !(isfile(localFileName) && is_md5_correct(localFileName, md5))
+            # sleep for some time in case some other process is downloading
+            sleep(rand(1:100))
+            if !(isfile(localFileName) && is_md5_correct(localFileName, md5))
+                download(fileName, localFileName)
+                @assert is_md5_correct(localFileName, md5)
+            end
+        end
+    else
+        localFileName = expanduser( netFileName )
+    end
+    @assert isfile(localFileName) "caffe net file not found: $(fileName)"
+    return localFileName
+end
+
+
+function is_md5_correct(fileName::String, md5::String)
+    if md5 == ""
+        return true
+    else
+        str = readstring(`md5sum $fileName`)
+        # @show fileName
+        # @show split(str, " ")[1]
+        # @show md5
+        return split(str, " ")[1] == md5
+    end
 end
