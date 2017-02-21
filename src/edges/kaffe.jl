@@ -37,6 +37,10 @@ function ef_kaffe!( c::DictChannel,
     originOffset = Vector{UInt32}(params[:originOffset])
     affOrigin = [chk_img.origin..., 0x00000001] .+ originOffset
 
+    if !haskey(params, :caffeNetFileMD5)
+        params[:caffeNetFileMD5] = ""
+    end
+
     # download trained network
     futureLocalCaffeNetFile     = @spawn download_net(params[:caffeNetFile];
                                         md5 = params[:caffeNetFileMD5])
@@ -139,7 +143,8 @@ function download_net( fileName::AbstractString; md5::AbstractString = "" )
     # download trained network
     if iss3(fileName) || isgs(fileName)
         localFileName = replace(fileName, "gs://", "/tmp/")
-        localFileName = replace(fileName, "s3://", "/tmp/")
+        localFileName = replace(localFileName, "s3://", "/tmp/")
+        @show localFileName
         if !(isfile(localFileName) && is_md5_correct(localFileName, md5))
             # sleep for some time in case some other process is downloading
             sleep(rand(1:100))
@@ -149,9 +154,9 @@ function download_net( fileName::AbstractString; md5::AbstractString = "" )
             end
         end
     else
-        localFileName = expanduser( netFileName )
+        localFileName = expanduser( fileName )
     end
-    @assert isfile(localFileName) "caffe net file not found: $(fileName)"
+    @assert isfile(localFileName) "caffe file not found: $(localFileName)"
     return localFileName
 end
 

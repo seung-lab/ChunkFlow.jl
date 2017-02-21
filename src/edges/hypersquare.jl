@@ -316,7 +316,7 @@ function write_images{U <: Unsigned}(images::Array{U, 3},
       mkdir(joinpath(chunk_folder, image_folder))
     end
 
-    Threads.@threads for i in 1:size(images)[3]
+    for i in 1:size(images)[3]
         # image = Images.grayim(images[:, :, i])
         Images.save(joinpath(chunk_folder, image_folder, "$(i-1).jpg"),
             permutedims(images[:,:,i],[2,1]);
