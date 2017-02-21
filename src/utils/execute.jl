@@ -14,7 +14,10 @@ function execute(argDict::Dict{Symbol, Any})
                 task, msg = get_sqs_task(queuename=argDict[:awssqs])
             catch err
                 @show err
-                post_task_finished(queuename)
+                @show typeof(err)
+                if isa(err, BoundsError)
+                    post_task_finished(queuename)
+                end
             end
 
             # set the gpu device id to use

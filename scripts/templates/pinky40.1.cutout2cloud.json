@@ -18,13 +18,13 @@
 "blend2cloud":{
     "kind": "blendchunk",
     "params":{
-      "backend": "s3"
+      "backend": "gs"
     },
     "inputs": {
         "chunk": "img"
     },
     "outputs": {
-        "path": "s3://seunglab/pinky40/images/"
+        "path": "gs:///seunglab_alembic/datasets/pinky40_chunked/"
     }
 }
 }
