@@ -49,7 +49,7 @@
         "high": 0.999962,
         "thresholds": [
             {
-                "size": 800,
+                "size": 600,
                 "threshold": 0.022
             }
         ],
