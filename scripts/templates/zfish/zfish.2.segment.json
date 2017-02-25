@@ -3,7 +3,7 @@
     "params":{
         "bigArrayType": "aligned",
         "voxelSize":    [5,     5,      45],
-        "origin":       [16385,16385,16385],
+        "origin":       [49153,49153,16385],
         "originOffset": [-16384,-16384,-16384],
         "chunkSize":    [1152,  1152,   144],
         "nonzeroRatioThreshold": 0.01,
