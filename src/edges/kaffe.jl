@@ -128,6 +128,8 @@ function ef_kaffe!( c::DictChannel,
     end
 
     chk_aff = Chunk(aff, affOrigin, chk_img.voxelSize)
+    @assert chk_aff.origin[4] == 1
+
     # crop img and aff
     put!(c, outputs[:aff], chk_aff)
 

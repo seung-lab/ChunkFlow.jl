@@ -1,12 +1,12 @@
 # save chunk from dictchannel to BigArrays
 
 using BigArrays
+using BigArrays.Chunks
 using BigArrays.H5sBigArrays
 using GSDicts
 using S3Dicts
 using DataStructures
 using BOSSArrays
-
 """
 edge function of blendchunk
 """
@@ -44,5 +44,18 @@ function ef_blendchunk(c::DictChannel,
     else
         error("unsupported bigarray backend: $(params[:backend])")
     end
+
+    # make sure that the writting is aligned
+    if isa(ba, BigArray)
+        chunkSize = BigArrays.Chunks.get_chunk_size(ba)
+    elseif isa(ba, H5sBigArray)
+        chunkSize = H5sBigArrays.get_chunk_size(ba)
+    else
+        warn("unknown type of ba: $(typeof(ba))")
+    end
+    @show get_offset(chk)
+    @show chunkSize
+    @assert mod(get_offset(chk), [chunkSize...]) == zeros(eltype(chk), ndims(chk))
+
     blendchunk(ba, chk)
 end
