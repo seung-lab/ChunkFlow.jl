@@ -2,7 +2,7 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "s3",
-        "origin":   [51201, 51201, 16513],
+        "origin":   [53249, 53249, 16641],
         "chunkSize": [1152, 1152,  144],
         "voxelSize": [4,4,40],
         "nonzeroRatioThreshold": 0.01
@@ -18,7 +18,7 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "s3",
-        "origin":   [51201, 51201, 16513, 1],
+        "origin":   [53249, 53249, 16641, 1],
         "chunkSize": [1152, 1152,  144, 3],
         "voxelSize": [4,4,40],
         "nonzeroRatioThreshold": 0.01
@@ -45,12 +45,12 @@
 "watershed":{
     "kind": "atomicseg",
     "params": {
-        "low": 0.022,
-        "high": 0.999962,
+        "low": 0.012,
+        "high": 0.999806,
         "thresholds": [
             {
                 "size": 600,
-                "threshold": 0.022
+                "threshold": 0.087818
             }
         ],
         "dust": 300,
@@ -100,20 +100,6 @@
     },
     "outputs": {
         "projectsDirectory": "gs://seunglab/pinky40/hypersquare/"
-    }
-},
-"omnification":{
-    "kind": "omnification",
-    "params":{
-        "ombin": "/opt/omni",
-        "isMeshing": false
-    },
-    "inputs": {
-        "img": "img",
-        "sgm": "sgm"
-    },
-    "outputs": {
-        "prefix": "/mnt/data02/jingpeng/pinky40/omni/chunk_"
     }
 }
 }

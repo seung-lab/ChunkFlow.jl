@@ -24,7 +24,7 @@
         "chunk": "img"
     },
     "outputs": {
-        "path": "gs:///seunglab_alembic/datasets/pinky40_chunked/"
+        "path": "gs://seunglab/pinky40/images/"
     }
 }
 }
