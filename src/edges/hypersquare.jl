@@ -64,37 +64,37 @@ function ef_hypersquare(c::DictChannel,
 
     # write all data to disk
     println("Writing Segmentation ...")
-    writeSegmentationFutureFlag = @spawn write_segmentation(segmentation,
+    writeSegmentationFutureFlag = write_segmentation(segmentation,
         chunk_folder;   filename = get(params,
         :segmentation_filename, DEFAULT_SEGMENTATION_FILENAME))
 
     println("Writing Supplementary ...")
-    writeSupplementataryFutureFlag = @spawn write_supplementary(segmentation, chunk_folder;
+    writeSupplementataryFutureFlag = write_supplementary(segmentation, chunk_folder;
         bounding_box_filename = get(params,
             :bounding_box_filename, DEFAULT_BOUNDING_BOX_FILENAME),
         segment_size_filename = get(params,
             :segment_size_filename, DEFAULT_SEGMENT_SIZE_FILENAME))
 
     println("Writing Graph ...")
-    writeGraphFutureFlag = @spawn write_graph(segment_pairs, segment_affinities,
+    writeGraphFutureFlag = write_graph(segment_pairs, segment_affinities,
         chunk_folder;
         graph_filename = get(params, :graph_filename, DEFAULT_GRAPH_FILENAME))
 
     println("Writing Images ...")
-    writeImagesFutureFlag = @spawn write_images(images, chunk_folder;
+    writeImagesFutureFlag = write_images(images, chunk_folder;
         quality = get(params, :image_quality, DEFAULT_IMAGE_QUALITY),
         image_folder = get(params, :image_folder, DEFAULT_IMAGE_FOLDER))
 
     println("Writing Metadata ...")
-    writeMetadataFutureFlag = @spawn write_metadata(params, chunk_segmentation, chunk_image, chunk_folder;
+    writeMetadataFutureFlag = write_metadata(params, chunk_segmentation, chunk_image, chunk_folder;
         filename = get(params, :metadata_filename, DEFAULT_METADATA_FILENAME))
 
     # fetch all the flags
-    fetch(writeSegmentationFutureFlag)
-    fetch(writeSupplementataryFutureFlag)
-    fetch(writeGraphFutureFlag)
-    fetch(writeImagesFutureFlag)
-    fetch(writeMetadataFutureFlag)
+    # fetch(writeSegmentationFutureFlag)
+    # fetch(writeSupplementataryFutureFlag)
+    # fetch(writeGraphFutureFlag)
+    # fetch(writeImagesFutureFlag)
+    # fetch(writeMetadataFutureFlag)
 
     # move hypersquare folder to destination
     dstDir = replace(outputs[:projectsDirectory],"~",homedir())
