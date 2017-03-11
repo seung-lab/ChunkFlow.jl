@@ -1,15 +1,15 @@
 {"input": {
     "kind": "cutoutchunk",
     "params":{
-        "bigArrayType": "aligned",
-        "origin":   [-16383, -4095, 1],
-        "chunkSize": [4096, 4096,  16],
-        "offset":    [16384,16384,16384],
-        "voxelSize": [4,4,40],
-        "nonzeroRatioThreshold": 0.01
+        "bigArrayType"          : "s3",
+        "origin"                : [1, 11265, 16385],
+        "chunkSize"             : [2048, 2048,  64],
+        "voxelSize"             : [4,4,40],
+        "nonzeroRatioThreshold" : 0.10,
+        "offset"                : [0, -11264, -16384]
     },
     "inputs": {
-      "registerFile": "/mnt/data01/datasets/pinky40_realigned/registry.txt"
+      "path": "s3://seunglab/pinky40/images/"
     },
     "outputs": {
         "data": "img"
@@ -18,13 +18,18 @@
 "blend2boss":{
     "kind": "blendchunk",
     "params":{
-      "backend": "boss"
+      "backend"         : "boss",
+      "dataType"        : "UInt8",
+      "dimension"       : 3,
+      "chunkSize"       : [512,512,16],
+      "collectionName"  : "pinky40_test",
+      "experimentName"  : "pinky40_test",
+      "channelName"     : "em",
+      "resolutionLevel" : 0
     },
     "inputs": {
         "chunk": "img"
     },
-    "outputs": {
-        "path": "s3://seunglab/pinky40/images/"
-    }
+    "outputs": {}
 }
 }
