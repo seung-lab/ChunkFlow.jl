@@ -1,0 +1,40 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "h5s",
+        "origin":   [12235, 4043, 4001],
+        "chunkSize":     [1024, 1024, 128, 3],
+        "voxelSize": [5,5,45]
+    },
+    "inputs": {
+      "h5sDir": "~/seungmount/research/Jingpeng/14_zfish/affinitymap"
+    },
+    "outputs": {
+        "data": "aff"
+    }
+},
+"donwsample":{
+    "kind": "downsample",
+    "params":{
+        "scale": [8,8,1,1]
+    },
+    "inputs":{
+        "chunk": "aff"
+    },
+    "outputs":{
+        "chunk": "aff"
+    }
+},
+"blendaffinity":{
+    "kind": "blendchunk",
+    "params":{
+      "backend": "h5s"
+    },
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
+        "bigArrayDir": "~/seungmount/research/Jingpeng/14_zfish/affinitymap.iso/"
+    }
+}
+}

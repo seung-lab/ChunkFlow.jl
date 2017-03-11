@@ -17,6 +17,8 @@ function execute(argDict::Dict{Symbol, Any})
                 @show typeof(err)
                 if isa(err, BoundsError)
                     post_task_finished(queuename)
+                else
+                    rethrow()
                 end
             end
 
@@ -24,7 +26,6 @@ function execute(argDict::Dict{Symbol, Any})
             if !isa(argDict[:deviceid], Void)
                 set!(task, :deviceID, argDict[:deviceid])
             end
-            @show task
 
             try
                 forward( Net(task) )

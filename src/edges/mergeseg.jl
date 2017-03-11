@@ -10,7 +10,7 @@ function ef_mergeseg!( c::DictChannel,
 
     # watershed
     println("merge segmentation...")
-    merge!(chk_sgm.data, params[:threshold])
+    seg = merge!(chk_sgm.data, params[:threshold])
 
-    put!(c, outputs[:sgm], chk_sgm)
+    put!(c, outputs[:seg], Chunk(seg, chk_sgm.origin, chk_sgm.voxelSize))
 end
