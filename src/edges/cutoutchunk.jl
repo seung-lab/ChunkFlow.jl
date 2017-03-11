@@ -13,6 +13,10 @@ function ef_cutoutchunk!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )
+    if haskey(params, :chunkSize)
+        warn("should use cutoutSize rather than chunkSize for clarity!")
+        params[:cutoutSize] = params[:chunkSize]
+    end
     if contains( params[:bigArrayType], "align") || contains( params[:bigArrayType], "Align")
         inputs[:registerFile] = expanduser(inputs[:registerFile])
         @assert isfile( inputs[:registerFile] )
@@ -47,16 +51,16 @@ function ef_cutoutchunk!(c::DictChannel,
     if haskey(inputs, :referenceChunk)
         referenceChunk = fetch(c, inputs[:referenceChunk])
         origin      = referenceChunk.origin[1:N]
-        chunkSize   = size(referenceChunk)[1:N]
+        cutoutSize  = size(referenceChunk)[1:N]
         if length(origin) > N
             origin = origin[1:N]
-            chunkSize = chunkSize[1:N]
+            cutoutSize = cutoutSize[1:N]
         elseif length(origin) < N
             origin = [origin..., ones(typeof(origin), N-length(origin))...]
         end
     else
         origin = params[:origin][1:ndims(ba)]
-        chunkSize = params[:chunkSize]
+        cutoutSize = params[:cutoutSize]
     end
 
     if haskey(params, :originOffset)
@@ -64,7 +68,7 @@ function ef_cutoutchunk!(c::DictChannel,
     end
 
     # cutout as chunk
-    data = ba[map((x,y)->x:x+y-1, origin, chunkSize)...]
+    data = ba[map((x,y)->x:x+y-1, origin, cutoutSize)...]
 
     if haskey(params, :isRemoveNaN) && params[:isRemoveNaN]
         ZERO = convert(eltype(data), 0)

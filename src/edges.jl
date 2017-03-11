@@ -17,6 +17,7 @@ include("edges/atomicseg.jl")
 include("edges/blendchunk.jl")
 include("edges/crop.jl")
 include("edges/cutoutchunk.jl")
+include("edges/downsample.jl")
 include("edges/hypersquare.jl")
 include("edges/kaffe.jl")
 include("edges/maskaffinity.jl")
@@ -42,6 +43,7 @@ const edgeFuncLib = Dict{Symbol, Function}(
   :blendchunk     => ef_blendchunk,
   :crop           => ef_crop!,
   :cutoutchunk    => ef_cutoutchunk!,
+  :downsample     => ef_downsample,
   :hypersquare    => ef_hypersquare,
   :kaffe          => ef_kaffe!,
   :maskaffinity   => ef_maskaffinity!,

@@ -23,11 +23,7 @@ function ef_blendchunk(c::DictChannel,
             CartesianIndex((ones(Int,N).*typemax(Int)...)),
             CartesianIndex((zeros(Int,N)...)))
     if contains(params[:backend], "h5s")
-        ba = H5sBigArray(expanduser(outputs[:bigArrayDir]);
-                        blockSize = (params[:blockSize]...),
-                        chunkSize = (params[:chunkSize]...),
-                        globalOffset = (params[:globalOffset]...)
-                        )
+        ba = H5sBigArray(expanduser(outputs[:bigArrayDir]);                        )
     elseif contains(params[:backend], "gs")
         d = GSDict( outputs[:path] )
         ba = BigArray(d)
@@ -39,6 +35,7 @@ function ef_blendchunk(c::DictChannel,
                 T               = eval(Symbol(params[:dataType])),
                 N               = params[:dimension],
                 collectionName  = params[:collectionName],
+                experimentName  = params[:experimentName],
                 channelName     = params[:channelName],
                 resolutionLevel = params[:resolutionLevel])
     else
