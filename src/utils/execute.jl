@@ -15,8 +15,9 @@ function execute(argDict::Dict{Symbol, Any})
             catch err
                 @show err
                 @show typeof(err)
-                if isa(err, BoundsError)
+                if isa(err, BoundsError) && argDict[:shutdown]
                     post_task_finished(queuename)
+		    run(`sudo shutdown -h 0`)
                 else
                     rethrow()
                 end
@@ -30,13 +31,12 @@ function execute(argDict::Dict{Symbol, Any})
             try
                 forward( Net(task) )
             catch err
-                if isa(err, LoadError) && argDict[:shutdown]
-                    # automatically terminate the instance / machine
-                    run(`sudo shutdown -h 0`)
-                elseif isa(err, ChunkFlow.ZeroOverFlowError)
+                if isa(err, ChunkFlow.ZeroOverFlowError)
                     warn("zero overflow!")
                 else
-                    rethrow()
+                    #rethrow()
+		    warn("get en error while execution: $err")
+		    continue
                 end
             end
 
