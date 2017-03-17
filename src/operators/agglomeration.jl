@@ -6,8 +6,9 @@ using Agglomeration, Process
 using EMIRT
 
 immutable AgglomerationOperator <: AbstractChunkFlowOperator
-
-    isDeleteAff     :: Bool
+    maskAffinityMarginSize  ::Int
+    cropSegMarginSize       ::Int
+    isDeleteAff             ::Bool
 end
 
 
