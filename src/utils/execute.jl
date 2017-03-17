@@ -2,31 +2,42 @@ module Execute
 
 using ..ChunkFlow
 using Requests
+using SQSChannels
 
 export execute
+
+"""
+    customize_task!( task::Dict{Symbol, Any}, argDict::Dict{Symbol, Any} )
+modify the task according to local commandline parameters 
+"""
+function customize_task!( task::Dict{Symbol, Any}, argDict::Dict{Symbol, Any} )
+    # set the gpu device id to use
+    if !isa(argDict[:deviceid], Void)
+        set!(task, :deviceID, argDict[:deviceid])
+    end
+end
 
 function execute(argDict::Dict{Symbol, Any})
     if argDict[:task]==nothing || isa(argDict[:task], Void)
         # fetch task from AWS SQS
+        sqsChannel = SQSChannel( argDict[:awssqs] )
         while true
-            local task, msg
+            local task, msgHanle
             try
-                task, msg = get_sqs_task(queuename=argDict[:awssqs])
+                msgHandle, task = fetch( sqsChannel )
             catch err
                 @show err
                 @show typeof(err)
                 if isa(err, BoundsError) && argDict[:shutdown]
                     post_task_finished(queuename)
-		    run(`sudo shutdown -h 0`)
+        		    run(`sudo shutdown -h 0`)
                 else
                     rethrow()
                 end
             end
 
-            # set the gpu device id to use
-            if !isa(argDict[:deviceid], Void)
-                set!(task, :deviceID, argDict[:deviceid])
-            end
+            # modify the task according to command line
+            customize_task!(task, argDict)
 
             try
                 forward( Net(task) )
@@ -41,8 +52,8 @@ function execute(argDict::Dict{Symbol, Any})
             end
 
             # delete task message in SQS
-            deleteSQSmessage!(msg, argDict[:awssqs])
-            sleep(3)
+            delete!(c, msgHandle)
+            sleep(1)
         end
     else
         # has local task definition
