@@ -1,15 +1,23 @@
+module AgglomerationOperator
+
+using ..Operators
+using DataStructures
 using Agglomeration, Process
-# @everywhere using Agglomeration, Process
-# @everywhere using EMIRT
 using EMIRT
+
+immutable AgglomerationOperator <: AbstractChunkFlowOperator
+
+    isDeleteAff     :: Bool
+end
+
 
 """
 edge function of agglomeration
 """
-function ef_agglomeration!( c::DictChannel,
-                    params::OrderedDict{Symbol, Any},
-                    inputs::OrderedDict{Symbol, Any},
-                    outputs::OrderedDict{Symbol, Any})
+function run!( c::DictChannel,
+                params::OrderedDict{Symbol, Any},
+                inputs::OrderedDict{Symbol, Any},
+                outputs::OrderedDict{Symbol, Any})
     chk_seg = fetch(c, inputs[:seg])
     if params[:isDeleteAff]
         chk_aff = take!(c, inputs[:aff])
