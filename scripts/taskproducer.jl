@@ -1,5 +1,5 @@
 include("../src/ChunkFlow.jl")
-using EMIRT
+# using EMIRT
 using DataStructures
 using ChunkFlow
 using ChunkFlow.Producer
