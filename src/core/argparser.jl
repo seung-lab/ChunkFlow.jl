@@ -29,10 +29,10 @@ function parse_commandline()
             help = "number of works"
             arg_type = Int
             default = 1
-        "--continuefrom", "c"
+        "--continuefrom", "-c"
             help = "continue task submission from an origin"
             arg_type = Vector{Int}
-            default = []
+            default = Vector{Int}()
         "--task", "-t"
             help = "task definition json file"
             arg_type = AbstractString
