@@ -234,6 +234,21 @@ function to_chunk_folder(base_folder::AbstractString, chunk::Chunk)
 end
 
 """
+    lzma(writable::Any, output::IO)
+
+Writes lzma compressed object into the given output stream.
+"""
+function lzma(writable::Any, output::IO)
+    input = Pipe()
+
+    lzma_command = `lzma --compress --extreme -9 -f -k --stdout`
+    process = spawn(pipeline(lzma_command, stdout = output, stdin = input))
+
+    write(input, writable)
+    close(input.in)
+end
+
+"""
     write_segmentation{U <: Unsigned}(segmentation::Array{U, 3},
         chunk_folder::AbstractString; filename = DEFAULT_SEGMENTATION_FILENAME)
 Compress and write the segmentation to disk
