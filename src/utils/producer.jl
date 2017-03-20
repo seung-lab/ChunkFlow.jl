@@ -4,6 +4,7 @@ using ..ChunkFlow
 using DataStructures
 using BigArrays.Utils
 using SQSChannels
+using JSON
 
 export submit_chunk_task, taskproducer, get_origin_set
 
@@ -31,18 +32,18 @@ function get_origin_set(argDict::Dict)
     gridIndexList = Vector{Tuple}()
     originSet = OrderedSet{Vector}()
     # the flag to indicate whether the specific origin was visited
-    flag = false
+    if isempty(argDict[:continuefrom])
+        flag = true
+    else
+        flag = false
+    end
     for gridz in 1:argDict[:gridsize][3]
         for gridy in 1:argDict[:gridsize][2]
             for gridx in 1:argDict[:gridsize][1]
                 if 3 < N
-                    # push!(gridIndexList,
-                    #         (gridx, gridy, gridz,
-                    #             ones(Int, N - 3)...))
                     gridIndex = (gridx, gridy, gridz,
                                     ones(Int, N - 3)...)
                 else
-                    # push!(gridIndexList, (gridx, gridy, gridz))
                     gridIndex = (gridx, gridy, gridz)
                 end
                 origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
@@ -62,7 +63,7 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     task = get_task( argDict[:task] )
     # set gpu id
     set!(task, :deviceID, argDict[:deviceid])
-    @show task
+    #@show task
 
     # the SQS queue as a Julia Channel
     c = SQSChannel( argDict[:awssqs] )
@@ -78,8 +79,9 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
         end
 
         for origin in originSet
+            println("start of chunk: $origin")
             set!(task, :origin, origin)
-            push!(c, task)
+            put!(c, JSON.json(task))
         end
     else
         error("invalid input method: $(task[:input][:kind])")
