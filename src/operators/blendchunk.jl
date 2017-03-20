@@ -47,11 +47,12 @@ function ef_blendchunk(c::DictChannel,
         chunkSize = BigArrays.Chunks.get_chunk_size(ba)
     elseif isa(ba, H5sBigArray)
         chunkSize = H5sBigArrays.get_chunk_size(ba)
+    elseif isa(ba, BOSSArray)
+	chunkSize = (512,512,16)
     else
         warn("unknown type of ba: $(typeof(ba))")
     end
     @show get_offset(chk)
-    @show chunkSize
     @assert mod(get_offset(chk), [chunkSize...]) == zeros(eltype(chk), ndims(chk))
 
     blendchunk(ba, chk)
