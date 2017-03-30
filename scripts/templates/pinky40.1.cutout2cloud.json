@@ -2,9 +2,9 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "aligned",
-        "origin":   [-16383, -4095, 1],
-        "chunkSize": [4096, 4096,  16],
-        "offset":    [16384,16384,16384],
+        "origin":   [1, 1, 1],
+        "chunkSize": [2048, 2048,  64],
+        "offset":    [0,0,0],
         "voxelSize": [4,4,40],
         "nonzeroRatioThreshold": 0.01
     },
@@ -24,7 +24,7 @@
         "chunk": "img"
     },
     "outputs": {
-        "path": "gs://seunglab/pinky40/images/"
+        "path": "gs://neuroglancer/pinky40_v1/image/4_4_40"
     }
 }
 }
