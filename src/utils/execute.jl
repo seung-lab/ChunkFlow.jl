@@ -3,17 +3,20 @@ module Execute
 using ..ChunkFlow
 using Requests
 using SQSChannels
+using JSON
+using DataStructures
 
 export execute
 
 """
     customize_task!( task::Dict{Symbol, Any}, argDict::Dict{Symbol, Any} )
-modify the task according to local commandline parameters 
+modify the task according to local commandline parameters
 """
-function customize_task!( task::Dict{Symbol, Any}, argDict::Dict{Symbol, Any} )
+function customize_task!( task::Associative, argDict::Dict{Symbol, Any} )
     # set the gpu device id to use
     if !isa(argDict[:deviceid], Void)
         set!(task, :deviceID, argDict[:deviceid])
+        println("set deviceid as $(argDict[:deviceid])")
     end
 end
 
@@ -22,7 +25,7 @@ function execute(argDict::Dict{Symbol, Any})
         # fetch task from AWS SQS
         sqsChannel = SQSChannel( argDict[:awssqs] )
         while true
-            local task, msgHanle
+            local task, msgHandle
             try
                 msgHandle, task = fetch( sqsChannel )
             catch err
@@ -37,6 +40,10 @@ function execute(argDict::Dict{Symbol, Any})
             end
 
             # modify the task according to command line
+            if isa(task, String)
+                task = JSON.parse(task;
+                    dicttype=OrderedDict{Symbol, Any})
+            end
             customize_task!(task, argDict)
 
             try
@@ -45,14 +52,14 @@ function execute(argDict::Dict{Symbol, Any})
                 if isa(err, ChunkFlow.ZeroOverFlowError)
                     warn("zero overflow!")
                 else
-                    #rethrow()
-		    warn("get en error while execution: $err")
-		    continue
+                    rethrow()
+		            # warn("get en error while execution: $err")
+		            # continue
                 end
             end
 
             # delete task message in SQS
-            delete!(c, msgHandle)
+            delete!(sqsChannel, msgHandle)
             sleep(1)
         end
     else
