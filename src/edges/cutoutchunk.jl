@@ -96,7 +96,7 @@ function ef_cutoutchunk!(c::DictChannel,
     @show origin, params[:voxelSize]
     chk = Chunk(data, origin, params[:voxelSize])
 
-    println("cout out chunk size: $(size(data))")
+    println("cut out chunk size: $(size(data))")
 
     # put chunk to channel for use
     put!(c, outputs[:data], chk)
