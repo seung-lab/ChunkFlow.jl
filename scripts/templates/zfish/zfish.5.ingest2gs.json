@@ -3,7 +3,7 @@
     "params":{
         "bigArrayType": "aligned",
         "origin":   [39883,10187,125],
-        "chunkSize": [2048, 2048,  128],
+        "cutoutSize": [2048, 2048,  128],
         "offset":    [16384,16384,16384],
         "voxelSize": [5,5,45],
         "nonzeroRatioThreshold": 0.10
@@ -24,7 +24,7 @@
         "chunk": "img"
     },
     "outputs": {
-        "path": "gs://neuroglancer/zfish_v0/image/bigarray/"
+        "path": "gs://neuroglancer/zfish_v0/additional_sections/5_5_45/"
     }
 }
 }
