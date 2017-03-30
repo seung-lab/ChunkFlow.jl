@@ -1,0 +1,35 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "aligned",
+        "origin":   [1, 1, 1],
+        "cutoutSize": [2048, 2048,  64],
+        "offset":    [0,0,0],
+        "voxelSize": [4,4,40],
+        "nonzeroRatioThreshold": 0.01
+    },
+    "inputs": {
+      "registerFile": "/mnt/data01/datasets/pinky40_realigned/registry.txt"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"blend2boss":{
+    "kind": "blendchunk",
+    "params":{
+      "backend"         : "boss",
+      "dataType"        : "UInt8",
+      "dimension"       : 3,
+      "chunkSize"       : [512,512,16],
+      "collectionName"  : "pinky40_test",
+      "experimentName"  : "pinky40_2",
+      "channelName"     : "em2",
+      "resolutionLevel" : 0
+    },
+    "inputs": {
+        "chunk": "img"
+    },
+    "outputs": {}
+}
+}
