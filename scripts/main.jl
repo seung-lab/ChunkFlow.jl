@@ -14,10 +14,4 @@ Logging.configure(filename="logfile.log")
 @everywhere argDict = parse_commandline()
 @show argDict
 
-@sync begin
-    for w in 1:argDict[:workers]
-        @async begin
-            remotecall_wait(execute, w, argDict)
-        end
-    end
-end
+asyncmap(execute, [argDict for i in 1:argDict[:workers]])
