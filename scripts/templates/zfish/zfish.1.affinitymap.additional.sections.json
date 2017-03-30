@@ -1,0 +1,53 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "gs",
+        "origin":   [-3125,-6197, 1149],
+        "chunkSize": [1132, 1132,  136],
+        "offset":    [16384,16384,16384],
+        "voxelSize": [5,5,45],
+        "nonzeroRatioThreshold": 0.01
+    },
+    "inputs": {
+      "path": "gs://neuroglancer/zfish_v0/additional_sections/5_5_45/"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"JKNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "gs://jpwu/kaffe/caffe.models/JKNet/deploy.prototxt",
+        "caffeNetFile": "gs://jpwu/kaffe/experiments/zfish/JKNet/divideby/train_iter_800000.caffemodel.h5",
+        "outputPatchSize":    [158, 158,  32],
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess": "divideby",
+        "deviceID": 0,
+        "isCropImg": false,
+        "cropMarginSize": [54, 54, 4,0],
+        "originOffset": [54, 54, 4,0],
+        "affWeight": 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"blendaffinity":{
+    "kind": "blendchunk",
+    "params":{
+      "backend": "gs"
+    },
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
+        "path": "gs://neuroglancer/zfish_v0/additional_sections_affinitymap/5_5_45/"
+    }
+}
+}
