@@ -44,7 +44,7 @@ function ef_blendchunk(c::DictChannel,
 
     # make sure that the writting is aligned
     if isa(ba, BigArray)
-        chunkSize = BigArrays.Chunks.get_chunk_size(ba)
+        chunkSize = BigArrays.get_chunk_size(ba)
     elseif isa(ba, H5sBigArray)
         chunkSize = H5sBigArrays.get_chunk_size(ba)
     elseif isa(ba, BOSSArray)

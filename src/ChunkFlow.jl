@@ -55,6 +55,7 @@ function forward(net::Net)
         elapsed = time() - start
         info("time cost for $(name): $(elapsed/60) min")
         info("--------end of $(name)-----------")
+        println("--------end of $(name)-----------")
     end
     info("complete pipeline time cost: $((time()-pipeline_start)/60) min")
     println("-----------end pipeline----------------")
