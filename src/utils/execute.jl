@@ -12,7 +12,7 @@ export execute
     customize_task!( task::Dict{Symbol, Any}, argDict::Dict{Symbol, Any} )
 modify the task according to local commandline parameters
 """
-function customize_task!( task::Associative, argDict::Dict{Symbol, Any} )
+function customize_task!( task::Associative, argDict::Associative )
     # set the gpu device id to use
     if !isa(argDict[:deviceid], Void)
         set!(task, :deviceID, argDict[:deviceid])
@@ -24,10 +24,11 @@ function execute(argDict::Dict{Symbol, Any})
     if argDict[:task]==nothing || isa(argDict[:task], Void)
         # fetch task from AWS SQS
         sqsChannel = SQSChannel( argDict[:awssqs] )
+        local taskString, msgHandle
         while true
             local task, msgHandle
             try
-                msgHandle, task = fetch( sqsChannel )
+                msgHandle, taskString = fetch( sqsChannel )
             catch err
                 @show err
                 @show typeof(err)
@@ -38,7 +39,7 @@ function execute(argDict::Dict{Symbol, Any})
                     rethrow()
                 end
             end
-
+	    task = JSON.parse(taskString; dicttype=OrderedDict{Symbol, Any})
             # modify the task according to command line
             if isa(task, String)
                 task = JSON.parse(task;
@@ -50,7 +51,7 @@ function execute(argDict::Dict{Symbol, Any})
                 forward( Net(task) )
             catch err
                 if isa(err, ChunkFlow.ZeroOverFlowError)
-                    warn("zero overflow!")
+                    println("zero overflow!")
                 else
                     rethrow()
 		            # warn("get en error while execution: $err")
