@@ -14,4 +14,18 @@ Logging.configure(filename="logfile.log")
 @everywhere argDict = parse_commandline()
 @show argDict
 
-asyncmap(execute, [argDict for i in 1:argDict[:workers]])
+# pmap(execute, [argDict for i in 1:argDict[:workers]])
+
+@sync begin
+    for w in 1:argDict[:workers]
+        @async begin
+            sleep(rand(1:300))
+            remotecall_wait(execute, w, argDict)
+        end
+    end
+end
+
+# for w in 2:argDict[:workers]
+#     @spawn execute(argDict)
+# end
+# execute(argDict)

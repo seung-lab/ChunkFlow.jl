@@ -24,7 +24,7 @@
       "chunkSize"       : [512,512,16],
       "collectionName"  : "pinky40_test",
       "experimentName"  : "pinky40_2",
-      "channelName"     : "em2",
+      "channelName"     : "em4",
       "resolutionLevel" : 0
     },
     "inputs": {
