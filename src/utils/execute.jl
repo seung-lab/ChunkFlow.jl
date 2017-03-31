@@ -39,7 +39,7 @@ function execute(argDict::Dict{Symbol, Any})
                     rethrow()
                 end
             end
-	    task = JSON.parse(taskString; dicttype=OrderedDict{Symbol, Any})
+	        task = JSON.parse(taskString; dicttype=OrderedDict{Symbol, Any})
             # modify the task according to command line
             if isa(task, String)
                 task = JSON.parse(task;
