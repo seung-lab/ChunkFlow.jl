@@ -19,7 +19,9 @@ Logging.configure(filename="logfile.log")
 @sync begin
     for w in 1:argDict[:workers]
         @async begin
-            sleep(rand(1:300))
+	    if argDict[:workers] > 1
+            	sleep(rand(1:20* argDict[:workers]))
+	    end
             remotecall_wait(execute, w, argDict)
         end
     end
