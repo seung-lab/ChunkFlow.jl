@@ -1,0 +1,33 @@
+{
+   "num_channels":3,
+   "type":"image",
+   "data_type":"float32",
+   "scales":[
+      {
+         "encoding":"raw",
+         "chunk_sizes":[
+            [
+               64,
+               64,
+               64
+            ]
+         ],
+         "key":"5_5_45",
+         "resolution":[
+            5,
+            5,
+            45
+         ],
+         "voxel_offset":[
+            0,
+            0,
+            0
+         ],
+         "size":[
+            313472,
+            193664,
+            1766
+         ]
+      }
+   ]
+}
