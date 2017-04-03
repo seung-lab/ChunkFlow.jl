@@ -24,13 +24,7 @@ function ef_kaffe!( c::DictChannel,
     if isfile(fImg)
         rm(fImg)
     end
-    if params[:isCropImg]
-      # Note that
-      chk_img2 = BigArrays.crop_border(chk_img, params[:cropMarginSize])
-    else
-      chk_img2 = chk_img
-    end
-    h5write(fImg, "main", chk_img2.data)
+    h5write(fImg, "main", chk_img.data)
 
     @show chk_img.origin
     @show params[:originOffset]
@@ -97,22 +91,28 @@ function ef_kaffe!( c::DictChannel,
     # info("processing chunk origin from: $(chk_img2.origin) with a size of $(size(chk_img2.data))")
 
     # run znni inference
-    run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg)`)
+    run(`python2 $(joinpath(params[:kaffeDir],"python/forward_bin.py")) $(params[:deviceID]) $(fForwardCfg)`)
 
     # compute cropMarginSize using integer division
-    sz = size(chk_img2.data)
+    sz = size(chk_img.data)
     cropMarginSize = params[:cropMarginSize]
 
     # read affinity map
-    f = h5open(fAff)
-    if params[:isCropImg]
-      aff = read(f["main"])
-    else
-      aff = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-                      cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-                      cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
-    end
-    close(f)
+    # f = h5open(fAff)
+    # if params[:isCropImg]
+    #   aff = read(f["main"])
+    # else
+    #   aff = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+    #                   cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+    #                   cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
+    # end
+    # close(f)
+    aff = read(fAff, Float32, sz)
+    # perform the cropping
+    aff = aff[  cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+                cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+                cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
+
 
     # reweight affinity to make ensemble
     aff .*= eltype(aff)(params[:affWeight])
