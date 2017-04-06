@@ -9,7 +9,7 @@
         "nonzeroRatioThreshold": 0.01
     },
     "inputs": {
-      "registerFile": "/mnt/data01/datasets/5_finished/registry.txt"
+      "registerFile": "/mnt/data01/datasets/pinky40-3/5_finished/registry.txt"
     },
     "outputs": {
         "data": "img"
@@ -23,7 +23,7 @@
       "dimension"       : 3,
       "collectionName"  : "pinky40_test",
       "experimentName"  : "pinky40",
-      "channelName"     : "em-zerofill",
+      "channelName"     : "em-zerofill2",
       "resolutionLevel" : 0
     },
     "inputs": {

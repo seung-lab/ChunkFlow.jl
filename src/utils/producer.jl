@@ -47,11 +47,11 @@ function get_origin_set(argDict::Dict)
                     gridIndex = (gridx, gridy, gridz)
                 end
                 origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
-                if flag
-                    push!(originSet, origin)
-                end
                 if origin == argDict[:continuefrom]
                    flag = true
+                end
+                if flag
+                    push!(originSet, origin)
                 end
             end
         end

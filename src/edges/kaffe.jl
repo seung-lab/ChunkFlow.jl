@@ -107,7 +107,7 @@ function ef_kaffe!( c::DictChannel,
     #                   cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
     # end
     # close(f)
-    aff = read(fAff, Float32, sz)
+    aff = read(fAff, Float32, (sz..., 3))
     # perform the cropping
     aff = aff[  cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
                 cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
