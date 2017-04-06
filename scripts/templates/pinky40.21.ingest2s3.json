@@ -3,7 +3,7 @@
     "params":{
         "bigArrayType": "aligned",
         "origin":   [1, 1, 1],
-        "chunkSize": [2048, 2048,  64],
+        "cutoutSize": [2048, 2048,  64],
         "offset":    [16384,16384,0],
         "voxelSize": [4,4,40],
         "nonzeroRatioThreshold": 0.01
@@ -24,7 +24,7 @@
         "chunk": "img"
     },
     "outputs": {
-        "path": "s3://seunglab/pinky40_2/image/4_4_40"
+        "path": "s3://neuroglancer/pinky40_v3/image/4_4_40"
     }
 }
 }
