@@ -24,7 +24,7 @@
         "chunk": "img"
     },
     "outputs": {
-        "path": "gs://neuroglancer/pinky40_v1/image-zerofill/4_4_40/"
+        "path": "gs://neuroglancer/pinky40_v3/image-zerofill/4_4_40/"
     }
 }
 }
