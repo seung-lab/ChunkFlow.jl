@@ -3,12 +3,12 @@
     "params":{
         "bigArrayType": "s3",
         "origin":   [26593, 26593, -3],
-        "chunkSize": [2112, 2112,  136],
+        "cutoutSize": [1088, 1088,  264],
         "voxelSize": [4,4,40],
         "nonzeroRatioThreshold": 0.01
     },
     "inputs": {
-      "path": "s3://seunglab/pinky40_2/image/4_4_40/"
+      "path": "s3://neuroglancer/pinky40_v3/image/4_4_40/"
     },
     "outputs": {
         "data": "img"
@@ -92,7 +92,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "path": "s3://seunglab/pinky40_2/affinitymap/4_4_40/"
+        "path": "s3://neuroglancer/pinky40_v3/affinitymap/4_4_40/"
     }
 }
 }
