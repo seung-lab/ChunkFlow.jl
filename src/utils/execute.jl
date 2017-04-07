@@ -23,7 +23,7 @@ end
 function execute(argDict::Dict{Symbol, Any})
     if argDict[:task]==nothing || isa(argDict[:task], Void)
         # fetch task from AWS SQS
-        sqsChannel = SQSChannel( argDict[:awssqs] )
+        sqsChannel = SQSChannel( argDict[:queuename] )
         local taskString, msgHandle
         while true
             local task, msgHandle
