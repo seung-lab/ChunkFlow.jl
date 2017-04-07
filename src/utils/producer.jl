@@ -66,7 +66,7 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     #@show task
 
     # the SQS queue as a Julia Channel
-    c = SQSChannel( argDict[:awssqs] )
+    c = SQSChannel( argDict[:queuename] )
     # read task config file
     # produce task script
     if contains(task[:input][:kind], "readh5")
