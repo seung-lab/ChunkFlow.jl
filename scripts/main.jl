@@ -17,10 +17,10 @@ Logging.configure(filename="logfile.log")
 # pmap(execute, [argDict for i in 1:argDict[:workers]])
 
 @sync begin
-    for w in 1:argDict[:workers]
+    for w in 1:argDict[:workernumber]
         @async begin
-	    if argDict[:workers] > 1
-            	sleep(rand(1:20* argDict[:workers]))
+	    if argDict[:workernumber] > 1
+            sleep((w-1)*argDict[:workerwaittime]*60)
 	    end
             remotecall_wait(execute, w, argDict)
         end
