@@ -22,11 +22,12 @@ function parse_commandline()
         "--deviceid", "-d"
             help = "which gpu to use"
             arg_type = Int
-        "--producer", "-p"
-            help = "producer task"
-            arg_type = AbstractString
-        "--workers", "-w"
+        "--workernumber", "-n"
             help = "number of works"
+            arg_type = Int
+            default = 1
+        "--workerwaittime", "-w"
+            help = "waiting time to launch each worker (min)"
             arg_type = Int
             default = 1
         "--continuefrom", "-c"
@@ -36,7 +37,7 @@ function parse_commandline()
         "--task", "-t"
             help = "task definition json file"
             arg_type = AbstractString
-        "--awssqs", "-a"
+        "--queuename", "-q"
             help = "AWS SQS queue name. default is chunkflow-tasks"
             arg_type = AbstractString
             default = "chunkflow-tasks"
