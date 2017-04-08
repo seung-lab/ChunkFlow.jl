@@ -1,6 +1,15 @@
 using BigArrays
 
 using S3Dicts
+
+di = S3Dict("s3://neuroglancer/pinky40_v3/image/4_4_40/")
+bai = BigArray(di)
+img = bai[36353+2048:36864+2048+512+1024, 58369+2048:58880+2048+512+1024, 321-64:384]
+
+using HDF5
+h5write(expanduser("~/test.img.h5"), "main", img)
+#quit()
+
 d = S3Dict("s3://neuroglancer/pinky40_v3/affinitymap-jnet/4_4_40/")
 
 ba = BigArray(d)
@@ -23,7 +32,13 @@ ba = BigArray(d)
 # aff = ba[79872+1:79872+1024,20993:20992+1024,65:128+64, 1:3]
 #aff = ba[83457:83968, 33281:33792, 129:256, 1:3]
 #aff = ba[9727-4096:10240-4096, 31233+4096:31744+4096, 65:192, 1:3]
-aff = ba[10241:10752, 26113:26624, 129:256, 1:3]
+#aff = ba[10241:10752, 26113:26624, 129:256, 1:3]
+aff = ba[36353+2048:36864+2048+512+1024, 58369+2048:58880+2048+512+1024, 321-64:384, 1:3]
+
+using HDF5
+h5write("/usr/people/jingpeng/test.aff.h5", "main", aff)
+
+
 # using ImageView
 # imshow(affx)
 
