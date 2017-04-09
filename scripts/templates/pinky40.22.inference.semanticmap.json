@@ -2,13 +2,13 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "s3",
-        "origin":   [-53, -53, -3],
-        "chunkSize": [2156, 2156,  136],
+        "origin":   [26593, 26593, -3],
+        "cutoutSize": [2112, 2112,  136],
         "voxelSize": [4,4,40],
-        "nonzeroRatioThreshold": 0.01
+        "nonzeroRatioThreshold": 0.20
     },
     "inputs": {
-      "path": "s3://seunglab/pinky40/images/"
+      "path": "s3://neuroglancer/pinky40_v3/image/4_4_40/"
     },
     "outputs": {
         "data": "img"
@@ -26,8 +26,8 @@
         "preprocess"        : "divideby",
         "deviceID"          : 0,
         "isCropImg"         : false,
-        "cropMarginSize"    : [54, 54, 4,0],
-        "originOffset"      : [54, 54, 4,0],
+        "cropMarginSize"    : [32, 32, 4,0],
+        "originOffset"      : [32, 32, 4,0],
         "affWeight"         : 1
     },
     "inputs": {
@@ -47,7 +47,7 @@
         "chunk": "aff"
     },
     "outputs": {
-        "path": "s3://seunglab/pinky40_2/semanticmap/4_4_40/"
+        "path": "s3://neuroglancer/pinky40_v3/semanticmap/4_4_40/"
     }
 }
 }

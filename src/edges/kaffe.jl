@@ -15,8 +15,8 @@ function ef_kaffe!( c::DictChannel,
 
     # save as hdf5 file
     fImg        = string(tempname(), ".img.h5")
-    fAffPre     = string(tempname(), ".aff.")
-    fAff        = "$(fAffPre)_dataset1_output.h5"
+    fOutPre     = string(tempname(), ".out.")
+    fOut        = "$(fOutPre)_dataset1_output.h5"
     fDataSpec   = string(tempname(), ".spec")
     fForwardCfg = string(tempname(), ".cfg")
 
@@ -29,7 +29,7 @@ function ef_kaffe!( c::DictChannel,
     @show chk_img.origin
     @show params[:originOffset]
     originOffset = Vector{UInt32}(params[:originOffset])
-    affOrigin = [chk_img.origin..., 0x00000001] .+ originOffset
+    outOrigin = [chk_img.origin..., 0x00000001] .+ originOffset
 
     if !haskey(params, :caffeNetFileMD5)
         params[:caffeNetFileMD5] = ""
@@ -80,7 +80,7 @@ function ef_kaffe!( c::DictChannel,
     border      = None
     scan_list   = ['output']
     scan_params = $(params[:scanParams])
-    save_prefix = $fAffPre
+    save_prefix = $fOutPre
     """
     f = open(fForwardCfg, "w")
     write(f, forwardCfg)
@@ -91,50 +91,52 @@ function ef_kaffe!( c::DictChannel,
     # info("processing chunk origin from: $(chk_img2.origin) with a size of $(size(chk_img2.data))")
 
     # run znni inference
-    run(`python2 $(joinpath(params[:kaffeDir],"python/forward_bin.py")) $(params[:deviceID]) $(fForwardCfg)`)
+    run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg)`)
 
     # compute cropMarginSize using integer division
     sz = size(chk_img.data)
     cropMarginSize = params[:cropMarginSize]
 
-    # read affinity map
-    # f = h5open(fAff)
-    # if params[:isCropImg]
-    #   aff = read(f["main"])
-    # else
-    #   aff = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-    #                   cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-    #                   cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
-    # end
-    # close(f)
-    aff = read(fAff, Float32, (sz..., 3))
+    # read output affinity or semantic  map
+    f = h5open(fOut)
+    if params[:isCropImg]
+        out = read(f["main"])
+    else
+        out = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+                        cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+                        cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
+    end
+    close(f)
+    # out = read(fOut, Float32, (sz..., 3))
     # perform the cropping
-    aff = aff[  cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-                cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-                cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
+    # out = out[  cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+    #            cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+    #            cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
 
 
     # reweight affinity to make ensemble
-    aff .*= eltype(aff)(params[:affWeight])
-    if isready(c, inputs[:aff])
-      aff .+= take!(c, inputs[:aff]).data
-    end
-
-    ZERO = convert(eltype(aff), 0)
-    for i in eachindex(aff)
-        if isnan(aff[i])
-            aff[i] = ZERO
+    if haskey(params, :affWeight)
+        out .*= eltype(out)(params[:affWeight])
+        if isready(c, inputs[:aff])
+            out .+= take!(c, inputs[:aff]).data
         end
     end
 
-    chk_aff = Chunk(aff, affOrigin, chk_img.voxelSize)
-    @assert chk_aff.origin[4] == 1
+    ZERO = convert(eltype(out), 0)
+    for i in eachindex(out)
+        if isnan(out[i])
+            out[i] = ZERO
+        end
+    end
+
+    chk_out = Chunk(out, outOrigin, chk_img.voxelSize)
+    @assert chk_out.origin[4] == 1
 
     # crop img and aff
-    put!(c, outputs[:aff], chk_aff)
+    put!(c, outputs[:aff], chk_out)
 
     # remove temporary files
-    rm(fImg);  rm(fAff); rm(fForwardCfg); rm(fDataSpec);
+    rm(fImg);  rm(fOut); rm(fForwardCfg); rm(fDataSpec);
 end
 
 """
