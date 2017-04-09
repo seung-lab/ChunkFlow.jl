@@ -2,15 +2,15 @@ using BigArrays
 
 using S3Dicts
 
-di = S3Dict("s3://neuroglancer/pinky40_v3/image/4_4_40/")
-bai = BigArray(di)
-img = bai[36353+2048:36864+2048+512+1024, 58369+2048:58880+2048+512+1024, 321-64:384]
+#di = S3Dict("s3://neuroglancer/pinky40_v3/image/4_4_40/")
+#bai = BigArray(di)
+#img = bai[36353+2048:36864+2048+512+1024, 58369+2048:58880+2048+512+1024, 321-64:384]
 
-using HDF5
-h5write(expanduser("~/test.img.h5"), "main", img)
+#using HDF5
+#h5write(expanduser("~/test.img.h5"), "main", img)
 #quit()
 
-d = S3Dict("s3://neuroglancer/pinky40_v3/affinitymap-jnet/4_4_40/")
+d = S3Dict("s3://neuroglancer/pinky40_v3/semanticmap/4_4_40/")
 
 ba = BigArray(d)
 # bb = boundingbox(ba)
@@ -33,10 +33,10 @@ ba = BigArray(d)
 #aff = ba[83457:83968, 33281:33792, 129:256, 1:3]
 #aff = ba[9727-4096:10240-4096, 31233+4096:31744+4096, 65:192, 1:3]
 #aff = ba[10241:10752, 26113:26624, 129:256, 1:3]
-aff = ba[36353+2048:36864+2048+512+1024, 58369+2048:58880+2048+512+1024, 321-64:384, 1:3]
+aff = ba[36353+2048:36864+2048+512+1024, 58369+2048:58880+2048+512+1024, 321-64:384, 1:4]
 
 using HDF5
-h5write("/usr/people/jingpeng/test.aff.h5", "main", aff)
+h5write("/usr/people/jingpeng/test.sem.h5", "main", aff)
 
 
 # using ImageView
@@ -46,7 +46,7 @@ using Images
 using FileIO
 
 
-for c in 1:3
+for c in 1:size(aff, 4)
     for z in 1:size(aff, 3)
         @show z
         img = aff[:,:,z,c]
