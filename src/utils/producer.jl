@@ -69,22 +69,14 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     c = SQSChannel( argDict[:queuename] )
     # read task config file
     # produce task script
-    if contains(task[:input][:kind], "readh5")
-        tasks = produce_tasks(task)
-        submit(tasks)
-    elseif  contains(task[:input][:kind], "cutoutchunk") ||
-            contains(task[:input][:kind], "readchunk")
-        if isempty( originSet )
-            originSet = get_origin_set( argDict )
-        end
+    if isempty( originSet )
+        originSet = get_origin_set( argDict )
+    end
 
-        for origin in originSet
-            println("start of chunk: $origin")
-            set!(task, :origin, origin)
-            put!(c, JSON.json(task))
-        end
-    else
-        error("invalid input method: $(task[:input][:kind])")
+    for origin in originSet
+        println("start of chunk: $origin")
+        set!(task, :origin, origin)
+        put!(c, JSON.json(task))
     end
 end
 
