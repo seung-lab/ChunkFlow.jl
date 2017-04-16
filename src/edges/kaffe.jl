@@ -99,13 +99,13 @@ function ef_kaffe!( c::DictChannel,
 
     # read output affinity or semantic  map
     f = h5open(fOut)
-    if params[:isCropImg]
-        out = read(f["main"])
-    else
-        out = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-                        cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-                        cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
-    end
+    # if params[:isCropImg]
+    #     out = read(f["main"])
+    # else
+    out = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+                    cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+                    cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
+    # end
     close(f)
     # out = read(fOut, Float32, (sz..., 3))
     # perform the cropping
@@ -132,7 +132,6 @@ function ef_kaffe!( c::DictChannel,
     chk_out = Chunk(out, outOrigin, chk_img.voxelSize)
     @assert chk_out.origin[4] == 1
 
-    # crop img and aff
     put!(c, outputs[:aff], chk_out)
 
     # remove temporary files
