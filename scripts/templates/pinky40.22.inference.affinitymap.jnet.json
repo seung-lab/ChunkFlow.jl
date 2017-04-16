@@ -2,7 +2,7 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "s3",
-        "origin":   [26593, 26593, -3],
+        "origin":   [40961, 36865, -3],
         "cutoutSize": [2112, 2112,  136],
         "voxelSize": [4,4,40],
         "nonzeroRatioThreshold": 0.01
