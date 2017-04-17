@@ -10,8 +10,8 @@ function parse_commandline()
         "--imagetag", "-t"
             help = "docker image tag"
             arg_type = String
-            default = "v1.4.5"
-        "--workernumber", "-w"
+            default = "v1.4.7"
+        "--workernumber", "-n"
             help = "number of workers/processes"
             default = 1
             arg_type = Int
@@ -19,6 +19,14 @@ function parse_commandline()
             help = "AWS SQS queue name"
             arg_type = String
             default = "pinky-inference"
+        "--waittime", "-w"
+            help = "wait time while launching of each process (min)"
+            arg_type = Int
+            default = 1
+        "--instancetype", "-i"
+            help = "instance type"
+            arg_type = String
+            default = "p2.xlarge"
     end
     return parse_args(s)
 end
@@ -30,15 +38,18 @@ function get_request_string(;
                             targetCapacity  = argDict["capacity"],
                             dockerImageTag  = argDict["imagetag"],
                             workerNumber    = argDict["workernumber"],
-                            queueName       = argDict["queuename"])
+                            queueName       = argDict["queuename"],
+                            waitTime        = argDict["waittime"],
+                            instanceType    = argDict["instancetype"])
     user_data_string = """
 #!/bin/bash
 #apt-get update && apt-get install -y nfs-common
 #mkfs -t ext4 /dev/xvdba
 #mount /dev/xvdba /tmp
 eval "\$(aws ecr get-login)"
-nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:$(dockerImageTag) bash -c 'source /root/.bashrc  && export PYTHONPATH=\$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p $(workerNumber) ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w $(workerNumber) -a $(queueName)'
+nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:$(dockerImageTag) bash -c 'source /root/.bashrc  && export PYTHONPATH=\$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p $(workerNumber) ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w $(waitTime) -n $(workerNumber) -q $(queueName)'
 """
+    @show user_data_string
     user_data_base64_code = base64encode( user_data_string )
 
 
@@ -46,7 +57,7 @@ nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chu
 {
    "IamFleetRole":"arn:aws:iam::098703261575:role/aws-ec2-spot-fleet-role",
    "AllocationStrategy":"lowestPrice",
-   "TargetCapacity":1,
+   "TargetCapacity":$(targetCapacity),
    "SpotPrice":"0.9",
    "ValidFrom":"2017-04-06T12:36:06Z",
    "ValidUntil":"2018-04-06T12:36:06Z",
@@ -54,7 +65,7 @@ nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chu
    "LaunchSpecifications":[
       {
          "ImageId":"ami-06ae2e10",
-         "InstanceType":"p2.xlarge",
+         "InstanceType":"$(instanceType)",
          "KeyName":"jpwu_workstation",
          "SpotPrice":"0.9",
          "IamInstanceProfile":{
