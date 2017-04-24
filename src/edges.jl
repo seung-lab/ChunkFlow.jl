@@ -29,6 +29,7 @@ include("edges/readh5.jl")
 include("edges/relabelseg.jl")
 include("edges/remove.jl")
 include("edges/savechunk.jl")
+include("edges/savepng.jl")
 include("edges/watershed.jl")
 #include("edges/watershed_stage1.jl")
 include("edges/znni.jl")
@@ -56,6 +57,7 @@ const edgeFuncLib = Dict{Symbol, Function}(
   :relabelseg     => ef_relabelseg!,
   :remove         => ef_remove!,
   :savechunk      => ef_savechunk,
+  :savepng        => ef_savepng,
   :watershed      => ef_watershed!,
  # :watershed_stage1 => ef_watershed_stage1,
   :znni           => ef_znni!
