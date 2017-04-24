@@ -1,10 +1,14 @@
 module Producer
 
+include(joinpath(dirname(@__FILE__), "polygon.jl"))
+
 using ..ChunkFlow
 using DataStructures
 using BigArrays.Utils
 using SQSChannels
 using JSON
+
+const IS_USE_POLYGON_FILTER = true
 
 export submit_chunk_task, taskproducer, get_origin_set
 
@@ -59,6 +63,8 @@ function get_origin_set(argDict::Dict)
     return originSet
 end
 
+
+
 function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     task = get_task( argDict[:task] )
     # set gpu id
@@ -71,6 +77,11 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     # produce task script
     if isempty( originSet )
         originSet = get_origin_set( argDict )
+    end
+
+    # filter out the chunks outside the polygon
+    if IS_USE_POLYGON_FILTER
+        originSet = polygon_filter( originSet )
     end
 
     for origin in originSet
