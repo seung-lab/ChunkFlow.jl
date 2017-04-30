@@ -8,7 +8,7 @@ using BigArrays.Utils
 using SQSChannels
 using JSON
 
-const IS_USE_POLYGON_FILTER = true
+const IS_USE_POLYGON_FILTER = false 
 
 export submit_chunk_task, taskproducer, get_origin_set
 

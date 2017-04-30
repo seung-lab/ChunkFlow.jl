@@ -30,6 +30,8 @@ function polygon_filter(    originSet::OrderedSet{Vector};
         if  pt_in_poly( p1, polygon ) && pt_in_poly( p2, polygon ) &&
             pt_in_poly( p3, polygon ) && pt_in_poly( p4, polygon )
             push!(ret, origin)
+        else
+            println("not inside polygon: $origin")
         end
     end
     
