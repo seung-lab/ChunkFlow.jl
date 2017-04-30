@@ -91,7 +91,7 @@ function ef_kaffe!( c::DictChannel,
     # info("processing chunk origin from: $(chk_img2.origin) with a size of $(size(chk_img2.data))")
 
     # run znni inference
-    run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg)`)
+    run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
 
     # compute cropMarginSize using integer division
     sz = size(chk_img.data)

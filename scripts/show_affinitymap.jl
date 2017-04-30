@@ -11,7 +11,7 @@ using S3Dicts
 #quit()
 
 #d = S3Dict("s3://neuroglancer/pinky40_v3/semanticmap/4_4_40/")
-d = S3Dict("s3://neuroglancer/pinky40_v8/affinitymap-jnet/4_4_40/")
+d = S3Dict("s3://neuroglancer/pinky40_v11/affinitymap-jnet/4_4_40/")
 
 ba = BigArray(d)
 # bb = boundingbox(ba)
@@ -40,7 +40,11 @@ ba = BigArray(d)
 
 
 #aff = ba[40850:41070, 37047:37240, 108:120, 1]
-aff = ba[36853:36873, 36900:37100, 108:120, 1]
+#aff = ba[36853:36873, 36900:37100, 108:120, 1]
+
+#aff = ba[29000:29800, 24000:25000, 464, 1]
+
+aff = ba[23933:24733, 24545:26593, 1:128, 1]
 
 #aff = ba[10650:11650, 13088:14088, 50:100, 1]
 
