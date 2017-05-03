@@ -1,4 +1,4 @@
-julia 0.4
+julia 0.5
 JSON
 EMIRT
 Watershed
@@ -13,3 +13,5 @@ BigArrays
 BOSSArrays
 S3Dicts
 GSDicts
+SQSChannels
+GoogleCloud
