@@ -53,9 +53,11 @@ function execute(argDict::Dict{Symbol, Any})
                 if isa(err, ChunkFlow.ZeroOverFlowError)
                     println("zero overflow!")
                 else
-                    rethrow()
-		            # warn("get en error while execution: $err")
-		            # continue
+                    @show err
+                    @show typeof(err)
+                    #rethrow()
+		            warn("get en error while execution: $err")
+		            continue
                 end
             end
 
@@ -70,7 +72,15 @@ function execute(argDict::Dict{Symbol, Any})
             set!(task, :deviceID, argDict[:deviceid])
         end
         net = Net(task)
-        forward(net)
+        try 
+            forward(net)
+        catch err 
+            if isa(err, ChunkFlow.ZeroOverFlowError)
+                warn("zero overflow!")
+            else 
+                rethrow()
+            end 
+        end 
     end
 end
 
