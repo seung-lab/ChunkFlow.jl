@@ -7,7 +7,7 @@ export parse_commandline
 
 make the key to be type of symbol
 """
-function key2symbol(argDict::Dict{String, Any})
+function key2symbol(argDict::Dict)
     ret = Dict{Symbol, Any}()
     for (k,v) in argDict
         ret[Symbol(k)] = v
