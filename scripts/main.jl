@@ -7,7 +7,7 @@ using Agglomeration, Process
 @everywhere using Logging
 
 @Logging.configure(level=INFO)
-Logging.configure(filename="$(tempfile()).log")
+Logging.configure(filename="$(tempname()).log")
 
 # parse the arguments as a dictionary, key is string
 @everywhere argDict = parse_commandline()
