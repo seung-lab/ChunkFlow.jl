@@ -18,7 +18,8 @@ ba = BigArray(d)
 # @show bb.start
 # @show bb
 
-aff = ba[14337:14337+1024-1, 7681:7681+1024-1, 65:128, 1]
+# aff = ba[14337:14337+1024-1, 7681:7681+1024-1, 65:128, 1]
+aff = ba[22817:22817+1024-1, 22960:22960+1024-1, 513:513+63, 1]
 
 #using HDF5
 #h5write("/usr/people/jingpeng/pinky/test.aff.h5", "main", aff)
