@@ -1,10 +1,9 @@
-VERSION >=v"0.4.0-dev+6521" && __precompile__(false)
+VERSION >=v"0.5.0" && __precompile__(false)
 
 module ChunkFlow
 
 using DataStructures
 using Agglomeration, Process
-# @everywhere using Agglomeration, Process
 using BigArrays.Chunks
 
 

@@ -33,7 +33,7 @@ function execute(argDict::Dict{Symbol, Any})
                 @show err
                 @show typeof(err)
                 if isa(err, BoundsError)
-                    post_task_finished(queuename)
+                    post_task_finished(argDict[:queuename])
                     if argDict[:shutdown]
             		    run(`sudo shutdown -h 0`)
                     end
@@ -57,9 +57,9 @@ function execute(argDict::Dict{Symbol, Any})
                 if isa(err, ChunkFlow.ZeroOverFlowError)
                     println("too many zeros!")
                 else
-                    @show typeof(err)
                     #rethrow()
-		            warn("get en error while execution: $err")
+		            warn("get an error while execution: $err")
+                    @show typeof(err)
 		            continue
                 end
             end
@@ -75,13 +75,14 @@ function execute(argDict::Dict{Symbol, Any})
         if !isa(argDict[:deviceid], Void)
             set!(task, :deviceID, argDict[:deviceid])
         end
-        net = Net(task)
+        @show task
         try 
-            forward(net)
-        catch err 
+            forward( Net(task) )
+        catch err
             if isa(err, ChunkFlow.ZeroOverFlowError)
-                warn("zero overflow!")
+                warn("too many zeros!")
             else 
+                println("catch an error while executing the task: $err")
                 rethrow()
             end 
         end 
