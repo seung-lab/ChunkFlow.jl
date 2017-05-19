@@ -1,6 +1,6 @@
 module Producer
 
-include(joinpath(dirname(@__FILE__), "polygon.jl"))
+#include(joinpath(dirname(@__FILE__), "polygon.jl"))
 
 using ..ChunkFlow
 using DataStructures
@@ -15,17 +15,8 @@ const IS_FILTER_EXISTING_CHUNKS = false
 export submit_chunk_task, taskproducer, get_origin_set
 
 function get_origin_set( fileNameList::Vector )
-    # fileNames = readstring(`gsutil ls gs://zfish/all_7/hypersquare/`)
-    # fileList = split(fileNames)
     originSet = Set()
     for fileName in fileNameList
-        # fileName = split(fileName,"/")[end-1]
-        #     @show fileName
-        # fields = split(fileName, "_")[2:end]
-        # origin = map(x->parse(split(x,"-")[1]), fields)
-        #     @show origin
-        # origin .-= [64,64,8]
-        # push!(origin, 1)
         origin = fileName2origin( fileName; prefix = "block_" )
         push!(originSet, origin)
     end
