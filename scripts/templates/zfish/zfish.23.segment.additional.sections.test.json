@@ -100,7 +100,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "gs://zfish/all_7_additional_sections/segmentation/chunk_"
+        "prefix": "gs://zfish/all_7_additional_sections_test/segmentation/chunk_"
     }
 },
 "hypersquare":{
@@ -114,7 +114,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectsDirectory": "gs://zfish/all_7_additional_sections/hypersquare/"
+        "projectsDirectory": "gs://zfish/all_7_additional_sections_test/hypersquare/"
     }
 }
 }
