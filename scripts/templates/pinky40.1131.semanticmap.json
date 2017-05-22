@@ -1,0 +1,54 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "s3",
+        "origin":   [26593, 26593, -3],
+        "cutoutSize": [2112, 2112,  136],
+        "voxelSize": [4,4,40],
+        "nonzeroRatioThreshold": 0.01
+    },
+    "inputs": {
+      "path": "s3://neuroglancer/pinky40_v8/image/4_4_40/"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"ConvNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir"          : "/opt/kaffe",
+        "caffeModelFile"    : "s3://seunglab/pinky40_2/convnets/semanticmap/deploy.prototxt",
+        "caffeNetFile"      : "s3://seunglab/pinky40_2/convnets/semanticmap/train_iter_137500.caffemodel.h5",
+        "caffeNetFileMD5" : "bf1a401d4b0f8595dec98a4ed58cd628",
+        "outputPatchSize"   :    [158, 158,  32],
+        "scanParams"        : "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess"        : "divideby",
+        "deviceID"          : 0,
+        "batchSize"         : 9,
+        "isCropImg"         : false,
+        "cropMarginSize"    : [32, 32, 4,0],
+        "originOffset"      : [32, 32, 4,0],
+        "affWeight"         : 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"blendaffinity":{
+    "kind": "blendchunk",
+    "params":{
+      "backend": "s3"
+    },
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
+        "path": "s3://neuroglancer/pinky40_v11/semanticmap/4_4_40/"
+    }
+}
+}
