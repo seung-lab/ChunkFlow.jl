@@ -1,5 +1,4 @@
 #FROM nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04
-# based on https://github.com/Kaggle/docker-julia/blob/master/Dockerfile
 FROM ubuntu:16.04
 LABEL maintainer Jingpeng Wu
 
