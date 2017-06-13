@@ -19,10 +19,10 @@ using S3Dicts
 #d = S3Dict("s3://neuroglancer/pinky40_v11/affinitymap-jnet/4_4_40/")
 
 ba = BigArray( S3Dict("s3://neuroglancer/zfish_v2/affinitymap/5_5_45/") )
-
+aff = ba[44033:45055, 21505:22527, 17921:18047,1]
 using BigArrays.H5sBigArrays
 #ba = H5sBigArray("/usr/people/jingpeng/seungmount/research/Jingpeng/14_zfish/affinitymap/")
-aff = ba[51393-200:51393+833, 20929+50:20929+577, 17961+23:17961+88, 1]
+#aff = ba[51393-200:51393+833, 20929+50:20929+577, 17961+23:17961+88, 1]
 # aff = ba[14337:14337+1024-1, 7681:7681+1024-1, 65:128, 1]
 #aff = ba[19457:19457+1024-1, 19457:19457+1024-1, 16513:16513+128-1, 1:3]
 
