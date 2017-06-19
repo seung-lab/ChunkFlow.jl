@@ -2,3 +2,5 @@
 *.hdf5
 *.h5
 *.omnify
+docs/build/
+docs/site/
