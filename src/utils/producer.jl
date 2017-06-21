@@ -1,29 +1,22 @@
 module Producer
 
-include(joinpath(dirname(@__FILE__), "polygon.jl"))
+#include(joinpath(dirname(@__FILE__), "polygon.jl"))
 
 using ..ChunkFlow
 using DataStructures
 using BigArrays.Utils
 using SQSChannels
 using JSON
+using S3Dicts
 
-const IS_USE_POLYGON_FILTER = false 
+#const IS_USE_POLYGON_FILTER = false 
+const IS_FILTER_EXISTING_CHUNKS = false 
 
 export submit_chunk_task, taskproducer, get_origin_set
 
 function get_origin_set( fileNameList::Vector )
-    # fileNames = readstring(`gsutil ls gs://zfish/all_7/hypersquare/`)
-    # fileList = split(fileNames)
     originSet = Set()
     for fileName in fileNameList
-        # fileName = split(fileName,"/")[end-1]
-        #     @show fileName
-        # fields = split(fileName, "_")[2:end]
-        # origin = map(x->parse(split(x,"-")[1]), fields)
-        #     @show origin
-        # origin .-= [64,64,8]
-        # push!(origin, 1)
         origin = fileName2origin( fileName; prefix = "block_" )
         push!(originSet, origin)
     end
@@ -63,7 +56,23 @@ function get_origin_set(argDict::Dict)
     return originSet
 end
 
-
+function existing_chunk_filter!( originSet::OrderedSet; 
+                                chunkSize::Vector   = [512,512,64],
+                                cropMargin::Vector  = [32,32,4],
+                                dirPath::String     = "s3://neuroglancer/pinky40_v11/affinitymap-unet/4_4_40/")
+    d = S3Dict(dirPath)
+    for origin in originSet
+        start0 = origin .+ cropMargin .- 1
+        stop  = start0 .+ chunkSize 
+        chunkFileName = "$(start0[1])-$(stop[1])_$(start0[2])-$(stop[2])_$(start0[3])-$(stop[3])"
+        if haskey(d, chunkFileName)
+            println("existing chunk, no need to keep: $(chunkFileName)")
+            delete!(originSet, origin)
+        else 
+            println("key not exist: $(chunkFileName), will produce this task")
+        end 
+    end
+end 
 
 function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     task = get_task( argDict[:task] )
@@ -80,9 +89,12 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     end
 
     # filter out the chunks outside the polygon
-    if IS_USE_POLYGON_FILTER
-        originSet = polygon_filter( originSet )
-    end
+#    if IS_USE_POLYGON_FILTER
+ #       originSet = polygon_filter( originSet )
+ #   end
+    if IS_FILTER_EXISTING_CHUNKS 
+        existing_chunk_filter!(originSet)
+    end 
 
     for origin in originSet
         println("start of chunk: $origin")
