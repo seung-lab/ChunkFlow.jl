@@ -61,50 +61,43 @@ function ef_hypersquare(c::DictChannel,
     mkdir(base_folder)
     chunk_folder = to_chunk_folder(base_folder, chunk_image)
     println("Saving hypersquare to $chunk_folder")
+    
+    @sync begin 
+        # write all data to disk
+        println("Writing Segmentation ...")
+        @async writeSegmentationFutureFlag = write_segmentation(segmentation,
+            chunk_folder;   filename = get(params,
+            :segmentation_filename, DEFAULT_SEGMENTATION_FILENAME))
 
-    # write all data to disk
-    println("Writing Segmentation ...")
-    writeSegmentationFutureFlag = write_segmentation(segmentation,
-        chunk_folder;   filename = get(params,
-        :segmentation_filename, DEFAULT_SEGMENTATION_FILENAME))
+        println("Writing Supplementary ...")
+        @async writeSupplementataryFutureFlag = write_supplementary(segmentation, chunk_folder;
+            bounding_box_filename = get(params,
+                :bounding_box_filename, DEFAULT_BOUNDING_BOX_FILENAME),
+            segment_size_filename = get(params,
+                :segment_size_filename, DEFAULT_SEGMENT_SIZE_FILENAME))
 
-    println("Writing Supplementary ...")
-    writeSupplementataryFutureFlag = write_supplementary(segmentation, chunk_folder;
-        bounding_box_filename = get(params,
-            :bounding_box_filename, DEFAULT_BOUNDING_BOX_FILENAME),
-        segment_size_filename = get(params,
-            :segment_size_filename, DEFAULT_SEGMENT_SIZE_FILENAME))
+        println("Writing Graph ...")
+        @async writeGraphFutureFlag = write_graph(segment_pairs, segment_affinities,
+            chunk_folder;
+            graph_filename = get(params, :graph_filename, DEFAULT_GRAPH_FILENAME))
 
-    println("Writing Graph ...")
-    writeGraphFutureFlag = write_graph(segment_pairs, segment_affinities,
-        chunk_folder;
-        graph_filename = get(params, :graph_filename, DEFAULT_GRAPH_FILENAME))
+        println("Writing Images ...")
+        @async writeImagesFutureFlag = write_images(images, chunk_folder;
+            quality = get(params, :image_quality, DEFAULT_IMAGE_QUALITY),
+            image_folder = get(params, :image_folder, DEFAULT_IMAGE_FOLDER))
 
-    println("Writing Images ...")
-    writeImagesFutureFlag = write_images(images, chunk_folder;
-        quality = get(params, :image_quality, DEFAULT_IMAGE_QUALITY),
-        image_folder = get(params, :image_folder, DEFAULT_IMAGE_FOLDER))
-
-    println("Writing Metadata ...")
-    writeMetadataFutureFlag = write_metadata(params, chunk_segmentation, chunk_image, chunk_folder;
-        filename = get(params, :metadata_filename, DEFAULT_METADATA_FILENAME))
-
-    # fetch all the flags
-    # fetch(writeSegmentationFutureFlag)
-    # fetch(writeSupplementataryFutureFlag)
-    # fetch(writeGraphFutureFlag)
-    # fetch(writeImagesFutureFlag)
-    # fetch(writeMetadataFutureFlag)
+        println("Writing Metadata ...")
+        @async writeMetadataFutureFlag = write_metadata(params, chunk_segmentation, chunk_image, chunk_folder;
+            filename = get(params, :metadata_filename, DEFAULT_METADATA_FILENAME))
+    end 
 
     # move hypersquare folder to destination
     dstDir = replace(outputs[:projectsDirectory],"~",homedir())
     dstDir = joinpath(dstDir, basename(chunk_folder))
     if iss3(dstDir) || isGoogleStorage(dstDir)
-        upload( chunk_folder, dstDir )
-    # elseif isGoogleStorage(dstDir)
-    #     GoogleCloud.Utils.Storage.upload(chunk_folder, dstDir)
+        @async upload( chunk_folder, dstDir )
     else
-        mv(chunk_folder, dstDir; remove_destination=true)
+        @async mv(chunk_folder, dstDir; remove_destination=true)
     end
 end
 
@@ -330,13 +323,13 @@ function write_images{U <: Unsigned}(images::Array{U, 3},
     if !isdir(joinpath(chunk_folder, image_folder))
       mkdir(joinpath(chunk_folder, image_folder))
     end
-
-    for i in 1:size(images)[3]
-        # image = Images.grayim(images[:, :, i])
-        Images.save(joinpath(chunk_folder, image_folder, "$(i-1).jpg"),
-            permutedims(images[:,:,i],[2,1]);
-            quality = quality)
-    end
+    @sync begin
+        for i in 1:size(images)[3]
+            @async Images.save(joinpath(chunk_folder, image_folder, "$(i-1).jpg"),
+                permutedims(images[:,:,i],[2,1]);
+                quality = quality)
+        end
+    end 
     return DEFAULT_RETURN_FLAG
 end
 

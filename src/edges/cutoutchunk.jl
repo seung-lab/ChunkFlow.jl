@@ -2,8 +2,6 @@ using HDF5
 using BigArrays
 using BigArrays.H5sBigArrays
 using BigArrays.AlignedBigArrays
-using DVID
-using DVID.ImageTileArrays
 using GSDicts, S3Dicts
 using BOSSArrays
 """
@@ -26,8 +24,6 @@ function ef_cutoutchunk!(c::DictChannel,
             contains(params[:bigArrayType], "h5") ||
             contains( params[:bigArrayType], "hdf5" )
         ba = H5sBigArray( inputs[:h5sDir] )
-    elseif contains( params[:bigArrayType], "imagetile" )
-        ba = ImageTileArray(inputs[:address], params[:port], params[:node])
     elseif contains( params[:bigArrayType], "gs" )
         d = GSDict( inputs[:path] )
         ba = BigArray( d )
