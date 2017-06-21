@@ -15,7 +15,7 @@ function ef_watershed!( c::DictChannel,
 
     # watershed
     println("watershed...")
-    seg, rg = watershed(chk_aff.data,
+    seg, rg = watershed(chk_aff.data;
                     low         =  params[:low],
                     high        = params[:high],
                     thresholds  = thds,
