@@ -1,0 +1,41 @@
+site_name:        ChunkFlow.jl
+repo_url:         https://github.com/seung-lab/ChunkFlow.jl
+site_description: Seunglab Julia pipeline
+site_author:      Jingpeng Wu
+
+
+repo_name:      GigHub
+repo_url:       https://github.com/seung-lab/ChunkFlow.jl
+theme:          material 
+
+copyright: Copyright © 2016–2017 Jingpeng Wu and other contributors
+
+extra_css:
+  - assets/Documenter.css
+
+extra_javascript:
+
+markdown_extensions:
+  - codehilite
+  - extra
+  - tables
+  - fenced_code
+  - mdx_math
+  - admonition
+
+docs_dir: 'build'
+
+pages:
+  - Home: index.md
+  - Manual:
+      - Installation:
+        - GPU servers: installation/gpu-server.md 
+      - Usage: 
+        - Docker image: usage/docker.md
+        - Producing tasks: usage/tasks.md
+        - Nodes: usage/node-templates.md
+extra:
+    version: 0.5.2
+    author:
+        github: jingpengw
+

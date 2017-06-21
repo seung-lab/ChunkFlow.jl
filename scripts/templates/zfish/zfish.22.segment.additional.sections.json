@@ -1,14 +1,15 @@
 {"input": {
     "kind": "cutoutchunk",
     "params":{
-        "bigArrayType": "s3",
-        "origin":   [50177, 50177, 16385],
-        "chunkSize": [1152, 1152,  144],
-        "voxelSize": [4,4,40],
+        "bigArrayType": "gs",
+        "origin":   [-15413, -6197, -3],
+        "cutoutSize": [1152, 1152,  144],
+        "offset":    [0,0,0],
+        "voxelSize": [5,5,45],
         "nonzeroRatioThreshold": 0.01
     },
     "inputs": {
-      "path": "s3://seunglab/pinky40/images/"
+      "path": "gs://neuroglancer/zfish_v1/image/5_5_45/"
     },
     "outputs": {
         "data": "img"
@@ -18,16 +19,30 @@
     "kind": "cutoutchunk",
     "params":{
         "bigArrayType": "s3",
-        "origin":   [53249, 53249, 16641, 1],
-        "chunkSize": [1152, 1152,  144, 3],
-        "voxelSize": [4,4,40],
+        "origin":   [-15413, -6197, -3, 1],
+        "cutoutSize": [1152, 1152,  144, 3],
+        "offset":    [0,0,0,0],
+        "voxelSize": [5,5,45],
         "nonzeroRatioThreshold": 0.01
     },
     "inputs": {
-      "path": "s3://seunglab/pinky40/affinitymap/"
+      "path": "s3://neuroglancer/zfish_v2/affinitymap/5_5_45/"
     },
     "outputs": {
         "data": "aff"
+    }
+},
+"maskaff":{
+    "kind": "maskaffinity",
+    "params": {
+        "threshold": 1
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
     }
 },
 "cropimg":{
@@ -45,15 +60,15 @@
 "watershed":{
     "kind": "atomicseg",
     "params": {
-        "low": 0.012,
-        "high": 0.999806,
+        "low": 0.006821,
+        "high": 0.999996,
         "thresholds": [
             {
-                "size": 600,
-                "threshold": 0.087818
+                "size": 800,
+                "threshold": 0.04515
             }
         ],
-        "dust": 300,
+        "dust": 600,
         "isThresholdRelative": false
     },
     "inputs": {
@@ -85,7 +100,7 @@
         "chunk": "sgm"
     },
     "outputs": {
-        "prefix": "s3://seunglab/pinky40/segmentation/chunk_"
+        "prefix": "gs://zfish/all_7_additional_sections/segmentation/chunk_"
     }
 },
 "hypersquare":{
@@ -99,7 +114,7 @@
         "sgm": "sgm"
     },
     "outputs": {
-        "projectsDirectory": "gs://seunglab/pinky40/hypersquare/"
+        "projectsDirectory": "gs://zfish/all_7_additional_sections/hypersquare/"
     }
 }
 }
