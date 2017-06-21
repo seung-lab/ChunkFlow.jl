@@ -1,10 +1,9 @@
-VERSION >=v"0.4.0-dev+6521" && __precompile__(false)
+VERSION >=v"0.5.0" && __precompile__(false)
 
 module ChunkFlow
 
 using DataStructures
 using Agglomeration, Process
-# @everywhere using Agglomeration, Process
 using BigArrays.Chunks
 
 
@@ -44,19 +43,21 @@ function forward(net::Net)
     println("------------start pipeline------------")
     pipeline_start = time()
     c = DictChannel()
-    for (name, e) in net
-        # kind = string(e.kind)
-        println("--------start $(name)-----------")
-        info("--------start $(name)-----------")
-        start = time()
-        forward!(c, e)
-        # force garbage collector to release memory
-        gc()
-        elapsed = time() - start
-        info("time cost for $(name): $(elapsed/60) min")
-        info("--------end of $(name)-----------")
-        println("--------end of $(name)-----------")
-    end
+    @sync begin 
+        for (name, e) in net
+            # kind = string(e.kind)
+            println("--------start $(name)-----------")
+            info("--------start $(name)-----------")
+            start = time()
+            forward!(c, e)
+            # force garbage collector to release memory
+            gc()
+            elapsed = time() - start
+            info("time cost for $(name): $(elapsed/60) min")
+            info("--------end of $(name)-----------")
+            println("--------end of $(name)-----------")
+        end
+    end 
     info("complete pipeline time cost: $((time()-pipeline_start)/60) min")
     println("-----------end pipeline----------------")
 end

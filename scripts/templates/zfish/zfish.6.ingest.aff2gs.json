@@ -1,0 +1,28 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "h5s",
+        "origin":   [12235, 4043, 4001,1],
+        "chunkSize":     [1024,1024,128,3],
+        "voxelSize": [5,5,45]
+    },
+    "inputs": {
+      "h5sDir": "~/seungmount/research/Jingpeng/14_zfish/affinitymap"
+    },
+    "outputs": {
+        "data": "aff"
+    }
+},
+"blend2cloud":{
+    "kind": "blendchunk",
+    "params":{
+      "backend": "gs"
+    },
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
+        "path": "gs://neuroglancer/zfish_v1/affinitymap/5_5_45/"
+    }
+}
+}
