@@ -14,8 +14,7 @@ function ef_savechunk(c::DictChannel,
                     outputs::OrderedDict{Symbol, Any} )
     # get chunk
     chk = fetch(c, inputs[:chunk])
-    #@schedule savechunk(chk, outputs)
-    savechunk(chk, inputs, outputs)
+    @async savechunk(chk, inputs, outputs)
 end
 
 
