@@ -3,6 +3,10 @@ using ArgParse
 function parse_commandline()
     s = ArgParseSettings()
     @add_arg_table s begin
+        "--dockertype", "-d"
+            help = "docker or nvidia-docker"
+            arg_type = String
+            default = "nvidia-docker"
         "--capacity", "-c"
             help = "target capacity of spot fleet"
             arg_type = Int
@@ -10,7 +14,7 @@ function parse_commandline()
         "--imagetag", "-t"
             help = "docker image tag"
             arg_type = String
-            default = "v1.4.7"
+            default = "v1.5.5"
         "--workernumber", "-n"
             help = "number of workers/processes"
             default = 1
@@ -35,6 +39,7 @@ const argDict = parse_commandline()
 @show argDict
 
 function get_request_string(;
+                            dockerType      = argDict["dockertype"],
                             targetCapacity  = argDict["capacity"],
                             dockerImageTag  = argDict["imagetag"],
                             workerNumber    = argDict["workernumber"],
@@ -47,7 +52,7 @@ function get_request_string(;
 #mkfs -t ext4 /dev/xvdba
 #mount /dev/xvdba /tmp
 eval "\$(aws ecr get-login)"
-nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:$(dockerImageTag) bash -c 'source /root/.bashrc  && export PYTHONPATH=\$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p $(workerNumber) ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w $(waitTime) -n $(workerNumber) -q $(queueName)'
+$(dockerType) run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:$(dockerImageTag) bash -c 'source /root/.bashrc  && export PYTHONPATH=\$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p $(workerNumber) ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w $(waitTime) -n $(workerNumber) -q $(queueName)'
 """
     @show user_data_string
     user_data_base64_code = base64encode( user_data_string )
