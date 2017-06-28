@@ -1,4 +1,4 @@
-ChunkFlow.jl ![alt text](https://github.com/seung-lab/ChunkFlow.jl/tree/master/docs/chunkflow-logo.png)
+ChunkFlow.jl ![Alt text](/docs/chunkflow-logo.png?raw=true)
 ==============
 
 ## Introduction
