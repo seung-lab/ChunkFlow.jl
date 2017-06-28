@@ -3,13 +3,13 @@ JSON
 EMIRT
 Watershed
 DataStructures
-AWS
 HDF5
 Logging
 ArgParse
 Images
 ImageMagick
 BigArrays
+H5SectionsArrays
 BOSSArrays
 S3Dicts
 GSDicts
