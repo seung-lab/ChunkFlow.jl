@@ -1,6 +1,4 @@
-![Alt text](/docs/chunkflow-logo.png?raw=true)
-
-ChunkFlow.jl 
+ChunkFlow.jl ![ChunkFlow logo](/docs/chunkflow-logo.png?raw=true)
 ==============
 
 ## Introduction
