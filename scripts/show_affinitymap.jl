@@ -18,9 +18,17 @@ using S3Dicts
 #d = S3Dict("s3://neuroglancer/pinky40_v11/affinitymap-jnet/4_4_40/")
 
 ba = BigArray( GSDict("gs://neuroglancer/zfish_v1/affinitymap/5_5_45/") )
-aff = ba[54977+318:54977+1850, 25409+194:25409+194+1024, 17961+23:17961+89, 1]
+# region 5
+aff = ba[65729:66752, 31681:32704, 17849:17976, 1]
+# region 4
+#aff = ba[54977:56000, 25409:26432, 17961:18088, 1]
+
+# region 2&3
+#aff = ba[57665+500:58688-200, 18241+192:20160-200, 17849:17849+71, 1]
+
+# region 1
+#aff = ba[54977+318:54977+318+1024, 25409+194:25409+194+530, 17961+23:17961+89, 1]
 #aff = ba[44033:45055, 21505:22527, 17921:18047,1]
-using BigArrays.H5sBigArrays
 #ba = H5sBigArray("/usr/people/jingpeng/seungmount/research/Jingpeng/14_zfish/affinitymap/")
 #aff = ba[51393-200:51393+833, 20929+50:20929+577, 17961+23:17961+88, 1]
 # aff = ba[14337:14337+1024-1, 7681:7681+1024-1, 65:128, 1]
