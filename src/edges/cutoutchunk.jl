@@ -1,7 +1,7 @@
 using HDF5
 using BigArrays
 using BigArrays.H5sBigArrays
-using BigArrays.AlignedBigArrays
+using H5SectionsArrays
 using GSDicts, S3Dicts
 using BOSSArrays
 """
@@ -15,10 +15,12 @@ function ef_cutoutchunk!(c::DictChannel,
         warn("should use cutoutSize rather than chunkSize for clarity!")
         params[:cutoutSize] = params[:chunkSize]
     end
-    if contains( params[:bigArrayType], "align") || contains( params[:bigArrayType], "Align")
+    if  contains( params[:bigArrayType], "align") || 
+        contains( params[:bigArrayType], "Align") || 
+        contains( params[:bigArrayType], "section")
         inputs[:registerFile] = expanduser(inputs[:registerFile])
         @assert isfile( inputs[:registerFile] )
-        ba = AlignedBigArray(inputs[:registerFile])
+        ba = H5SectionsArrays(inputs[:registerFile])
         params[:origin] = params[:origin][1:3]
     elseif  contains( params[:bigArrayType], "H5" ) ||
             contains(params[:bigArrayType], "h5") ||
