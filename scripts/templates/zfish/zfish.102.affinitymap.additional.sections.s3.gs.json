@@ -40,18 +40,6 @@
         "aff": "aff"
     }
 },
-"blendaffinity":{
-    "kind": "blendchunk",
-    "params":{
-      "backend": "s3"
-    },
-    "inputs": {
-        "chunk": "aff"
-    },
-    "outputs": {
-        "path": "s3://neuroglancer/zfish_v2/affinitymap/5_5_45/"
-    }
-},
 "blendaffinity2gs":{
     "kind": "blendchunk",
     "params":{
