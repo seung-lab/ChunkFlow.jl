@@ -1,4 +1,5 @@
-Please check the [Wiki Page](https://github.com/seung-lab/ChunkFlow.jl/wiki) for more detailed documentation.
+ChunkFlow.jl ![ChunkFlow logo](/docs/chunkflow-logo.png?raw=true)
+==============
 
 ## Introduction
 the computation was defined as an edge. The kinds of edge was defined in [a task file](https://github.com/seung-lab/ChunkFlow.jl/blob/master/test/test.json)
