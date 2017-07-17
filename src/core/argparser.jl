@@ -40,7 +40,7 @@ function parse_commandline()
         "--queuename", "-q"
             help = "AWS SQS queue name. default is chunkflow-tasks"
             arg_type = AbstractString
-            default = "chunkflow-tasks"
+            default = ""
         "--origin", "-o"
             help = "the origin of chunk grids"
             arg_type = Vector{Int}
