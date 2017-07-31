@@ -112,4 +112,4 @@ write("/tmp/config.json", request_string)
 
 @show request_string
 # run(`aws ec2 help`)
-run(`/Users/jpwu/anaconda/bin/aws ec2 request-spot-fleet --spot-fleet-request-config file:///tmp/config.json`)
+run(`aws ec2 request-spot-fleet --spot-fleet-request-config file:///tmp/config.json`)
