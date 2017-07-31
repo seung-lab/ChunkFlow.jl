@@ -31,6 +31,14 @@ function parse_commandline()
             help = "instance type"
             arg_type = String
             default = "p2.xlarge"
+        "--awskeyid", "-a"
+            help = "AWS_ACCESS_KEY_ID"
+            arg_type = String 
+            default = ENV["AWS_ACCESS_KEY_ID"]
+        "--awskey", "-k"
+            help = "AWS_SECRET_ACCESS_KEY"
+            arg_type = String 
+            default = ENV["AWS_SECRET_ACCESS_KEY"]
     end
     return parse_args(s)
 end
@@ -45,12 +53,16 @@ function get_request_string(;
                             workerNumber    = argDict["workernumber"],
                             queueName       = argDict["queuename"],
                             waitTime        = argDict["waittime"],
-                            instanceType    = argDict["instancetype"])
+                            instanceType    = argDict["instancetype"],
+                            awsKeyID         = argDict["awskeyid"],
+                            awsKey           = argDict["awskey"])
     user_data_string = """
 #!/bin/bash
 #apt-get update && apt-get install -y nfs-common
 #mkfs -t ext4 /dev/xvdba
 #mount /dev/xvdba /tmp
+export AWS_ACCESS_KEY_ID=$(awsKeyID)
+export AWS_SECRET_ACCESS_KEY=$(awsKey) 
 eval "\$(aws ecr get-login)"
 $(dockerType) run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:$(dockerImageTag) bash -c 'source /root/.bashrc  && export PYTHONPATH=\$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p $(workerNumber) ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w $(waitTime) -n $(workerNumber) -q $(queueName)'
 """
