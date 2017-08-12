@@ -103,8 +103,23 @@ $(dockerType) run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chu
             {
                "GroupId":"sg-4cc3cc34"
             }
-         ],
-         "UserData":"$user_data_base64_code"
+        ],
+        "UserData":"$user_data_base64_code",
+        "TagSpecifications": [
+		{
+			"ResourceType": "customer-gateway"|"dhcp-options"|"image"|"instance"|"internet-gateway"|"network-acl"|"network-interface"|"reserved-instances"|"route-table"|"snapshot"|"spot-instances-request"|"subnet"|"security-group"|"volume"|"vpc"|"vpn-connection"|"vpn-gateway",
+          "Tags": [
+            {
+              "Key": "User",
+              "Value": "jingpeng"
+            }
+            { 
+                "Key": "Project",
+                "Value": "zfish"
+            }
+          ]
+        }
+      ]
       }
    ]
 }
