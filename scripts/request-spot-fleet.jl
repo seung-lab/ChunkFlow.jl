@@ -14,7 +14,7 @@ function parse_commandline()
         "--imagetag", "-t"
             help = "docker image tag"
             arg_type = String
-            default = "v1.5.5"
+            default = "v1.8.1"
         "--workernumber", "-n"
             help = "number of workers/processes"
             default = 1
@@ -31,6 +31,12 @@ function parse_commandline()
             help = "instance type"
             arg_type = String
             default = "p2.xlarge"
+        "--awskey", "-k"
+            help = "AWS_SECRET_ACCESS_KEY"
+            arg_type = String
+        "--awskeyid", "-a"
+            help = "AWS_ACCESS_KEY_ID"
+            arg_type = String
     end
     return parse_args(s)
 end
@@ -51,7 +57,12 @@ function get_request_string(;
 #apt-get update && apt-get install -y nfs-common
 #mkfs -t ext4 /dev/xvdba
 #mount /dev/xvdba /tmp
+
+# aws                                                                                                
+export AWS_ACCESS_KEY_ID=$(argDict["awskeyid"])
+export AWS_SECRET_ACCESS_KEY=$(argDict["awskey"])
 eval "\$(aws ecr get-login)"
+
 $(dockerType) run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:$(dockerImageTag) bash -c 'source /root/.bashrc  && export PYTHONPATH=\$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=\$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p $(workerNumber) ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w $(waitTime) -n $(workerNumber) -q $(queueName)'
 """
     @show user_data_string
