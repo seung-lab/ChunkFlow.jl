@@ -102,7 +102,13 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     #@show task
 
     # the SQS queue as a Julia Channel
-    c = SQSChannel( argDict[:queuename] )
+    queuename = argDict[:queuename]
+    if isempty(queuename)
+        println("PRINT TASK JSONS (no queue has been set)")
+    else
+        c = SQSChannel(queuename)
+    end
+
     # read task config file
     # produce task script
     if isempty( originSet )
@@ -113,17 +119,18 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
 #    if IS_USE_POLYGON_FILTER
  #       originSet = polygon_filter( originSet )
  #   end
-    if IS_FILTER_EXISTING_CHUNKS_HYPERSQUARE 
-        existing_chunk_filter_hypersquare!(originSet)
-    end 
-
     if IS_FILTER_EXISTING_CHUNKS 
         existing_chunk_filter!(originSet)
     end 
+
     for origin in originSet
-        println("start of chunk: $origin")
         set!(task, :origin, origin)
-        put!(c, JSON.json(task))
+        if isempty(queuename)
+            println(JSON.json(task))
+        else
+            println("start of chunk: $origin")
+            put!(c, JSON.json(task))
+        end
     end
 end
 
