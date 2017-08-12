@@ -18,7 +18,7 @@ global const argDict = parse_commandline()
 originSet = OrderedSet{Vector}()
 
 #using JLD
-#originSet = OrderedSet( load("templates/zfish/originset.fix.jld", "originSet"))
+#originSet = OrderedSet( load("templates/zfish/originset.fix.2.jld", "originSet"))
 
 # produce tasks using the originSet
 taskproducer( argDict; originSet = originSet )
