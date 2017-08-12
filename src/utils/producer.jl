@@ -8,9 +8,11 @@ using BigArrays.Utils
 using SQSChannels
 using JSON
 using S3Dicts
+using GSDicts
 
 #const IS_USE_POLYGON_FILTER = false 
 const IS_FILTER_EXISTING_CHUNKS = false 
+const IS_FILTER_EXISTING_CHUNKS_HYPERSQUARE = false
 
 export submit_chunk_task, taskproducer, get_origin_set
 
@@ -55,6 +57,25 @@ function get_origin_set(argDict::Dict)
     end
     return originSet
 end
+
+function existing_chunk_filter_hypersquare!( originSet::OrderedSet; 
+                                chunkSize::Vector   = [1024,1024,128],
+                                cropMargin::Vector  = [64,64,8],
+                                dirPath::String     = "gs://zfish/all_7/hypersquare")
+    d = GSDict(dirPath)
+    for origin in originSet
+        start0 = origin[1:3] .+ cropMargin 
+        stop  = start0 .+ chunkSize - 1
+        chunkFileName = "chunk_$(start0[1])-$(stop[1])_$(start0[2])-$(stop[2])_$(start0[3])-$(stop[3])/segmentation.lzma"
+        if haskey(d, chunkFileName)
+            println("existing chunk, no need to keep: $(chunkFileName)")
+            delete!(originSet, origin)
+        else 
+            println("key not exist, will produce this task: $(chunkFileName)")
+        end 
+    end
+end 
+
 
 function existing_chunk_filter!( originSet::OrderedSet; 
                                 chunkSize::Vector   = [512,512,64],
