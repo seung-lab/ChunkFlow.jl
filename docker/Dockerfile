@@ -1,4 +1,5 @@
 #FROM nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04
+
 FROM nvidia/cuda:8.0-cudnn5-runtime-ubuntu14.04
 #FROM ubuntu:16.04
 LABEL maintainer Jingpeng Wu
