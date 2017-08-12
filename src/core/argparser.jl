@@ -36,6 +36,7 @@ function parse_commandline()
             default = Vector{Int}()
         "--task", "-t"
             help = "task definition json file location or raw json"
+            help = "task definition json file"
             arg_type = AbstractString
         "--queuename", "-q"
             help = "AWS SQS queue name. default is chunkflow-tasks"
