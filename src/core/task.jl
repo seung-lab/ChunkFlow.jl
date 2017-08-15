@@ -59,7 +59,12 @@ function get_task(ftask::AbstractString)
     elseif isfile( ftask )
         task = get_local_task( ftask )
     else
-        error("input should be a s3 or local task configuration file in JSON format! \n input task file: $ftask")
+        try
+            task = JSON.parse(ftask, dicttype=ChunkFlowTask)
+        catch e
+            error("input should be a s3 or local task configuration file in " *
+                  "JSON format or raw JSON text! \n input task file: $ftask")
+        end
     end
 end
 

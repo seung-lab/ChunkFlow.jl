@@ -1,0 +1,101 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "s3",
+        "origin":   [-53, -53, -3],
+        "chunkSize": [4204, 4204,  24],
+        "voxelSize": [4,4,40],
+        "nonzeroRatioThreshold": 0.01
+    },
+    "inputs": {
+      "path": "s3://seunglab/pinky40/images/"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"ConvNetBase":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir"          : "/opt/kaffe",
+        "caffeModelFile"    : "s3://seunglab/pinky40/convnet/JNet/base/deploy.prototxt",
+        "caffeNetFile"      : "s3://seunglab/pinky40/convnet/JNet/base/train_iter_1800000.caffemodel.h5",
+        "caffeNetFileMD5" : "2d1794c57ca7d2a494bd91734d248a98",
+        "outputPatchSize"   :    [158, 158,  24],
+        "scanParams"        : "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess"        : "divideby",
+        "deviceID"          : 0,
+        "isCropImg"         : false,
+        "cropMarginSize"    : [54, 54, 4,0],
+        "originOffset"      : [54, 54, 4,0],
+        "affWeight"         : 0.33333333
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"ConvNetLarge":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir"          : "/opt/kaffe",
+        "caffeModelFile"    : "s3://seunglab/pinky40/convnet/JNet/large/deploy.prototxt",
+        "caffeNetFile"      : "s3://seunglab/pinky40/convnet/JNet/large/train_iter_400000.caffemodel.h5",
+        "caffeNetFileMD5" : "2b54b98af8a9bd8fcbd15d2136b7f211",
+        "outputPatchSize"   :    [318, 318,  18],
+        "scanParams"        : "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess"        : "divideby",
+        "deviceID"          : 0,
+        "isCropImg"         : false,
+        "cropMarginSize"    : [54, 54, 4,0],
+        "originOffset"      : [54, 54, 4,0],
+        "affWeight"         : 0.33333333
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"ConvNetJKNet":{
+    "kind": "kaffe",
+    "params":{
+        "kaffeDir": "/opt/kaffe",
+        "caffeModelFile": "s3://seunglab/pinky40/convnet/JKNet/deploy.prototxt",
+        "caffeNetFile": "s3://seunglab/pinky40/convnet/JKNet/train_iter_600000.caffemodel.h5",
+        "caffeNetFileMD5" : "2ee723c267473cf50d9c187c3b0ce05e",
+        "outputPatchSize":    [158, 158,  18],
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess": "divideby",
+        "deviceID": 0,
+        "isCropImg": false,
+        "cropMarginSize": [54, 54, 4,0],
+        "originOffset": [54, 54, 4,0],
+        "affWeight": 0.33333333
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"blendaffinity":{
+    "kind": "blendchunk",
+    "params":{
+      "backend": "s3"
+    },
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
+        "path": "s3://seunglab/pinky40/affinitymap.repair/"
+    }
+}
+}

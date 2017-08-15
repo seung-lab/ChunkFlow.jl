@@ -1,0 +1,27 @@
+{"input": {
+    "kind"      : "cutoutchunk",
+    "params"    :{
+        "bigArrayType": "gs",
+        "origin"                    : [29154, 24044, 482],
+        "cutoutSize"                : [2048, 2048,  1],
+        "voxelSize"                 : [4,4,40],
+        "nonzeroRatioThreshold"     : 0.1
+    },
+    "inputs"    : {
+        "path"          : "gs://neuroglancer/s1_v0.1/image/6_6_30/"
+    },
+    "outputs"   : {
+        "data"          : "img"
+    }
+},
+"savepng":{
+    "kind"      : "savepng",
+    "params"    : {
+        "outputDir"     : "s3://neuroglancer/s1_v1/image/pngs/"
+    },
+    "inputs"    : {
+        "chunk"         : "img"
+    },
+    "outputs"   : {}
+}
+}
