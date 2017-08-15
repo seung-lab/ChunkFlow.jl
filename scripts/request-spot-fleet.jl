@@ -14,7 +14,7 @@ function parse_commandline()
         "--imagetag", "-t"
             help = "docker image tag"
             arg_type = String
-            default = "v1.5.5"
+            default = "v1.8.1"
         "--workernumber", "-n"
             help = "number of workers/processes"
             default = 1

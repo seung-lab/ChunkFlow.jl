@@ -1,0 +1,140 @@
+{"input": {
+    "kind": "readchunk",
+    "params":{
+        "origin": [],
+        "chunkSize": [1280,1280,256],
+        "voxelSize": [4,4,40]
+    },
+    "inputs": {
+        "prefix": "s3://seunglab/pinky/neo/affinitychunks/chunk_",
+        "suffix": ".aff.h5"
+    },
+    "outputs": {
+        "data": "aff"
+    }
+},
+"atomicseg":{
+    "kind": "atomicseg",
+    "params": {
+        "low": 0.022,
+        "high": 0.999998,
+        "thresholds": [
+            {
+                "size": 800,
+                "threshold": 0.206746
+            }
+        ],
+        "dust": 600,
+        "isThresholdRelative": false,
+        "cropSegMarginSize": [128,128,0]
+    },
+    "inputs": {
+        "aff": "aff"
+    },
+    "outputs": {
+        "seg": "seg"
+    }
+},
+"cropaff":{
+  "kind": "crop",
+  "params": {
+    "cropMarginSize": [128, 128, 0]
+  },
+  "inputs":{
+    "img": "aff"
+  },
+  "outputs":{
+    "img": "aff"
+  }
+},
+"agglomeration":{
+    "kind":"agglomeration",
+    "params":{
+        "mode": "mean",
+        "isDeleteAff": true
+    },
+    "inputs": {
+        "seg": "seg",
+        "aff": "aff"
+    },
+    "outputs": {
+        "sgm": "sgm"
+    }
+},
+"savesgm":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "sgm"
+    },
+    "outputs": {
+        "prefix": "s3://seunglab/pinky/neo/segmentation/chunk_"
+    }
+},
+"input_img": {
+    "kind": "readchunk",
+    "params":{
+        "origin": [],
+        "chunkSize": [1280,1280,256],
+        "voxelSize": [4,4,40]
+    },
+    "inputs": {
+        "prefix": "s3://seunglab/pinky/neo/imagechunks/chunk_",
+        "suffix": ".img.h5"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"cropimg":{
+  "kind": "crop",
+  "params": {
+    "cropMarginSize": [128, 128, 0]
+  },
+  "inputs":{
+    "img": "img"
+  },
+  "outputs":{
+    "img": "img"
+  }
+},
+"saveimg":{
+    "kind": "savechunk",
+    "params": {},
+    "inputs": {
+        "chunk": "img"
+    },
+    "outputs": {
+        "prefix": "s3://seunglab/pinky/neo/omnichannelchunks/chunk_"
+    }
+},
+"hypersquare":{
+    "kind": "hypersquare",
+    "params":{
+        "segment_id_type" : "UInt16",
+        "affinity_type" : "Float32"
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "projectsDirectory": "s3://seunglab/pinky/neo/hypersquare/"
+    }
+},
+"omnification":{
+    "kind": "omnification",
+    "params":{
+        "ombin": "/opt/omni",
+        "isChannel": false,
+        "isMeshing": false
+    },
+    "inputs": {
+        "img": "img",
+        "sgm": "sgm"
+    },
+    "outputs": {
+        "prefix": "s3://seunglab/pinky/neo/omniprojects/chunk_"
+    }
+}
+}

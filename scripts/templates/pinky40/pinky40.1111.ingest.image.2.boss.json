@@ -1,0 +1,33 @@
+{"input": {
+    "kind": "cutoutchunk",
+    "params":{
+        "bigArrayType": "s3",
+        "origin":   [26625, 20993, 657],
+        "cutoutSize": [512, 512,  16],
+        "voxelSize": [4,4,40],
+        "nonzeroRatioThreshold": 0.01
+    },
+    "inputs": {
+      "path": "s3://neuroglancer/pinky40_v10/image/4_4_40/"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"blend2boss":{
+    "kind": "blendchunk",
+    "params":{
+      "backend"         : "boss",
+      "dataType"        : "UInt8",
+      "dimension"       : 3,
+      "collectionName"  : "pinky40",
+      "experimentName"  : "v7",
+      "channelName"     : "em",
+      "resolutionLevel" : 0
+    },
+    "inputs": {
+        "chunk": "img"
+    },
+    "outputs": {}
+}
+}
