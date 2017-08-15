@@ -1,0 +1,27 @@
+{"input": {
+    "kind"      : "cutoutchunk",
+    "params"    :{
+        "bigArrayType": "s3",
+        "origin"                    : [29154, 24044, 482, 1],
+        "cutoutSize"                : [800, 2048,  1, 1],
+        "voxelSize"                 : [4,4,40],
+        "nonzeroRatioThreshold"     : 0.1
+    },
+    "inputs"    : {
+        "path"          : "s3://neuroglancer/pinky40_v10/affinitymap-jnet/4_4_40/"
+    },
+    "outputs"   : {
+        "data"          : "aff"
+    }
+},
+"savepng":{
+    "kind"      : "savepng",
+    "params"    : {
+        "outputDir"     : "s3://neuroglancer/pinky40_v10/affinitymap-jnet/pngs/"
+    },
+    "inputs"    : {
+        "chunk"         : "aff"
+    },
+    "outputs"   : {}
+}
+}
