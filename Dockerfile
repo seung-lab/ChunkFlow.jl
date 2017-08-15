@@ -8,7 +8,7 @@ RUN apt-get install -y -qq --no-install-recommends software-properties-common
 RUN add-apt-repository main
 RUN add-apt-repository universe
 RUN apt-get update
-RUN apt-get install -y -qq --no-install-recommends wget build-essential libjemalloc-dev python2.7 python-pip python-setuptools libmagickcore-dev libmagickwand-dev libmagic-dev unzip hdf5-tools libgfortran3 libhdf5-7
+RUN apt-get install --force-yes -qq --no-install-recommends wget build-essential libjemalloc-dev python2.7 python-pip python-setuptools libmagickcore-dev libmagickwand-dev libmagic-dev unzip hdf5-tools libgfortran3 libhdf5-7
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so
 RUN pip install --upgrade pip
 
@@ -40,6 +40,8 @@ RUN pip install gsutil awscli && \
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
+RUN julia -e 'Pkg.clone("https://github.com/seung-lab/Agglomeration.git")'
+RUN julia -e 'Pkg.build("Agglomeration")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
 RUN julia -e 'Pkg.build("ChunkFlow")'
