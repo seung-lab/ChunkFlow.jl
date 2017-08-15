@@ -1,0 +1,31 @@
+{
+"input": {
+    "kind": "cutoutchunk",
+    "params": {
+          "bigArrayType": "s3",
+          "origin": [
+            10240,
+            10240,
+            1,
+            1
+          ],
+          "chunkSize": [
+            4,
+            4,
+            4
+          ],
+          "voxelSize": [
+            4,
+            4,
+            40
+          ],
+          "nonzeroRatioThreshold": 0.01
+        },
+    "inputs": {
+          "path": "s3:\/\/seunglab-test\/test_dataset\/image\/4_4_40\/"
+        },
+    "outputs": {
+          "data": "img"
+        }
+  }
+}

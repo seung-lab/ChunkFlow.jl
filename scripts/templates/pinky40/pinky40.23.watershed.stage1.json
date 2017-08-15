@@ -1,0 +1,10 @@
+{"watershed_stage1": {
+    "kind": "watershed_stage1",
+    "params": {
+        "bigArrayPath":     "s3://neuroglancer/pinky40_v3/affinitymap-jnet/4_4_40/",
+        "origin": [0,0,0]
+    },
+    "inputs": {},
+    "outputs": {}
+    }
+}
