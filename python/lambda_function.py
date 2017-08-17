@@ -1,60 +1,86 @@
+#!/usr/bin/env python
+
 import boto3
 import base64
+from datetime import datetime
+
 
 def lambda_handler(event, context):
     # my bash code to execute
-    myscript="""#!/bin/bash
+    myscript = """#!/bin/bash
 #apt-get update && apt-get install -y nfs-common
 #mkfs -t ext4 /dev/xvdca
 #mount /dev/xvdca /tmp
 eval "$(aws ecr get-login)"
-nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.8.1 bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 2 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w 2 -q chunkflow-inference'
-""".format(bucket, key)
+nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.8.2 bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 2 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w 2 -q chunkflow-inference'
+"""
     # launch a node to handle this task
     ec2 = boto3.client('ec2')
-    ami = 'ami-692dd504'
-    if "spot" in key:
-        ec2.request_spot_instances(
-            DryRun = False,
-            SpotPrice = '2.7',
-            InstanceCount = 1,
-            Type = 'one-time',
-            LaunchSpecification = {
-                'ImageId': ami,
-                'KeyName': 'jpwu_workstation',
-                'InstanceType': 'r3.8xlarge',
-                'UserData': base64.b64encode(myscript),
-                'BlockDeviceMappings':[
-                    {
-                        'VirtualName': 'ephemeral0',
-                        'DeviceName': '/dev/sdb'
+    ec2.request_spot_fleet(
+        DryRun=False,
+        SpotFleetRequestConfig={
+            'AllocationStrategy': 'diversified',
+            'IamFleetRole': 'aws-ec2-spot-fleet-role',
+            'LaunchSpecifications': [
+                {
+                    'SecurityGroups': [
+                        {
+                            'GroupName': 'chunkflow',
+                            'GroupId': 'sg-d5f2b1ab'
+                        },
+                    ],
+                    'BlockDeviceMappings': [
+                        {
+                            'DeviceName': '/dev/sdb',
+                            'VirtualName': 'ephemeral0'
+                        },
+                        {
+                            'DeviceName': '/dev/sdc',
+                            'VirtualName': 'ephemeral1'
+                        }
+                    ],
+                    'EbsOptimized': False,
+                    'ImageId': 'ami-ef82bf94',
+                    'InstanceType': 'p2.xlarge',
+                    'Monitoring': {
+                        'Enabled': False
                     },
-                    {
-                        'VirtualName': 'ephemeral1',
-                        'DeviceName': '/dev/sdc'
-                    }
-                ]
-            }
-        )
-    else:
-        ec2.run_instances(
-            DryRun = False,
-            ImageId = ami,
-            MinCount = 1 ,
-            MaxCount = 1 ,
-            KeyName = 'jpwu_workstation',
-            UserData = myscript,
-            InstanceType = 'r3.8xlarge',
-            InstanceInitiatedShutdownBehavior='terminate',
-            BlockDeviceMappings = [
-                {
-                    'VirtualName': 'ephemeral0',
-                    'DeviceName': '/dev/sdb'
+                    'NetworkInterfaces': [
+                        {
+                            'AssociatePublicIpAddress': True,
+                            'DeleteOnTermination': True,
+                            'Description': 'chunkflow spot fleet for convnet inference'
+                        }
+                    ],
+                    'UserData': base64.b64encode(myscript),
+                    'WeightedCapacity': 1,
+                    'TagSpecifications': [
+                        {
+                            'ResourceType': 'instance',
+                            'Tags': [
+                                {
+                                    'Key': 'User',
+                                    'Value': 'jingpeng'
+                                },
+                                {
+                                    'Key': 'Tool',
+                                    'Value': 'chunkflow'
+                                },
+                                {
+                                    'Key': 'Project',
+                                    'Value': 's1'
+                                },
+                            ]
+                        },
+                    ]
                 },
-                {
-                    'VirtualName': 'ephemeral1',
-                    'DeviceName': '/dev/sdc'
-                }
-            ]
-        )
-
+            ],
+            'SpotPrice': '0.9',
+            'TargetCapacity': 1,
+            'Type': 'maintain',
+            'TerminateInstancesWithExpiration': True,
+            'ValidFrom': datetime(2017, 8, 16),
+            'ValidUntil': datetime(2017, 10, 16),
+            'ReplaceUnhealthyInstances': True
+        }
+    )
