@@ -13,25 +13,6 @@
         "data": "img"
     }
 },
-"znni":{
-    "kind": "znni",
-    "params":{
-        "znniBinaryFile": "/opt/ZNNi/code/bin/multiscale/znni_gpu",
-        "deviceID": 0,
-        "fnet": "~/seungmount/research/kisuklee/Sharing/Jingpeng/blend_test/MS/net_290000.h5",
-        "outputPatchSize": [256, 256, 17],
-        "fieldOfView": [109, 109, 9],
-        "isExchangeAffXZ": true,
-        "affWeight": 0.333333333
-    },
-    "inputs": {
-        "img": "img",
-        "aff": "aff"
-    },
-    "outputs": {
-        "aff": "aff"
-    }
-},
 "saveImg":{
     "kind": "savechunk",
     "params":{},
@@ -143,20 +124,6 @@
     },
     "outputs": {
         "chunkFileName": "/tmp/sgm.h5"
-    }
-},
-"omnification":{
-    "kind": "omnification",
-    "params":{
-        "ombin": "/opt/omni",
-        "isMeshing": true
-    },
-    "inputs": {
-        "img": "img",
-        "sgm": "sgm"
-    },
-    "outputs": {
-        "prefix": "/tmp/chunk_"
     }
 }
 }
