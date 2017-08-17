@@ -23,7 +23,7 @@ include("edges/kaffe.jl")
 include("edges/maskaffinity.jl")
 include("edges/mergeseg.jl")
 include("edges/movedata.jl")
-include("edges/omni.jl")
+#include("edges/omni.jl")
 include("edges/readchunk.jl")
 include("edges/readh5.jl")
 include("edges/relabelseg.jl")
@@ -32,7 +32,7 @@ include("edges/savechunk.jl")
 include("edges/savepng.jl")
 include("edges/watershed.jl")
 #include("edges/watershed_stage1.jl")
-include("edges/znni.jl")
+#include("edges/znni.jl")
 
 """
 library of edge function as a Dict
@@ -51,7 +51,7 @@ const edgeFuncLib = Dict{Symbol, Function}(
   :maskaffinity   => ef_maskaffinity!,
   :mergeseg       => ef_mergeseg!,
   :movedata       => ef_movedata,
-  :omnification   => ef_omnification,
+#  :omnification   => ef_omnification,
   :readchunk      => ef_readchunk!,
   :readh5         => ef_readh5!,
   :relabelseg     => ef_relabelseg!,
@@ -60,7 +60,7 @@ const edgeFuncLib = Dict{Symbol, Function}(
   :savepng        => ef_savepng,
   :watershed      => ef_watershed!,
  # :watershed_stage1 => ef_watershed_stage1,
-  :znni           => ef_znni!
+#  :znni           => ef_znni!
 )
 
 """
