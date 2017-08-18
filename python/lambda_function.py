@@ -5,15 +5,19 @@ import base64
 from datetime import datetime
 
 
-def lambda_handler(event, context):
+def get_user_data():
     # my bash code to execute
-    myscript = """#!/bin/bash
-#apt-get update && apt-get install -y nfs-common
-#mkfs -t ext4 /dev/xvdca
-#mount /dev/xvdca /tmp
+    user_data = """#!/bin/bash
+apt-get update && apt-get install -y nfs-common
+mkfs -t ext4 /dev/xvdca
+mount /dev/xvdca /tmp
 eval "$(aws ecr get-login)"
-nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.8.2 bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 2 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w 2 -q chunkflow-inference'
+nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.9.1 bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python:/opt/kaffe/layers:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 2 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -n 2 -w 2 -q chunkflow-inference'
 """
+    return user_data
+
+
+def lambda_handler(event, context):
     # launch a node to handle this task
     ec2 = boto3.client('ec2')
     ec2.request_spot_fleet(
@@ -52,7 +56,7 @@ nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chu
                             'Description': 'chunkflow spot fleet for convnet inference'
                         }
                     ],
-                    'UserData': base64.b64encode(myscript),
+                    'UserData': base64.b64encode(get_user_data()),
                     'WeightedCapacity': 1,
                     'TagSpecifications': [
                         {
