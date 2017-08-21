@@ -58,7 +58,7 @@ docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:
 #mkfs -t ext4 /dev/xvdca
 #mount /dev/xvdca /tmp
 
-eval "$(aws ecr get-login)"
+eval "$(aws ecr get-login --no-include-email)"
 
 nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.4.2 bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 2 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w 2 -a pinky-inference'
 ```
