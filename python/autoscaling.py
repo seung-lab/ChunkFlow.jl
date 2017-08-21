@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import boto3
-#from lambda_function import get_user_data
+# from lambda_function import get_user_data
 
 client = boto3.client('autoscaling')
 
@@ -21,10 +21,52 @@ client = boto3.client('autoscaling')
 #    EbsOptimized=False,
 #    AssociatePublicIpAddress=True
 #    #PlacementTenancy='dedicated'
-#)
-#print('response of create launch configuration: %s' % response)
+# )
+# print('response of create launch configuration: %s' % response)
 
-response = client.create_auto_scaling_group(
+# response = client.delete_auto_scaling_group(
+#     AutoScalingGroupName='chunkflow-inference',
+#     ForceDelete=True
+# )
+# print('response of deleting auto scaling group: %s' % response)
+# sleep(60)
+
+# response = client.create_auto_scaling_group(
+#     AutoScalingGroupName='chunkflow-inference',
+#     LaunchConfigurationName='chunkflow-inference',
+#     MinSize=0,
+#     MaxSize=400,
+#     DesiredCapacity=0,
+#     DefaultCooldown=60, # default is 300
+#     AvailabilityZones=[
+#         'us-east-1a',
+#         'us-east-1b',
+#         'us-east-1c',
+#         'us-east-1d',
+#         'us-east-1e',
+#         'us-east-1f'
+#     ],
+#     HealthCheckType='EC2',
+#     VPCZoneIdentifier='subnet-063e7b5c,subnet-c58a4aa1,subnet-f92062d5,subnet-e44e48ac,subnet-bf729380,subnet-5627665a',
+#     Tags=[
+#         {
+#             'ResourceId': 'chunkflow-inference',
+#             'ResourceType': 'auto-scaling-group',
+#             'Key': 'User',
+#             'Value': 'jingpeng',
+#             'PropagateAtLaunch': True
+#         },
+#         {
+#             'ResourceId': 'chunkflow-inference',
+#             'ResourceType': 'auto-scaling-group',
+#             'Key': 'Tool',
+#             'Value': 'chunkflow',
+#             'PropagateAtLaunch': True
+#         }
+#     ]
+# )
+
+response = client.update_auto_scaling_group(
     AutoScalingGroupName='chunkflow-inference',
     LaunchConfigurationName='chunkflow-inference',
     MinSize=0,
@@ -40,7 +82,8 @@ response = client.create_auto_scaling_group(
         'us-east-1f'
     ],
     HealthCheckType='EC2',
-    VPCZoneIdentifier='subnet-063e7b5c,subnet-c58a4aa1,subnet-f92062d5,subnet-e44e48ac,subnet-bf729380,subnet-5627665a'
+    VPCZoneIdentifier='subnet-063e7b5c,subnet-c58a4aa1,subnet-f92062d5,subnet-e44e48ac,subnet-bf729380,subnet-5627665a',
 )
+
 
 print('response of creating auto scaling group: %s' % response)

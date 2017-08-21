@@ -45,7 +45,7 @@ def lambda_handler(event, context):
                         }
                     ],
                     'EbsOptimized': False,
-                    'ImageId': 'ami-ef82bf94',
+                    'ImageId': 'ami-b94c77c2',
                     'InstanceType': 'p2.xlarge',
                     'Monitoring': {
                         'Enabled': False
@@ -85,7 +85,7 @@ def lambda_handler(event, context):
             'Type': 'maintain',
             'TerminateInstancesWithExpiration': True,
             'ValidFrom': datetime(2017, 8, 16),
-            'ValidUntil': datetime(2017, 10, 16),
+            'ValidUntil': datetime(2018, 10, 16),
             'ReplaceUnhealthyInstances': True
         }
     )
