@@ -14,13 +14,13 @@ you'll get the command to make `docker` login to AWS, run it with `sudo`
 
 [directly run pipeline using docker image](http://timmurphy.org/2015/02/27/running-multiple-programs-in-a-docker-container-from-the-command-line/) (recommemded)
 
-    sudo nvidia-docker run --net=host -i -t -v /mnt/data01:/mnt/data01 -v /mnt/data02:/mnt/data02 -v ~/seungmount:/root/seungmount 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.2.3 bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 10 /root/.julia/v0.5/ChunkFlow/scripts/main.jl -a pinky-inference -w 10 -d 0'
+    sudo nvidia-docker run --net=host -i -t -v /mnt/data01:/mnt/data01 -v /mnt/data02:/mnt/data02 -v ~/seungmount:/root/seungmount 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:latest bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 10 /root/.julia/v0.5/ChunkFlow/scripts/main.jl -a pinky-inference -w 10 -d 0'
 
-    sudo nvidia-docker run --net=host -i -t -v /mnt/data01:/mnt/data01 -v /mnt/data02:/mnt/data02 -v ~/seungmount:/root/seungmount 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.2.3 bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 16 /root/.julia/v0.5/ChunkFlow/scripts/main.jl -a zfish-seg'
+    sudo nvidia-docker run --net=host -i -t -v /mnt/data01:/mnt/data01 -v /mnt/data02:/mnt/data02 -v ~/seungmount:/root/seungmount 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:latest bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 16 /root/.julia/v0.5/ChunkFlow/scripts/main.jl -a zfish-seg'
 
 You can also hack into the docker image:
 
-    sudo nvidia-docker run --net=host -i -t -v /mnt/data01:/mnt/data01 -v /mnt/data02:/mnt/data02 -v ~/seungmount:/root/seungmount 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.2.2 bash
+    sudo nvidia-docker run --net=host -i -t -v /mnt/data01:/mnt/data01 -v /mnt/data02:/mnt/data02 -v ~/seungmount:/root/seungmount 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:latest bash
 
 and then run pipeline
 
@@ -47,7 +47,7 @@ and then run pipeline
 
 eval "$(aws ecr get-login)"
 
-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.2.4 bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 4 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w 2 -a pinky-segment'
+docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:latest bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 4 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w 2 -a pinky-segment'
 ```
 
 #### user_data in p2.xlarge instance
@@ -60,7 +60,7 @@ docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:
 
 eval "$(aws ecr get-login --no-include-email)"
 
-nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.4.2 bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 2 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w 2 -a pinky-inference'
+nvidia-docker run --net=host -i 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:latest bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 2 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -w 2 -a pinky-inference'
 ```
 
 #### user_data in p2.8xlarge instance
@@ -78,7 +78,7 @@ su ubuntu -c 'eval "$(aws ecr get-login)"'
 
 for GPU_ID in {0..7}
 do
-stdbuf -oL -eL su ubuntu -c "nohup sudo nvidia-docker run --net=host -i -v /mnt/channel:/mnt/data01/datasets/zebrafish/4_aligned -v /mnt/affinity:/root/seungmount/research/Jingpeng/14_zfish/jknet/4x4x4/affinitymap 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:v1.2.3 bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 2 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -d $GPU_ID -a pinky-inference'" &> ~/log${GPU_ID}.txt &
+stdbuf -oL -eL su ubuntu -c "nohup sudo nvidia-docker run --net=host -i -v /mnt/channel:/mnt/data01/datasets/zebrafish/4_aligned -v /mnt/affinity:/root/seungmount/research/Jingpeng/14_zfish/jknet/4x4x4/affinitymap 098703261575.dkr.ecr.us-east-1.amazonaws.com/chunkflow:latest bash -c 'source /root/.bashrc  && export PYTHONPATH=$PYTHONPATH:/opt/caffe/python && export PYTHONPATH=$PYTHONPATH:/opt/kaffe/layers && export PYTHONPATH=$PYTHONPATH:/opt/kaffe && export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/caffe/build/lib && julia -O3 --check-bounds=no --math-mode=fast -p 2 ~/.julia/v0.5/ChunkFlow/scripts/main.jl -d $GPU_ID -a pinky-inference'" &> ~/log${GPU_ID}.txt &
 done
 ```
 
