@@ -17,9 +17,9 @@ function set!(task::ChunkFlowTask, key::Symbol, value::Any)
     if value==Void || value==nothing
         return task
     end
-    for (edgeName, edgeConfig) in task
-        if haskey(edgeConfig[:params], key)
-            task[edgeName][:params][key] = value
+    for (nodeName, nodeConfig) in task
+        if haskey(nodeConfig[:params], key)
+            task[nodeName][:params][key] = value
         end
     end
 end

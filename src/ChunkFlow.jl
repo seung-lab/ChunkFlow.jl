@@ -5,12 +5,12 @@ module ChunkFlow
 using DataStructures
 using Agglomeration, Process
 using BigArrays.Chunks
-
+# using AWSSDK.CloudWatch
 
 include("core/dictchannel.jl")
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
 include("core/task.jl")
-include("edges.jl")
+include("nodes.jl")
 include("core/error.jl")
 include("core/argparser.jl")
 include("utils/producer.jl")
@@ -18,11 +18,11 @@ include("utils/execute.jl")
 
 export Net, forward
 
-typealias Net OrderedDict{Symbol, Edge}
+typealias Net OrderedDict{Symbol, Node}
 
 """
 construct a net from computation graph config file.
-currently, the net was composed by edges/layers
+currently, the net was composed by nodes/layers
 all the nodes was stored and managed in a DictChannel.
 """
 function Net( task::OrderedDict{Symbol, Any} )
@@ -34,7 +34,7 @@ function Net( task::OrderedDict{Symbol, Any} )
 
     for (ename, de) in task
         @assert !haskey(net, ename)
-        net[ename] = Edge(de)
+        net[ename] = Node(de)
     end
     net
 end
@@ -54,6 +54,12 @@ function forward(net::Net)
             gc()
             elapsed = time() - start
             info("time cost for $(name): $(elapsed/60) min")
+            # CloudWatch.put_metric_data(;NameSpace="ChunkFlow/$(name)/", 
+            #                 MetricData=[["MetricName"   => "time_lapse",
+            #                              "Timestamp"    => now(),
+            #                              "Value"        => elapsed,
+            #                              "Unit"         => "Seconds"
+            #                             ]])
             info("--------end of $(name)-----------")
             println("--------end of $(name)-----------")
         end

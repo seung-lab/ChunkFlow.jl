@@ -1,9 +1,9 @@
 # move data
 
 """
-edge function of movedata
+node function of movedata
 """
-function ef_movedata(c::DictChannel,
+function nf_movedata(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )

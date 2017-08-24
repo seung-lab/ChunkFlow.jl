@@ -7,7 +7,7 @@ using FileIO
 cutout the images across chunks and save as png file for fast checking of vertical line bug
 """
 
-function ef_savepng(
+function nf_savepng(
             c       ::DictChannel,
             params  ::OrderedDict{Symbol, Any},
             inputs  ::OrderedDict{Symbol, Any},

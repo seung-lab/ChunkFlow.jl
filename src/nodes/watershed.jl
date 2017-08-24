@@ -2,9 +2,9 @@ using Watershed
 using DataStructures
 
 """
-edge function of watershed
+node function of watershed
 """
-function ef_watershed!( c::DictChannel,
+function nf_watershed!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})

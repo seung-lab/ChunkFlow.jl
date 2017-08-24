@@ -2,9 +2,9 @@ using HDF5
 using DataStructures
 
 """
-edge function of znni
+node function of znni
 """
-function ef_znni!( c::DictChannel,
+function nf_znni!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})

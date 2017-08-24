@@ -32,7 +32,7 @@ def lambda_handler(event, context):
                     'SecurityGroups': [
                         {
                             'GroupName': 'chunkflow',
-                            'GroupId': 'sg-d5f2b1ab'
+                            'GroupId': 'sg-35753f4a'
                         },
                     ],
                     'BlockDeviceMappings': [

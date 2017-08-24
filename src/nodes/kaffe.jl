@@ -2,9 +2,9 @@ using HDF5
 using BigArrays
 
 """
-edge function of kaffe forward pass
+node function of kaffe forward pass
 """
-function ef_kaffe!( c::DictChannel,
+function nf_kaffe!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})
