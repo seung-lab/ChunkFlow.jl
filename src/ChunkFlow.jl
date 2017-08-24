@@ -5,7 +5,7 @@ module ChunkFlow
 using DataStructures
 using Agglomeration, Process
 using BigArrays.Chunks
-# using AWSSDK.CloudWatch
+using AWSSDK.CloudWatch
 
 include("core/dictchannel.jl")
 include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
@@ -54,12 +54,16 @@ function forward(net::Net)
             gc()
             elapsed = time() - start
             info("time cost for $(name): $(elapsed/60) min")
-            # CloudWatch.put_metric_data(;NameSpace="ChunkFlow/$(name)/", 
-            #                 MetricData=[["MetricName"   => "time_lapse",
-            #                              "Timestamp"    => now(),
-            #                              "Value"        => elapsed,
-            #                              "Unit"         => "Seconds"
-            #                             ]])
+            CloudWatch.put_metric_data(;Namespace="ChunkFlow/", 
+                            MetricData=[["MetricName"   => "time_lapse",
+                                         "Timestamp"    => now(),
+                                         "Value"        => elapsed,
+                                         "Unit"         => "Seconds",
+                                         "Dimensions"   => [[
+                                            "Name"      => "node",
+                                            "Value"     => "$name"
+                                        ]]
+                            ]])
             info("--------end of $(name)-----------")
             println("--------end of $(name)-----------")
         end
