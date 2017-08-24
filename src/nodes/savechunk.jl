@@ -6,9 +6,9 @@ using DataStructures
 # using GoogleCloud.Utils.Storage
 
 """
-edge function of readh5
+node function of readh5
 """
-function ef_savechunk(c::DictChannel,
+function nf_savechunk(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )

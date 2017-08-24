@@ -1,8 +1,8 @@
 
 """
-edge function of watershed to produce atomic seg
+node function of watershed to produce atomic seg
 """
-function ef_maskaffinity!( c::DictChannel,
+function nf_maskaffinity!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})

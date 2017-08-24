@@ -5,9 +5,9 @@ using H5SectionsArrays
 using GSDicts, S3Dicts
 using BOSSArrays
 """
-edge function of cutting out chunk from bigarray
+node function of cutting out chunk from bigarray
 """
-function ef_cutoutchunk!(c::DictChannel,
+function nf_cutoutchunk!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )

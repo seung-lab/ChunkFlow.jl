@@ -1,8 +1,8 @@
 
 """
-edge function of watershed
+node function of watershed
 """
-function ef_mergeseg!( c::DictChannel,
+function nf_mergeseg!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})

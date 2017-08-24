@@ -8,9 +8,9 @@ using S3Dicts
 using DataStructures
 using BOSSArrays
 """
-edge function of blendchunk
+node function of blendchunk
 """
-function ef_blendchunk(c::DictChannel,
+function nf_blendchunk(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )

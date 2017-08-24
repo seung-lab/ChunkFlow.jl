@@ -1,8 +1,8 @@
 
 """
-edge function of remove
+node function of remove
 """
-function ef_remove!( c::DictChannel,
+function nf_remove!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})

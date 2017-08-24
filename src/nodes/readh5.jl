@@ -30,9 +30,9 @@ function filename2offset(fileName::AbstractString)
 end
 
 """
-edge function of readh5
+node function of readh5
 """
-function ef_readh5!(c::DictChannel,
+function nf_readh5!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )

@@ -3,9 +3,9 @@ using BigArrays
 using DataStructures
 
 """
-edge function of saveh5
+node function of saveh5
 """
-function ef_saveh5!(c::DictChannel,
+function nf_saveh5!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )

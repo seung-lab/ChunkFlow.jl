@@ -1,9 +1,9 @@
 using Watershed
 
 """
-edge function of watershed to produce atomic seg
+node function of watershed to produce atomic seg
 """
-function ef_atomicseg!( c::DictChannel,
+function nf_atomicseg!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},
                 inputs::OrderedDict{Symbol, Any},
                 outputs::OrderedDict{Symbol, Any})

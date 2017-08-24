@@ -3,9 +3,9 @@ using BigArrays
 using DataStructures
 
 """
-edge function of readh5
+node function of readh5
 """
-function ef_readchunk!(c::DictChannel,
+function nf_readchunk!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any} )

@@ -32,7 +32,7 @@ const DEFAULT_RETURN_FLAG = true
  =type Chunk end
  =#
 
-function ef_hypersquare(c::DictChannel,
+function nf_hypersquare(c::DictChannel,
         params::OrderedDict{Symbol, Any},
         inputs::OrderedDict{Symbol, Any},
         outputs::OrderedDict{Symbol, Any})
