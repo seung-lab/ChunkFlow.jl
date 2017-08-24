@@ -1,16 +1,30 @@
 language: julia
-os: linux
+dist: trusty
 
 julia:
-        - 0.4
+    - 0.5
 
 notifications:
-        email: false
+    email: false
+
+before_install:
+    - apt-get update
+    - apt-get install -y -qq --no-install-recommends software-properties-common
+    - add-apt-repository main
+    - add-apt-repository universe
+    - apt-get update
+    - apt-get install --force-yes -qq --no-install-recommends wget build-essential libjemalloc-dev python2.7 python-pip python-setuptools libmagickcore-dev libmagickwand-dev libmagic-dev unzip hdf5-tools libgfortran3 libhdf5-7
+    - pip install --upgrade pip
 
 script:
-        - julia -e 'Pkg.init(); Pkg.add("Watershed"); using Watershed'
-        - julia -e 'Pkg.clone("git@github.com:seung-lab/Agglomerator.git")'
-        - julia -e 'Pkg.add("EMIRT")'
-        - git clone https://github.com/seung-lab/spipe.git -b julia
-        - cd spipe
-        - julia main.jl test/params_test.cfg
+    - julia -e 'Pkg.init()'
+    - julia -e 'Pkg.update()'
+    - julia -e 'Pkg.clone("https://github.com/seung-lab/Agglomeration.git")'
+    - julia -e 'Pkg.build("Agglomeration")'
+    - julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
+    - julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
+    - julia -e 'Pkg.build("ChunkFlow")'
+
+after_success:
+    - julia -e 'using ChunkFlow' 
+    - julia ~/.julia/v0.5/ChunkFlow/script/main.jl -t test/sleep.json
