@@ -1,5 +1,6 @@
 ChunkFlow.jl ![ChunkFlow logo](/docs/chunkflow-logo.png?raw=true)
 ==============
+[![Build Status](https://travis-ci.org/seung-lab/ChunkFlow.jl.svg?branch=master)](https://travis-ci.org/seung-lab/ChunkFlow.jl)
 
 ## Introduction
 the computation was defined as an edge. The kinds of edge was defined in [a task file](https://github.com/seung-lab/ChunkFlow.jl/blob/master/test/test.json)
