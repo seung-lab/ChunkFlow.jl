@@ -8,8 +8,6 @@ export deleteSQSmessage!
 typealias ChunkFlowTask OrderedDict{Symbol, Any}
 typealias ChunkFlowTaskList Vector{ChunkFlowTask}
 
-include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
-
 """
 set the some key to specific value
 """
