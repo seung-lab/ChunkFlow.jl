@@ -6,6 +6,13 @@ using SQSChannels
 using JSON
 using DataStructures
 
+#include(joinpath(@__DIR__, "../core/task.jl"))
+export ChunkFlowTask, ChunkFlowTaskList           
+                                                  
+typealias ChunkFlowTask OrderedDict{Symbol, Any}  
+typealias ChunkFlowTaskList Vector{ChunkFlowTask} 
+
+
 export execute
 
 """
@@ -71,7 +78,7 @@ function execute(argDict::Dict{Symbol, Any})
         end
     else
         # has local task definition
-        task = get_task(argDict[:task])
+        task = JSON.parsefile(argDict[:task]; dicttype=ChunkFlowTask)
         if !isa(argDict[:deviceid], Void)
             set!(task, :deviceID, argDict[:deviceid])
         end

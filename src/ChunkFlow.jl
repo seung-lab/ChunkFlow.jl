@@ -7,14 +7,15 @@ using Agglomeration, Process
 using BigArrays.Chunks
 
 include("core/dictchannel.jl")
-include(joinpath(Pkg.dir(), "EMIRT/plugins/cloud.jl"))
-include("core/task.jl")
+include("utils/cloud.jl")
+# include("core/task.jl")
 include("nodes.jl")
 include("core/error.jl")
 include("core/argparser.jl")
 include("utils/producer.jl")
 include("utils/execute.jl")
 include("utils/watch.jl")
+
 
 import .Watch
 
