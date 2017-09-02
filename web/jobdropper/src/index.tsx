@@ -1,12 +1,18 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-/*import { Hello } from "./components/Hello";*/
-/*import { JobForm } from "./components/JobDropper";*/
 import { JobDropper } from "./components/JobDropper"
 
 ReactDOM.render(
-    /*<Hello compiler="TypeScript" framework="React" />,*/
     <JobDropper />,
     document.getElementById("example")
 );
+
+/* this is for react hot reload
+if (module.hot) {
+    module.host.accept('./components/JobDropper.ts', ()=>{
+        const NextJobDropper = require('./components/JobDropper.ts').default;
+        ReactDOM.render(<NextJobDropper />, document.getElementById('example'));
+    })
+}
+*/

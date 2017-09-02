@@ -21,7 +21,7 @@ export class JobForm extends React.Component <any, any> {
         return (
             <form onSubmit={this.handleSubmit}>
                 <label>
-                    Name:
+                    ChunkFlow Task:
                     < input type="text" value={this.state.value} onChange={this.handleChange} />
                 </label>
                 <input type="submit" value="SubmitMe"/>
