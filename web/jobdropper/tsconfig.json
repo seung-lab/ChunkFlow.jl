@@ -5,10 +5,22 @@
         "noImplicitAny": true,
         "module": "commonjs",
         "target": "es5",
-        "jsx": "react",
-        "compileOnSave": true
+        "jsx": "react"
     },
+    "compileOnSave": true,
     "include": [
         "./src/**/*"
+    ],
+    "exclude":[
+        "**/node_modules/*"
+    ],
+    "files":[
+        "main.ts",
+        "typings.d.ts"
+    ],
+    "filesGlob":[
+        "main.ts",
+        "typings.d.ts",
+        "src/**/*.ts"
     ]
 }
