@@ -2,7 +2,7 @@ import * as React from "react";
 
 /*interface JobDropperProps { job: string }*/
 
-export class JobForm extends React.Component<{state: any}> {
+export class JobForm extends React.Component <any, any> {
     constructor(props: any) {
         super(props);
         this.state = {value: 'state_value'};
@@ -10,7 +10,7 @@ export class JobForm extends React.Component<{state: any}> {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
     handleChange(event: any) {
-        this.setState({value: event.target.value.toUpperCase()});
+        this.setState({value: event.target.value});
     }
     handleSubmit(event: any) {
         alert('A name was submitted: ' + this.state.value);
@@ -22,9 +22,9 @@ export class JobForm extends React.Component<{state: any}> {
             <form onSubmit={this.handleSubmit}>
                 <label>
                     Name:
-                    <input type="text" value={this.state.value} onChange={this.handleChange}/>
+                    < input type="text" value={this.state.value} onChange={this.handleChange} />
                 </label>
-                <input type="submit" value="Submit"/>
+                <input type="submit" value="SubmitMe"/>
             </form>
         );
     }
@@ -35,6 +35,7 @@ export class JobDropper extends React.Component<{},{}> {
         const name = "job dropper";
         return (
             <div>
+                < JobForm />
                 Hello, {name}!
                 <button onClick={() => alert("Hello")}>
                     Click me
@@ -43,5 +44,3 @@ export class JobDropper extends React.Component<{},{}> {
         );
     }
 }
-
-

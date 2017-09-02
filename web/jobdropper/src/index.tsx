@@ -2,10 +2,11 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 /*import { Hello } from "./components/Hello";*/
-import { JobForm } from "./components/JobDropper";
+/*import { JobForm } from "./components/JobDropper";*/
+import { JobDropper } from "./components/JobDropper"
 
 ReactDOM.render(
     /*<Hello compiler="TypeScript" framework="React" />,*/
-    <JobForm />,
+    <JobDropper />,
     document.getElementById("example")
 );
