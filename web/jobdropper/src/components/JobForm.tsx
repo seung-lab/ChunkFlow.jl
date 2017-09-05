@@ -1,16 +1,22 @@
 import * as React from "react";
-// import * as MUI from 'material-ui';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import {MuiThemeProvider, lightBaseTheme} from 'material-ui/styles';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
-import DropDownMenu from 'material-ui/DropDownMenu';
+import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import Divider from 'material-ui/Divider';
 
 const lightMuiTheme = getMuiTheme(lightBaseTheme);
 
-const style = {
-  margin: 12,
+const styles = {
+  button: { margin: 12},
+  h3: {
+      marginTop: 20,
+      fontWeight: 400,
+  },
+  pre: {overflow: 'hidden'},
+  textField: {width: '50%'}
 };
 
 export class JobForm extends React.Component <any, any> {
@@ -19,27 +25,105 @@ export class JobForm extends React.Component <any, any> {
         this.state = {
             queue: 'chunkflow-inference',
             taskTemplate: 'task template',
-            start: [1,2,3],
-            gridSize: [1,2,3]
+            start: {
+                x: 1,
+                y: 1,
+                z: 1
+            },
+            stride: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            gridSize: {
+                x: 1,
+                y: 1,
+                z: 1
+            }
         };
         this.handleTaskTemplateChange = this.handleTaskTemplateChange.bind(this);
-        this.handleStartChange = this.handleStartChange.bind(this);
+        this.handleQueueChange = this.handleQueueChange.bind(this);
+        this.handleStartXChange = this.handleStartXChange.bind(this);
+        this.handleStartYChange = this.handleStartYChange.bind(this);
+        this.handleStartZChange = this.handleStartZChange.bind(this);
+        this.handleStrideXChange = this.handleStrideXChange.bind(this);
+        this.handleStrideYChange = this.handleStrideYChange.bind(this);
+        this.handleStrideZChange = this.handleStrideZChange.bind(this);
+        this.handleGridSizeXChange = this.handleGridSizeXChange.bind(this);
+        this.handleGridSizeYChange = this.handleGridSizeYChange.bind(this);
+        this.handleGridSizeZChange = this.handleGridSizeZChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
-    handleQueueChange(event: any, index: number, value: string) {
-        alert('queue name: ' + value);
-        this.setState({queue: {value}});
+    handleQueueChange(event: any, index: number, newValue: string) {
+        this.setState({queue: newValue});
     }
-    handleTaskTemplateChange(event: any) {
-        this.setState({taskTemplate: event.target.taskTemplate});
+    handleTaskTemplateChange(event: any, newValue: string) {
+        this.setState({taskTemplate: newValue});
     }
-    handleStartChange(event: any) {
-        this.setState({start: event.target.start});
+    handleStartXChange(event: any) {
+        this.setState({start: {
+            x: event.target.value,
+            y: this.state.start.y,
+            z: this.state.start.z
+        }});
+    }
+    handleStartYChange(event: any){
+        this.setState({start: {
+            x: this.state.start.x,
+            y: event.target.value,
+            z: this.state.start.z
+        }})
+    }
+    handleStartZChange(event: any) {
+        this.setState({start: {
+            x: this.state.start.x,
+            y: this.state.start.y,
+            z: event.target.value
+        }})
+    }
+    handleStrideXChange(event: any) {
+        this.setState({stride: {
+            x: event.target.value,
+            y: this.state.stride.y,
+            z: this.state.stride.z
+        }})
+    }
+    handleStrideYChange(event: any) {
+        this.setState({stride: {
+            y: event.target.value,
+            x: this.state.stride.x,
+            z: this.state.stride.z
+        }})
+    }
+    handleStrideZChange(event: any) {
+        this.setState({stride: {
+            z: event.target.value,
+            x: this.state.stride.x,
+            y: this.state.stride.y
+        }})
+    }
+    handleGridSizeXChange(event: any) {
+        this.setState({gridSize: {
+            x: event.target.value,
+            y: this.state.gridSize.y,
+            z: this.state.gridSize.z
+        }})
+    }
+    handleGridSizeYChange(event: any) {
+        this.setState({gridSize: {
+            y: event.target.value,
+            x: this.state.gridSize.x,
+            z: this.state.gridSize.z
+        }})
+    }
+    handleGridSizeZChange(event: any) {
+        this.setState({gridSize: {
+            z: event.target.value,
+            x: this.state.gridSize.x,
+            y: this.state.gridSize.y
+        }})
     }
     handleSubmit(event: any) {
-        alert('A task was submitted: ' + this.state.taskTemplate);
-        alert('the start coordinate: ' + this.state.start);
-        alert('the queue: ' + this.state.queue);
         event.preventDefault();
     }
 
@@ -47,18 +131,42 @@ export class JobForm extends React.Component <any, any> {
         return (
             <MuiThemeProvider muiTheme={lightMuiTheme}>
             <div>
-                AWS Queue Name: <br/>
-                <DropDownMenu value={this.state.queue} onChange={this.handleQueueChange}>
+                <h3>Current Settings</h3>
+                <pre>
+                    start: {JSON.stringify(this.state.start)}<br/>
+                    stride: {JSON.stringify(this.state.stride)}<br/>
+                    gridSize: {JSON.stringify(this.state.gridSize)}<br/>
+                    taskTemplate: {JSON.stringify(this.state.taskTemplate)}<br/>
+                    queue name: {JSON.stringify(this.state.queue)}
+                </pre>
+                <SelectField floatingLabelText="queue name in AWS SQS"
+                    value={this.state.queue} onChange={this.handleQueueChange}>
                     <MenuItem value={"chunkflow-inference"} primaryText="chunkflow-inference"/>
                     <MenuItem value={"chunkflow-ingest"} primaryText="chunkflow-ingest"/>
-                </DropDownMenu><br/>
-                <TextField hintText="task template"
-                    floatingLabelText={this.state.taskTemplate}
+                </SelectField>
+                <pre>
+                start       (x,y,z):
+                <input type='number' defaultValue={this.state.start.x} onChange={this.handleStartXChange}/>
+                <input type='number' defaultValue={this.state.start.y} onChange={this.handleStartYChange}/>
+                <input type='number' defaultValue={this.state.start.z} onChange={this.handleStartZChange}/><br/>
+                stride      (x,y,z):
+                <input type='number' defaultValue={this.state.stride.x} onChange={this.handleStrideXChange}/>
+                <input type='number' defaultValue={this.state.stride.y} onChange={this.handleStrideYChange}/>
+                <input type='number' defaultValue={this.state.stride.z} onChange={this.handleStrideZChange}/><br/>
+                grid size   (x,y,z):
+                <input type='number' defaultValue={this.state.gridSize.x} onChange={this.handleGridSizeXChange}/>
+                <input type='number' defaultValue={this.state.gridSize.y} onChange={this.handleGridSizeYChange}/>
+                <input type='number' defaultValue={this.state.gridSize.z} onChange={this.handleGridSizeZChange}/><br/>
+                </pre>
+                <TextField hintText="task template formatted as JSON text"
+                    style={styles.textField}
+                    floatingLabelText="task template"
                     multiLine={true}
+                    rowsMax={20}
                     onChange={this.handleTaskTemplateChange}
                 /><br/>
                 <RaisedButton onClick = {this.handleSubmit}
-                    label="Submit Tasks" primary={true} style={style}/>
+                    label="Submit Tasks" primary={true} style={styles.button}/>
             </div>
             </MuiThemeProvider>
         );
