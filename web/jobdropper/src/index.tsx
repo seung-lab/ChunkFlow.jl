@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 
 import { JobDropper } from "./components/JobDropper"
 
+document.title = "ChunkFlow"
 ReactDOM.render(
     <JobDropper />,
     document.getElementById("example")
