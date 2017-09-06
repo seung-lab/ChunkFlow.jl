@@ -6,7 +6,10 @@
         "module": "commonjs",
         "target": "es5",
         "jsx": "react",
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "typeRoots": [
+            "./node_modules/@types"
+        ]
     },
     "compileOnSave": true,
     "include": [

@@ -7,6 +7,8 @@ import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 
+import {TaskTemplate} from './TaskTemplate';
+
 const lightMuiTheme = getMuiTheme(lightBaseTheme);
 
 const styles = {
@@ -16,7 +18,7 @@ const styles = {
       fontWeight: 400,
   },
   pre: {overflow: 'hidden'},
-  textField: {width: '50%'}
+  textField: {width: '80%'}
 };
 
 export class JobForm extends React.Component <any, any> {
@@ -24,7 +26,7 @@ export class JobForm extends React.Component <any, any> {
         super(props);
         this.state = {
             queue: 'chunkflow-inference',
-            taskTemplate: 'task template',
+            taskTemplate: new TaskTemplate(),
             start: {
                 x: 1,
                 y: 1,
@@ -58,7 +60,7 @@ export class JobForm extends React.Component <any, any> {
         this.setState({queue: newValue});
     }
     handleTaskTemplateChange(event: any, newValue: string) {
-        this.setState({taskTemplate: newValue});
+        this.setState({taskTemplate: this.state.taskTemplate.parse(newValue)});
     }
     handleStartXChange(event: any) {
         this.setState({start: {
@@ -136,7 +138,7 @@ export class JobForm extends React.Component <any, any> {
                     start: {JSON.stringify(this.state.start)}<br/>
                     stride: {JSON.stringify(this.state.stride)}<br/>
                     gridSize: {JSON.stringify(this.state.gridSize)}<br/>
-                    taskTemplate: {JSON.stringify(this.state.taskTemplate)}<br/>
+                    taskTemplate: {this.state.taskTemplate.stringify()}<br/>
                     queue name: {JSON.stringify(this.state.queue)}
                 </pre>
                 <SelectField floatingLabelText="queue name in AWS SQS"
@@ -159,6 +161,7 @@ export class JobForm extends React.Component <any, any> {
                 <input type='number' defaultValue={this.state.gridSize.z} onChange={this.handleGridSizeZChange}/><br/>
                 </pre>
                 <TextField hintText="task template formatted as JSON text"
+                    value={this.state.taskTemplate.stringify()}
                     style={styles.textField}
                     floatingLabelText="task template"
                     multiLine={true}
