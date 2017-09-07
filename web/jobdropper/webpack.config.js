@@ -1,3 +1,6 @@
+var webpack = require('webpack');
+var process = require('process')
+
 module.exports = {
     entry: "./src/index.tsx",
     output: {
@@ -30,8 +33,17 @@ module.exports = {
     externals: {
         "react": "React",
         "react-dom": "ReactDOM"
-    },
-    node: {
-        fs: 'empty'
     }
 };
+
+// new webpack.EnvironmentPlugin(['AWS_REGION'])
+//console.log(process.env.AWS_REGION);
+//new webpack.DefinePlugin({
+//    'process.env': {
+//        'AWS_REGION': JSON.stringify(process.env.AWS_REGION)
+//    }
+//})
+new webpack.DefinePlugin({
+    AWS_REGION: JSON.stringify(process.env.AWS_REGION)
+})
+
