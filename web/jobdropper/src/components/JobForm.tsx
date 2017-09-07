@@ -8,8 +8,11 @@ import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 
 import {TaskTemplate} from './TaskTemplate';
+import {SQS} from './SQS';
 
 const lightMuiTheme = getMuiTheme(lightBaseTheme);
+
+const DEFAULT_QUEUE_NAME = 'chunkflow-inference';
 
 const styles = {
   button: { margin: 12},
@@ -25,7 +28,7 @@ export class JobForm extends React.Component <any, any> {
     constructor(props: any) {
         super(props);
         this.state = {
-            queue: 'chunkflow-inference',
+            sqs: new SQS(DEFAULT_QUEUE_NAME),
             taskTemplate: new TaskTemplate(),
             start: {
                 x: 1,
@@ -57,7 +60,9 @@ export class JobForm extends React.Component <any, any> {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
     handleQueueChange(event: any, index: number, newValue: string) {
-        this.setState({queue: newValue});
+        console.log("set queue name: "+ newValue);
+        this.state.sqs.set_queue_name(newValue);
+        this.setState({sqs: this.state.sqs});
     }
     handleTaskTemplateChange(event: any, newValue: string) {
         this.setState({taskTemplate: this.state.taskTemplate.parse(newValue)});
@@ -127,6 +132,7 @@ export class JobForm extends React.Component <any, any> {
     }
     handleSubmit(event: any) {
         event.preventDefault();
+        
     }
 
     render(){
@@ -139,10 +145,10 @@ export class JobForm extends React.Component <any, any> {
                     stride: {JSON.stringify(this.state.stride)}<br/>
                     gridSize: {JSON.stringify(this.state.gridSize)}<br/>
                     taskTemplate: {this.state.taskTemplate.stringify()}<br/>
-                    queue name: {JSON.stringify(this.state.queue)}
+                    queue name: {this.state.sqs.get_queue_url()}
                 </pre>
                 <SelectField floatingLabelText="queue name in AWS SQS"
-                    value={this.state.queue} onChange={this.handleQueueChange}>
+                    value={this.state.sqs.queue} onChange={this.handleQueueChange}>
                     <MenuItem value={"chunkflow-inference"} primaryText="chunkflow-inference"/>
                     <MenuItem value={"chunkflow-ingest"} primaryText="chunkflow-ingest"/>
                 </SelectField>
