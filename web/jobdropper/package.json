@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "drop jobs to queue in AWS SQS",
   "main": "index.js",
+  "types": "index",
   "scripts": {
     "dev": "webpack-dev-server --hot"
   },

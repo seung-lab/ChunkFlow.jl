@@ -4,15 +4,11 @@
         "sourceMap": true,
         "noImplicitAny": true,
         "module": "commonjs",
-        "target": "es5",
+        "target": "es2015",
         "jsx": "react",
         "allowSyntheticDefaultImports": true,
         "typeRoots": [
             "./node_modules/@types"
-        ],
-        "lib": [
-            "es5",
-            "es2015.promise"
         ]
     },
     "compileOnSave": true,

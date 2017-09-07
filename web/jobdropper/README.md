@@ -10,6 +10,16 @@ npm install webpack-dev-server --save-dev
 
 # Usage
 
+## set environment variables
+setup AWS authorization
+add these lines in `~/.bashrc` of linux, or `~/.bash_profile` of mac.
+```
+export AWS_ACCESS_KEY_ID=XXXXXXX
+export AWS_SECRET_ACCESS_KEY=XXXXX
+export AWS_ACCOUNT_ID=XXXXX 
+```
+
+## pack the libraries
 ```
 webpack
 google-chrome index.html
