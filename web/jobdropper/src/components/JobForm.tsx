@@ -15,7 +15,10 @@ const lightMuiTheme = getMuiTheme(lightBaseTheme);
 const DEFAULT_QUEUE_NAME = 'chunkflow-inference';
 
 const styles = {
-  button: { margin: 12},
+  button: { 
+      margin: 12,
+      width: '60%'
+  },
   h3: {
       marginTop: 20,
       fontWeight: 400,
@@ -132,7 +135,19 @@ export class JobForm extends React.Component <any, any> {
     }
     handleSubmit(event: any) {
         event.preventDefault();
-        
+        for(let gz: number=0; gz<this.state.gridSize.z; gz++) {
+            for(let gy: number=0; gy<this.state.gridSize.y; gy++) {
+                for(let gx: number=0; gx<this.state.gridSize.x; gx++){
+                    // build a task message
+                    let message: string = this.state.taskTemplate.stringify( [
+                        this.state.start.x,
+                        this.state.start.y,
+                        this.state.start.z
+                    ] );
+                    this.state.sqs.send(message);
+                }
+            }
+        }
     }
 
     render(){
@@ -145,10 +160,10 @@ export class JobForm extends React.Component <any, any> {
                     stride: {JSON.stringify(this.state.stride)}<br/>
                     gridSize: {JSON.stringify(this.state.gridSize)}<br/>
                     taskTemplate: {this.state.taskTemplate.stringify()}<br/>
-                    queue name: {this.state.sqs.get_queue_url()}
+                    queue name: {this.state.sqs.get_queue_name()}
                 </pre>
                 <SelectField floatingLabelText="queue name in AWS SQS"
-                    value={this.state.sqs.queue} onChange={this.handleQueueChange}>
+                    value={this.state.sqs.get_queue_name()} onChange={this.handleQueueChange}>
                     <MenuItem value={"chunkflow-inference"} primaryText="chunkflow-inference"/>
                     <MenuItem value={"chunkflow-ingest"} primaryText="chunkflow-ingest"/>
                 </SelectField>

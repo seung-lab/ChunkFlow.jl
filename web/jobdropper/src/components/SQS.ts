@@ -1,8 +1,15 @@
+
+import process = require('process');
 import AWS = require('aws-sdk');
 
-let sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+console.log(process.env);
+console.log("aws region: " + process.env.AWS_REGION);
+let sqs = new AWS.SQS({
+    apiVersion: '2012-11-05',
+    region: process.env["AWS_REGION"]
+});
 
-const DEFAULT_QUEUE_URL_HEAD = 'https://sqs.us-east-1.amazonaws.com/098703261575/';
+const DEFAULT_QUEUE_URL_HEAD = 'https://sqs.$(process.env.AWS_REGION).amazonaws.com/$(process.env["AWS_ACCOUNT_ID"])/';
 
 export class SQS {
     private _params = {
@@ -25,13 +32,16 @@ export class SQS {
         QueueUrl: DEFAULT_QUEUE_URL_HEAD
     }
 
-    constructor(queueName: string = 'chunkflow-inference', 
+    constructor(queueName: string = 'chunkflow-inference',
                 author: string = "Jingpeng Wu"){
         this._params.QueueUrl = DEFAULT_QUEUE_URL_HEAD + queueName;
         this._params.MessageAttributes.Author.StringValue = author;
     }
     set_queue_name( newName: string ) {
         this._params.QueueUrl = DEFAULT_QUEUE_URL_HEAD + newName;
+    }
+    get_queue_name() {
+        return this._params.QueueUrl.split("/").pop()
     }
     get_queue_url() {
         return this._params.QueueUrl;
