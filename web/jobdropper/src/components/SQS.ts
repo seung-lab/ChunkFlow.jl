@@ -1,9 +1,9 @@
+import {AWS_REGION} from './globals';
 
-import process = require('process');
+//import process = require('process');
 import AWS = require('aws-sdk');
 
-console.log(process.env);
-console.log("aws region: " + process.env.AWS_REGION);
+console.log("aws region: " + AWS_REGION);
 let sqs = new AWS.SQS({
     apiVersion: '2012-11-05',
     region: process.env["AWS_REGION"]
