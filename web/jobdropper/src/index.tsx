@@ -3,6 +3,8 @@ import * as ReactDOM from "react-dom";
 
 import { JobDropper } from "./components/JobDropper"
 
+import { } from 'dotenv/config';
+
 document.title = "ChunkFlow"
 ReactDOM.render(
     <JobDropper />,
