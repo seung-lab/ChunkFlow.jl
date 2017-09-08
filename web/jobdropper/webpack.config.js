@@ -1,5 +1,6 @@
 var webpack = require('webpack');
-var process = require('process')
+//var process = require('process')
+//const Dotenv = require('dotenv-webpack')
 
 module.exports = {
     entry: "./src/index.tsx",
@@ -9,7 +10,7 @@ module.exports = {
     },
 
     // Enable sourcemaps for debugging webpack's output.
-    devtool: "source-map",
+    devtool: "source-map", // "dev" should be faster
 
     resolve: {
         // Add '.ts' and '.tsx' as resolvable extensions.
@@ -33,7 +34,13 @@ module.exports = {
     externals: {
         "react": "React",
         "react-dom": "ReactDOM"
-    }
+    }/*,
+    plugins: [
+        new Dotenv({
+            path: './.env',
+            safe:true
+        })
+    ]*/
 };
 
 // new webpack.EnvironmentPlugin(['AWS_REGION'])
@@ -43,7 +50,9 @@ module.exports = {
 //        'AWS_REGION': JSON.stringify(process.env.AWS_REGION)
 //    }
 //})
+/*
 new webpack.DefinePlugin({
-    AWS_REGION: JSON.stringify(process.env.AWS_REGION)
-})
+    //AWS_REGION: JSON.stringify(process.env.AWS_REGION)
+    AWS_REGION: JSON.stringify('us-east-1')
+})*/
 
