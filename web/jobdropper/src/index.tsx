@@ -5,10 +5,9 @@ import { JobDropper } from "./components/JobDropper"
 
 import { } from 'dotenv/config';
 
-document.title = "ChunkFlow"
 ReactDOM.render(
     <JobDropper />,
-    document.getElementById("example")
+    document.getElementById("root")
 );
 
 /* this is for react hot reload
