@@ -10,6 +10,14 @@ npm install webpack-dev-server --save-dev
 
 # Usage
 
+## Elastic Beanstalk
+setup the AWS Elastic Beanstalk environment, then 
+```
+eb init --interactive
+eb deploy
+```
+the Docker environment will automatically use the `Dockerfile` and `Dockerrun.aws.json` to envision a EB deployment.
+
 ## set environment variables
 setup AWS authorization
 add these lines in `~/.bashrc` of linux, or `~/.bash_profile` of mac.
