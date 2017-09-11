@@ -1,13 +1,17 @@
 #FROM nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04
 FROM nvidia/cuda:8.0-cudnn5-runtime-ubuntu14.04
-#FROM ubuntu:16.04
-LABEL maintainer Jingpeng Wu
+LABEL   maintainer="Jingpeng Wu" \
+        project="ChunkFlow"
 
+#### update repository
 RUN apt-get update 
 RUN apt-get install -y -qq --no-install-recommends software-properties-common
 RUN add-apt-repository main
 RUN add-apt-repository universe
 RUN apt-get update
+       
+
+#### install some packages
 RUN apt-get install --force-yes -qq --no-install-recommends wget build-essential libjemalloc-dev python2.7 python-pip python-setuptools libmagickcore-dev libmagickwand-dev libmagic-dev unzip hdf5-tools libgfortran3 libhdf5-7
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so
 RUN pip install --upgrade pip
@@ -46,6 +50,12 @@ RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
 RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
+
+#### install web server
+RUN apt-get install npm \&&
+    npm install --silent --save-dev -g \
+        typescript webpack webpack-dev-server 
+ 
 
 ENTRYPOINT /bin/bash
 WORKDIR /root/.julia/v0.5/ChunkFlow/scripts
