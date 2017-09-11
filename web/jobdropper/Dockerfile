@@ -1,21 +1,19 @@
-FROM node:8.1.2-alpine
+FROM node
 
-RUN apk add --no-cache --virtual .persistent-deps \
-        curl \
-        openssl \
-        # for node-sass module
-        make \
-        gcc \
-        g++ \
-        python \
-        py-pip \
-    # Install node packages
-    && npm install --silent --save-dev -g \
-        gulp-cli \
-        typescript
+# Install node packages
+RUN npm install --silent --save-dev -g \
+        typescript webpack webpack-dev-server
 
-# Set up the application directory
-VOLUME ["/app"]
-WORKDIR /app
+RUN mkdir /app
+WORKDIR /app 
+RUN git clone https://github.com/seung-lab/ChunkFlow.jl.git -b typescript
+WORKDIR ChunkFlow.jl/web/jobdropper
+#ADD src ./ 
+#ADD *.js* ./
+#ADD *.html ./ 
 
-CMD ["npm", "-v"]
+RUN npm install --silent --save-dev 
+RUN webpack
+
+EXPOSE 8081
+CMD ["webpack-dev-server"]
