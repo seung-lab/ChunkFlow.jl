@@ -8,6 +8,9 @@ RUN apt-get update
 RUN apt-get install -y -qq --no-install-recommends software-properties-common
 RUN add-apt-repository main
 RUN add-apt-repository universe
+RUN add-apt-repository restricted
+RUN add-apt-repository multiverse
+RUN curl -sL https://deb.nodesource.com/setup | sudo bash -
 RUN apt-get update
        
 
@@ -45,6 +48,7 @@ RUN pip install gsutil awscli && \
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/seung-lab/S3Dicts.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/Agglomeration.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
@@ -53,9 +57,12 @@ RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
 
 #### install web server
-WORKDIR /root/.julia/v0.5/ChunkFlow/web/jobdropper 
-RUN apt-get install npm \&&
-    npm install --silent --save-dev -g \
+WORKDIR /root/.julia/v0.5/ChunkFlow/web/jobdropper
+#RUN curl --silent --location https://deb.nodesource.com/setup_4.x | sudo bash -
+# RUN apt-get install -y nodejs
+#RUN ln -s /usr/bin/nodejs /usr/bin/node
+RUN apt-get install -y npm 
+RUN npm install --silent --save-dev -g \
         typescript webpack webpack-dev-server 
 RUN npm install --silent --save-dev
 RUN webpack                                                           
