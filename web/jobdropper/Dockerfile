@@ -8,12 +8,12 @@ RUN mkdir /app
 WORKDIR /app 
 RUN git clone https://github.com/seung-lab/ChunkFlow.jl.git -b typescript
 WORKDIR ChunkFlow.jl/web/jobdropper
-#ADD src ./ 
+#ADD src ./src 
 #ADD *.js* ./
 #ADD *.html ./ 
 
 RUN npm install --silent --save-dev 
 RUN webpack
 
-EXPOSE 8081
+EXPOSE 80
 CMD ["webpack-dev-server"]
