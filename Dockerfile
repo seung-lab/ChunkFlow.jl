@@ -44,18 +44,24 @@ RUN pip install gsutil awscli && \
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
+RUN julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/Agglomeration.git")'
-RUN julia -e 'Pkg.build("Agglomeration")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
+RUN julia -e 'Pkg.build("Agglomeration")'
 RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
 
 #### install web server
+WORKDIR /root/.julia/v0.5/ChunkFlow/web/jobdropper 
 RUN apt-get install npm \&&
     npm install --silent --save-dev -g \
         typescript webpack webpack-dev-server 
- 
+RUN npm install --silent --save-dev
+RUN webpack                                                           
+EXPOSE 80
+CMD ["webpack-dev-server"]
 
+#### reset web server
 ENTRYPOINT /bin/bash
 WORKDIR /root/.julia/v0.5/ChunkFlow/scripts
