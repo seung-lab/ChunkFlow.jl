@@ -28,5 +28,6 @@ find help:
     julia taskproducer.jl -h
 
 ## Fetch tasks from AWS SQS 
+launch a number of instances to deal with the tasks. run the same commands in each instance
 
-    julia main.jl -q queue-name
+    julia -j number_of_processes main.jl -n number_of_processes -w wait_seconds_of_each_launch -q queue-name
