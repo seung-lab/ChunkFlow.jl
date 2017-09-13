@@ -1,0 +1,36 @@
+{
+  "name": "jobdropper",
+  "version": "1.0.0",
+  "description": "drop jobs to queue in AWS SQS",
+  "main": "index.js",
+  "types": "index",
+  "scripts": {
+    "dev": "webpack-dev-server --hot"
+  },
+  "keywords": [
+    "aws",
+    "sqs",
+    "task",
+    "submit"
+  ],
+  "author": "Jingpeng Wu",
+  "license": "Appache",
+  "dependencies": {
+    "@types/react": "^16.0.5",
+    "@types/react-dom": "^15.5.4",
+    "material-ui": "^0.19.1",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "webpack": "^3.5.6"
+  },
+  "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "@types/material-ui": "^0.18.0",
+    "@types/node": "^8.0.26",
+    "awesome-typescript-loader": "^3.2.3",
+    "react-hot-loader": "^3.0.0-beta.7",
+    "source-map-loader": "^0.2.1",
+    "typescript": "^2.5.2",
+    "webpack-dev-server": "^2.7.1"
+  }
+}

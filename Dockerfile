@@ -1,13 +1,20 @@
 #FROM nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04
 FROM nvidia/cuda:8.0-cudnn5-runtime-ubuntu14.04
-#FROM ubuntu:16.04
-LABEL maintainer Jingpeng Wu
+LABEL   maintainer="Jingpeng Wu" \
+        project="ChunkFlow"
 
+#### update repository
 RUN apt-get update 
 RUN apt-get install -y -qq --no-install-recommends software-properties-common
 RUN add-apt-repository main
 RUN add-apt-repository universe
+RUN add-apt-repository restricted
+RUN add-apt-repository multiverse
+RUN curl -sL https://deb.nodesource.com/setup | sudo bash -
 RUN apt-get update
+       
+
+#### install some packages
 RUN apt-get install --force-yes -qq --no-install-recommends wget build-essential libjemalloc-dev python2.7 python-pip python-setuptools libmagickcore-dev libmagickwand-dev libmagic-dev unzip hdf5-tools libgfortran3 libhdf5-7
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so
 RUN pip install --upgrade pip
@@ -40,12 +47,29 @@ RUN pip install gsutil awscli && \
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
+RUN julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/seung-lab/S3Dicts.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/Agglomeration.git")'
-RUN julia -e 'Pkg.build("Agglomeration")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
+RUN julia -e 'Pkg.build("Agglomeration")'
 RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
 
+#### install web server
+WORKDIR /root/.julia/v0.5/ChunkFlow/web/jobdropper
+#RUN curl --silent --location https://deb.nodesource.com/setup_4.x | sudo bash -
+# RUN apt-get install -y nodejs
+#RUN ln -s /usr/bin/nodejs /usr/bin/node
+RUN apt-get install -y npm 
+RUN npm install --silent --save-dev -g \
+        typescript webpack webpack-dev-server 
+RUN npm install --silent --save-dev
+RUN webpack                                                           
+EXPOSE 80
+CMD ["webpack-dev-server", "--host", "0.0.0.0"]
+
+#### reset web server
 ENTRYPOINT /bin/bash
 WORKDIR /root/.julia/v0.5/ChunkFlow/scripts
