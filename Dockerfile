@@ -68,7 +68,7 @@ RUN npm install --silent --save-dev -g \
 RUN npm install --silent --save-dev
 RUN webpack                                                           
 EXPOSE 80
-CMD ["webpack-dev-server"]
+CMD ["webpack-dev-server", "--host", "0.0.0.0"]
 
 #### reset web server
 ENTRYPOINT /bin/bash
