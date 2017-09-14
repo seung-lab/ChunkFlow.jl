@@ -5,7 +5,7 @@
 # https://github.com/JuliaLang/julia/issues/12381
 @everywhere sleep(0.1)
 
-import Agglomeration, Process; @everywhere using Agglomeration, Process
+#import Agglomeration, Process; @everywhere using Agglomeration, Process
 import ChunkFlow; @everywhere using ChunkFlow
 import ChunkFlow.Execute; @everywhere using ChunkFlow.Execute
 import Logging; @everywhere using Logging
