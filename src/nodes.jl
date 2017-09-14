@@ -30,12 +30,10 @@ function run end
 #include("nodes/remove.jl")
 #include("nodes/savechunk.jl")
 #include("nodes/savepng.jl")
-include("nodes/sleep.jl")
+include("nodes/sleep.jl"); using .Sleep; export NodeSleep;
 #include("nodes/watershed.jl")
 #include("nodes/watershed_stage1.jl")
 #include("nodes/znni.jl")
 
-using .Sleep 
-export NodeSleep 
 
 end # end of module 

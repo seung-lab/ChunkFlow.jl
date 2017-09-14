@@ -1,6 +1,15 @@
 module Watch
 
 import AWSSDK.CloudWatch 
+import Logging
+
+"""
+print out in terminal and save in log at the same time 
+"""
+function info(str::AbstractString)
+    println(str)
+    Logging.info(str)
+end 
 
 function record_elapsed(node_name, elapsed; namespace="ChunkFlow/")
     CloudWatch.put_metric_data(;Namespace=namespace,                
@@ -27,6 +36,10 @@ end
 
 function start!(t::Timer)
     t.start = time()
+end 
+
+function get_total_elapsed(t::Timer)
+    return time() - t.start 
 end 
 
 function get_elapsed!(t::Timer)
