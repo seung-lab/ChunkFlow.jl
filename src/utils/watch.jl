@@ -15,4 +15,24 @@ function record_elapsed(node_name, elapsed; namespace="ChunkFlow/")
 			]])                                                
 end 
 
+type Timer
+    start   :: Float64
+    prev    :: Float64 
 end
+
+# constructor
+function Timer()
+    Timer(time(), time()) 
+end
+
+function start!(t::Timer)
+    t.start = time()
+end 
+
+function get_elapsed!(t::Timer)
+    elapsed = time() - t.prev 
+    t.prev = time()
+    return elapsed 
+end
+
+end # end of module

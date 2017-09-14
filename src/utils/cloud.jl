@@ -2,8 +2,6 @@ module Cloud
 
 using AWSS3
 
-export download, upload
-
 """
 whether this file is in s3
 """
@@ -50,7 +48,7 @@ localFile: String, local temporal folder path or local file name
 `Outputs:`
 localFile: String, local file name
 """
-function Base.download(remoteFile::AbstractString, localFile::AbstractString)
+function download(remoteFile::AbstractString, localFile::AbstractString)
     # directly return if not s3 file
     @assert iss3(remoteFile) || isgs(remoteFile)
 

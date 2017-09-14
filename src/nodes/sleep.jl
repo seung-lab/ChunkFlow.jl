@@ -1,8 +1,16 @@
+module Sleep
 
-function nf_sleep( c::DictChannel,
-                params::OrderedDict{Symbol,Any},
-                inputs::OrderedDict{Symbol,Any},
-                outputs::OrderedDict{Symbol,Any})
-    println("sleep for $(params[:time]) seconds...")
-    sleep(params[:time])
+import ..Nodes.AbstractNode 
+import ..Nodes.NodeConf 
+
+export NodeSleep, run  
+
+immutable NodeSleep <: AbstractNode end 
+
+function run(x::NodeSleep, c::Dict, nc::NodeConf)
+    t = nc[:params][:time]
+    println("sleep for $(t) seconds...")
+    sleep(t)
 end
+
+end # end of module

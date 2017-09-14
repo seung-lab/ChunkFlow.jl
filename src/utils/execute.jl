@@ -6,7 +6,6 @@ using SQSChannels
 using JSON
 using DataStructures
 
-#include(joinpath(@__DIR__, "../core/task.jl"))
 export ChunkFlowTask, ChunkFlowTaskList           
                                                   
 typealias ChunkFlowTask OrderedDict{Symbol, Any}  
@@ -84,7 +83,7 @@ function execute(argDict::Dict{Symbol, Any})
         end
         @show task
         try 
-            forward( Net(task) )
+            forward( task )
         catch err
             if isa(err, ChunkFlow.ZeroOverFlowError)
                 warn("too many zeros!")
