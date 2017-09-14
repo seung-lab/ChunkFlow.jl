@@ -30,16 +30,16 @@ function forward( task::OrderedDict{Symbol, Any} )
     c = Dict()
     t = Watch.Timer()
     for (name, d) in task 
-        info("----- start $(name) -----")
+        Watch.info("----- start $(name) -----")
         node = eval(Symbol(d[:kind]))()
         Nodes.run(node, c, d)
         elapsed = Watch.get_elapsed!(t)
         Watch.record_elapsed(name, elapsed)
-        info("---- $(name): $(elapsed) -----")
+        Watch.info("---- elapse of $(name): $(elapsed) -----")
     end
     total_elapsed = Watch.get_total_elapsed(t)
     Watch.record_elapsed("TotalPipeline", total_elapsed)
-    info("----------- total elapsed: $(total_elapsed) ------------")
+    Watch.info("----------- total elapsed of pipeline: $(total_elapsed) ------------")
 end
 
 end # end of module ChunkFlow
