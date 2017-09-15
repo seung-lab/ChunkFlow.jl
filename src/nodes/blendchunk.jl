@@ -1,5 +1,7 @@
-# save chunk from dictchannel to BigArrays
+module BlendChunk
 
+# save chunk from dictchannel to BigArrays
+using ..Nodes 
 using BigArrays
 using BigArrays.Chunks
 using BigArrays.H5sBigArrays
@@ -7,15 +9,21 @@ using GSDicts
 using S3Dicts
 using DataStructures
 using BOSSArrays
+
+export NodeBlendChunk, run
+
+immutable NodeBlendChunk <: AbstractNode end 
+
 """
 node function of blendchunk
 """
-function nf_blendchunk(c::DictChannel,
-                    params::OrderedDict{Symbol, Any},
-                    inputs::OrderedDict{Symbol, Any},
-                    outputs::OrderedDict{Symbol, Any} )
+function Nodes.run(x::NodeBlendChunk, c::Dict,
+                   nodeConf::NodeConf)
+    params = nodeConf[:params]
+    inputs = nodeConf[:inputs]
+    outputs = nodeConf[:outputs]
     # get chunk
-    chk = fetch(c, inputs[:chunk])
+    chk = c[inputs[:chunk]]
     @show size(chk)
 
     N = ndims(chk)
@@ -57,3 +65,5 @@ function nf_blendchunk(c::DictChannel,
 
     blendchunk(ba, chk)
 end
+
+end # end of module

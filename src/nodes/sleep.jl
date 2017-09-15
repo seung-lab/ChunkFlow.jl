@@ -1,9 +1,6 @@
 module Sleep
 
 using ..Nodes
-#import ..Nodes.run
-#import ..Nodes.AbstractNode 
-#import ..Nodes.NodeConf 
 export NodeSleep, run  
 
 immutable NodeSleep <: AbstractNode end 

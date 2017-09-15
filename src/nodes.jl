@@ -14,12 +14,12 @@ function run end
 
 #include("nodes/agglomeration.jl")
 #include("nodes/atomicseg.jl")
-#include("nodes/blendchunk.jl")
-#include("nodes/crop.jl")
-#include("nodes/cutoutchunk.jl")
+include("nodes/blendchunk.jl"); using .BlendChunk; export NodeBlendChunk;
+include("nodes/crop.jl"); using .Crop; export NodeCrop;
+include("nodes/cutoutchunk.jl"); using .CutoutChunk; export NodeCutoutChunk;
 #include("nodes/downsample.jl")
 #include("nodes/hypersquare.jl")
-#include("nodes/kaffe.jl")
+include("nodes/kaffe.jl"); using .Kaffe; export NodeKaffe;
 #include("nodes/maskaffinity.jl")
 #include("nodes/mergeseg.jl")
 #include("nodes/movedata.jl")

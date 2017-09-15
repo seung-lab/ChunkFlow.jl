@@ -1,13 +1,19 @@
+module Crop
+using ..Nodes 
 using DataStructures
+export NodeCrop, run
 
-function nf_crop!( c::DictChannel,
-                params::OrderedDict{Symbol, Any},
-                inputs::OrderedDict{Symbol, Any},
-                outputs::OrderedDict{Symbol, Any})
+immutable NodeCrop <: AbstractNode end 
+
+function Nodes.run( x::NodeCrop, c::Dict,
+                   nodeConf::NodeConf)
+    params = nodeConf[:params]
+    inputs = nodeConf[:inputs]
+    outputs = nodeConf[:outputs]
     for (k,v) in inputs
         @assert haskey(outputs, k)
-        chk = take!(c, v)
-        chk = BigArrays.Chunks.crop_border(chk, params[:cropMarginSize])
-        put!(c, outputs[k], chk)
+        c[outputs[k]] = BigArrays.Chunks.crop_border(c[v], params[:cropMarginSize])
     end
 end
+
+end # end of module
