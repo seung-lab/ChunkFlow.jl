@@ -1,6 +1,12 @@
+module ReadH5
+using ..Nodes
 using HDF5
 using BigArrays
 using DataStructures
+using ChunkFlow.Cloud
+
+export NodeReadH5, run
+immutable NodeReadH5 <: AbstractNode end 
 
 """
 extract offset from file name
@@ -32,14 +38,15 @@ end
 """
 node function of readh5
 """
-function nf_readh5!(c::DictChannel,
-                    params::OrderedDict{Symbol, Any},
-                    inputs::OrderedDict{Symbol, Any},
-                    outputs::OrderedDict{Symbol, Any} )
+function Nodes.run(x::NodeReadH5, c::Dict,
+                   nc::NodeConf)
+    params = nc[:params]
+    inputs = nc[:inputs]
+    outputs = nc[:outputs]
     fileName = inputs[:fileName]
-    if iss3(fileName)
+    if Cloud.iss3(fileName)
         # download from s3
-        fileName = download(fileName, "/tmp/")
+        fileName = Cloud.download(fileName, "/tmp/")
     else
         fileName = replace(fileName, "~", homedir())
     end
@@ -58,12 +65,14 @@ function nf_readh5!(c::DictChannel,
     end
     close(f)
     voxelSize = params[:voxelSize]
-    chk = Chunk(arr, origin, voxelSize)
+    chk = BigArrays.Chunks.Chunk(arr, origin, voxelSize)
     # put chunk to channel for use
-    put!(c, outputs[:data], chk)
+    c[outputs[:data]] = chk
 
     # remove local file
     if params[:isRemoveSourceFile]
       rm(fileName)
     end
 end
+
+end # end of module

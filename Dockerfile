@@ -47,13 +47,12 @@ RUN pip install gsutil awscli && \
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
+RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/S3Dicts.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/Agglomeration.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
-RUN julia -e 'Pkg.build("Agglomeration")'
 RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
 

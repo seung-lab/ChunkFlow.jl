@@ -1,5 +1,5 @@
 {"sleep":{
-    "kind": "sleep",
+    "kind": "NodeSleep",
     "params":{
         "time": 5 
     },

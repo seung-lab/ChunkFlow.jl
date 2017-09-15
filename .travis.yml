@@ -19,8 +19,6 @@ before_install:
 script:
     - julia -e 'Pkg.init()'
     - julia -e 'Pkg.update()'
-    - julia -e 'Pkg.clone("https://github.com/seung-lab/Agglomeration.git")'
-    - julia -e 'Pkg.build("Agglomeration")'
     - julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
     - julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
     - julia -e 'Pkg.build("ChunkFlow")'
