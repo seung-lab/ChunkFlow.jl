@@ -1,16 +1,24 @@
+module Kaffe
+using ..Nodes 
 using HDF5
 using BigArrays
+using EMIRT
+using ChunkFlow.Cloud
+
+export NodeKaffe, run 
+immutable NodeKaffe <: AbstractNode end 
 
 """
 node function of kaffe forward pass
 """
-function nf_kaffe!( c::DictChannel,
-                params::OrderedDict{Symbol, Any},
-                inputs::OrderedDict{Symbol, Any},
-                outputs::OrderedDict{Symbol, Any})
+function Nodes.run(x::NodeKaffe, c::Dict,
+                   nodeConf::NodeConf)
+    params = nodeConf[:params]
+    inputs = nodeConf[:inputs]
+    outputs = nodeConf[:outputs]
     # note that the fetch only use reference rather than copy
     # anychange for chk_img could affect the img in dickchannel
-    chk_img = fetch(c, inputs[:img])
+    chk_img = c[inputs[:img]]
     @assert isa(chk_img.data, EMImage)
 
     # save as hdf5 file
@@ -91,7 +99,7 @@ function nf_kaffe!( c::DictChannel,
     # info("processing chunk origin from: $(chk_img2.origin) with a size of $(size(chk_img2.data))")
 
     # run znni inference
-    run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
+    Base.run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
 
     # compute cropMarginSize using integer division
     sz = size(chk_img.data)
@@ -132,7 +140,7 @@ function nf_kaffe!( c::DictChannel,
     chk_out = Chunk(out, outOrigin, chk_img.voxelSize)
     @assert chk_out.origin[4] == 1
 
-    put!(c, outputs[:aff], chk_out)
+    c[outputs[:aff]] = chk_out
 
     # remove temporary files
     rm(fImg);  rm(fOut); rm(fForwardCfg); rm(fDataSpec);
@@ -152,7 +160,7 @@ function download_net( fileName::AbstractString; md5::AbstractString = "" )
             # sleep for some time in case some other process is downloading
             sleep(rand(1:100))
             if !(isfile(localFileName) && is_md5_correct(localFileName, md5))
-                download(fileName, localFileName)
+                Cloud.download(fileName, localFileName)
                 @assert is_md5_correct(localFileName, md5)
             end
         end
@@ -175,3 +183,5 @@ function is_md5_correct(fileName::String, md5::String)
         return split(str, " ")[1] == md5
     end
 end
+
+end # end of module

@@ -1,16 +1,22 @@
+module CutoutChunk
+using ..Nodes
 using HDF5
 using BigArrays
 using BigArrays.H5sBigArrays
 using H5SectionsArrays
 using GSDicts, S3Dicts
 using BOSSArrays
+
+export NodeCutoutChunk, run
+immutable NodeCutoutChunk <: AbstractNode end 
+
 """
 node function of cutting out chunk from bigarray
 """
-function nf_cutoutchunk!(c::DictChannel,
-                    params::OrderedDict{Symbol, Any},
-                    inputs::OrderedDict{Symbol, Any},
-                    outputs::OrderedDict{Symbol, Any} )
+function Nodes.run(x::NodeCutoutChunk, c::Dict, nodeConf::NodeConf)
+    params = nodeConf[:params]
+    inputs = nodeConf[:inputs]
+    outputs = nodeConf[:outputs]
     if haskey(params, :chunkSize)
         warn("should use cutoutSize rather than chunkSize for clarity!")
         params[:cutoutSize] = params[:chunkSize]
@@ -47,7 +53,7 @@ function nf_cutoutchunk!(c::DictChannel,
     # get range
     N = ndims(ba)
     if haskey(inputs, :referenceChunk)
-        referenceChunk = fetch(c, inputs[:referenceChunk])
+        referenceChunk = c[inputs[:referenceChunk]]
         origin      = referenceChunk.origin[1:N]
         cutoutSize  = size(referenceChunk)[1:N]
         if length(origin) > N
@@ -97,5 +103,7 @@ function nf_cutoutchunk!(c::DictChannel,
     println("cut out chunk size: $(size(data))")
 
     # put chunk to channel for use
-    put!(c, outputs[:data], chk)
+    c[outputs[:data]] = chk
 end
+
+end # end of module
