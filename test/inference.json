@@ -1,5 +1,5 @@
 {"input": {
-    "kind": "NodeReadh5",
+    "kind": "NodeReadH5",
     "params":{
         "origin": [],
         "voxelSize": [5,5,45],
@@ -32,10 +32,11 @@
         "outputPatchSize":    [150, 150,  12],
         "preprocess": "2dnormalize",
         "scanParams": "None",
+        "batchSize": 1,
         "deviceID": 0,
         "isCropImg": true,
-        "cropMarginSize": [6,   6,    0],
-        "originOffset": [54, 54, 4],
+        "cropMarginSize": [6,   6,    0, 0],
+        "originOffset": [54, 54, 4, 0],
         "affWeight": 1.0
     },
     "inputs": {
@@ -46,61 +47,14 @@
         "aff": "aff"
     }
 },
-"cropImg":{
-  "kind": "NodeCrop",
-  "params": {
-    "cropMarginSize": [54, 54, 4]
-  },
-  "inputs":{
-    "img": "img"
-  },
-  "outputs":{
-    "img": "img"
-  }
-},
-"atomicseg":{
-    "kind": "NodeAtomicSeg",
-    "params": {
-        "low": 0.1,
-        "high": 0.8,
-        "thresholds": [
-            {
-                "size": 800,
-                "threshold": 0.2
-            }
-        ],
-        "dust": 600,
-        "isThresholdRelative": true
-    },
-    "inputs": {
-        "aff": "aff"
-    },
-    "outputs": {
-        "seg": "seg"
-    }
-},
-"agglomeration":{
-    "kind":"NodeAgglomeration",
-    "params":{
-        "mode": "mean",
-        "isDeleteAff": true
-    },
-    "inputs": {
-        "seg": "seg",
-        "aff": "aff"
-    },
-    "outputs": {
-        "sgm": "sgm"
-    }
-},
-"savesgm":{
+"saveaff":{
     "kind": "NodeSaveChunk",
     "params": {},
     "inputs": {
-        "chunk": "sgm"
+        "chunk": "aff"
     },
     "outputs": {
-        "chunkFileName": "/tmp/sgm.h5"
+        "chunkFileName": "/tmp/aff.h5"
     }
 }
 }

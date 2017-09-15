@@ -25,10 +25,10 @@ include("nodes/kaffe.jl"); using .Kaffe; export NodeKaffe;
 #include("nodes/movedata.jl")
 #include("nodes/omni.jl")
 #include("nodes/readchunk.jl")
-#include("nodes/readh5.jl")
+include("nodes/readh5.jl"); using .ReadH5; export NodeReadH5;
 #include("nodes/relabelseg.jl")
 #include("nodes/remove.jl")
-#include("nodes/savechunk.jl")
+include("nodes/savechunk.jl"); using .SaveChunk; export NodeSaveChunk;
 #include("nodes/savepng.jl")
 include("nodes/sleep.jl"); using .Sleep; export NodeSleep;
 #include("nodes/watershed.jl")

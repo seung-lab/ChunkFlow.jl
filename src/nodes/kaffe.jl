@@ -2,6 +2,7 @@ module Kaffe
 using ..Nodes 
 using HDF5
 using BigArrays
+using EMIRT
 using ChunkFlow.Cloud
 
 export NodeKaffe, run 
@@ -98,7 +99,7 @@ function Nodes.run(x::NodeKaffe, c::Dict,
     # info("processing chunk origin from: $(chk_img2.origin) with a size of $(size(chk_img2.data))")
 
     # run znni inference
-    run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
+    Base.run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
 
     # compute cropMarginSize using integer division
     sz = size(chk_img.data)
