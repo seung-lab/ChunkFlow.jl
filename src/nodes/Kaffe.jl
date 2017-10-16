@@ -2,6 +2,7 @@ module Kaffe
 using ..Nodes 
 using HDF5
 using BigArrays
+using BigArrays.Chunks
 using EMIRT
 using ChunkFlow.Cloud
 
@@ -34,10 +35,10 @@ function Nodes.run(x::NodeKaffe, c::Dict,
     end
     h5write(fImg, "main", chk_img.data)
 
-    @show chk_img.origin
+    img_origin = Chunks.get_origin( chk_img )
     @show params[:originOffset]
     originOffset = Vector{UInt32}(params[:originOffset])
-    outOrigin = [chk_img.origin..., 0x00000001] .+ originOffset
+    outOrigin = [img_origin..., 0x00000001] .+ originOffset
 
     if !haskey(params, :caffeNetFileMD5)
         params[:caffeNetFileMD5] = ""
@@ -95,9 +96,6 @@ function Nodes.run(x::NodeKaffe, c::Dict,
     close(f)
     @show forwardCfg
 
-    # log the chunk coordinate for debug
-    # info("processing chunk origin from: $(chk_img2.origin) with a size of $(size(chk_img2.data))")
-
     # run znni inference
     Base.run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
 
@@ -138,7 +136,7 @@ function Nodes.run(x::NodeKaffe, c::Dict,
     end
 
     chk_out = Chunk(out, outOrigin, chk_img.voxelSize)
-    @assert chk_out.origin[4] == 1
+    @assert Chunks.get_origin(chk_out)[4] == 1
 
     c[outputs[:aff]] = chk_out
 

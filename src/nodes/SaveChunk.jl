@@ -26,7 +26,7 @@ end
 function savechunk(chk::Chunk,
                     inputs::OrderedDict{Symbol, Any},
                     outputs::OrderedDict{Symbol, Any})
-    origin = chk.origin
+    origin = Chunks.get_origin(chk)
     voxelSize = chk
     if haskey(outputs, :chunkFileName)
         chunkFileName = outputs[:chunkFileName]
@@ -34,7 +34,7 @@ function savechunk(chk::Chunk,
     else
         prefix = replace(outputs[:prefix],"~",homedir())
         chksz = size(chk)
-        chunkFileName = "$(prefix)$(chk.origin[1])-$(chk.origin[1]+chksz[1]-1)_$(chk.origin[2])-$(chk.origin[2]+chksz[2]-1)_$(chk.origin[3])-$(chk.origin[3]+chksz[3]-1).$(inputs[:chunk]).h5"
+        chunkFileName = "$(prefix)$(origin[1])-$(origin[1]+chksz[1]-1)_$(origin[2])-$(origin[2]+chksz[2]-1)_$(origin[3])-$(origin[3]+chksz[3]-1).$(inputs[:chunk]).h5"
     end
     if Cloud.iss3(chunkFileName)
         ftmp = string(tempname(), ".chk.h5")

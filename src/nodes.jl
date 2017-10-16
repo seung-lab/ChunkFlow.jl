@@ -14,23 +14,23 @@ function run end
 
 #include("nodes/agglomeration.jl")
 #include("nodes/atomicseg.jl")
-include("nodes/blendchunk.jl"); using .BlendChunk; export NodeBlendChunk;
-include("nodes/crop.jl"); using .Crop; export NodeCrop;
-include("nodes/cutoutchunk.jl"); using .CutoutChunk; export NodeCutoutChunk;
+include("nodes/BlendChunk.jl"); using .BlendChunk; export NodeBlendChunk;
+include("nodes/Crop.jl"); using .Crop; export NodeCrop;
+include("nodes/CutoutChunk.jl"); using .CutoutChunk; export NodeCutoutChunk;
 #include("nodes/downsample.jl")
 #include("nodes/hypersquare.jl")
-include("nodes/kaffe.jl"); using .Kaffe; export NodeKaffe;
+include("nodes/Kaffe.jl"); using .Kaffe; export NodeKaffe;
 #include("nodes/maskaffinity.jl")
 #include("nodes/mergeseg.jl")
 #include("nodes/movedata.jl")
 #include("nodes/omni.jl")
 #include("nodes/readchunk.jl")
-include("nodes/readh5.jl"); using .ReadH5; export NodeReadH5;
+include("nodes/ReadH5.jl"); using .ReadH5; export NodeReadH5;
 #include("nodes/relabelseg.jl")
 #include("nodes/remove.jl")
-include("nodes/savechunk.jl"); using .SaveChunk; export NodeSaveChunk;
+include("nodes/SaveChunk.jl"); using .SaveChunk; export NodeSaveChunk;
 #include("nodes/savepng.jl")
-include("nodes/sleep.jl"); using .Sleep; export NodeSleep;
+include("nodes/Sleep.jl"); using .Sleep; export NodeSleep;
 #include("nodes/watershed.jl")
 #include("nodes/watershed_stage1.jl")
 #include("nodes/znni.jl")
