@@ -1,6 +1,6 @@
 var webpack = require('webpack');
 //var process = require('process')
-//const Dotenv = require('dotenv-webpack')
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
     entry: [
@@ -41,13 +41,10 @@ module.exports = {
     externals: {
         "react": "React",
         "react-dom": "ReactDOM"
-    }/*,
+    },
     plugins: [
-        new Dotenv({
-            path: './.env',
-            safe:true
-        })
-    ]*/
+        new Dotenv()
+    ]
 };
 
 // new webpack.EnvironmentPlugin(['AWS_REGION'])

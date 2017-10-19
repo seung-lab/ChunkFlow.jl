@@ -3,8 +3,6 @@ import * as ReactDOM from "react-dom";
 
 import { JobDropper } from "./components/JobDropper"
 
-import { } from 'dotenv/config';
-
 ReactDOM.render(
     <JobDropper />,
     document.getElementById("root")
