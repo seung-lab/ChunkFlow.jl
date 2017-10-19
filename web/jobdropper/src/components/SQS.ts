@@ -1,16 +1,20 @@
-//import {AWS_REGION} from './globals';
-
 //import process = require('process');
 import AWS = require('aws-sdk');
+AWS.config.update({
+    region: process.env.AWS_REGION, 
+    credentials: new AWS.Credentials(
+        process.env.AWS_ACCESS_KEY_ID,
+        process.env.AWS_SECRET_ACCESS_KEY )
+})
 
-console.log(process.env);
-console.log("aws region: " + process.env.__AWS_REGION__);
 let sqs = new AWS.SQS({
     apiVersion: '2012-11-05',
     region: process.env.AWS_REGION
 });
 
-const DEFAULT_QUEUE_URL_HEAD = 'https://sqs.$(process.env.AWS_REGION).amazonaws.com/$(process.env["AWS_ACCOUNT_ID"])/';
+const DEFAULT_QUEUE_URL_HEAD = "https://sqs." + process.env.AWS_REGION + ".amazonaws.com/"+ process.env.AWS_ACCOUNT_ID + "/";
+
+console.log(DEFAULT_QUEUE_URL_HEAD)
 
 export class SQS {
     private _params = {

@@ -5,7 +5,8 @@
   "main": "index.js",
   "types": "index",
   "scripts": {
-    "dev": "webpack-dev-server --hot"
+    "dev": "webpack-dev-server --hot",
+    "start": "webpack-dev-server --host 0.0.0.0 --port 80"
   },
   "keywords": [
     "aws",
@@ -16,6 +17,7 @@
   "author": "Jingpeng Wu",
   "license": "Appache",
   "dependencies": {
+    "@types/dotenv": "^4.0.1",
     "@types/react": "^16.0.5",
     "@types/react-dom": "^15.5.4",
     "material-ui": "^0.19.1",
@@ -28,6 +30,7 @@
     "@types/material-ui": "^0.18.0",
     "@types/node": "^8.0.26",
     "awesome-typescript-loader": "^3.2.3",
+    "dotenv-webpack": "^1.5.4",
     "react-hot-loader": "^3.0.0-beta.7",
     "source-map-loader": "^0.2.1",
     "typescript": "^2.5.2",
