@@ -1,8 +1,11 @@
-FROM sergiypopo/cpu_inference
+FROM sergiypopo/cpu_inference:latest
 #FROM nvidia/cuda:8.0-cudnn6-runtime-ubuntu16.04
 #FROM nvidia/cuda:8.0-cudnn5-runtime-ubuntu14.04
 LABEL   maintainer="Jingpeng Wu" \
         project="ChunkFlow"
+
+# upgrade pip
+RUN pip install --upgrade pip
 
 #### update repository
 RUN apt update 
