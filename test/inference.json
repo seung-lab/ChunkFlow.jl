@@ -27,17 +27,18 @@
     "kind": "NodeKaffe",
     "params":{
         "kaffeDir": "/opt/kaffe",
-        "caffeModelFile": "/opt/kaffe/models/MSF/deploy.prototxt",
-        "caffeNetFile": "/opt/kaffe/experiments/zfish/MSF/train_iter_250000.caffemodel.h5",
-        "outputPatchSize":    [150, 150,  12],
-        "preprocess": "2dnormalize",
-        "scanParams": "None",
-        "batchSize": 1,
+        "caffeModelFile": "s3://seunglab/jpwu/zfish/JKNet/deploy.prototxt",
+        "caffeNetFile": "s3://seunglab/jpwu/zfish/JKNet/divideby/train_iter_800000.caffemodel.h5",
+        "caffeNetFileMD5"       : "0f62cd92188a65c014e5611a73822ae8",
+        "outputPatchSize":    [158, 158,  32],
+        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "preprocess": "divideby",
         "deviceID": 0,
-        "isCropImg": true,
-        "cropMarginSize": [6,   6,    0, 0],
-        "originOffset": [54, 54, 4, 0],
-        "affWeight": 1.0
+        "batchSize"     : 1,
+        "isCropImg": false,
+        "cropMarginSize": [54, 54, 4,0],
+        "originOffset": [54, 54, 4,0],
+        "affWeight": 1    
     },
     "inputs": {
         "img": "img",

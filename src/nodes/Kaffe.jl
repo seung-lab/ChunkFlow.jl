@@ -36,7 +36,6 @@ function Nodes.run(x::NodeKaffe, c::Dict,
     h5write(fImg, "main", chk_img.data)
 
     img_origin = Chunks.get_origin( chk_img )
-    @show params[:originOffset]
     originOffset = Vector{UInt32}(params[:originOffset])
     outOrigin = [img_origin..., 0x00000001] .+ originOffset
 
@@ -77,7 +76,6 @@ function Nodes.run(x::NodeKaffe, c::Dict,
     f = open(fDataSpec, "w")
     write(f, dataspec)
     close(f)
-    @show dataspec
 
     forwardCfg = """
     [forward]
@@ -96,7 +94,7 @@ function Nodes.run(x::NodeKaffe, c::Dict,
     close(f)
     @show forwardCfg
 
-    # run znni inference
+    # run convnet inference
     Base.run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
 
     # compute cropMarginSize using integer division
@@ -123,7 +121,7 @@ function Nodes.run(x::NodeKaffe, c::Dict,
     # reweight affinity to make ensemble
     if haskey(params, :affWeight)
         out .*= eltype(out)(params[:affWeight])
-        if isready(c, inputs[:aff])
+        if haskey(c, inputs[:aff])
             out .+= take!(c, inputs[:aff]).data
         end
     end
@@ -150,7 +148,7 @@ download
 """
 function download_net( fileName::AbstractString; md5::AbstractString = "" )
     # download trained network
-    if iss3(fileName) || isgs(fileName)
+    if Cloud.iss3(fileName) || Cloud.isgs(fileName)
         localFileName = replace(fileName, "gs://", "/tmp/")
         localFileName = replace(localFileName, "s3://", "/tmp/")
         @show localFileName
