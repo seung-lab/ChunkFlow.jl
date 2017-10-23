@@ -3,6 +3,7 @@ using ..Nodes
 using HDF5
 using BigArrays
 using BigArrays.H5sBigArrays
+using BigArrays.Chunk
 using H5SectionsArrays
 using GSDicts, S3Dicts
 using BOSSArrays

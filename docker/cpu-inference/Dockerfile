@@ -6,6 +6,7 @@ LABEL   maintainer="Jingpeng Wu" \
 
 # upgrade pip
 RUN pip install --upgrade pip
+RUN pip install awscli
 
 #### update repository
 RUN apt update 
@@ -19,7 +20,7 @@ RUN apt-get update
        
 
 #### install some packages
-RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 
+RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2  
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so 
 
 #### install julia
