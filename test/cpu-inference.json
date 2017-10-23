@@ -1,0 +1,51 @@
+{"input": {
+    "kind": "NodeCutoutChunk",
+    "params":{
+        "bigArrayType": "s3",
+        "origin":   [10241, 14337, 193],
+        "cutoutSize": [2112, 2112,  136],
+        "voxelSize": [4,4,40],
+        "nonzeroRatioThreshold": 0.01
+    },
+    "inputs": {
+      "path": "s3://neuroglancer/pinky40_v10/image/4_4_40/"
+    },
+    "outputs": {
+        "data": "img"
+    }
+},
+"ConvNetUNet":{
+    "kind": "NodeKaffe",
+    "params":{
+        "kaffeDir"          : "/opt/kaffe",
+        "caffeModelFile"    : "s3://neuroglancer/pinky40_v11/affinitymap-unet/convnets/deploy.prototxt",
+        "caffeNetFile"      : "s3://neuroglancer/pinky40_v11/affinitymap-unet/convnets/train_iter_1000000.caffemodel.h5",
+        "caffeNetFileMD5"   : "82c90821c68379d2225602bfceb06187",
+        "outputPatchSize"   : [256, 256,  18],
+        "scanParams"        : "dict(stride=(0,0,0), blend='bump')",
+        "preprocess"        : "divideby",
+        "batchSize"         : 1,
+        "deviceID"          : " ",
+        "cropMarginSize"    : [0, 0, 0,0],
+        "originOffset"      : [0, 0, 0,0],
+        "affWeight"         : 1.0
+    },
+    "inputs": {
+        "img": "img",
+        "aff": "aff"
+    },
+    "outputs": {
+        "aff": "aff"
+    }
+},
+"saveaff":{
+    "kind": "NodeSaveChunk",
+    "params": {},
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
+        "chunkFileName": "/tmp/aff.h5"
+    }
+}
+}
