@@ -1,7 +1,9 @@
+module Polygons
 
 include(joinpath(Pkg.dir(), "ImageRegistration/src/geometry.jl"))
 
 using DataStructures
+export polygon_filter 
 
 const DEFAUL_POLYGON = [10276 8116;
                         10276 43716;                                                                                 
@@ -37,3 +39,5 @@ function polygon_filter(    originSet::OrderedSet{Vector};
     
     return ret
 end
+
+end # module

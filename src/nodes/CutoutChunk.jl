@@ -14,7 +14,7 @@ immutable NodeCutoutChunk <: AbstractNode end
 """
 node function of cutting out chunk from bigarray
 """
-function Nodes.run(x::NodeCutoutChunk, c::Dict, nodeConf::NodeConf)
+function Nodes.run(x::NodeCutoutChunk, c::AbstractChannel, nodeConf::NodeConf)
     params = nodeConf[:params]
     inputs = nodeConf[:inputs]
     outputs = nodeConf[:outputs]

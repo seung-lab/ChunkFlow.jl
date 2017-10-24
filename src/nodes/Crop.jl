@@ -3,9 +3,10 @@ using ..Nodes
 using DataStructures
 export NodeCrop, run
 
+
 immutable NodeCrop <: AbstractNode end 
 
-function Nodes.run( x::NodeCrop, c::Dict,
+function Nodes.run( x::NodeCrop, c::AbstractChannel,
                    nodeConf::NodeConf)
     params = nodeConf[:params]
     inputs = nodeConf[:inputs]

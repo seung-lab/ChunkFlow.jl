@@ -4,7 +4,9 @@ using ..Nodes
 using BigArrays
 using BigArrays.Chunks
 using DataStructures
-using ChunkFlow.Cloud
+
+include("../DictChannels.jl"); using .DictChannels
+include("../utils/Clouds.jl"); using .Clouds
 
 export NodeSaveChunk, run 
 immutable NodeSaveChunk <: AbstractNode end 
@@ -12,7 +14,7 @@ immutable NodeSaveChunk <: AbstractNode end
 """
 node function of readh5
 """
-function Nodes.run(x::NodeSaveChunk, c::Dict,
+function Nodes.run(x::NodeSaveChunk, c::AbstractChannel,
                    nc::NodeConf)
     params = nc[:params]
     inputs = nc[:inputs]
@@ -36,7 +38,7 @@ function savechunk(chk::Chunk,
         chksz = size(chk)
         chunkFileName = "$(prefix)$(origin[1])-$(origin[1]+chksz[1]-1)_$(origin[2])-$(origin[2]+chksz[2]-1)_$(origin[3])-$(origin[3]+chksz[3]-1).$(inputs[:chunk]).h5"
     end
-    if Cloud.iss3(chunkFileName)
+    if Clouds.iss3(chunkFileName)
         ftmp = string(tempname(), ".chk.h5")
         BigArrays.Chunks.save(ftmp, chk)
         Base.run(`aws s3 mv $ftmp $chunkFileName`)

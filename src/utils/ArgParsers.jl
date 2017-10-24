@@ -1,3 +1,5 @@
+module ArgParsers
+
 using ArgParse
 
 export parse_commandline
@@ -70,3 +72,5 @@ function ArgParse.parse_item(::Type{Vector{Int}}, x::AbstractString)
     x = replace(x, "]", "")
     map(parse, split(x, ","))
 end
+
+end # module

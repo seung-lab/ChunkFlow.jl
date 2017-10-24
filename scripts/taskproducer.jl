@@ -1,8 +1,9 @@
-include("../src/ChunkFlow.jl")
-# using EMIRT
+include(joinpath(dirname(@__FILE__), "../src/utils/ArgParsers.jl")
+include(joinpath(dirname(@__FILE__), "../src/utils/Producers.jl")
+using .ArgParsers
+using .Producers
 using DataStructures
 using ChunkFlow
-using ChunkFlow.Producer
 
 # parse the arguments as a dictionary, key is string
 global const argDict = parse_commandline()

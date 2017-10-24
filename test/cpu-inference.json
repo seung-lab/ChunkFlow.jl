@@ -14,15 +14,11 @@
         "data": "img"
     }
 },
-"ConvNetUNet":{
-    "kind": "NodeKaffe",
+"CPUInferenceUNet":{
+    "kind": "NodeInference",
     "params":{
         "kaffeDir"          : "/opt/kaffe",
-        "caffeModelFile"    : "s3://neuroglancer/pinky40_v11/affinitymap-unet/convnets/deploy.prototxt",
-        "caffeNetFile"      : "s3://neuroglancer/pinky40_v11/affinitymap-unet/convnets/train_iter_1000000.caffemodel.h5",
-        "caffeNetFileMD5"   : "82c90821c68379d2225602bfceb06187",
-        "outputPatchSize"   : [256, 256,  18],
-        "scanParams"        : "dict(stride=(0,0,0), blend='bump')",
+        "scanParams"        : "dict(stride=(0,0,0))",
         "preprocess"        : "divideby",
         "batchSize"         : 1,
         "deviceID"          : " ",

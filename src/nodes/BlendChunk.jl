@@ -17,7 +17,7 @@ immutable NodeBlendChunk <: AbstractNode end
 """
 node function of blendchunk
 """
-function Nodes.run(x::NodeBlendChunk, c::Dict,
+function Nodes.run(x::NodeBlendChunk, c::AbstractChannel,
                    nodeConf::NodeConf)
     params = nodeConf[:params]
     inputs = nodeConf[:inputs]

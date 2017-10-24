@@ -1,4 +1,4 @@
-module Watch
+module AWSCloudWatches
 
 import AWSSDK.CloudWatch 
 import Logging
