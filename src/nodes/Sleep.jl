@@ -5,7 +5,7 @@ export NodeSleep, run
 
 immutable NodeSleep <: AbstractNode end 
 
-function Nodes.run(x::NodeSleep, c::Dict, nc::NodeConf)
+function Nodes.run(x::NodeSleep, c::AbstractChannel, nc::NodeConf)
     t = nc[:params][:time]
     println("sleep for $(t) seconds...")
     sleep(t)

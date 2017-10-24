@@ -4,7 +4,7 @@ using HDF5
 using BigArrays
 using BigArrays.Chunks
 using EMIRT
-using ChunkFlow.Cloud
+include("../utils/Clouds.jl"); using .Clouds
 
 export NodeKaffe, run 
 immutable NodeKaffe <: AbstractNode end 
@@ -12,14 +12,14 @@ immutable NodeKaffe <: AbstractNode end
 """
 node function of kaffe forward pass
 """
-function Nodes.run(x::NodeKaffe, c::Dict,
+function Nodes.run(x::NodeKaffe, c::AbstractChannel,
                    nodeConf::NodeConf)
     params = nodeConf[:params]
     inputs = nodeConf[:inputs]
     outputs = nodeConf[:outputs]
     # note that the fetch only use reference rather than copy
     # anychange for chk_img could affect the img in dickchannel
-    chk_img = c[inputs[:img]]
+    chk_img = take!(c, inputs[:img])
     @assert isa(chk_img.data, EMImage)
 
     # save as hdf5 file
@@ -136,7 +136,7 @@ function Nodes.run(x::NodeKaffe, c::Dict,
     chk_out = Chunk(out, outOrigin, chk_img.voxelSize)
     @assert Chunks.get_origin(chk_out)[4] == 1
 
-    c[outputs[:aff]] = chk_out
+    put!(c, outputs[:aff], chk_out)
 
     # remove temporary files
     rm(fImg);  rm(fOut); rm(fForwardCfg); rm(fDataSpec);
@@ -148,7 +148,7 @@ download
 """
 function download_net( fileName::AbstractString; md5::AbstractString = "" )
     # download trained network
-    if Cloud.iss3(fileName) || Cloud.isgs(fileName)
+    if Clouds.iss3(fileName) || Clouds.isgs(fileName)
         localFileName = replace(fileName, "gs://", "/tmp/")
         localFileName = replace(localFileName, "s3://", "/tmp/")
         @show localFileName
@@ -156,7 +156,7 @@ function download_net( fileName::AbstractString; md5::AbstractString = "" )
             # sleep for some time in case some other process is downloading
             sleep(rand(1:100))
             if !(isfile(localFileName) && is_md5_correct(localFileName, md5))
-                Cloud.download(fileName, localFileName)
+                Clouds.download(fileName, localFileName)
                 @assert is_md5_correct(localFileName, md5)
             end
         end

@@ -5,20 +5,14 @@ module ChunkFlow
 using DataStructures
 using BigArrays.Chunks
 
-include("utils/cloud.jl")
-include("nodes.jl")
-include("core/error.jl")
-include("core/argparser.jl")
-include("utils/producer.jl")
-include("utils/execute.jl")
-include("utils/watch.jl")
-
-using .Nodes
-
-import .Watch
+include("Nodes.jl"); using .Nodes
+include("Errors.jl"); using .Errors;
+include("ChunkFlowTasks.jl"); using .ChunkFlowTasks;
+include("DictChannels.jl"); using .DictChannels 
+include("utils/AWSCloudWatches.jl"); using .AWSCloudWatches
+include("utils/Clouds.jl"); using .Clouds 
 
 export forward
-
 
 """
 construct a net from computation graph config file.
@@ -27,19 +21,19 @@ all the nodes was stored and managed in a DictChannel.
 """
 function forward( task::OrderedDict{Symbol, Any} )
     # the global dict channel 
-    c = Dict()
-    t = Watch.Timer()
+    c = DictChannel()
+    t = AWSCloudWatches.Timer()
     for (name, d) in task 
-        Watch.info("----- start $(name) -----")
+        AWSCloudWatches.info("----- start $(name) -----")
         node = eval(Symbol(d[:kind]))()
         Nodes.run(node, c, d)
-        elapsed = Watch.get_elapsed!(t)
-        Watch.record_elapsed(name, elapsed)
-        Watch.info("---- elapse of $(name): $(elapsed) -----")
+        elapsed = AWSCloudWatches.get_elapsed!(t)
+        AWSCloudWatches.record_elapsed(name, elapsed)
+        AWSCloudWatches.info("---- elapse of $(name): $(elapsed) -----")
     end
-    total_elapsed = Watch.get_total_elapsed(t)
-    Watch.record_elapsed("TotalPipeline", total_elapsed)
-    Watch.info("----------- total elapsed of pipeline: $(total_elapsed) ------------")
+    total_elapsed = AWSCloudWatches.get_total_elapsed(t)
+    AWSCloudWatches.record_elapsed("TotalPipeline", total_elapsed)
+    AWSCloudWatches.info("------ total elapsed of pipeline: $(total_elapsed) --------")
 end
 
 end # end of module ChunkFlow

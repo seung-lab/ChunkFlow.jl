@@ -3,7 +3,8 @@ using ..Nodes
 using HDF5
 using BigArrays
 using DataStructures
-using ChunkFlow.Cloud
+
+include("../utils/Clouds.jl"); using .Clouds
 
 export NodeReadH5, run
 immutable NodeReadH5 <: AbstractNode end 
@@ -38,15 +39,15 @@ end
 """
 node function of readh5
 """
-function Nodes.run(x::NodeReadH5, c::Dict,
+function Nodes.run(x::NodeReadH5, c::AbstractChannel,
                    nc::NodeConf)
     params = nc[:params]
     inputs = nc[:inputs]
     outputs = nc[:outputs]
     fileName = inputs[:fileName]
-    if Cloud.iss3(fileName)
+    if Clouds.iss3(fileName)
         # download from s3
-        fileName = Cloud.download(fileName, "/tmp/")
+        fileName = Clouds.download(fileName, "/tmp/")
     else
         fileName = replace(fileName, "~", homedir())
     end

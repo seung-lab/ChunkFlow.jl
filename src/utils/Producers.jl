@@ -1,4 +1,4 @@
-module Producer
+module Producers
 
 #include(joinpath(dirname(@__FILE__), "polygon.jl"))
 

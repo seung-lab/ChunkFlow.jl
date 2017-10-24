@@ -1,4 +1,4 @@
-module Cloud
+module Clouds
 
 using AWSS3
 
