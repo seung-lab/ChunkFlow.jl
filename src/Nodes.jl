@@ -2,20 +2,22 @@ module Nodes
 
 using DataStructures
 
-export AbstractNode, NodeConf
+export AbstractNode, AbstractIONode, AbstractComputeNode, NodeConf
 
 abstract AbstractNode
+abstract AbstractIONode <: AbstractNode 
+abstract AbstractComputeNode <: AbstractNode
+
 # node configuration dictionary
 typealias NodeConf OrderedDict{Symbol, Any}
 
 # define a function to inherite
-export run
 function run end 
 
 #include("nodes/agglomeration.jl")
 #include("nodes/atomicseg.jl")
 include("nodes/BlendChunk.jl"); using .BlendChunk; export NodeBlendChunk;
-include("nodes/Crop.jl"); using .Crop; export NodeCrop;
+#include("nodes/Crop.jl"); using .Crop; export NodeCrop;
 include("nodes/CutoutChunk.jl"); using .CutoutChunk; export NodeCutoutChunk;
 #include("nodes/downsample.jl")
 #include("nodes/hypersquare.jl")
@@ -34,6 +36,5 @@ include("nodes/Sleep.jl"); using .Sleep; export NodeSleep;
 #include("nodes/watershed.jl")
 #include("nodes/watershed_stage1.jl")
 #include("nodes/znni.jl")
-
 
 end # end of module 

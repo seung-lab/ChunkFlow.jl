@@ -171,16 +171,30 @@
 ```
 
 ## savechunk
-
 ```json
 "saveaff":{
-    "kind": "savechunk",
-    "params": {},
+    "kind": "NodeSaveChunk",
+    "params": {
+        "chunkFileName": "/tmp/chunk.h5"
+    },
     "inputs": {
         "chunk": "aff"
     },
     "outputs": {
+    }
+},
+```
+
+```json
+"saveaff":{
+    "kind": "NodeSaveChunk",
+    "params": {
         "prefix": "s3://zfish/dodam_aligned_stacks/2x2x2_2/affinityMap/chunk_"
+    },
+    "inputs": {
+        "chunk": "aff"
+    },
+    "outputs": {
     }
 },
 ```

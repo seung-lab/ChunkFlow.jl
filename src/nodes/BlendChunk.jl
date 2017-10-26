@@ -12,7 +12,7 @@ using BOSSArrays
 
 export NodeBlendChunk, run
 
-immutable NodeBlendChunk <: AbstractNode end 
+immutable NodeBlendChunk <: AbstractIONode end 
 
 """
 node function of blendchunk
@@ -23,7 +23,7 @@ function Nodes.run(x::NodeBlendChunk, c::AbstractChannel,
     inputs = nodeConf[:inputs]
     outputs = nodeConf[:outputs]
     # get chunk
-    chk = c[inputs[:chunk]]
+    chk = take!(c[inputs[:chunk]])
     @show size(chk)
 
     N = ndims(chk)

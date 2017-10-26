@@ -7,19 +7,19 @@ using EMIRT
 include("../utils/Clouds.jl"); using .Clouds
 
 export NodeKaffe, run 
-immutable NodeKaffe <: AbstractNode end 
+immutable NodeKaffe <: AbstractComputeNode end 
 
 """
 node function of kaffe forward pass
 """
-function Nodes.run(x::NodeKaffe, c::AbstractChannel,
+function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
                    nodeConf::NodeConf)
     params = nodeConf[:params]
     inputs = nodeConf[:inputs]
     outputs = nodeConf[:outputs]
     # note that the fetch only use reference rather than copy
     # anychange for chk_img could affect the img in dickchannel
-    chk_img = take!(c, inputs[:img])
+    chk_img = take!(c[inputs[:img]])
     @assert isa(chk_img.data, EMImage)
 
     # save as hdf5 file
@@ -135,8 +135,12 @@ function Nodes.run(x::NodeKaffe, c::AbstractChannel,
 
     chk_out = Chunk(out, outOrigin, chk_img.voxelSize)
     @assert Chunks.get_origin(chk_out)[4] == 1
-
-    put!(c, outputs[:aff], chk_out)
+    
+    outputKey = outputs[:aff]
+    if !haskey(c, outputKey)
+        c[outputKey] = Channel{Chunk}(1)
+    end 
+    put!(c[outputKey], chk_out)
 
     # remove temporary files
     rm(fImg);  rm(fOut); rm(fForwardCfg); rm(fDataSpec);
