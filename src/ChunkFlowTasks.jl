@@ -1,16 +1,17 @@
 module ChunkFlowTasks 
-
-using ..ChunkFlow
-using Requests
+using ..Nodes
 using SQSChannels
 using JSON
 using DataStructures
+include("utils/AWSCloudWatches.jl"); using .AWSCloudWatches
 
-export ChunkFlowTask 
+export ChunkFlowTask, execute 
                                                   
 typealias ChunkFlowTask OrderedDict{Symbol, Any}  
 
-export execute
+function ChunkFlowTask( taskString::AbstractString )
+    JSON.parse(taskString, dicttype=ChunkFlowTask)
+end 
 
 """
     customize_task!( task::Dict{Symbol, Any}, argDict::Dict{Symbol, Any} )
@@ -27,19 +28,37 @@ function customize_task!( task::Associative, argDict::Associative )
     end
 end
 
-function execute( task::ChunkFlowTask )
-    @show task
-    try 
-        forward( task )
-    catch err
-        if isa(err, ChunkFlow.ZeroOverFlowError)
-            warn("the input has too many zeros!")
-        else 
-            println("catch an error while executing the task: $err")
-            rethrow()
-        end 
+"""
+construct a net from computation graph config file.
+currently, the net was composed by nodes/layers
+all the nodes was stored and managed in a DictChannel.
+"""
+function execute( task::OrderedDict{Symbol, Any} )
+    # the global dict channel 
+    c = Dict{String, Channel}()
+    t = AWSCloudWatches.Timer()
+    for (name, d) in task 
+        AWSCloudWatches.info("----- start $(name) -----")
+        node = eval(Symbol(d[:kind]))()
+        try 
+            Nodes.run(node, c, d)
+        catch err 
+            if isa(err, ChunkFlow.ZeroOverFlowError)
+				warn("the input has too many zeros!")
+			else 
+				println("catch an error while executing the task: $err")
+				rethrow()
+			end
+		end 
+        elapsed = AWSCloudWatches.get_elapsed!(t)
+        AWSCloudWatches.record_elapsed(name, elapsed)
+        AWSCloudWatches.info("---- elapse of $(name): $(elapsed) -----")
     end
-end 
+    total_elapsed = AWSCloudWatches.get_total_elapsed(t)
+    AWSCloudWatches.record_elapsed("TotalPipeline", total_elapsed)
+    AWSCloudWatches.info("------ total elapsed of pipeline: $(total_elapsed) --------")
+end
+
 
 function execute( sqsChannel::SQSChannel; argDict::Dict{Symbol,Any} = Dict{Symbol,Any}() )
     local taskString, msgHandle
@@ -61,7 +80,7 @@ function execute( sqsChannel::SQSChannel; argDict::Dict{Symbol,Any} = Dict{Symbo
                 rethrow()
             end
         end
-        task = JSON.parse(taskString; dicttype=OrderedDict{Symbol, Any})
+        task = ChunkFlowTask( taskString )
         # modify the task according to command line
         customize_task!(task, argDict)
 
@@ -79,20 +98,10 @@ function execute( argDict::Dict{Symbol, Any} )
         execute( sqsChannel; argDict = argDict )
     else
         # has local task definition
-        task = JSON.parsefile(argDict[:task]; dicttype=OrderedDict{Symbol, Any})
+        task = JSON.parsefile(argDict[:task]; dicttype=ChunkFlowTask)
         customize_task!(task, argDict)
         execute(task) 
     end
-end
-
-"""
-    post_task_finished(queuename::AbstractString)
-post task status to slack
-"""
-function post_task_finished( queuename::AbstractString, slackHookLink::AbstractString )
-    # this link point to jingpengw's slack private channel
-    post(URI( slackHookLink ),
-            """{"text": "pipeline tasks in $(queuename) finished!"}""")
 end
 
 end # end of module

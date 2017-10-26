@@ -14,7 +14,7 @@ function Base.put!(D::DictChannel, k, v)
     D
 end
 
-function Base.setindex!(self::DictChannel, value::Any, key::String)
+function Base.setindex!(self::DictChannel, value::Any, key::Any)
     put!(self, key, value)
 end 
 
@@ -25,7 +25,7 @@ function Base.take!(D::DictChannel, k)
 end
 
 
-function Base.haskey(self::DictChannel, key::AbstractString)
+function Base.haskey(self::DictChannel, key::Any)
     haskey(self.d, key)
 end 
 Base.isready(D::DictChannel) = length(D.d) > 1
@@ -35,7 +35,7 @@ function Base.fetch(D::DictChannel, k)
     D.d[k]
 end
 
-function Base.getindex( self::DictChannel, key::String )
+function Base.getindex( self::DictChannel, key::Any )
     fetch(self, key)
 end 
 

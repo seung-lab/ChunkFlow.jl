@@ -13,16 +13,6 @@
         "data": "img"
     }
 },
-"saveImg":{
-    "kind": "NodeSaveChunk",
-    "params":{},
-    "inputs":{
-        "chunk": "img"
-    },
-    "outputs":{
-        "chunkFileName": "/tmp/img.h5"
-    }
-},
 "MSF":{
     "kind": "NodeKaffe",
     "params":{
@@ -50,12 +40,12 @@
 },
 "saveaff":{
     "kind": "NodeSaveChunk",
-    "params": {},
+    "params": {  
+        "chunkFileName": "/tmp/aff.h5"
+    },
     "inputs": {
         "chunk": "aff"
     },
-    "outputs": {
-        "chunkFileName": "/tmp/aff.h5"
-    }
+    "outputs": {}
 }
 }

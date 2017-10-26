@@ -2,6 +2,7 @@ module ReadH5
 using ..Nodes
 using HDF5
 using BigArrays
+using BigArrays.Chunks
 using DataStructures
 
 include("../utils/Clouds.jl"); using .Clouds
@@ -39,7 +40,7 @@ end
 """
 node function of readh5
 """
-function Nodes.run(x::NodeReadH5, c::AbstractChannel,
+function Nodes.run(x::NodeReadH5, c::Dict{String, Channel},
                    nc::NodeConf)
     params = nc[:params]
     inputs = nc[:inputs]
@@ -66,9 +67,13 @@ function Nodes.run(x::NodeReadH5, c::AbstractChannel,
     end
     close(f)
     voxelSize = params[:voxelSize]
-    chk = BigArrays.Chunks.Chunk(arr, origin, voxelSize)
+    chk = Chunk(arr, origin, voxelSize)
     # put chunk to channel for use
-    c[outputs[:data]] = chk
+    outputKey = outputs[:data]
+    if !haskey(c, outputKey)
+        c[outputKey] = Channel{Chunk}(1)
+    end 
+    put!(c[outputKey], chk)
 
     # remove local file
     if params[:isRemoveSourceFile]

@@ -9,12 +9,12 @@ using GSDicts, S3Dicts
 using BOSSArrays
 
 export NodeCutoutChunk, run
-immutable NodeCutoutChunk <: AbstractNode end 
+immutable NodeCutoutChunk <: AbstractIONode end 
 
 """
 node function of cutting out chunk from bigarray
 """
-function Nodes.run(x::NodeCutoutChunk, c::AbstractChannel, nodeConf::NodeConf)
+function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeConf)
     params = nodeConf[:params]
     inputs = nodeConf[:inputs]
     outputs = nodeConf[:outputs]
@@ -104,7 +104,11 @@ function Nodes.run(x::NodeCutoutChunk, c::AbstractChannel, nodeConf::NodeConf)
     println("cut out chunk size: $(size(data))")
 
     # put chunk to channel for use
-    c[outputs[:data]] = chk
+    key = outputs[:data]
+    if !haskey(c, key)
+        c[key] = Channel{Chunk}(1)
+    end 
+    put!(c[key], chk)
 end
 
 end # end of module
