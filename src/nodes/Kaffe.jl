@@ -104,7 +104,6 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     end 
 
     # compute cropMarginSize using integer division
-    sz = size(chk_img.data)
     cropMarginSize = params[:cropMarginSize]
 
     # read output affinity or semantic  map
@@ -112,6 +111,7 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     # if params[:isCropImg]
     #     out = read(f["main"])
     # else
+    sz = size(f["main"])
     out = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
                     cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
                     cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]

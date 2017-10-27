@@ -1,4 +1,5 @@
-module ChunkFlowTasks 
+module ChunkFlowTasks
+using ..ChunkFlow 
 using ..Nodes
 using SQSChannels
 using JSON

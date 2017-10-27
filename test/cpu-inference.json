@@ -3,7 +3,7 @@
     "params":{
         "bigArrayType": "s3",
         "origin":   [10241, 14337, 193],
-        "cutoutSize": [2112, 2112,  136],
+        "cutoutSize": [512, 512,  64],
         "voxelSize": [4,4,40],
         "nonzeroRatioThreshold": 0.01
     },
