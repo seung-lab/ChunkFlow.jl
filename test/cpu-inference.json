@@ -15,13 +15,12 @@
     }
 },
 "CPUInferenceUNet":{
-    "kind": "NodeInference",
+    "kind": "NodeKaffe",
     "params":{
         "kaffeDir"          : "/opt/kaffe",
         "scanParams"        : "dict(stride=(0,0,0))",
         "preprocess"        : "divideby",
         "batchSize"         : 1,
-        "deviceID"          : " ",
         "cropMarginSize"    : [0, 0, 0,0],
         "originOffset"      : [0, 0, 0,0],
         "affWeight"         : 1.0
