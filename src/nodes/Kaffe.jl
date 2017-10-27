@@ -95,7 +95,13 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     @show forwardCfg
 
     # run convnet inference
-    Base.run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
+    if haskey(params, :deviceID)
+        # this is gpu inference setup
+        Base.run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
+    else
+        # this is cpu inference setup 
+        Base.run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(fForwardCfg)`)
+    end 
 
     # compute cropMarginSize using integer division
     sz = size(chk_img.data)
