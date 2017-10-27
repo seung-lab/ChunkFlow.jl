@@ -35,12 +35,12 @@
 },
 "saveaff":{
     "kind": "NodeSaveChunk",
-    "params": {},
+    "params": {
+        "chunkFileName": "/tmp/aff.h5"
+    },
     "inputs": {
         "chunk": "aff"
     },
-    "outputs": {
-        "chunkFileName": "/tmp/aff.h5"
-    }
+    "outputs": {}
 }
 }
