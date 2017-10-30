@@ -1,19 +1,18 @@
-{"input": {
-    "kind": "NodeCutoutChunk",
-    "params":{
-        "bigArrayType": "s3",
-        "origin":   [10241, 14337, 193],
-        "cutoutSize": [512, 512,  64],
-        "voxelSize": [4,4,40],
-        "nonzeroRatioThreshold": 0.01
+{"input": {                                                    
+    "kind": "NodeCutoutChunk",                                 
+    "params":{                                                 
+        "bigArrayType": "s3",                                  
+        "origin":   [506, 506, 60],                                 
+        "cutoutSize": [524, 524,  68],                         
+        "voxelSize": [4,4,40],                                 
+        "nonzeroRatioThreshold": 0.01,
+        "inputPath": "s3://neuroglancer/pinkygolden_v0/image/4_4_40/" 
     },
-    "inputs": {
-      "path": "s3://neuroglancer/pinky40_v10/image/4_4_40/"
-    },
-    "outputs": {
-        "data": "img"
-    }
-},
+    "inputs": {},                                                         
+    "outputs": {                                               
+        "data": "img"                                          
+    }                                                          
+}, 
 "CPUInferenceUNet":{
     "kind": "NodeKaffe",
     "params":{
@@ -33,14 +32,15 @@
         "aff": "aff"
     }
 },
-"saveaff":{
-    "kind": "NodeSaveChunk",
-    "params": {
-        "chunkFileName": "/tmp/aff.h5"
-    },
-    "inputs": {
-        "chunk": "aff"
-    },
-    "outputs": {}
-}
+"saveaff":{                                
+    "kind": "NodeBlendChunk",                                           
+    "params": {                                                       
+        "backend": "s3",                                                 
+        "outputPath": "s3://neuroglancer/pinkygolden_v0/affinities-cpu/4_4_40/" 
+    },                                                                    
+    "inputs": {                                     
+        "chunk": "aff"                                                           
+    },                                                              
+    "outputs": {}                                                         
+}                                                                         
 }

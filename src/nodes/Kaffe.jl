@@ -95,7 +95,7 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     @show forwardCfg
 
     # run convnet inference
-    if haskey(params, :deviceID)
+    if haskey(params, :deviceID) && params[:deviceID]!=nothing
         # this is gpu inference setup
         Base.run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
     else

@@ -24,10 +24,20 @@ function customize_task!( task::Associative, argDict::Associative )
     end 
     # set the gpu device id to use
     if !isa(argDict[:deviceid], Void)
-        set!(task, :deviceID, argDict[:deviceid])
+        set!(task,:deviceID,  argDict[:deviceid])
         println("set deviceid as $(argDict[:deviceid])")
     end
 end
+
+function set!(task::Associative, key, value)
+    for k in keys(task)
+        if k==key
+            task[k] = value 
+        elseif isa(task[k], Associative)
+            set!( task[k], key, value )
+        end 
+    end 
+end 
 
 """
 construct a net from computation graph config file.

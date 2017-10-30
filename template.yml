@@ -121,26 +121,6 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: ae21ab6c-2cdd-4e61-bc7a-fe59a100d07c
-  ProdApplicationJob:
-    Type: 'AWS::Batch::JobDefinition'
-    Properties:
-      Type: container
-      ContainerProperties:
-        Image: !Join 
-          - ''
-          - - 137112412989.dkr.ecr.
-            - !Ref 'AWS::Region'
-            - '.amazonaws.com/amazonlinux:latest'
-        Vcpus: 2
-        Memory: 2000
-        Command:
-          - echo
-          - 'Hello World, I am a high priority job'
-      RetryStrategy:
-        Attempts: 1
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: 023a65e4-4ec6-41d1-a3db-9285aa68630e
   TestApplicationJob:
     Type: 'AWS::Batch::JobDefinition'
     Properties:
@@ -161,14 +141,30 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: b373ae24-8502-4b84-998f-ee089602d8a2
-  CPUInference:
+  GPUInferenceJobDefinition:
+    Type: 'AWS::Batch::JobDefinition'
+    Properties:
+      Type: container
+      ContainerProperties:
+        Image: 'jingpengw/chunkflow.jl:master'
+        Vcpus: 4
+        Memory: 75000
+        Command:
+          - echo
+          - 'Hello World, I am a cpu inference job'
+      RetryStrategy:
+        Attempts: 2
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 27045576-67b8-4bb9-8b4f-76f3ea499355
+  CPUInferenceJobDefinition:
     Type: 'AWS::Batch::JobDefinition'
     Properties:
       Type: container
       ContainerProperties:
         Image: 'jingpengw/chunkflow.jl:cpu-inference'
-        Vcpus: 6
-        Memory: 12000
+        Vcpus: 4
+        Memory: 75000
         Command:
           - echo
           - 'Hello World, I am a cpu inference job'
@@ -177,18 +173,6 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 9dc8799a-c0b0-4248-a99e-b66556cfb2ce
-  HighPriorityJobQueue:
-    Type: 'AWS::Batch::JobQueue'
-    Properties:
-      Priority: 1
-      ComputeEnvironmentOrder:
-        - Order: 1
-          ComputeEnvironment: !Ref OnDemandComputeEnvironment
-        - Order: 2
-          ComputeEnvironment: !Ref SpotComputeEnvironment
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: dea37c6b-12ae-48bb-bf28-a5ca4576cd5e
   LowPriorityJobQueue:
     Type: 'AWS::Batch::JobQueue'
     Properties:
@@ -200,26 +184,6 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 05079ced-462b-438c-84b9-7a0f293c285a
-  OnDemandComputeEnvironment:
-    Type: 'AWS::Batch::ComputeEnvironment'
-    Properties:
-      Type: MANAGED
-      ComputeResources:
-        Type: EC2
-        MinvCpus: 0
-        DesiredvCpus: 0
-        MaxvCpus: 64
-        InstanceTypes:
-          - optimal
-        Subnets:
-          - !Ref Subnet
-        SecurityGroupIds:
-          - !Ref SecurityGroup
-        InstanceRole: !Ref IamInstanceProfile
-      ServiceRole: !Ref BatchServiceRole
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: f1794f80-8bd4-4716-b49c-72101fc11e24
   SpotComputeEnvironment:
     Type: 'AWS::Batch::ComputeEnvironment'
     Properties:
@@ -242,19 +206,78 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 585440b1-6f71-4db3-89b8-1cd965bbe08d
+  GPUInferenceComputeEnvironment:
+    Type: 'AWS::Batch::ComputeEnvironment'
+    Properties:
+      Type: MANAGED
+      ComputeResources:
+        Type: SPOT
+        MinvCpus: 0
+        DesiredvCpus: 0
+        MaxvCpus: 64
+        InstanceTypes:
+          - p2.xlarge
+        Subnets:
+          - !Ref Subnet
+        SecurityGroupIds:
+          - !Ref SecurityGroup
+        InstanceRole: !Ref IamInstanceProfile
+        BidPercentage: 40
+        SpotIamFleetRole: !Ref SpotIamFleetRole
+      ServiceRole: !Ref BatchServiceRole
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 05be5466-c0ce-4c1b-82aa-7d5a833d5269
+  CPUInferenceQueue:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      DelaySeconds: 0
+      MaximumMessageSize: 262144
+      QueueName: chunkflow-cpu-inference
+      ReceiveMessageWaitTimeSeconds: 0
+      VisibilityTimeout: 7200
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: c32706f0-2749-4226-9017-c5fb137187c0
+  QueueDepthAlarm:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      AlarmDescription: Alarm if queue depth grows beyond 10 messages
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt 
+            - CPUInferenceQueue
+            - QueueName
+      Statistic: Sum
+      Period: '300'
+      EvaluationPeriods: '1'
+      Threshold: '10'
+      ComparisonOperator: GreaterThanThreshold
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 268e5180-ec26-45a0-a4c4-f30221a2dfc1
 Outputs:
-  ProdApplicationJobArn:
-    Value: !Ref ProdApplicationJob
   TestApplicationJobArn:
     Value: !Ref TestApplicationJob
-  HighPriorityJobQueueArn:
-    Value: !Ref HighPriorityJobQueue
   LowPriorityJobQueueArn:
     Value: !Ref LowPriorityJobQueue
-  OnDemandComputeEnvironmentArn:
-    Value: !Ref OnDemandComputeEnvironment
   SpotComputeEnvironmentArn:
     Value: !Ref SpotComputeEnvironment
+  CPUInferenceQueueURL:
+    Description: URL of cpu inference Queue
+    Value: !Ref CPUInferenceQueue
+  CPUInferenceQueueARN:
+    Description: ARN of cpu inference SQS Queue
+    Value: !GetAtt 
+      - CPUInferenceQueue
+      - Arn
+  CPUInferenceQueueName:
+    Description: Name of cpu inference Queue
+    Value: !GetAtt 
+      - CPUInferenceQueue
+      - QueueName
 Metadata:
   'AWS::CloudFormation::Designer':
     b373ae24-8502-4b84-998f-ee089602d8a2:
@@ -280,8 +303,8 @@ Metadata:
         width: 60
         height: 60
       position:
-        x: 830
-        'y': 140
+        x: 930
+        'y': 200
       z: 1
       embeds: []
     c70acd11-4e9a-4b1d-b92c-7aa127b30b70:
@@ -309,8 +332,8 @@ Metadata:
         width: 60
         height: 60
       position:
-        x: 800
-        'y': 540
+        x: 560
+        'y': -10
       z: 1
       embeds: []
     4b3e712b-216a-4cba-82ec-16418e66e7b5:
@@ -318,8 +341,8 @@ Metadata:
         width: 60
         height: 60
       position:
-        x: 720
-        'y': 90
+        x: 240
+        'y': -10
       z: 1
       embeds: []
     187a3690-c888-442e-894a-a9dbadd3e456:
@@ -349,9 +372,9 @@ Metadata:
         width: 60
         height: 60
       position:
-        x: 390
-        'y': 360
-      z: 2
+        x: 710
+        'y': 160
+      z: 0
       parent: 187a3690-c888-442e-894a-a9dbadd3e456
       embeds: []
     585440b1-6f71-4db3-89b8-1cd965bbe08d:
@@ -359,8 +382,8 @@ Metadata:
         width: 60
         height: 60
       position:
-        x: 780
-        'y': 260
+        x: 930
+        'y': 80
       z: 1
       embeds: []
       isrelatedto:
@@ -374,37 +397,11 @@ Metadata:
         width: 60
         height: 60
       position:
-        x: 930
-        'y': 210
+        x: 1080
+        'y': 80
       z: 1
       embeds: []
       isrelatedto:
-        - 585440b1-6f71-4db3-89b8-1cd965bbe08d
-    f1794f80-8bd4-4716-b49c-72101fc11e24:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 780
-        'y': 350
-      z: 1
-      embeds: []
-      isrelatedto:
-        - 62d22b05-1ecf-4a39-9b94-2441aad6bfc1
-        - 5567192a-10d5-40fb-aca5-4791e275ee08
-        - 2c5b0a60-6cb5-49fa-a3f2-3b4408b96cf9
-        - c31a481b-9ae9-48a5-a796-e47c034679cd
-    dea37c6b-12ae-48bb-bf28-a5ca4576cd5e:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 930
-        'y': 350
-      z: 1
-      embeds: []
-      isrelatedto:
-        - f1794f80-8bd4-4716-b49c-72101fc11e24
         - 585440b1-6f71-4db3-89b8-1cd965bbe08d
     262a8dbc-2867-4fb1-89d2-c8d7d77b115d:
       source:
@@ -450,3 +447,73 @@ Metadata:
         'y': 540
       z: 1
       embeds: []
+    27045576-67b8-4bb9-8b4f-76f3ea499355:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 10
+        'y': 540
+      z: 1
+      embeds: []
+    05be5466-c0ce-4c1b-82aa-7d5a833d5269:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 930
+        'y': 400
+      z: 1
+      embeds: []
+      isrelatedto:
+        - 62d22b05-1ecf-4a39-9b94-2441aad6bfc1
+        - 5567192a-10d5-40fb-aca5-4791e275ee08
+        - 2c5b0a60-6cb5-49fa-a3f2-3b4408b96cf9
+        - ae21ab6c-2cdd-4e61-bc7a-fe59a100d07c
+        - c31a481b-9ae9-48a5-a796-e47c034679cd
+    fce006a4-6e22-4923-82ca-3f1283f21772:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 1080
+        'y': 400
+      z: 1
+      embeds: []
+      dependson:
+        - 05be5466-c0ce-4c1b-82aa-7d5a833d5269
+      isrelatedto:
+        - 585440b1-6f71-4db3-89b8-1cd965bbe08d
+        - 05be5466-c0ce-4c1b-82aa-7d5a833d5269
+    d30f5868-faab-4eca-9cd4-802c4dbd29dd:
+      source:
+        id: fce006a4-6e22-4923-82ca-3f1283f21772
+      target:
+        id: 05be5466-c0ce-4c1b-82aa-7d5a833d5269
+      z: 4
+    c32706f0-2749-4226-9017-c5fb137187c0:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 1270
+        'y': 90
+      z: 0
+      embeds: []
+    268e5180-ec26-45a0-a4c4-f30221a2dfc1:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 1270
+        'y': 210
+      z: 0
+      embeds: []
+      isrelatedto:
+        - c32706f0-2749-4226-9017-c5fb137187c0
+    0d58ebee-b19c-423f-9326-04b073d6fc4f:
+      source:
+        id: fce006a4-6e22-4923-82ca-3f1283f21772
+      target:
+        id: 05be5466-c0ce-4c1b-82aa-7d5a833d5269
+      z: 11
