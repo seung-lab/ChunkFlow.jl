@@ -5,7 +5,7 @@ AWS.config.update({
     credentials: new AWS.Credentials(
         process.env.AWS_ACCESS_KEY_ID,
         process.env.AWS_SECRET_ACCESS_KEY )
-})
+});
 
 let sqs = new AWS.SQS({
     apiVersion: '2012-11-05',

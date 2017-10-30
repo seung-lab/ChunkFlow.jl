@@ -9,10 +9,12 @@ import Divider from 'material-ui/Divider';
 
 import {TaskTemplate} from './TaskTemplate';
 import {SQS} from './SQS';
+import {Batch} from './Batch'; 
 
 const lightMuiTheme = getMuiTheme(lightBaseTheme);
 
-const DEFAULT_QUEUE_NAME = 'chunkflow-inference';
+const SQS_QUEUE_NAME = 'chunkflow-inference';
+const JOB_QUEUE_NAME = 'LowPriorityBatchCloudformationJobqueue'; 
 
 const styles = {
   button: { 
@@ -31,7 +33,8 @@ export class JobForm extends React.Component <any, any> {
     constructor(props: any) {
         super(props);
         this.state = {
-            sqs: new SQS(DEFAULT_QUEUE_NAME),
+            sqs: new SQS(SQS_QUEUE_NAME),
+            batch: new Batch(JOB_QUEUE_NAME, SQS_QUEUE_NAME),
             taskTemplate: new TaskTemplate(),
             start: {
                 x: 1,
@@ -145,6 +148,7 @@ export class JobForm extends React.Component <any, any> {
                         this.state.start.z
                     ] );
                     this.state.sqs.send(message);
+                    this.state.batch.submit_job();
                 }
             }
         }

@@ -8,6 +8,8 @@ using H5SectionsArrays
 using GSDicts, S3Dicts
 using BOSSArrays
 
+include("../utils/Clouds.jl"); using .Clouds 
+
 export NodeCutoutChunk, run
 immutable NodeCutoutChunk <: AbstractIONode end 
 
@@ -16,7 +18,6 @@ node function of cutting out chunk from bigarray
 """
 function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeConf)
     params = nodeConf[:params]
-    inputs = nodeConf[:inputs]
     outputs = nodeConf[:outputs]
     if haskey(params, :chunkSize)
         warn("should use cutoutSize rather than chunkSize for clarity!")
@@ -25,19 +26,19 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
     if  contains( params[:bigArrayType], "align") || 
         contains( params[:bigArrayType], "Align") || 
         contains( params[:bigArrayType], "section")
-        inputs[:registerFile] = expanduser(inputs[:registerFile])
-        @assert isfile( inputs[:registerFile] )
-        ba = H5SectionsArrays(inputs[:registerFile])
+        params[:registerFile] = expanduser(params[:registerFile])
+        @assert isfile( params[:registerFile] )
+        ba = H5SectionsArrays(params[:registerFile])
         params[:origin] = params[:origin][1:3]
     elseif  contains( params[:bigArrayType], "H5" ) ||
             contains(params[:bigArrayType], "h5") ||
             contains( params[:bigArrayType], "hdf5" )
-        ba = H5sBigArray( inputs[:h5sDir] )
+        ba = H5sBigArray( params[:h5sDir] )
     elseif contains( params[:bigArrayType], "gs" )
-        d = GSDict( inputs[:path] )
+        d = GSDict( params[:inputPath] )
         ba = BigArray( d )
     elseif contains( params[:bigArrayType], "s3" )
-        d = S3Dict( inputs[:path] )
+        d = S3Dict( params[:inputPath] )
         ba = BigArray( d )
     elseif  contains( params[:bigArrayType], "boss" ) ||
             contains( params[:bigArrayType], "BOSS" )
@@ -53,8 +54,8 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
 
     # get range
     N = ndims(ba)
-    if haskey(inputs, :referenceChunk)
-        referenceChunk = c[inputs[:referenceChunk]]
+    if haskey(params, :referenceChunk)
+        referenceChunk = c[params[:referenceChunk]]
         origin      = referenceChunk.origin[1:N]
         cutoutSize  = size(referenceChunk)[1:N]
         if length(origin) > N

@@ -18,35 +18,30 @@ export class TaskTemplate {
 
 const DEFAULT_TEMPLATE = `
 {"input": {
-    "kind": "cutoutchunk",
+    "kind": "NodeCutoutChunk",
     "params":{
         "bigArrayType": "s3",
-        "origin":   [4065, 4065, 1021],
-        "cutoutSize": [2112, 2112,  72],
-        "voxelSize": [6,6,30],
-        "nonzeroRatioThreshold": 0.00000001
+        "origin":   [1, 1, 1],
+        "cutoutSize": [524, 524,  68],
+        "voxelSize": [4,4,40],
+        "nonzeroRatioThreshold": 0.01,
+        "inputPath": "s3://neuroglancer/pinkygolden_v0/image/4_4_40/"
     },
     "inputs": {
-      "path": "s3://neuroglancer/s1_v1/image/6_6_30/"
     },
     "outputs": {
         "data": "img"
     }
 },
-"ConvNetJNet":{
-    "kind": "kaffe",
+"CPUInferenceUNet":{
+    "kind": "NodeKaffe",
     "params":{
         "kaffeDir"          : "/opt/kaffe",
-        "caffeModelFile"    : "s3://neuroglancer/s1_v1/affinitymap/convnets/deploy.prototxt",
-        "caffeNetFile"      : "s3://neuroglancer/s1_v1/affinitymap/convnets/train_iter_600000.caffemodel.h5",
-        "caffeNetFileMD5"   : "eb09961c5a4d01687e44f872bcbcbd74",
-        "outputPatchSize"   : [160, 160,  18],
-        "scanParams"        : "dict(stride=(0.5,0.5,0.5), blend='bump')",
+        "scanParams"        : "dict(stride=(0,0,0))",
         "preprocess"        : "divideby",
         "batchSize"         : 1,
-        "deviceID"          : 0,
-        "cropMarginSize"    : [32, 32, 4,0],
-        "originOffset"      : [32, 32, 4,0],
+        "cropMarginSize"    : [0, 0, 0,0],
+        "originOffset"      : [0, 0, 0,0],
         "affWeight"         : 1.0
     },
     "inputs": {
@@ -57,17 +52,16 @@ const DEFAULT_TEMPLATE = `
         "aff": "aff"
     }
 },
-"blendaffinity":{
-    "kind": "blendchunk",
-    "params":{
-      "backend": "s3"
+"saveaff":{
+    "kind": "NodeBlendChunk",
+    "params": {
+        "backend": "s3",
+        "outputPath": "s3://neuroglancer/pinkygolden_v0/affinitymap-cpu/4_4_40/"
     },
     "inputs": {
         "chunk": "aff"
     },
-    "outputs": {
-        "path": "s3://neuroglancer/s1_v1/affinitymap/6_6_30/"
-    }
+    "outputs": {}
 }
 }
 `

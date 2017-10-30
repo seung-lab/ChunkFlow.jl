@@ -17,7 +17,7 @@ immutable NodeBlendChunk <: AbstractIONode end
 """
 node function of blendchunk
 """
-function Nodes.run(x::NodeBlendChunk, c::AbstractChannel,
+function Nodes.run(x::NodeBlendChunk, c::Dict{String, Channel},
                    nodeConf::NodeConf)
     params = nodeConf[:params]
     inputs = nodeConf[:inputs]
@@ -33,10 +33,10 @@ function Nodes.run(x::NodeBlendChunk, c::AbstractChannel,
     if contains(params[:backend], "h5s")
         ba = H5sBigArray(expanduser(outputs[:bigArrayDir]);)
     elseif contains(params[:backend], "gs")
-        d = GSDict( outputs[:path] )
+        d = GSDict( params[:outputPath] )
         ba = BigArray(d)
     elseif contains(params[:backend], "s3")
-        d = S3Dict( outputs[:path] )
+        d = S3Dict( params[:outputPath] )
         ba = BigArray(d)
     elseif contains(params[:backend], "boss")
         ba = BOSSArray(
