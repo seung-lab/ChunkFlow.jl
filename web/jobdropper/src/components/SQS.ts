@@ -1,7 +1,7 @@
 //import process = require('process');
 import AWS = require('aws-sdk');
 AWS.config.update({
-    region: process.env.AWS_REGION, 
+    region: process.env.AWS_REGION,
     credentials: new AWS.Credentials(
         process.env.AWS_ACCESS_KEY_ID,
         process.env.AWS_SECRET_ACCESS_KEY )
@@ -16,7 +16,7 @@ const DEFAULT_QUEUE_URL_HEAD = "https://sqs." + process.env.AWS_REGION + ".amazo
 
 console.log(DEFAULT_QUEUE_URL_HEAD)
 
-export class SQS {
+export class AWSSQS {
     private _params = {
         DelaySeconds: 0,
         MessageAttributes:{
