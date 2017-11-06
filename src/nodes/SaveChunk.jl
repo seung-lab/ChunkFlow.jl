@@ -9,7 +9,7 @@ include("../DictChannels.jl"); using .DictChannels
 include("../utils/Clouds.jl"); using .Clouds
 
 export NodeSaveChunk, run 
-immutable NodeSaveChunk <: AbstractNode end 
+struct NodeSaveChunk <: AbstractNode end 
 
 """
 node function of readh5

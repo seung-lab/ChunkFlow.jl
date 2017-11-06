@@ -11,7 +11,7 @@ using BOSSArrays
 include("../utils/Clouds.jl"); using .Clouds 
 
 export NodeCutoutChunk, run
-immutable NodeCutoutChunk <: AbstractIONode end 
+struct NodeCutoutChunk <: AbstractIONode end 
 
 """
 node function of cutting out chunk from bigarray
