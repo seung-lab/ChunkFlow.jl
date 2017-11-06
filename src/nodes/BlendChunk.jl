@@ -12,7 +12,7 @@ using BOSSArrays
 
 export NodeBlendChunk, run
 
-immutable NodeBlendChunk <: AbstractIONode end 
+struct NodeBlendChunk <: AbstractIONode end 
 
 """
 node function of blendchunk

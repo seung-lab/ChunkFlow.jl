@@ -23,7 +23,7 @@ function record_elapsed(node_name, elapsed; namespace="ChunkFlow/")
 			]])                                                
 end 
 
-type Timer
+mutable struct Timer
     start   :: Float64
     prev    :: Float64 
 end

@@ -4,7 +4,7 @@ using HDF5
 #import Escher:  @api, render
 
 # type of learning curve
-typealias Tlc Dict{String, Dict{String,Vector}}
+const Tlc = Dict{String, Dict{String,Vector}}
 
 function get_learning_curve(fileName::AbstractString)
     if contains(fileName, "s3://")
