@@ -2,7 +2,7 @@ module DictChannels
 
 export DictChannel
 
-type DictChannel <: AbstractChannel
+mutable struct DictChannel <: AbstractChannel
     d::Dict
     cond_take::Condition    # waiting for data to become available
     DictChannel() = new(Dict(), Condition())

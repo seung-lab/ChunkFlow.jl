@@ -4,12 +4,12 @@ using DataStructures
 
 export AbstractNode, AbstractIONode, AbstractComputeNode, NodeConf
 
-abstract AbstractNode
-abstract AbstractIONode <: AbstractNode 
-abstract AbstractComputeNode <: AbstractNode
+abstract type AbstractNode end
+abstract type AbstractIONode <: AbstractNode end 
+abstract type AbstractComputeNode <: AbstractNode end
 
 # node configuration dictionary
-typealias NodeConf OrderedDict{Symbol, Any}
+const NodeConf = OrderedDict{Symbol, Any}
 
 # define a function to inherite
 function run end 

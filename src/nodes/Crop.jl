@@ -4,7 +4,7 @@ using DataStructures
 export NodeCrop, run
 
 
-immutable NodeCrop <: AbstractNode end 
+struct NodeCrop <: AbstractNode end 
 
 function Nodes.run( x::NodeCrop, c::AbstractChannel,
                    nodeConf::NodeConf)

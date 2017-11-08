@@ -142,8 +142,8 @@ new cast_type. Throw an error if it is simply not possible to represent
 all the segment ids inside the input type. If it is possible, but we have some
 ids that do not fit, relabel all the ids so they fit inside input cast_type
 """
-function smart_cast{U <: Unsigned}(segmentation::Array{U, 3},
-        segment_pairs::Array{U, 2}, cast_type::Type)
+function smart_cast(segmentation::Array{U, 3},
+        segment_pairs::Array{U, 2}, cast_type::Type) where U <: Unsigned
     # Attempt to do conversion first, if we fail due to InexactError, we will
     # try to handle it in the catch
     try
@@ -183,8 +183,8 @@ Linearly redistribute all the old_ids into the new_id_type. Then remap all the o
 ids in the old_array into a new array
 """
 
-function redistribute_ids{U <: Unsigned}(old_ids::Array{U, 1},
-        old_array::Array{U}, new_id_type::Type)
+function redistribute_ids(old_ids::Array{U, 1},
+        old_array::Array{U}, new_id_type::Type) where U <: Unsigned
     new_array = zeros(new_id_type, size(old_array))
 
     label_map = Dict{U, new_id_type}(
@@ -246,8 +246,8 @@ end
         chunk_folder::AbstractString; filename = DEFAULT_SEGMENTATION_FILENAME)
 Compress and write the segmentation to disk
 """
-function write_segmentation{U <: Unsigned}(segmentation::Array{U, 3},
-        chunk_folder::AbstractString; filename = DEFAULT_SEGMENTATION_FILENAME)
+function write_segmentation(segmentation::Array{U, 3},
+        chunk_folder::AbstractString; filename = DEFAULT_SEGMENTATION_FILENAME) where U <: Unsigned
     segmentation_file = open(joinpath(chunk_folder, filename), "w")
 
     lzma(segmentation, segmentation_file)
@@ -264,10 +264,10 @@ end
 Write write supplementary data we calculate from the segmentation i.e.
 segment bounding boxes and segment sizes.
 """
-function write_supplementary{U <: Unsigned}(segmentation::Array{U, 3},
+function write_supplementary(segmentation::Array{U, 3},
         chunk_folder::AbstractString;
         bounding_box_filename = DEFAULT_BOUNDING_BOX_FILENAME,
-        segment_size_filename = DEFAULT_SEGMENTATION_FILENAME)
+        segment_size_filename = DEFAULT_SEGMENTATION_FILENAME) where U <: Unsigned
     (bounding_boxes, sizes) = get_bounding_boxes_and_sizes(segmentation)
 
     bounding_box_file = open(joinpath(chunk_folder, bounding_box_filename), "w")
@@ -293,11 +293,11 @@ writes the graph (MST) into a file in the format of:
       edge_N_vertex_id_1::U, edge_N_vertex_id_2::U,
       edge_N_affinity::F]
 """
-function write_graph{U <: Unsigned, F <: AbstractFloat}(
+function write_graph(
         segment_pairs::Array{U, 2},
         segment_pair_affinities::Array{F, 1},
         chunk_folder::AbstractString;
-        graph_filename = DEFAULT_GRAPH_FILENAME)
+        graph_filename = DEFAULT_GRAPH_FILENAME) where {U <: Unsigned, F <: AbstractFloat}
     graph_file = open(joinpath(chunk_folder, graph_filename), "w")
 
     for edge_index in 1:length(segment_pair_affinities)
@@ -316,9 +316,9 @@ end
 Write this image into the chunk_folder. Convert images to UInt8 and write each
 slice as a separate jpg with naming convention of 0.jpg ... X.jpg
 """
-function write_images{U <: Unsigned}(images::Array{U, 3},
+function write_images(images::Array{U, 3},
         chunk_folder::AbstractString;
-        quality = DEFAULT_IMAGE_QUALITY, image_folder = DEFAULT_IMAGE_FOLDER)
+        quality = DEFAULT_IMAGE_QUALITY, image_folder = DEFAULT_IMAGE_FOLDER) where U <: Unsigned
 
     if !isdir(joinpath(chunk_folder, image_folder))
       mkdir(joinpath(chunk_folder, image_folder))
@@ -346,7 +346,7 @@ Returns:
 ** Second element is an array of segment sizes
     [seg_1_size, seg_2_size ... seg_N_size]
 """
-function get_bounding_boxes_and_sizes{U <: Unsigned}(segmentation::Array{U, 3})
+function get_bounding_boxes_and_sizes(segmentation::Array{U, 3}) where U <: Unsigned
 
     dimensions = size(segmentation)
     num_segments = maximum(segmentation) + 1 # + 1 to accommodate segment id 0
@@ -393,7 +393,7 @@ end
 HyperSquareMetadata is all the metadata that is required for eyewire to
     function properly
 """
-type HyperSquareMetadata
+mutable struct HyperSquareMetadata
     segment_id_type::Type
     affinity_type::Type
     bounding_box_type::Type

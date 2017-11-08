@@ -8,7 +8,7 @@ include("utils/AWSCloudWatches.jl"); using .AWSCloudWatches
 
 export ChunkFlowTask, execute 
                                                   
-typealias ChunkFlowTask OrderedDict{Symbol, Any}  
+const ChunkFlowTask = OrderedDict{Symbol, Any}  
 
 function ChunkFlowTask( taskString::AbstractString )
     JSON.parse(taskString, dicttype=ChunkFlowTask)
