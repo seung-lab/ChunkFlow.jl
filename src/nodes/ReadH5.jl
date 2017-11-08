@@ -8,7 +8,7 @@ using DataStructures
 include("../utils/Clouds.jl"); using .Clouds
 
 export NodeReadH5, run
-immutable NodeReadH5 <: AbstractNode end 
+struct NodeReadH5 <: AbstractNode end 
 
 """
 extract offset from file name

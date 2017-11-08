@@ -7,7 +7,7 @@ using EMIRT
 include("../utils/Clouds.jl"); using .Clouds
 
 export NodeKaffe, run 
-immutable NodeKaffe <: AbstractComputeNode end 
+struct NodeKaffe <: AbstractComputeNode end 
 
 """
 node function of kaffe forward pass
