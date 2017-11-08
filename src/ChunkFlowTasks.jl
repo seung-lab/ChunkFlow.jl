@@ -49,7 +49,7 @@ function execute( task::OrderedDict{Symbol, Any} )
     c = Dict{String, Channel}()
     t = AWSCloudWatches.Timer()
     for (name, d) in task 
-        AWSCloudWatches.info("----- start $(name) -----")
+        info("----- start $(name) -----")
         node = eval(Symbol(d[:kind]))()
         try 
             Nodes.run(node, c, d)
@@ -62,11 +62,11 @@ function execute( task::OrderedDict{Symbol, Any} )
 			end
 		end 
         elapsed = AWSCloudWatches.get_elapsed!(t)
-        AWSCloudWatches.record_elapsed(name, elapsed)
-        AWSCloudWatches.info("---- elapse of $(name): $(elapsed) -----")
+        #AWSCloudWatches.record_elapsed(name, elapsed)
+        info("---- elapse of $(name): $(elapsed) -----")
     end
     total_elapsed = AWSCloudWatches.get_total_elapsed(t)
-    AWSCloudWatches.record_elapsed("TotalPipeline", total_elapsed)
+    #AWSCloudWatches.record_elapsed("TotalPipeline", total_elapsed)
     AWSCloudWatches.info("------ total elapsed of pipeline: $(total_elapsed) --------")
 end
 

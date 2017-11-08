@@ -1,14 +1,6 @@
 module AWSCloudWatches
-import AWSSDK.CloudWatch 
-import Logging
 
-"""
-print out in terminal and save in log at the same time 
-"""
-function info(str::AbstractString)
-    println(str)
-    Logging.info(str)
-end 
+import AWSSDK.CloudWatch 
 
 function record_elapsed(node_name, elapsed; namespace="ChunkFlow/")
     CloudWatch.put_metric_data(;Namespace=namespace,                
