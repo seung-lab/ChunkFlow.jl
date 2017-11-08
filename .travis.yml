@@ -21,8 +21,6 @@ script:
     - julia -e 'Pkg.init()'
     - julia -e 'Pkg.update()'
     - julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
-    - julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
-    - julia -e 'Pkg.clone("https://github.com/seung-lab/S3Dicts.jl.git")'
     - julia -e 'Pkg.clone("https://github.com/seung-lab/SQSChannels.jl.git")'
     - julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
     - julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
