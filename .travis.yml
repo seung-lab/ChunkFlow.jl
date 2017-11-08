@@ -28,4 +28,4 @@ script:
 
 after_success:
     - julia -e 'using ChunkFlow' 
-    - julia ~/.julia/v0.5/ChunkFlow/script/main.jl -t test/sleep.json
+    - julia ~/.julia/v0.6/ChunkFlow/script/main.jl -t test/sleep.json
