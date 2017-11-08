@@ -8,10 +8,8 @@ using .ArgParsers
 #import Agglomeration, Process; @everywhere using Agglomeration, Process
 import ChunkFlow; @everywhere using ChunkFlow
 import ChunkFlow.ChunkFlowTasks; @everywhere using ChunkFlow.ChunkFlowTasks
-import Logging; @everywhere using Logging
 
-@Logging.configure(level=INFO)
-Logging.configure(filename="$(tempname()).log")
+#logging(open("$(tempname()).log", "w"))
 
 # parse the arguments as a dictionary, key is string
 @everywhere argDict = parse_commandline()
