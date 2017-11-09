@@ -1,14 +1,15 @@
 julia 0.6
-AWSSDK
-EMIRT
-Watershed
-DataStructures
 ArgParse
+AWSSDK
+AWSSQS
+BigArrays
+BOSSArrays
+EMIRT
+#Watershed
+DataStructures
+GSDicts
+H5SectionsArrays
 Images
 ImageMagick
-BigArrays
-H5SectionsArrays
-BOSSArrays
+JSON
 S3Dicts
-GSDicts
-SQSChannels

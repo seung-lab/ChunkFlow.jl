@@ -5,7 +5,7 @@ module Producers
 using ..ChunkFlow
 using DataStructures
 using BigArrays.Utils
-using SQSChannels
+using AWSSQS
 using JSON
 using S3Dicts
 using GSDicts
@@ -101,12 +101,13 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     set!(task, :deviceID, argDict[:deviceid])
     #@show task
 
-    # the SQS queue as a Julia Channel
+    # the SQS queue 
     queuename = argDict[:queuename]
     if isempty(queuename)
         println("PRINT TASK JSONS (no queue has been set)")
     else
-        c = SQSChannel(queuename)
+        aws = AWSCore.aws_config()
+        queue = sqs_get_queue(aws, queuename)
     end
     # read task config file
     # produce task script
@@ -131,7 +132,7 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
             println(JSON.json(task))
         else
             println("start of chunk: $origin")
-            put!(c, JSON.json(task))
+            sqs_send_message(queue, JSON.json(task))
         end
     end
 end

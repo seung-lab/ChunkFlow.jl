@@ -1,7 +1,9 @@
 module ChunkFlowTasks
 using ..ChunkFlow 
 using ..Nodes
-using SQSChannels
+
+using AWSCore
+using AWSSQS
 using JSON
 using DataStructures
 include("utils/AWSCloudWatches.jl"); using .AWSCloudWatches
@@ -62,7 +64,7 @@ function execute( task::OrderedDict{Symbol, Any} )
 			end
 		end 
         elapsed = AWSCloudWatches.get_elapsed!(t)
-        #AWSCloudWatches.record_elapsed(name, elapsed)
+        AWSCloudWatches.record_elapsed(name, elapsed)
         info("---- elapse of $(name): $(elapsed) -----")
     end
     total_elapsed = AWSCloudWatches.get_total_elapsed(t)
@@ -71,19 +73,19 @@ function execute( task::OrderedDict{Symbol, Any} )
 end
 
 
-function execute( sqsChannel::SQSChannel; argDict::Dict{Symbol,Any} = Dict{Symbol,Any}() )
+function execute( sqsQueue::AWSQueue; argDict::Dict{Symbol,Any} = Dict{Symbol,Any}() )
     local taskString, msgHandle
     while true
         local task, msgHandle
         try
-            msgHandle, taskString = fetch( sqsChannel )
+            m = sqs_receive_message( sqsQueue )
         catch err
             @show err
             @show typeof(err)
             if isa(err, BoundsError)
                 post_task_finished(argDict[:queuename])
                 if argDict[:shutdown]
-                    run(`sudo shutdown -h 0`)
+                    run(`shutdown -h 0`)
                 end
                 # sucess, break the loop and return peacefully
                 break
@@ -91,13 +93,13 @@ function execute( sqsChannel::SQSChannel; argDict::Dict{Symbol,Any} = Dict{Symbo
                 rethrow()
             end
         end
-        task = ChunkFlowTask( taskString )
+        task = ChunkFlowTask( m[:message] )
         # modify the task according to command line
         customize_task!(task, argDict)
 
         # delete task message in SQS
-        println("deleting task: $msgHandle")
-        delete!(sqsChannel, msgHandle)
+        println("deleting task in queue...")
+        sqs_delete_message(sqsQueue, m)
         sleep(1)
     end
 end 
@@ -105,8 +107,9 @@ end
 function execute( argDict::Dict{Symbol, Any} )
     if argDict[:task]==nothing || isa(argDict[:task], Void)
         # fetch task from AWS SQS
-        sqsChannel = SQSChannel( argDict[:queuename])
-        execute( sqsChannel; argDict = argDict )
+        aws = AWSCore.aws_config()
+        sqsQueue = sqs_get_queue(aws, argDict[:queuename])
+        execute( sqsQueue; argDict = argDict )
     else
         # has local task definition
         task = JSON.parsefile(argDict[:task]; dicttype=ChunkFlowTask)
