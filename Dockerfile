@@ -15,40 +15,39 @@ RUN apt-get update
        
 
 #### install some packages
-RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 
+RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 python-dev python-pip  
+RUN pip install --upgrade pip
+RUN pip install -U setuptools 
+RUN pip install protobuf google cloud-volume
+
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so 
 
 #### install julia
 WORKDIR /opt 
-RUN wget https://julialang-s3.julialang.org/bin/linux/x64/0.5/julia-0.5.2-linux-x86_64.tar.gz
-RUN tar -xvf julia-0.5.2-linux-x86_64.tar.gz
-RUN mv julia-f4c6c9d4bb julia-0.5
-ENV JULIA_PATH /opt/julia-0.5 
-ENV JULIA_VERSION 0.5.2
+RUN wget https://julialang-s3.julialang.org/bin/linux/x64/0.6/julia-0.6.1-linux-x86_64.tar.gz 
+RUN tar -xvf julia-0.6.1-linux-x86_64.tar.gz
+RUN mv julia-0d7248e2ff julia-0.6
+ENV JULIA_PATH /opt/julia-0.6 
+ENV JULIA_VERSION 0.6.1
 ENV PATH $JULIA_PATH/bin:$PATH
 
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
+RUN julia -e 'Pkg.clone("https://github.com/samoconnor/SymDict.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSCore.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/samoconnor/AWSSQS.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/S3Dicts.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/seung-lab/CloudVolume.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
+
+RUN julia -e 'Pkg.checkout("CloudVolume", "julia0.6")'
 RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
 
-#### install web server
-#WORKDIR /root/.julia/v0.5/ChunkFlow/web/jobdropper
-#RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
-#RUN apt-get install -y nodejs
-#RUN ln -s /usr/bin/nodejs /usr/bin/node
-#RUN apt-get install -y npm 
-#RUN npm install --silent --save-dev -g \
-#        typescript webpack webpack-dev-server 
-#RUN npm install --silent --save-dev
-#RUN webpack                                                           
-#### reset web server
 ENTRYPOINT /bin/bash
-WORKDIR /root/.julia/v0.5/ChunkFlow/scripts
+WORKDIR /root/.julia/v0.6/ChunkFlow/scripts
