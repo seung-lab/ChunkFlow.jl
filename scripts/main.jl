@@ -1,5 +1,5 @@
-include(joinpath(dirname(@__FILE__), "../src/utils/ArgParsers.jl"))
-using .ArgParsers
+include(joinpath(dirname(@__FILE__), "ArgParsers.jl"))
+using ArgParsers 
 
 # sleep a little and let the process fully launches
 # https://github.com/JuliaLang/julia/issues/12381
