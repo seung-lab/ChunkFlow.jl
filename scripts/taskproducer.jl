@@ -1,5 +1,5 @@
-include(joinpath(dirname(@__FILE__), "../src/utils/ArgParsers.jl")
-include(joinpath(dirname(@__FILE__), "../src/utils/Producers.jl")
+include(joinpath(dirname(@__FILE__), "ArgParsers.jl"))
+include(joinpath(dirname(@__FILE__), "../src/utils/Producers.jl"))
 using .ArgParsers
 using .Producers
 using DataStructures

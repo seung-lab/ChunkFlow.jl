@@ -73,7 +73,8 @@ function execute( task::OrderedDict{Symbol, Any} )
 end
 
 
-function execute( sqsQueue::AWSQueue; argDict::Dict{Symbol,Any} = Dict{Symbol,Any}() )
+function execute_sqs_tasks( sqsQueue::AWSSQS.AWSQueue; 
+                            argDict::Dict{Symbol,Any} = Dict{Symbol,Any}() )
     local taskString, msgHandle
     while true
         local task, msgHandle
@@ -109,7 +110,7 @@ function execute( argDict::Dict{Symbol, Any} )
         # fetch task from AWS SQS
         aws = AWSCore.aws_config()
         sqsQueue = sqs_get_queue(aws, argDict[:queuename])
-        execute( sqsQueue; argDict = argDict )
+        execute_sqs_tasks( sqsQueue; argDict = argDict )
     else
         # has local task definition
         task = JSON.parsefile(argDict[:task]; dicttype=ChunkFlowTask)
