@@ -78,7 +78,7 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
 
     # cutout as chunk
     if contains(params[:bigArrayType], "olume")
-         CloudVolume only works with 3D index
+        #CloudVolume only works with 3D index
         data = ba[map((x,y)->x:x+y-1, origin[1:3], cutoutSize[1:3])...]
     else
         data = ba[map((x,y)->x:x+y-1, origin, cutoutSize)...]
