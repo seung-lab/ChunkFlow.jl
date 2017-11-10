@@ -16,10 +16,12 @@ global const argDict = parse_commandline()
 #baAff = H5sBigArray("~/seungmount/research/Jingpeng/14_zfish/affinitymap/");
 #fileNames = keys(baAff)
 #originSet = Producer.get_origin_set( fileNames )
-originSet = OrderedSet{Vector}()
+#originSet = OrderedSet{Vector}()
 
 #using JLD
 #originSet = OrderedSet( load("templates/zfish/originset.fix.2.jld", "originSet"))
+
+originSet =  Producers.get_origin_set(argDict)
 
 # produce tasks using the originSet
 taskproducer( argDict; originSet = originSet )

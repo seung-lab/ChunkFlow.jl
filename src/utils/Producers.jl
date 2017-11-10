@@ -3,6 +3,7 @@ module Producers
 #include(joinpath(dirname(@__FILE__), "polygon.jl"))
 
 using ChunkFlow
+using ChunkFlow.ChunkFlowTasks
 using DataStructures
 using BigArrays.Utils
 using AWSCore
@@ -97,9 +98,9 @@ function existing_chunk_filter!( originSet::OrderedSet;
 end 
 
 function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
-    task = JSON.parsefile( argDict[:task], dicttype=Dict{Symbol,Any} )
+    task = JSON.parsefile( argDict[:task], dicttype=OrderedDict{Symbol,Any} )
     # set gpu id
-    task[:deviceID] = argDict[:deviceid]
+    ChunkFlowTasks.set!(task, :deviceID, argDict[:deviceid])
     #@show task
 
     # the SQS queue 
@@ -128,7 +129,7 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
         existing_chunk_filter!(originSet)
     end 
     for origin in originSet
-        task[:origin] = origin
+        ChunkFlowTasks.set!(task, :origin, origin)
         if isempty(queuename)
             println(JSON.json(task))
         else

@@ -75,7 +75,7 @@ end
 
 function execute_sqs_tasks( sqsQueue::AWSSQS.AWSQueue; 
                             argDict::Dict{Symbol,Any} = Dict{Symbol,Any}() )
-    local taskString, msgHandle
+    local taskString, m
     while true
         local task, msgHandle
         try
@@ -97,6 +97,8 @@ function execute_sqs_tasks( sqsQueue::AWSSQS.AWSQueue;
         task = ChunkFlowTask( m[:message] )
         # modify the task according to command line
         customize_task!(task, argDict)
+        
+        execute(task)
 
         # delete task message in SQS
         println("deleting task in queue...")

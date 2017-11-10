@@ -68,7 +68,7 @@ function Nodes.run(x::NodeBlendChunk, c::Dict{String, Channel},
         warn("unknown type of ba: $(typeof(ba))")
     end
     @show get_offset(chk)
-    @assert mod(get_offset(chk), [chunkSize...]) == zeros(eltype(chk), ndims(chk))
+    @assert mod.(get_offset(chk), [chunkSize...]) == zeros(eltype(chk), ndims(chk))
 
     blendchunk(ba, chk)
 end
