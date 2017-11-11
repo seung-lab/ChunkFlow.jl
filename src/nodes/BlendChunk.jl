@@ -9,7 +9,7 @@ using GSDicts
 using S3Dicts
 using DataStructures
 using BOSSArrays
-using CloudVolume
+#using CloudVolume
 
 export NodeBlendChunk, run
 
@@ -47,8 +47,8 @@ function Nodes.run(x::NodeBlendChunk, c::Dict{String, Channel},
                 experimentName  = params[:experimentName],
                 channelName     = params[:channelName],
                 resolutionLevel = params[:resolutionLevel])
-    elseif contains(params[:backend], "olume")
-        ba = CloudVolumeWarpper( params[:outputPath]; is1based=true )
+    #elseif contains(params[:backend], "olume")
+    #    ba = CloudVolumeWarpper( params[:outputPath]; is1based=true )
     else
         error("unsupported bigarray backend: $(params[:backend])")
     end
@@ -60,10 +60,10 @@ function Nodes.run(x::NodeBlendChunk, c::Dict{String, Channel},
         chunkSize = H5sBigArrays.get_chunk_size(ba)
     elseif isa(ba, BOSSArray)
     	chunkSize = (512,512,16)
-    elseif isa(ba, CloudVolumeWarpper)
-        println("using CloudVolumeWarpper")
-        ba[Chunks.global_range( chk )[1:3]...] = Chunks.get_data(chk)
-        return 
+    #elseif isa(ba, CloudVolumeWarpper)
+    #    println("using CloudVolumeWarpper")
+    #    ba[Chunks.global_range( chk )[1:3]...] = Chunks.get_data(chk)
+    #    return 
     else
         warn("unknown type of ba: $(typeof(ba))")
     end

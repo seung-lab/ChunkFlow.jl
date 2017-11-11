@@ -7,7 +7,7 @@ using BigArrays.Chunk
 using H5SectionsArrays
 using GSDicts, S3Dicts
 using BOSSArrays
-using CloudVolume 
+#using CloudVolume 
 
 include("../utils/Clouds.jl"); using .Clouds 
 
@@ -49,8 +49,8 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
                 collectionName  = params[:collectionName],
                 channelName     = params[:channelName],
                 resolutionLevel = params[:resolutionLevel] )
-    elseif contains( params[:bigArrayType], "olume" ) 
-        ba = CloudVolumeWrapper( params[:inputPath]; is1based=true )
+    #elseif contains( params[:bigArrayType], "olume" ) 
+    #    ba = CloudVolumeWrapper( params[:inputPath]; is1based=true )
     else
       error("invalid bigarray type: $(params[:bigArrayType])")
     end
@@ -77,12 +77,12 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
     end
 
     # cutout as chunk
-    if contains(params[:bigArrayType], "olume")
+    #if contains(params[:bigArrayType], "olume")
         #CloudVolume only works with 3D index
-        data = ba[map((x,y)->x:x+y-1, origin[1:3], cutoutSize[1:3])...]
-    else
+    #    data = ba[map((x,y)->x:x+y-1, origin[1:3], cutoutSize[1:3])...]
+    #else
         data = ba[map((x,y)->x:x+y-1, origin, cutoutSize)...]
-    end 
+    #end 
 
     if haskey(params, :isRemoveNaN) && params[:isRemoveNaN]
         ZERO = convert(eltype(data), 0)
