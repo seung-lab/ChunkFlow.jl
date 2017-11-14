@@ -21,11 +21,16 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     # anychange for chk_img could affect the img in dickchannel
     chk_img = take!(c[inputs[:img]])
     @assert isa(chk_img.data, EMImage)
+    
+    outputLayerName = "output"
+    if haskey(nodeConf[:params], :outputLayerName)
+        outputLayerName = nodeConf[:params][:outputLayerName]
+    end 
 
     # save as hdf5 file
     fImg        = string(tempname(), ".img.h5")
     fOutPre     = string(tempname(), ".out.")
-    fOut        = "$(fOutPre)_dataset1_output.h5"
+    fOut        = "$(fOutPre)_dataset1_$(outputLayerName).h5"
     fDataSpec   = string(tempname(), ".spec")
     fForwardCfg = string(tempname(), ".cfg")
 
@@ -85,7 +90,7 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     weights     = $(caffeNetFile)
     test_range  = [0]
     border      = None
-    scan_list   = ['output']
+    scan_list   = ['$(outputLayerName)']
     scan_params = $(params[:scanParams])
     save_prefix = $fOutPre
     """
