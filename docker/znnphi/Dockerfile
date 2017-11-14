@@ -54,5 +54,5 @@ RUN julia -e 'Pkg.checkout("CloudVolume", "julia0.6")'
 RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
 
-ENTRYPOINT /bin/bash
 WORKDIR /root/.julia/v0.6/ChunkFlow/scripts
+ENTRYPOINT julia main.jl -q chunkflow-inference
