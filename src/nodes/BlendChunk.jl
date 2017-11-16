@@ -4,7 +4,7 @@ module BlendChunk
 using ..Nodes 
 using BigArrays
 using BigArrays.Chunks
-using BigArrays.H5sBigArrays
+#using BigArrays.H5sBigArrays
 using GSDicts
 using S3Dicts
 using DataStructures
@@ -31,9 +31,9 @@ function Nodes.run(x::NodeBlendChunk, c::Dict{String, Channel},
     globalRange = CartesianRange(
             CartesianIndex((ones(Int,N).*typemax(Int)...)),
             CartesianIndex((zeros(Int,N)...)))
-    if contains(params[:backend], "h5s")
-        ba = H5sBigArray(expanduser(outputs[:bigArrayDir]);)
-    elseif contains(params[:backend], "gs")
+ #   if contains(params[:backend], "h5s")
+  #      ba = H5sBigArray(expanduser(outputs[:bigArrayDir]);)
+    if contains(params[:backend], "gs")
         d = GSDict( params[:outputPath] )
         ba = BigArray(d)
     elseif contains(params[:backend], "s3")
