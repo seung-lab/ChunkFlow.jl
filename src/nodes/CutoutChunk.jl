@@ -68,7 +68,7 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
             origin = [origin..., ones(typeof(origin), N-length(origin))...]
         end
     else
-        origin = params[:origin][1:ndims(ba)]
+        origin = params[:origin]
         cutoutSize = params[:cutoutSize]
     end
 
@@ -81,7 +81,7 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
         #CloudVolume only works with 3D index
     #    data = ba[map((x,y)->x:x+y-1, origin[1:3], cutoutSize[1:3])...]
     #else
-        data = ba[map((x,y)->x:x+y-1, origin, cutoutSize)...]
+    data = ba[map((x,y)->x:x+y-1, origin, cutoutSize)...]
     #end 
 
     if haskey(params, :isRemoveNaN) && params[:isRemoveNaN]
