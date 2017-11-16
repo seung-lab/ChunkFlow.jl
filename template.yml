@@ -146,12 +146,11 @@ Resources:
     Properties:
       Type: container
       ContainerProperties:
-        Image: 'jingpengw/chunkflow.jl:master'
-        Vcpus: 4
-        Memory: 75000
+        Image: 'jingpengw/chunkflow.jl:kaffe'
+        Vcpus: 2
+        Memory: 30000
         Command:
-          - echo
-          - 'Hello World, I am a cpu inference job'
+          - julia main.jl -q chunkflow-inference 
       RetryStrategy:
         Attempts: 2
     Metadata:
@@ -162,12 +161,11 @@ Resources:
     Properties:
       Type: container
       ContainerProperties:
-        Image: 'jingpengw/chunkflow.jl:cpu-inference'
+        Image: 'jingpengw/chunkflow.jl:znnphi'
         Vcpus: 4
         Memory: 75000
         Command:
-          - echo
-          - 'Hello World, I am a cpu inference job'
+          - julia main.jl -q chunkflow-cpu-inference 
       RetryStrategy:
         Attempts: 2
     Metadata:
@@ -193,6 +191,7 @@ Resources:
         MinvCpus: 0
         DesiredvCpus: 0
         MaxvCpus: 64
+        ImageId: ami-37bb714d
         InstanceTypes:
           - optimal
         Subnets:
