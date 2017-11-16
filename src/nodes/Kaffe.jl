@@ -20,7 +20,6 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     # note that the fetch only use reference rather than copy
     # anychange for chk_img could affect the img in dickchannel
     chk_img = take!(c[inputs[:img]])
-    @assert isa(chk_img.data, EMImage)
     
     outputLayerName = "output"
     if haskey(nodeConf[:params], :outputLayerName)
@@ -38,11 +37,11 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     if isfile(fImg)
         rm(fImg)
     end
-    h5write(fImg, "main", chk_img.data)
+    h5write(fImg, "main", chk_img.data[:,:,:,1])
 
     img_origin = Chunks.get_origin( chk_img )
     originOffset = Vector{UInt32}(params[:originOffset])
-    outOrigin = [img_origin..., 0x00000001] .+ originOffset
+    outOrigin = [img_origin...] .+ originOffset
 
     if !haskey(params, :caffeNetFileMD5)
         params[:caffeNetFileMD5] = ""
