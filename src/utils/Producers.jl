@@ -100,7 +100,9 @@ end
 function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     task = JSON.parsefile( argDict[:task], dicttype=OrderedDict{Symbol,Any} )
     # set gpu id
-    ChunkFlowTasks.set!(task, :deviceID, argDict[:deviceid])
+    if !isa(argDict[:deviceid], Void) 
+        ChunkFlowTasks.set!(task, :deviceID, argDict[:deviceid])
+    end 
     #@show task
 
     # the SQS queue 

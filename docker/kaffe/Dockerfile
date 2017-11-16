@@ -15,7 +15,7 @@ LABEL   maintainer="Jingpeng Wu" \
 RUN apt-get update
 
 #### install some packages
-RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 python-dev python-pip git  
+RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 python-dev python-pip git awscli
 RUN pip install --upgrade pip
 #RUN pip install -U setuptools 
 #RUN pip install protobuf google cloud-volume
@@ -68,4 +68,5 @@ RUN julia -e 'using ChunkFlow'
 
 # finallize
 WORKDIR /root/.julia/v0.6/ChunkFlow/scripts
-ENTRYPOINT julia main.jl -q chunkflow-inference
+ENTRYPOINT bash
+#ENTRYPOINT julia main.jl -q chunkflow-inference

@@ -15,7 +15,7 @@ RUN apt-get update
        
 
 #### install some packages
-RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 
+RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 awscli
 
 # RUN apt-get install -qq --no-install-recommends python-dev python-pip  
 #RUN pip install --upgrade pip
@@ -58,4 +58,5 @@ RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
 
 WORKDIR /root/.julia/v0.6/ChunkFlow/scripts
-ENTRYPOINT julia main.jl -q chunkflow-inference
+ENTRYPOINT bash
+#ENTRYPOINT julia main.jl -q chunkflow-inference
