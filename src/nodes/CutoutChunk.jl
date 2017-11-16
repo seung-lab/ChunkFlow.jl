@@ -2,7 +2,7 @@ module CutoutChunk
 using ..Nodes
 using HDF5
 using BigArrays
-using BigArrays.H5sBigArrays
+#using BigArrays.H5sBigArrays
 using BigArrays.Chunk
 using H5SectionsArrays
 using GSDicts, S3Dicts
@@ -31,10 +31,10 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
         @assert isfile( params[:registerFile] )
         ba = H5SectionsArrays(params[:registerFile])
         params[:origin] = params[:origin][1:3]
-    elseif  contains( params[:bigArrayType], "H5" ) ||
-            contains(params[:bigArrayType], "h5") ||
-            contains( params[:bigArrayType], "hdf5" )
-        ba = H5sBigArray( params[:h5sDir] )
+    #elseif  contains( params[:bigArrayType], "H5" ) ||
+    #        contains(params[:bigArrayType], "h5") ||
+    #        contains( params[:bigArrayType], "hdf5" )
+    #    ba = H5sBigArray( params[:h5sDir] )
     elseif contains( params[:bigArrayType], "gs" )
         d = GSDict( params[:inputPath] )
         ba = BigArray( d )

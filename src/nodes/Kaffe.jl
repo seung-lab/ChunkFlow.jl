@@ -20,12 +20,54 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     # note that the fetch only use reference rather than copy
     # anychange for chk_img could affect the img in dickchannel
     chk_img = take!(c[inputs[:img]])
-    
+
     outputLayerName = "output"
     if haskey(nodeConf[:params], :outputLayerName)
         outputLayerName = nodeConf[:params][:outputLayerName]
     end 
 
+    img_origin = Chunks.get_origin( chk_img )
+    originOffset = Vector{UInt32}(params[:originOffset])
+    outOrigin = [img_origin[1:3]...] .+ originOffset[1:3]
+
+    if !haskey(params, :caffeNetFileMD5)
+        params[:caffeNetFileMD5] = ""
+    end
+
+
+    # compute cropMarginSize using integer division
+    cropMarginSize = params[:cropMarginSize]
+
+    out = kaffe(chk_img.data, params[:caffeModelFile], 
+                params[:caffeNetFile], params[:caffeNetFileMD5], params[:outputPatchSize], 
+                params[:scanParams], params[:preprocess]; 
+                deviceID=params[:deviceID], batchSize=params[:batchSize],
+                outputLayerName=params[:outputLayerName])
+    
+    # crop margin
+    sz = size(out)
+    cropMarginSize = params[:cropMarginSize]
+    out = out[cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
+              cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
+              cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
+    # if only one channel, change to 3D array
+    if size(out, 4) == 1
+        out = squeeze(out, 4)
+    end 
+    chk_out = Chunk(out, outOrigin, chk_img.voxelSize)
+    
+    outputKey = outputs[:aff]
+    if !haskey(c, outputKey)
+        c[outputKey] = Channel{Chunk}(1)
+    end 
+    put!(c[outputKey], chk_out)
+end 
+
+function kaffe(img::AbstractArray, caffeModelFile::AbstractString, 
+               caffeNetFile::AbstractString, caffeNetFileMD5::AbstractString,
+               outputPatchSize::Union{Vector,Tuple}, scanParams::AbstractString,
+               preprocess::AbstractString; deviceID::Int = 0, batchSize::Int = 1, 
+               outputLayerName::AbstractString = "output")
     # save as hdf5 file
     fImg        = string(tempname(), ".img.h5")
     fOutPre     = string(tempname(), ".out.")
@@ -33,37 +75,24 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     fDataSpec   = string(tempname(), ".spec")
     fForwardCfg = string(tempname(), ".cfg")
 
-    # normalize in 2D section
-    if isfile(fImg)
-        rm(fImg)
-    end
-    h5write(fImg, "main", chk_img.data[:,:,:,1])
-
-    img_origin = Chunks.get_origin( chk_img )
-    originOffset = Vector{UInt32}(params[:originOffset])
-    outOrigin = [img_origin...] .+ originOffset
-
-    if !haskey(params, :caffeNetFileMD5)
-        params[:caffeNetFileMD5] = ""
-    end
+    h5write(fImg, "main", img)
 
     # download trained network
-    futureLocalCaffeNetFile     = @spawn download_net(params[:caffeNetFile];
-                                        md5 = params[:caffeNetFileMD5])
-    futureLocalCaffeModelFile   = @spawn download_net(params[:caffeModelFile])
+    caffeNetFile     = download_net(caffeNetFile; md5 = caffeNetFileMD5)
+    caffeModelFile   = download_net(caffeModelFile)
 
-    if contains(params[:preprocess], "ormaliz")
+    if contains(preprocess, "ormaliz")
         preprocess = "dict(type='standardize',mode='2D')"
-    elseif contains(params[:preprocess], "rescale")
+    elseif contains(preprocess, "rescale")
         preprocess = "dict(type='rescale')"
-    elseif contains(params[:preprocess], "divideby")
+    elseif contains(preprocess, "divideby")
         preprocess = "dict(type='divideby')"
     else
         error("invalid preprocessing type: $(params[:preprocess])")
     end
 
-    caffeNetFile    = fetch( futureLocalCaffeNetFile )
-    caffeModelFile  = fetch( futureLocalCaffeModelFile )
+#    caffeNetFile    = fetch( futureLocalCaffeNetFile )
+#    caffeModelFile  = fetch( futureLocalCaffeModelFile )
 
     # data specification file
     dataspec = """
@@ -83,14 +112,14 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
 
     forwardCfg = """
     [forward]
-    kaffe_root  = $(params[:kaffeDir])
+    kaffe_root  = /opt/kaffe
     dspec_path  = $fDataSpec
     model       = $(caffeModelFile)
     weights     = $(caffeNetFile)
     test_range  = [0]
     border      = None
     scan_list   = ['$(outputLayerName)']
-    scan_params = $(params[:scanParams])
+    scan_params = $(scanParams)
     save_prefix = $fOutPre
     """
     f = open(fForwardCfg, "w")
@@ -99,61 +128,19 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     @show forwardCfg
 
     # run convnet inference
-    if haskey(params, :deviceID) && params[:deviceID]!=nothing
+    if deviceID >= 0
         # this is gpu inference setup
-        Base.run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(params[:deviceID]) $(fForwardCfg) $(params[:batchSize])`)
+        Base.run(`python2 /opt/kaffe/python/forward.py $(deviceID) $(fForwardCfg) $(batchSize)`)
     else
         # this is cpu inference setup 
-        Base.run(`python2 $(joinpath(params[:kaffeDir],"python/forward.py")) $(fForwardCfg)`)
+        Base.run(`python2 /opt/kaffe/python/forward.py $(fForwardCfg)`)
     end 
-
-    # compute cropMarginSize using integer division
-    cropMarginSize = params[:cropMarginSize]
 
     # read output affinity or semantic  map
-    f = h5open(fOut)
-    # if params[:isCropImg]
-    #     out = read(f["main"])
-    # else
-    sz = size(f["main"])
-    out = f["main"][cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-                    cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-                    cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
-    # end
-    close(f)
-    # out = read(fOut, Float32, (sz..., 3))
-    # perform the cropping
-    # out = out[  cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-    #            cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-    #            cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
-
-
-    # reweight affinity to make ensemble
-    if haskey(params, :affWeight)
-        out .*= eltype(out)(params[:affWeight])
-        if haskey(c, inputs[:aff])
-            out .+= take!(c, inputs[:aff]).data
-        end
-    end
-
-    ZERO = convert(eltype(out), 0)
-    for i in eachindex(out)
-        if isnan(out[i])
-            out[i] = ZERO
-        end
-    end
-
-    chk_out = Chunk(out, outOrigin, chk_img.voxelSize)
-    @assert Chunks.get_origin(chk_out)[4] == 1
-    
-    outputKey = outputs[:aff]
-    if !haskey(c, outputKey)
-        c[outputKey] = Channel{Chunk}(1)
-    end 
-    put!(c[outputKey], chk_out)
-
+    out = h5read(fOut, "main")
     # remove temporary files
     rm(fImg);  rm(fOut); rm(fForwardCfg); rm(fDataSpec);
+    return out
 end
 
 """
