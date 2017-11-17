@@ -69,5 +69,5 @@ RUN julia -e 'using ChunkFlow'
 
 # finallize
 WORKDIR /root/.julia/v0.6/ChunkFlow/scripts
-ENTRYPOINT bash
+#ENTRYPOINT bash
 #ENTRYPOINT julia main.jl -q chunkflow-inference
