@@ -36,6 +36,7 @@ ENV PATH $JULIA_PATH/bin:$PATH
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
+RUN julia -e 'Pkg.clone("https://github.com/JuliaWeb/HTTP.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/samoconnor/SymDict.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSCore.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/samoconnor/AWSSQS.jl.git")'
