@@ -3,7 +3,6 @@ module Errors
 export ZeroOverFlowError
 
 
-mutable struct ZeroOverFlowError <: Exception
-end
+mutable struct ZeroOverFlowError <: Exception end
 
 end # module

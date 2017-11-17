@@ -1,4 +1,5 @@
 module CutoutChunk
+using ChunkFlow.Errors
 using ..Nodes
 using HDF5
 using BigArrays

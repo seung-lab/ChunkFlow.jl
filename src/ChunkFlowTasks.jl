@@ -58,6 +58,7 @@ function execute( task::OrderedDict{Symbol, Any} )
         catch err 
             if isa(err, ChunkFlow.ZeroOverFlowError)
 				warn("the input has too many zeros!")
+                break
 			else 
 				println("catch an error while executing the task: $err")
 				rethrow()
