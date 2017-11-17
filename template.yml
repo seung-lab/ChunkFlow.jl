@@ -191,7 +191,7 @@ Resources:
         MinvCpus: 0
         DesiredvCpus: 0
         MaxvCpus: 64
-        ImageId: ami-37bb714d
+        ImageId: ami-e7e7649d 
         InstanceTypes:
           - optimal
         Subnets:
