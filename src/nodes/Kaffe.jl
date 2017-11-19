@@ -25,6 +25,7 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     if haskey(nodeConf[:params], :outputLayerName)
         outputLayerName = nodeConf[:params][:outputLayerName]
     end 
+    
 
     img_origin = Chunks.get_origin( chk_img )
     originOffset = Vector{UInt32}(params[:originOffset])
@@ -33,7 +34,9 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     if !haskey(params, :caffeNetFileMD5)
         params[:caffeNetFileMD5] = ""
     end
-
+    if !haskey(params, :deviceID)
+        params[:deviceID] = -1
+    end 
 
     # compute cropMarginSize using integer division
     cropMarginSize = params[:cropMarginSize]
