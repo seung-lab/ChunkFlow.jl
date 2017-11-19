@@ -156,7 +156,9 @@ download
 """
 function download_net( fileName::AbstractString; md5::AbstractString = "" )
     # download trained network
-    if Clouds.iss3(fileName) || Clouds.isgs(fileName)
+    if isempty(fileName)
+        return ""
+    elseif Clouds.iss3(fileName) || Clouds.isgs(fileName)
         localFileName = replace(fileName, "gs://", "/tmp/")
         localFileName = replace(localFileName, "s3://", "/tmp/")
         @show localFileName
