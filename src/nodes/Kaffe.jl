@@ -31,22 +31,25 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     originOffset = Vector{UInt32}(params[:originOffset])
     outOrigin = [img_origin[1:3]...] .+ originOffset[1:3]
 
-    if !haskey(params, :caffeNetFileMD5)
-        params[:caffeNetFileMD5] = ""
-    end
-    if !haskey(params, :deviceID)
-        params[:deviceID] = -1
-    end 
-
     # compute cropMarginSize using integer division
     cropMarginSize = params[:cropMarginSize]
-
-    out = kaffe(chk_img.data, params[:caffeModelFile], 
-                params[:caffeNetFile], params[:caffeNetFileMD5], 
+    
+    local out::Array 
+    if haskey(params, :deviceID) && params[:deviceID] >= 0
+        # gpu inference
+        out = kaffe(chk_img.data, 
+                params[:scanParams], params[:preprocess]; 
+                caffeModelFile = params[:caffeModelFile], 
+                caffeNetFile = params[:caffeNetFile], caffeNetFileMD5 = params[:caffeNetFileMD5], 
+                deviceID=params[:deviceID], batchSize=params[:batchSize],
+                outputLayerName=params[:outputLayerName])
+    else
+        # gpu inference
+        out = kaffe(chk_img.data, 
                 params[:scanParams], params[:preprocess]; 
                 deviceID=params[:deviceID], batchSize=params[:batchSize],
                 outputLayerName=params[:outputLayerName])
-    
+    end 
     # crop margin
     sz = size(out)
     cropMarginSize = params[:cropMarginSize]
@@ -66,9 +69,10 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     put!(c[outputKey], chk_out)
 end 
 
-function kaffe( img::AbstractArray, caffeModelFile::AbstractString, 
-                caffeNetFile::AbstractString, caffeNetFileMD5::AbstractString,
+function kaffe( img::AbstractArray, 
                 scanParams::AbstractString, preprocess::AbstractString; 
+                caffeModelFile::AbstractString="", 
+                caffeNetFile::AbstractString="", caffeNetFileMD5::AbstractString="",
                 deviceID::Int = 0, batchSize::Int = 1, 
                 outputLayerName::AbstractString = "output")
     # save as hdf5 file
