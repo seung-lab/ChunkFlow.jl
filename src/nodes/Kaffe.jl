@@ -42,7 +42,7 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     cropMarginSize = params[:cropMarginSize]
 
     out = kaffe(chk_img.data, params[:caffeModelFile], 
-                params[:caffeNetFile], params[:caffeNetFileMD5], params[:outputPatchSize], 
+                params[:caffeNetFile], params[:caffeNetFileMD5], 
                 params[:scanParams], params[:preprocess]; 
                 deviceID=params[:deviceID], batchSize=params[:batchSize],
                 outputLayerName=params[:outputLayerName])
@@ -66,11 +66,11 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     put!(c[outputKey], chk_out)
 end 
 
-function kaffe(img::AbstractArray, caffeModelFile::AbstractString, 
-               caffeNetFile::AbstractString, caffeNetFileMD5::AbstractString,
-               outputPatchSize::Union{Vector,Tuple}, scanParams::AbstractString,
-               preprocess::AbstractString; deviceID::Int = 0, batchSize::Int = 1, 
-               outputLayerName::AbstractString = "output")
+function kaffe( img::AbstractArray, caffeModelFile::AbstractString, 
+                caffeNetFile::AbstractString, caffeNetFileMD5::AbstractString,
+                scanParams::AbstractString, preprocess::AbstractString; 
+                deviceID::Int = 0, batchSize::Int = 1, 
+                outputLayerName::AbstractString = "output")
     # save as hdf5 file
     fImg        = string(tempname(), ".img.h5")
     fOutPre     = string(tempname(), ".out.")
