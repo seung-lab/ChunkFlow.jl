@@ -1,4 +1,6 @@
 FROM nvidia/cuda:8.0-cudnn6-runtime-ubuntu16.04
+#FROM jingpengw/kaffe
+#FROM sergiypopo/cpu_inference:latest
 #FROM nvidia/cuda:8.0-cudnn5-runtime-ubuntu14.04
 LABEL   maintainer="Jingpeng Wu" \
         project="ChunkFlow"
@@ -34,20 +36,23 @@ ENV PATH $JULIA_PATH/bin:$PATH
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
+RUN julia -e 'Pkg.clone("https://github.com/JuliaWeb/HTTP.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/samoconnor/SymDict.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSCore.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/samoconnor/AWSSQS.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/S3Dicts.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/CloudVolume.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
 
 # RUN julia -e 'Pkg.checkout("CloudVolume", "julia0.6")'
 RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
+RUN julia -e 'Pkg.test("BigArrays")'
+
 
 ENTRYPOINT /bin/bash
 WORKDIR /root/.julia/v0.6/ChunkFlow/scripts
