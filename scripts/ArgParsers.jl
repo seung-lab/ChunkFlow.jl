@@ -58,6 +58,10 @@ function parse_commandline()
             help = "automatically shutdown this machine if no more task to do"
             arg_type = Bool
             default = false
+        "--isshuffle", "-f"
+            help = "whether shuffle the start list or not"
+            arg_type = Bool 
+            default = false 
     end
     return key2symbol( parse_args(s) )
 end
