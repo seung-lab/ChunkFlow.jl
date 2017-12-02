@@ -46,7 +46,8 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     else
         # gpu inference
         out = kaffe(chk_img.data, 
-                params[:scanParams], params[:preprocess]; 
+                params[:scanParams], params[:preprocess];
+                caffeModelFile = params[:caffeModelFile],
                 deviceID=params[:deviceID], batchSize=params[:batchSize],
                 outputLayerName=params[:outputLayerName])
     end 
@@ -173,7 +174,7 @@ function download_net( fileName::AbstractString; md5::AbstractString = "" )
     else
         localFileName = expanduser( fileName )
     end
-    @assert isfile(localFileName) "caffe file not found: $(localFileName)"
+    @assert (isdir(localFileName) || isfile(localFileName)) "caffe file not found: $(localFileName)"
     return localFileName
 end
 
