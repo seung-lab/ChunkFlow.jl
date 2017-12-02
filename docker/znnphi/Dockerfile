@@ -7,22 +7,33 @@ LABEL   maintainer="Jingpeng Wu" \
 
 #### update repository
 RUN apt update 
-RUN apt install -y -qq --no-install-recommends software-properties-common
-RUN add-apt-repository main
-RUN add-apt-repository universe
-RUN add-apt-repository restricted
-RUN add-apt-repository multiverse
-RUN add-apt-repository ppa:staticfloat/julia-deps 
-RUN apt-get update
+#RUN apt install -y -qq --no-install-recommends software-properties-common
+#RUN add-apt-repository main
+#RUN add-apt-repository universe
+#RUN add-apt-repository restricted
+#RUN add-apt-repository multiverse
+#RUN add-apt-repository ppa:staticfloat/julia-deps 
+#RUN apt-get update
        
-
 #### install some packages
 RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 python-dev python-pip  
 RUN pip install --upgrade pip
-RUN pip install -U setuptools 
-RUN pip install protobuf google cloud-volume
+RUN pip install awscli 
+#RUN pip install -U setuptools 
+#RUN pip install protobuf google gsutil cloud-volume
 
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so 
+
+# install gcloud
+ENV PATH /opt/google-cloud-sdk/bin:$PATH
+RUN pip install -U crcmod
+RUN mkdir -p /opt/gcloud && \
+    wget --no-check-certificate --directory-prefix=/tmp/ https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.zip && \
+    unzip /tmp/google-cloud-sdk.zip -d /opt/ && \
+    /opt/google-cloud-sdk/install.sh --usage-reporting=true --path-update=true --bash-completion=true --rc-path=/opt/gcloud/.bashrc --disable-installation-options && \
+    gcloud --quiet components update app preview alpha beta app-engine-java app-engine-python kubectl bq core gsutil gcloud && \
+    rm -rf /tmp/*
+#RUN gcloud auth activate-service-account --key-file /secrets/google-secret.json 
 
 #### install julia
 WORKDIR /opt 

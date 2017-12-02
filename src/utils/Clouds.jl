@@ -64,12 +64,12 @@ function download(remoteFile::AbstractString, localFile::AbstractString)
         mkpath(dirname(localFile))
     end
 
-    #if iss3(remoteFile)
+    if iss3(remoteFile)
         #downloads3(remoteFile, localFile)
-    #    run(`aws s3 cp -r $(remoteFile) $(localFile)`)
-    #elseif isgs(remoteFile)
+        run(`aws s3 cp -r $(remoteFile) $(localFile)`)
+    elseif isgs(remoteFile)
         run(`gsutil -m cp -r $remoteFile $localFile`)
-    #end
+    end
     return localFile
 end
 
