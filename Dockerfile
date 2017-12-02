@@ -1,6 +1,6 @@
 FROM nvidia/cuda:8.0-cudnn6-runtime-ubuntu16.04
 #FROM jingpengw/kaffe
-#FROM sergiypopo/cpu_inference:latest
+#FROM seunglab/kaffe:pznet
 #FROM nvidia/cuda:8.0-cudnn5-runtime-ubuntu14.04
 LABEL   maintainer="Jingpeng Wu" \
         project="ChunkFlow"
