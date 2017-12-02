@@ -5,7 +5,7 @@ module Producers
 using ChunkFlow
 using ChunkFlow.ChunkFlowTasks
 using DataStructures
-using BigArrays.Utils
+#using BigArrays.Utils
 using AWSCore
 using AWSSQS
 using JSON
