@@ -66,7 +66,7 @@ function download(remoteFile::AbstractString, localFile::AbstractString)
 
     if iss3(remoteFile)
         #downloads3(remoteFile, localFile)
-        run(`aws s3 cp -r $(remoteFile) $(localFile)`)
+        run(`aws s3 cp --recursive $(remoteFile) $(localFile)`)
     elseif isgs(remoteFile)
         run(`gsutil -m cp -r $remoteFile $localFile`)
     end
