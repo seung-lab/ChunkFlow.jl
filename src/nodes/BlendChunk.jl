@@ -69,7 +69,6 @@ function Nodes.run(x::NodeBlendChunk, c::Dict{String, Channel},
     end
     @show get_offset(chk)
     @show chunkSize
-    @assert all(get_offset(chk)[1:3] .%  [chunkSize[1:3]...] .== 0)  
 
     blendchunk(ba, chk)
 end
