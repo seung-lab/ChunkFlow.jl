@@ -162,10 +162,12 @@ function download_net( fileName::AbstractString; md5::AbstractString = "" )
     elseif Clouds.iss3(fileName) || Clouds.isgs(fileName)
         localFileName = replace(fileName, "gs://", "/tmp/")
         localFileName = replace(localFileName, "s3://", "/tmp/")
+        localFileName = strip(localFileName, '/')
+        localFileName = "/tmp/$(basename(localFileName))"
         @show localFileName
         if !(isfile(localFileName) && is_md5_correct(localFileName, md5))
             # sleep for some time in case some other process is downloading
-            sleep(rand(1:100))
+            #sleep(rand(1:100))
             if !(isfile(localFileName) && is_md5_correct(localFileName, md5))
                 Clouds.download(fileName, localFileName)
                 @assert is_md5_correct(localFileName, md5)
