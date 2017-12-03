@@ -65,5 +65,5 @@ RUN julia -e 'using ChunkFlow'
 RUN julia -e 'Pkg.test("BigArrays")'
 
 
-ENTRYPOINT /bin/bash
+#ENTRYPOINT /bin/bash
 WORKDIR /root/.julia/v0.6/ChunkFlow/scripts
