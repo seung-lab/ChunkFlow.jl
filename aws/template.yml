@@ -121,26 +121,6 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: ae21ab6c-2cdd-4e61-bc7a-fe59a100d07c
-  TestApplicationJob:
-    Type: 'AWS::Batch::JobDefinition'
-    Properties:
-      Type: container
-      ContainerProperties:
-        Image: !Join 
-          - ''
-          - - 137112412989.dkr.ecr.
-            - !Ref 'AWS::Region'
-            - '.amazonaws.com/amazonlinux:latest'
-        Vcpus: 2
-        Memory: 2000
-        Command:
-          - echo
-          - 'Hello World, I am a low priority job'
-      RetryStrategy:
-        Attempts: 1
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: b373ae24-8502-4b84-998f-ee089602d8a2
   GPUInferenceJobDefinition:
     Type: 'AWS::Batch::JobDefinition'
     Properties:
@@ -150,13 +130,13 @@ Resources:
         Vcpus: 2
         Memory: 30000
         Command:
-          - julia main.jl -q chunkflow-inference 
+          - julia main.jl -q chunkflow-inference
       RetryStrategy:
         Attempts: 2
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 27045576-67b8-4bb9-8b4f-76f3ea499355
-  CPUInferenceJobDefinition:
+  CPUJobDefinition:
     Type: 'AWS::Batch::JobDefinition'
     Properties:
       Type: container
@@ -165,16 +145,16 @@ Resources:
         Vcpus: 4
         Memory: 75000
         Command:
-          - julia main.jl -q chunkflow-cpu-inference 
+          - julia main.jl -q chunkflow-cpu-inference
       RetryStrategy:
         Attempts: 2
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 9dc8799a-c0b0-4248-a99e-b66556cfb2ce
-  LowPriorityJobQueue:
+  CPUJobQueue:
     Type: 'AWS::Batch::JobQueue'
     Properties:
-      JobQueueName: LowPriorityBatchCloudformationJobqueue
+      JobQueueName: CPUJobqueue
       Priority: 2
       ComputeEnvironmentOrder:
         - Order: 1
@@ -182,6 +162,17 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 05079ced-462b-438c-84b9-7a0f293c285a
+  GPUInferenceJobQueue:
+    Type: 'AWS::Batch::JobQueue'
+    Properties:
+      JobQueueName: GPUInferenceJobqueue
+      Priority: 2
+      ComputeEnvironmentOrder:
+        - Order: 1
+          ComputeEnvironment: !Ref GPUInferenceComputeEnvironment
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 86c56316-0fd5-42ea-9549-1057364fb172
   SpotComputeEnvironment:
     Type: 'AWS::Batch::ComputeEnvironment'
     Properties:
@@ -191,7 +182,6 @@ Resources:
         MinvCpus: 0
         DesiredvCpus: 0
         MaxvCpus: 64
-        ImageId: ami-e7e7649d 
         InstanceTypes:
           - optimal
         Subnets:
@@ -213,6 +203,7 @@ Resources:
         Type: SPOT
         MinvCpus: 0
         DesiredvCpus: 0
+        ImageId: ami-b929abc3
         MaxvCpus: 64
         InstanceTypes:
           - p2.xlarge
@@ -227,7 +218,7 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 05be5466-c0ce-4c1b-82aa-7d5a833d5269
-  CPUInferenceQueue:
+  CPUQueue:
     Type: 'AWS::SQS::Queue'
     Properties:
       DelaySeconds: 0
@@ -247,7 +238,7 @@ Resources:
       Dimensions:
         - Name: QueueName
           Value: !GetAtt 
-            - CPUInferenceQueue
+            - CPUQueue
             - QueueName
       Statistic: Sum
       Period: '300'
@@ -260,34 +251,25 @@ Resources:
 Outputs:
   TestApplicationJobArn:
     Value: !Ref TestApplicationJob
-  LowPriorityJobQueueArn:
-    Value: !Ref LowPriorityJobQueue
+  CPUJobQueueArn:
+    Value: !Ref CPUJobQueue
   SpotComputeEnvironmentArn:
     Value: !Ref SpotComputeEnvironment
-  CPUInferenceQueueURL:
-    Description: URL of cpu inference Queue
-    Value: !Ref CPUInferenceQueue
-  CPUInferenceQueueARN:
-    Description: ARN of cpu inference SQS Queue
+  CPUQueueURL:
+    Description: URL of cpu jobs Queue
+    Value: !Ref CPUQueue
+  CPUQueueARN:
+    Description: ARN of cpu jobs SQS Queue
     Value: !GetAtt 
-      - CPUInferenceQueue
+      - CPUQueue
       - Arn
-  CPUInferenceQueueName:
+  CPUQueueName:
     Description: Name of cpu inference Queue
     Value: !GetAtt 
-      - CPUInferenceQueue
+      - CPUQueue
       - QueueName
 Metadata:
   'AWS::CloudFormation::Designer':
-    b373ae24-8502-4b84-998f-ee089602d8a2:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 210
-        'y': 540
-      z: 1
-      embeds: []
     023a65e4-4ec6-41d1-a3db-9285aa68630e:
       size:
         width: 60
@@ -354,7 +336,6 @@ Metadata:
       z: 1
       embeds:
         - 62d22b05-1ecf-4a39-9b94-2441aad6bfc1
-        - 5567192a-10d5-40fb-aca5-4791e275ee08
         - 1f749801-c1bc-4a0e-b503-d7c1081cea5a
     62d22b05-1ecf-4a39-9b94-2441aad6bfc1:
       size:
@@ -374,7 +355,6 @@ Metadata:
         x: 710
         'y': 160
       z: 0
-      parent: 187a3690-c888-442e-894a-a9dbadd3e456
       embeds: []
     585440b1-6f71-4db3-89b8-1cd965bbe08d:
       size:
@@ -516,3 +496,15 @@ Metadata:
       target:
         id: 05be5466-c0ce-4c1b-82aa-7d5a833d5269
       z: 11
+    86c56316-0fd5-42ea-9549-1057364fb172:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 1070
+        'y': 400
+      z: 1
+      embeds: []
+      isrelatedto:
+        - 585440b1-6f71-4db3-89b8-1cd965bbe08d
+        - 05be5466-c0ce-4c1b-82aa-7d5a833d5269
