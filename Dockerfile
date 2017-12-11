@@ -19,7 +19,7 @@ RUN apt update
 RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 python-dev python-pip  
 RUN pip install --upgrade pip
 RUN pip install awscli 
-#RUN pip install -U setuptools 
+RUN pip install -U setuptools 
 #RUN pip install protobuf google gsutil cloud-volume
 
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so 
