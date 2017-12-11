@@ -249,8 +249,6 @@ Resources:
       'AWS::CloudFormation::Designer':
         id: 268e5180-ec26-45a0-a4c4-f30221a2dfc1
 Outputs:
-  TestApplicationJobArn:
-    Value: !Ref TestApplicationJob
   CPUJobQueueArn:
     Value: !Ref CPUJobQueue
   SpotComputeEnvironmentArn:
