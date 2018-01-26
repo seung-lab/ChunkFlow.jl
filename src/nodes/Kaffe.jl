@@ -4,6 +4,8 @@ using HDF5
 using BigArrays
 using BigArrays.Chunks
 using EMIRT
+using OffsetArrays
+
 include("../utils/Clouds.jl"); using .Clouds
 
 export NodeKaffe, run 
@@ -70,12 +72,13 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     put!(c[outputKey], chk_out)
 end 
 
-function kaffe( img::AbstractArray, 
-                scanParams::AbstractString, preprocess::AbstractString; 
-                caffeModelFile::AbstractString="", 
-                caffeNetFile::AbstractString="", caffeNetFileMD5::AbstractString="",
-                deviceID::Int = 0, batchSize::Int = 1, 
-                outputLayerName::AbstractString = "output")
+function kaffe( img::AbstractArray; 
+               scanParams::AbstractString = "dict(stride=(0.2,0.2,0.2),blend='bump')",
+               preprocess::AbstractString="dict(type='divideby')", 
+               caffeModelFile::AbstractString="", 
+               caffeNetFile::AbstractString="", caffeNetFileMD5::AbstractString="",
+               deviceID::Int = 0, batchSize::Int = 1, 
+               outputLayerName::AbstractString = "output")
     # save as hdf5 file
     fImg        = string(tempname(), ".img.h5")
     fOutPre     = string(tempname(), ".out.")
@@ -89,15 +92,7 @@ function kaffe( img::AbstractArray,
     caffeNetFile     = download_net(caffeNetFile; md5 = caffeNetFileMD5)
     caffeModelFile   = download_net(caffeModelFile)
 
-    if contains(preprocess, "ormaliz")
-        preprocess = "dict(type='standardize',mode='2D')"
-    elseif contains(preprocess, "rescale")
-        preprocess = "dict(type='rescale')"
-    elseif contains(preprocess, "divideby")
-        preprocess = "dict(type='divideby')"
-    else
-        error("invalid preprocessing type: $(params[:preprocess])")
-    end
+    @assert startwith(preprocess, "dict(")
 
 #    caffeNetFile    = fetch( futureLocalCaffeNetFile )
 #    caffeModelFile  = fetch( futureLocalCaffeModelFile )
