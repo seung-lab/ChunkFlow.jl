@@ -1,5 +1,5 @@
 include("ArgParsers.jl"); using .ArgParsers;
-include(joinpath(__DIR__, "../src/utils/AWSCloudWatches.jl"); using .AWSCloudWatches;
+include(joinpath(@__DIR__, "../src/utils/AWSCloudWatches.jl")); using .AWSCloudWatches;
 using BigArrays
 using OffsetArrays
 using AWSCore 
