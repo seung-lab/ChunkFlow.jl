@@ -45,15 +45,19 @@ function parse_commandline()
             default = ""
         "--origin", "-o"
             help = "the origin of chunk grids"
-            arg_type = Vector{Int}
+            arg_type = NTuple{3,Int}
+        "--chunksize", "-k"
+            help = "cutout image chunk size"
+            arg_type = NTuple{3, Int}
+            default = (1074, 1074, 144)
         "--stride", "-s"
             help = "stride of chunks"
-            arg_type = Vector{Int}
-            default = [0,0,0]
+            arg_type = NTuple{3, Int}
+            default = (0,0,0)
         "--gridsize", "-g"
             help = "size of chunks grid"
-            arg_type = Vector{Int}
-            default = [1,1,1]
+            arg_type = NTuple{3, Int}
+            default = (1,1,1)
         "--shutdown", "-u"
             help = "automatically shutdown this machine if no more task to do"
             arg_type = Bool
@@ -62,10 +66,10 @@ function parse_commandline()
             help = "whether shuffle the start list or not"
             arg_type = Bool 
             default = false
-		"--input-layer", "-i"
+		"--inputlayer", "-i"
 			help = "input neuroglancer layer path"
 			arg_type = String
-		"--output-layer", "-y"
+		"--outputlayer", "-y"
 			help = "output neuroglancer layer path"
 			arg_type = String
     end
@@ -82,5 +86,12 @@ function ArgParse.parse_item(::Type{Vector{Int}}, x::AbstractString)
     x = replace(x, "]", "")
     map(parse, split(x, ","))
 end
+
+function ArgParse.parse_item(::Type{NTuple{3,Int}}, x::AbstractString)
+    x = replace(x, "(", "")
+    x = replace(x, ")", "")
+    (map(parse, split(x, ",")) ...)
+end
+
 
 end # module
