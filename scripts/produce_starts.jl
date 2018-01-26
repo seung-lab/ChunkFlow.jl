@@ -1,17 +1,21 @@
 include("ArgParsers.jl"); using .ArgParsers 
-using AWSSQS
+using AWSSDK.SQS
+using BigArrays
 
-global const argDict = parse_commandline()
-@show argDict
+const aws = AWSCore.aws_config()
 
-queue = AWSSQS.sqs_get_queue( argDict[:queuename] )
+global const ARG_DICT = parse_commandline()
+@show ARG_DICT
 
-startList = Vector{Tuple}()
-for z in 1:argDict[:gridsize][3]
-    for y in 1:argDict[:gridsize][2]
-        for x in 1:argDict[:gridsize][1]
-            grid = (x,y,z)
-            start = map((g,o,s) ->o+(g-1)*s, grid, argDict[:origin], argDict[:stride])
+const QUEUE_URL = SQS.get_queue_url(aws, QueueName=ARG_DICT[:queuename])["QueueUrl"]
+@show QUEUE_URL 
+const GRID_SIZE = ARG_DICT[:gridsize]
+
+startList = Vector{NTuple{3,Int}}()
+for z in 1:ARG_DICT[:gridsize][3]
+    for y in 1:ARG_DICT[:gridsize][2]
+        for x in 1:ARG_DICT[:gridsize][1]
+            start = map((g,o,s) ->o+(g-1)*s, (x,y,z), ARG_DICT[:origin], ARG_DICT[:stride])
             push!(startList, (start...))
         end 
     end 
@@ -19,13 +23,27 @@ end
 
 println("get $(length(startList)) starting points.")
 
-if argDict[:isshuffle]
+if ARG_DICT[:isshuffle]
     shuffle!(startList)
 end 
 
+
 for i in 1:10:length(startList)
     println("submitting start id: $(i) --> $(i+9)")
-    messageList = map(x -> "$(x[1]),$(x[2]),$(x[3])", 
-                            startList[i:min(i+9, length(startList))])
-    sqs_send_message_batch(queue, messageList)
+    messageList = map(x->string(x[1], "-", x[1]+GRID_SIZE[1]-1, "_", 
+                                x[2], "-", x[2]+GRID_SIZE[2]-1, "_",
+                                x[3], "-", x[3]+GRID_SIZE[3]-1), 
+                      startList[i:min(i+9, length(startList))])
+    messageBatch = map((x,y)->["Id"=>string(i+x-1), "MessageBody"=>y],
+                       1:length(messageList), messageList)
+    @show messageBatch
+    SQS.send_message_batch(aws; QueueUrl=QUEUE_URL, 
+                           SendMessageBatchRequestEntry=messageBatch)
 end 
+
+#for start in startList
+#    range = map((x,y)->x:x+y-1, start, ARG_DICT[:chunksize])  
+#    message = BigArrays.Indexes.unit_range2string( [range...] )
+#    @show message
+#    SQS.send_message(aws; QueueUrl=QUEUE_URL, MessageBody=message)
+#end 

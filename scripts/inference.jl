@@ -17,10 +17,10 @@ const affinityChannel = Channel{ Tuple{DateTime, String, Affinity}}(1)
 const AWS_CREDENTIAL = AWSCore.aws_config()
 const global ARG_DICT = parse_commandline()
 const QUEUE_URL = SQS.get_queue_url(AWS_CREDENTIAL, 
-									QueueName=ARG_DICT["awsqueue"])["QueueUrl"]
+									QueueName=ARG_DICT[:awsqueue])["QueueUrl"]
 
-const INPUT_LAYER = ARG_DICT["input-layer"]
-const OUTPUT_LAYER = ARG_DICT["output-layer"]
+const INPUT_LAYER = ARG_DICT[:inputlayer]
+const OUTPUT_LAYER = ARG_DICT[:outputlayer]
 
 if startwith(INPUT_LAYER, "s3://")
 	const global baImg = BigArray(S3Dict(INPUT_LAYER))
