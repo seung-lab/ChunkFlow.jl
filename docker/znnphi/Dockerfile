@@ -37,26 +37,25 @@ RUN mkdir -p /opt/gcloud && \
 
 #### install julia
 WORKDIR /opt 
-RUN wget https://julialang-s3.julialang.org/bin/linux/x64/0.6/julia-0.6.1-linux-x86_64.tar.gz 
-RUN tar -xvf julia-0.6.1-linux-x86_64.tar.gz
-RUN mv julia-0d7248e2ff julia-0.6
+RUN wget https://julialang-s3.julialang.org/bin/linux/x64/0.6/julia-0.6.2-linux-x86_64.tar.gz 
+RUN tar -xvf julia-0.6.2-linux-x86_64.tar.gz
+RUN mv julia-d386e40c17 julia-0.6
 ENV JULIA_PATH /opt/julia-0.6 
-ENV JULIA_VERSION 0.6.1
+ENV JULIA_VERSION 0.6.2
 ENV PATH $JULIA_PATH/bin:$PATH
 
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
 RUN julia -e 'Pkg.clone("https://github.com/JuliaWeb/HTTP.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/samoconnor/SymDict.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSCore.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/samoconnor/AWSSQS.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSSDK.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/S3Dicts.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/CloudVolume.jl.git")'
+#RUN julia -e 'Pkg.clone("https://github.com/seung-lab/CloudVolume.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
 
 # RUN julia -e 'Pkg.checkout("CloudVolume", "julia0.6")'

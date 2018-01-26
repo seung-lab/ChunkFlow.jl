@@ -61,7 +61,13 @@ function parse_commandline()
         "--isshuffle", "-f"
             help = "whether shuffle the start list or not"
             arg_type = Bool 
-            default = false 
+            default = false
+		"--input-layer", "-i"
+			help = "input neuroglancer layer path"
+			arg_type = String
+		"--output-layer", "-y"
+			help = "output neuroglancer layer path"
+			arg_type = String
     end
     return key2symbol( parse_args(s) )
 end
