@@ -39,17 +39,15 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     local out::Array 
     if haskey(params, :deviceID) && params[:deviceID] >= 0
         # gpu inference
-        out = kaffe(chk_img.data, 
-                params[:scanParams], params[:preprocess]; 
-                caffeModelFile = params[:caffeModelFile], 
+        out = kaffe(chk_img.data, params[:caffeModelFile]; 
+                scanParams = params[:scanParams], preprocess = params[:preprocess], 
                 caffeNetFile = params[:caffeNetFile], caffeNetFileMD5 = params[:caffeNetFileMD5], 
                 deviceID=params[:deviceID], batchSize=params[:batchSize],
                 outputLayerName=params[:outputLayerName])
     else
-        # gpu inference
-        out = kaffe(chk_img.data, 
-                params[:scanParams], params[:preprocess];
-                caffeModelFile = params[:caffeModelFile],
+        # cpu inference
+        out = kaffe(chk_img.data, params[:caffeModelFile]; 
+                scanParams = params[:scanParams], preprocess = params[:preprocess]
                 deviceID=params[:deviceID], batchSize=params[:batchSize],
                 outputLayerName=params[:outputLayerName])
     end 
@@ -72,11 +70,11 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     put!(c[outputKey], chk_out)
 end 
 
-function kaffe( img::AbstractArray; 
+function kaffe( img::Array{UInt8, 3}, caffeModelFile::AbstractString; 
                scanParams::AbstractString = "dict(stride=(0.2,0.2,0.2),blend='bump')",
                preprocess::AbstractString="dict(type='divideby')", 
-               caffeModelFile::AbstractString="", 
-               caffeNetFile::AbstractString="", caffeNetFileMD5::AbstractString="",
+               caffeNetFile::AbstractString="", 
+               caffeNetFileMD5::AbstractString="",
                deviceID::Int = 0, batchSize::Int = 1, 
                outputLayerName::AbstractString = "output")
     # save as hdf5 file

@@ -62,9 +62,11 @@ function convnet_inference_worker()
 
 	t = time()
 	# run inference
-	ChunkFlow.Nodes.Kaffe.kaffe( img |> parent, scanParams, 
-				preprocess::AbstractString; 
-				caffeModelFile ="", caffeNetFile ="", caffeNetFileMD5 ="", 
+	out = ChunkFlow.Nodes.Kaffe.kaffe( img |> parent, 
+                caffeModelFile = ARG_DICT[:convnetfile];
+                scanParams = scanParams, 
+				preprocess = preprocess,  
+				caffeNetFile ="", caffeNetFileMD5 ="", 
                 deviceID = 0, batchSize = 1,                               
                 outputLayerName = "output")
 	
@@ -72,7 +74,8 @@ function convnet_inference_worker()
 	elapsed = time() - t 
 	AWSCloudWatches.record_elapsed("inference", elapsed)
 
-	put!(affinityChannel, (startTimeStamp, receiptHandle, aff))	
+	put!(affinityChannel, (startTimeStamp, receiptHandle, out))	
+    nothing
 end 
 
 function save_affinity_worker()
