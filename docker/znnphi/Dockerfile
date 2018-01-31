@@ -59,6 +59,7 @@ RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
 
 # RUN julia -e 'Pkg.checkout("CloudVolume", "julia0.6")'
+RUN julia -e 'Pkg.checkout("ChunkFlow", "inference-script")'
 RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
 RUN julia -e 'Pkg.test("BigArrays")'
