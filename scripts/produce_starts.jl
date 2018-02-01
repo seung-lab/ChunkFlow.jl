@@ -10,6 +10,8 @@ global const ARG_DICT = parse_commandline()
 const QUEUE_URL = SQS.get_queue_url(aws, QueueName=ARG_DICT[:queuename])["QueueUrl"]
 @show QUEUE_URL 
 const GRID_SIZE = ARG_DICT[:gridsize]
+const STRIDE = ARG_DICT[:stride]
+const CHUNK_SIZE = ARG_DICT[:chunksize]
 
 startList = Vector{NTuple{3,Int}}()
 for z in 1:ARG_DICT[:gridsize][3]
@@ -30,9 +32,9 @@ end
 
 for i in 1:10:length(startList)
     println("submitting start id: $(i) --> $(i+9)")
-    messageList = map(x->string(x[1], "-", x[1]+GRID_SIZE[1]-1, "_", 
-                                x[2], "-", x[2]+GRID_SIZE[2]-1, "_",
-                                x[3], "-", x[3]+GRID_SIZE[3]-1), 
+    messageList = map(x->string(x[1], "-", x[1]+CHUNK_SIZE[1]-1, "_", 
+                                x[2], "-", x[2]+CHUNK_SIZE[2]-1, "_",
+                                x[3], "-", x[3]+CHUNK_SIZE[3]-1), 
                       startList[i:min(i+9, length(startList))])
     messageBatch = map((x,y)->["Id"=>string(i+x-1), "MessageBody"=>y],
                        1:length(messageList), messageList)
