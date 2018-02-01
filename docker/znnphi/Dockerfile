@@ -48,7 +48,8 @@ ENV PATH $JULIA_PATH/bin:$PATH
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
 RUN julia -e 'Pkg.clone("https://github.com/JuliaWeb/HTTP.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSCore.jl.git")'
+#RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSCore.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/jingpengw/AWSCore.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSSDK.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
@@ -60,8 +61,8 @@ RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
 
 # RUN julia -e 'Pkg.checkout("CloudVolume", "julia0.6")'
 RUN julia -e 'Pkg.checkout("ChunkFlow", "inference-script")'
-RUN julia -e 'Pkg.build("ChunkFlow")'
-RUN julia -e 'using ChunkFlow'
+#RUN julia -e 'Pkg.build("ChunkFlow")'
+#RUN julia -e 'using ChunkFlow'
 RUN julia -e 'Pkg.test("BigArrays")'
 
 
