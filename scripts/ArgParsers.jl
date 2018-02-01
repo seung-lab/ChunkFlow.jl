@@ -72,7 +72,7 @@ function parse_commandline()
 		"--outputlayer", "-y"
 			help = "output neuroglancer layer path"
 			arg_type = String
-        "-convnetfile", "-v"
+        "--convnetfile", "-v"
             help = "convnet file path"
             arg_type = String
             default = "/import/convnet"

@@ -1,6 +1,9 @@
 include("ArgParsers.jl"); using .ArgParsers;
 include(joinpath(@__DIR__, "../src/utils/AWSCloudWatches.jl")); using .AWSCloudWatches;
 using BigArrays
+using S3Dicts
+using GSDicts
+
 using OffsetArrays
 using AWSCore 
 using AWSSDK.SQS
@@ -17,22 +20,22 @@ const affinityChannel = Channel{ Tuple{DateTime, String, Affinity}}(1)
 const AWS_CREDENTIAL = AWSCore.aws_config()
 const global ARG_DICT = parse_commandline()
 const QUEUE_URL = SQS.get_queue_url(AWS_CREDENTIAL, 
-									QueueName=ARG_DICT[:awsqueue])["QueueUrl"]
+									QueueName=ARG_DICT[:queuename])["QueueUrl"]
 
 const INPUT_LAYER = ARG_DICT[:inputlayer]
 const OUTPUT_LAYER = ARG_DICT[:outputlayer]
 
-if startwith(INPUT_LAYER, "s3://")
+if startswith(INPUT_LAYER, "s3://")
 	const global baImg = BigArray(S3Dict(INPUT_LAYER))
-elseif startwith(INPUT_LAYER, "gs://")
+elseif startswith(INPUT_LAYER, "gs://")
 	const global baImg = BigArray(GSDict(INPUT_LAYER))
 else 
 	error("unsupported neuroglancer layer: $(INPUT_LAYER)")
 end 
 
-if startwith(OUTPUT_LAYER, "s3://")
+if startswith(OUTPUT_LAYER, "s3://")
 	const global baAff = BigArray(S3Dict(OUTPUT_LAYER))
-elseif startwith(INPUT_LAYER, "gs://")
+elseif startswith(INPUT_LAYER, "gs://")
 	const global baAff = BigArray(GSDict(OUTPUT_LAYER))
 else
 	error("unsupported neuroglancer layer: $(OUTPUT_LAYER)")

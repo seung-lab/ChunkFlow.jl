@@ -47,7 +47,7 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     else
         # cpu inference
         out = kaffe(chk_img.data, params[:caffeModelFile]; 
-                scanParams = params[:scanParams], preprocess = params[:preprocess]
+                scanParams = params[:scanParams], preprocess = params[:preprocess],
                 deviceID=params[:deviceID], batchSize=params[:batchSize],
                 outputLayerName=params[:outputLayerName])
     end 
