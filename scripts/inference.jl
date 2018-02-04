@@ -1,6 +1,7 @@
 include("ArgParsers.jl"); using .ArgParsers;
 include(joinpath(@__DIR__, "../src/utils/AWSCloudWatches.jl")); using .AWSCloudWatches;
 using BigArrays
+using BigArrays.BinDicts
 using S3Dicts
 using GSDicts
 
@@ -30,7 +31,7 @@ if startswith(INPUT_LAYER, "s3://")
 elseif startswith(INPUT_LAYER, "gs://")
 	const global baImg = BigArray(GSDict(INPUT_LAYER))
 else 
-	error("unsupported neuroglancer layer: $(INPUT_LAYER)")
+	const global baImg = BigArray(BinDict(INPUT_LAYER))
 end 
 
 if startswith(OUTPUT_LAYER, "s3://")
@@ -44,7 +45,13 @@ end
 function read_image_worker()
     startTime = time()
 	startTimeStamp = now()
+    local messages 
     messages = SQS.receive_message(QueueUrl=QUEUE_URL)["messages"]
+    if nothing == messages
+        info("no tasks left in queue!")
+        close(imageChannel); 
+        return; 
+    end
     @assert length(messages) == 1
     message = messages[1]
     receiptHandle = message["ReceiptHandle"]
@@ -53,6 +60,7 @@ function read_image_worker()
 
     # cutout the chunk
 	img = baImg[cutoutRange...]	
+    @assert !all(img|>parent .== zero(typeof(img|>parent)))
  
     elapsed = time() - startTime  
 	AWSCloudWatches.record_elapsed("read_image_chunk", elapsed)
@@ -62,47 +70,48 @@ function read_image_worker()
 end 
 
 function convnet_inference_worker()
-	startTimeStamp, receiptHandle, img = take!(imageChannel)
+    for (startTimeStamp, receiptHandle, img) in imageChannel  
+        startTime = time()
+        # run inference
+        out = ChunkFlow.Nodes.Kaffe.kaffe( img |> parent, 
+                    caffeModelFile = ARG_DICT[:convnetfile];
+                    scanParams = scanParams, 
+                    preprocess = preprocess,  
+                    caffeNetFile ="", caffeNetFileMD5 ="", 
+                    deviceID = 0, batchSize = 1,                               
+                    outputLayerName = "output")
+        
+        elapsed = time() - startTime  
+        AWSCloudWatches.record_elapsed("inference", elapsed)
 
-	startTime = time()
-	# run inference
-	out = ChunkFlow.Nodes.Kaffe.kaffe( img |> parent, 
-                caffeModelFile = ARG_DICT[:convnetfile];
-                scanParams = scanParams, 
-				preprocess = preprocess,  
-				caffeNetFile ="", caffeNetFileMD5 ="", 
-                deviceID = 0, batchSize = 1,                               
-                outputLayerName = "output")
-	
-
-	elapsed = time() - startTime  
-	AWSCloudWatches.record_elapsed("inference", elapsed)
-
-	put!(affinityChannel, (startTimeStamp, receiptHandle, out))	
+        put!(affinityChannel, (startTimeStamp, receiptHandle, out))
+    end 
+    close(affinityChannel)
     nothing
 end 
 
 function save_affinity_worker()
-    startTimeStamp, receiptHandle, aff = take!(affinityChannel)
-	startTime = time()
+    for (startTimeStamp, receiptHandle, aff) in affinityChannel
+        startTime = time()
 
-    println("save affinitymap")
-	merge(baAff, aff)
+        println("save affinitymap")
+        merge(baAff, aff)
 
-    SQS.delete_message(QueueUrl=queueUrl, ReceiptHandle=receiptHandle)
-	
-	elapsed = time() - startTime
-	AWSCloudWatches.record_elapsed("save-affinitymap", elapsed)
-    # the time stamp is using unit of Millisecond, need to transform to seconds
-    AWSCloudWatches.record_elapsed("pipeline-latency", (now()-startTimeStamp).value / 1000)
+        SQS.delete_message(QueueUrl=QUEUE_URL, ReceiptHandle=receiptHandle)
+        
+        elapsed = time() - startTime
+        AWSCloudWatches.record_elapsed("save-affinitymap", elapsed)
+        # the time stamp is using unit of Millisecond, need to transform to seconds
+        AWSCloudWatches.record_elapsed("pipeline-latency", (now()-startTimeStamp).value / 1000)
+    end 
     nothing
 end 
 
 function main()
 	@sync begin 
         @async while true read_image_worker() end 
-        @async while true convnet_inference_worker() end 
-        @async while true save_affinity_worker() end 
+        @async convnet_inference_worker() 
+        @async save_affinity_worker() 
 	end
 	println("all worker terminated, probably all done!")
 end 
