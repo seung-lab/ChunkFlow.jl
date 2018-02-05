@@ -71,7 +71,7 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
 end 
 
 function kaffe( img::Array{UInt8, 3}, caffeModelFile::AbstractString; 
-               scanParams::AbstractString = "dict(stride=(0.2,0.2,0.2),blend='bump')",
+               scanParams::AbstractString = "dict(stride=(0.8,0.8,0.8),blend='bump')",
                preprocess::AbstractString="dict(type='divideby')", 
                caffeNetFile::AbstractString="", 
                caffeNetFileMD5::AbstractString="",
@@ -90,7 +90,7 @@ function kaffe( img::Array{UInt8, 3}, caffeModelFile::AbstractString;
     caffeNetFile     = download_net(caffeNetFile; md5 = caffeNetFileMD5)
     caffeModelFile   = download_net(caffeModelFile)
 
-    @assert startwith(preprocess, "dict(")
+    @assert startswith(preprocess, "dict(")
 
 #    caffeNetFile    = fetch( futureLocalCaffeNetFile )
 #    caffeModelFile  = fetch( futureLocalCaffeModelFile )
