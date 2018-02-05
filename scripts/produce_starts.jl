@@ -32,9 +32,10 @@ end
 
 for i in 1:10:length(startList)
     println("submitting start id: $(i) --> $(i+9)")
-    messageList = map(x->string(x[1], "-", x[1]+CHUNK_SIZE[1]-1, "_", 
-                                x[2], "-", x[2]+CHUNK_SIZE[2]-1, "_",
-                                x[3], "-", x[3]+CHUNK_SIZE[3]-1), 
+    # follow the neuroglancer 0-based python convention
+    messageList = map(x->string(x[1], "-", x[1]+CHUNK_SIZE[1], "_", 
+                                x[2], "-", x[2]+CHUNK_SIZE[2], "_",
+                                x[3], "-", x[3]+CHUNK_SIZE[3]), 
                       startList[i:min(i+9, length(startList))])
     messageBatch = map((x,y)->["Id"=>string(i+x-1), "MessageBody"=>y],
                        1:length(messageList), messageList)

@@ -22,8 +22,9 @@ function parse_commandline()
 
     @add_arg_table s begin
         "--deviceid", "-d"
-            help = "which gpu to use"
+            help = "which device to use, negative will be cpu, 0-N will be gpu id"
             arg_type = Int
+            default = -1
         "--workernumber", "-n"
             help = "number of works"
             arg_type = Int
