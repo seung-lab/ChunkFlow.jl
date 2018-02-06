@@ -154,7 +154,7 @@ Resources:
   CPUJobQueue:
     Type: 'AWS::Batch::JobQueue'
     Properties:
-      JobQueueName: CPUJobqueue
+      JobQueueName: CPUJobQueue
       Priority: 2
       ComputeEnvironmentOrder:
         - Order: 1
@@ -184,6 +184,10 @@ Resources:
         MaxvCpus: 64
         InstanceTypes:
           - optimal
+        Tags:
+          - User:jingpeng
+          - Tool:chunkflow
+          - Project:cpu-inference
         Subnets:
           - !Ref Subnet
         SecurityGroupIds:
@@ -207,6 +211,10 @@ Resources:
         MaxvCpus: 64
         InstanceTypes:
           - p2.xlarge
+        Tags:
+          - User:jingpeng
+          - Tool:chunkflow
+          - Project:gpu-inference
         Subnets:
           - !Ref Subnet
         SecurityGroupIds:
@@ -268,15 +276,6 @@ Outputs:
       - QueueName
 Metadata:
   'AWS::CloudFormation::Designer':
-    023a65e4-4ec6-41d1-a3db-9285aa68630e:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 320
-        'y': 540
-      z: 1
-      embeds: []
     ae21ab6c-2cdd-4e61-bc7a-fe59a100d07c:
       size:
         width: 60
@@ -345,6 +344,8 @@ Metadata:
       z: 2
       parent: 187a3690-c888-442e-894a-a9dbadd3e456
       embeds: []
+      iscontainedinside:
+        - 187a3690-c888-442e-894a-a9dbadd3e456
     5567192a-10d5-40fb-aca5-4791e275ee08:
       size:
         width: 60
@@ -354,6 +355,8 @@ Metadata:
         'y': 160
       z: 0
       embeds: []
+      iscontainedinside:
+        - 187a3690-c888-442e-894a-a9dbadd3e456
     585440b1-6f71-4db3-89b8-1cd965bbe08d:
       size:
         width: 60
@@ -363,12 +366,6 @@ Metadata:
         'y': 80
       z: 1
       embeds: []
-      isrelatedto:
-        - 62d22b05-1ecf-4a39-9b94-2441aad6bfc1
-        - 5567192a-10d5-40fb-aca5-4791e275ee08
-        - 2c5b0a60-6cb5-49fa-a3f2-3b4408b96cf9
-        - ae21ab6c-2cdd-4e61-bc7a-fe59a100d07c
-        - c31a481b-9ae9-48a5-a796-e47c034679cd
     05079ced-462b-438c-84b9-7a0f293c285a:
       size:
         width: 60
@@ -378,13 +375,11 @@ Metadata:
         'y': 80
       z: 1
       embeds: []
-      isrelatedto:
-        - 585440b1-6f71-4db3-89b8-1cd965bbe08d
     262a8dbc-2867-4fb1-89d2-c8d7d77b115d:
       source:
-        id: 4b3e712b-216a-4cba-82ec-16418e66e7b5
-      target:
         id: 187a3690-c888-442e-894a-a9dbadd3e456
+      target:
+        id: 4b3e712b-216a-4cba-82ec-16418e66e7b5
       z: 1
     1f749801-c1bc-4a0e-b503-d7c1081cea5a:
       size:
@@ -397,6 +392,8 @@ Metadata:
       parent: 187a3690-c888-442e-894a-a9dbadd3e456
       embeds:
         - 4b7e3c1f-08fa-471f-8d63-a25c07587400
+      iscontainedinside:
+        - 187a3690-c888-442e-894a-a9dbadd3e456
     2152b5be-fdf8-4a24-ba7f-126de15194d7:
       source:
         id: 1f749801-c1bc-4a0e-b503-d7c1081cea5a
@@ -413,8 +410,10 @@ Metadata:
       z: 3
       parent: 1f749801-c1bc-4a0e-b503-d7c1081cea5a
       embeds: []
-      references:
+      isassociatedwith:
         - 4b3e712b-216a-4cba-82ec-16418e66e7b5
+      iscontainedinside:
+        - 1f749801-c1bc-4a0e-b503-d7c1081cea5a
     9dc8799a-c0b0-4248-a99e-b66556cfb2ce:
       size:
         width: 60
@@ -442,32 +441,6 @@ Metadata:
         'y': 400
       z: 1
       embeds: []
-      isrelatedto:
-        - 62d22b05-1ecf-4a39-9b94-2441aad6bfc1
-        - 5567192a-10d5-40fb-aca5-4791e275ee08
-        - 2c5b0a60-6cb5-49fa-a3f2-3b4408b96cf9
-        - ae21ab6c-2cdd-4e61-bc7a-fe59a100d07c
-        - c31a481b-9ae9-48a5-a796-e47c034679cd
-    fce006a4-6e22-4923-82ca-3f1283f21772:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 1080
-        'y': 400
-      z: 1
-      embeds: []
-      dependson:
-        - 05be5466-c0ce-4c1b-82aa-7d5a833d5269
-      isrelatedto:
-        - 585440b1-6f71-4db3-89b8-1cd965bbe08d
-        - 05be5466-c0ce-4c1b-82aa-7d5a833d5269
-    d30f5868-faab-4eca-9cd4-802c4dbd29dd:
-      source:
-        id: fce006a4-6e22-4923-82ca-3f1283f21772
-      target:
-        id: 05be5466-c0ce-4c1b-82aa-7d5a833d5269
-      z: 4
     c32706f0-2749-4226-9017-c5fb137187c0:
       size:
         width: 60
@@ -486,14 +459,6 @@ Metadata:
         'y': 210
       z: 0
       embeds: []
-      isrelatedto:
-        - c32706f0-2749-4226-9017-c5fb137187c0
-    0d58ebee-b19c-423f-9326-04b073d6fc4f:
-      source:
-        id: fce006a4-6e22-4923-82ca-3f1283f21772
-      target:
-        id: 05be5466-c0ce-4c1b-82aa-7d5a833d5269
-      z: 11
     86c56316-0fd5-42ea-9549-1057364fb172:
       size:
         width: 60
@@ -503,6 +468,3 @@ Metadata:
         'y': 400
       z: 1
       embeds: []
-      isrelatedto:
-        - 585440b1-6f71-4db3-89b8-1cd965bbe08d
-        - 05be5466-c0ce-4c1b-82aa-7d5a833d5269
