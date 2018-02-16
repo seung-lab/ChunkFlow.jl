@@ -83,19 +83,19 @@ function convnet_inference_worker()
                     outputLayerName = "output")
         @assert size(outArray)[1:3] == size(img |> parent)
         #outArray = Array{Float32, 4}(map(length, indices(img))..., 3)
-	@show size(outArray)
-	@show (ARG_DICT[:stride]..., size(outArray,4)) 
-        marginCropSize = map((x,y)->div.(x-y,2), size(outArray), 
+	    @show size(outArray)
+        @show (ARG_DICT[:stride]..., size(outArray,4)) 
+            marginCropSize = map((x,y)->div.(x-y,2), size(outArray), 
 				(ARG_DICT[:stride]..., size(outArray,4)))
-	@show marginCropSize
-        newIndices = map( (x,y)->x.start+y:x.stop-y, 
+        @show marginCropSize
+            newIndices = map( (x,y)->x.start+y:x.stop-y, 
                              	(indices(img)..., 1:size(outArray,4)), marginCropSize)
-	# crop
-	sz = size(outArray)
-	outArray = outArray[	marginCropSize[1]+1 : sz[1]-marginCropSize[1],
-				marginCropSize[2]+1 : sz[2]-marginCropSize[2],
-				marginCropSize[3]+1 : sz[3]-marginCropSize[3], :]
-	@show newIndices
+        # crop
+        sz = size(outArray)
+        outArray = outArray[	marginCropSize[1]+1 : sz[1]-marginCropSize[1],
+                    marginCropSize[2]+1 : sz[2]-marginCropSize[2],
+                    marginCropSize[3]+1 : sz[3]-marginCropSize[3], :]
+        @show newIndices
        	out = OffsetArray(outArray, newIndices...)
         #sleep(30)
 
