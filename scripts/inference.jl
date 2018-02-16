@@ -133,37 +133,10 @@ function save_affinity_worker()
 end 
 
 function main()
-	@sync begin
-        @async begin 
-             while true 
-                try 
-                    read_image_worker()  
-                catch err 
-                    @show err
-                    continue     
-                end
-            end 
-        end 
-        @async begin 
-            while true 
-                try 
-                    convnet_inference_worker() 
-                catch err 
-                    @show err 
-                    continue 
-                end 
-            end 
-        end 
-        @async begin 
-            while true 
-                try 
-                    save_affinity_worker() 
-                catch err 
-                    @show err 
-                    continue 
-                end 
-            end 
-        end 
+	@sync begin 
+        #@async read_image_worker()  
+        #@async convnet_inference_worker() 
+        #@async save_affinity_worker() 
         #read_image_worker()  
         #convnet_inference_worker() 
         #save_affinity_worker() 
