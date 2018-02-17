@@ -4,13 +4,10 @@ AWSCore
 AWSSDK
 AWSSQS
 BigArrays
-BOSSArrays
 EMIRT
 #Watershed
 DataStructures
-GSDicts
 H5SectionsArrays
 Images
 ImageMagick
 JSON
-S3Dicts
