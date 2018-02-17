@@ -1,9 +1,25 @@
+#FROM alpine as intermediate
+#RUN apk add --no-cache git openssh 
+## add credentials on build
+#ARG SSH_PRIVATE_KEY
+#RUN mkdir /root/.ssh/
+#RUN echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa
+#RUN chmod 400 /root/.ssh/id_rsa
+## make sure tha domain is accepted
+#RUN touch /root/.ssh/known_hosts
+#RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+#
+#RUN git clone --depth=1 git@github.com:seung-lab/BigArrays.jl.git BigArrays 
+#RUN git clone --depth=1 git@github.com:seung-lab/ChunkFlow.jl.git -b inference-script ChunkFlow
+#
+
 #FROM nvidia/cuda:8.0-cudnn6-runtime-ubuntu16.04
 #FROM jingpengw/kaffe
 FROM seunglab/kaffe:pznet
 #FROM nvidia/cuda:8.0-cudnn5-runtime-ubuntu14.04
 LABEL   maintainer="Jingpeng Wu" \
         project="ChunkFlow"
+
 
 #### update repository
 RUN apt update 
@@ -47,6 +63,11 @@ ENV PATH $JULIA_PATH/bin:$PATH
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
+
+#WORKDIR /root/.julia/v0.6
+#COPY --from=intermediate /root/BigArrays  BigArrays 
+#COPY --from=intermediate /root/ChunkFlow  ChunkFlow 
+
 RUN julia -e 'Pkg.clone("https://github.com/JuliaWeb/HTTP.jl.git")'
 #RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSCore.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/jingpengw/AWSCore.jl.git")'
@@ -54,19 +75,19 @@ RUN julia -e 'Pkg.clone("https://github.com/jingpengw/AWSSQS.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/samoconnor/AWSS3.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSSDK.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/S3Dicts.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
+#RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
+#RUN julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
+#RUN julia -e 'Pkg.clone("https://github.com/seung-lab/S3Dicts.jl.git")'
+#RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
 #RUN julia -e 'Pkg.clone("https://github.com/seung-lab/CloudVolume.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
+#RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
 
 # RUN julia -e 'Pkg.checkout("CloudVolume", "julia0.6")'
-RUN julia -e 'Pkg.checkout("ChunkFlow", "inference-script")'
+#RUN julia -e 'Pkg.checkout("ChunkFlow", "inference-script")'
 #RUN julia -e 'Pkg.build("ChunkFlow")'
 #RUN julia -e 'using ChunkFlow'
-RUN julia -e 'Pkg.test("BigArrays")'
+#RUN julia -e 'Pkg.test("BigArrays")'
 
 
-#ENTRYPOINT /bin/bash
+ENTRYPOINT bash
 WORKDIR /root/.julia/v0.6/ChunkFlow/scripts

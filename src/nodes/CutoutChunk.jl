@@ -4,10 +4,10 @@ using ..Nodes
 using HDF5
 using BigArrays
 #using BigArrays.H5sBigArrays
-using BigArrays.Chunk
-using H5SectionsArrays
-using GSDicts, S3Dicts
-using BOSSArrays
+#using BigArrays.Chunk
+#using H5SectionsArrays
+using BigArrays.BinDicts, BigArrays.GSDicts, BigArrays.S3Dicts
+#using BOSSArrays
 #using CloudVolume 
 
 include("../utils/Clouds.jl"); using .Clouds 
@@ -25,31 +25,35 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
         warn("should use cutoutSize rather than chunkSize for clarity!")
         params[:cutoutSize] = params[:chunkSize]
     end
-    if  contains( params[:bigArrayType], "align") || 
-        contains( params[:bigArrayType], "Align") || 
-        contains( params[:bigArrayType], "section")
-        params[:registerFile] = expanduser(params[:registerFile])
-        @assert isfile( params[:registerFile] )
-        ba = H5SectionsArrays(params[:registerFile])
-        params[:origin] = params[:origin][1:3]
+   # if  contains( params[:bigArrayType], "align") || 
+   #     contains( params[:bigArrayType], "Align") || 
+   #     contains( params[:bigArrayType], "section")
+   #     params[:registerFile] = expanduser(params[:registerFile])
+   #     @assert isfile( params[:registerFile] )
+   #     ba = H5SectionsArrays(params[:registerFile])
+   #     params[:origin] = params[:origin][1:3]
     #elseif  contains( params[:bigArrayType], "H5" ) ||
     #        contains(params[:bigArrayType], "h5") ||
     #        contains( params[:bigArrayType], "hdf5" )
     #    ba = H5sBigArray( params[:h5sDir] )
-    elseif contains( params[:bigArrayType], "gs" )
+    if contains( params[:bigArrayType], "gs" )
         d = GSDict( params[:inputPath] )
         ba = BigArray( d )
     elseif contains( params[:bigArrayType], "s3" )
         d = S3Dict( params[:inputPath] )
         ba = BigArray( d )
-    elseif  contains( params[:bigArrayType], "boss" ) ||
-            contains( params[:bigArrayType], "BOSS" )
-        ba = BOSSArray(
-                T               = eval(Symbol(params[:dataType])),
-                N               = params[:dimension],
-                collectionName  = params[:collectionName],
-                channelName     = params[:channelName],
-                resolutionLevel = params[:resolutionLevel] )
+    elseif contains( params[:bigArrayType], "bin" )
+        d = BinDict( params[:inputPath] )
+        ba = BigArray( d )
+
+   # elseif  contains( params[:bigArrayType], "boss" ) ||
+   #         contains( params[:bigArrayType], "BOSS" )
+   #     ba = BOSSArray(
+   #             T               = eval(Symbol(params[:dataType])),
+   #             N               = params[:dimension],
+   #             collectionName  = params[:collectionName],
+   #             channelName     = params[:channelName],
+   #             resolutionLevel = params[:resolutionLevel] )
     #elseif contains( params[:bigArrayType], "olume" ) 
     #    ba = CloudVolumeWrapper( params[:inputPath]; is1based=true )
     else
