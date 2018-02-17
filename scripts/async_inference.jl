@@ -1,5 +1,5 @@
-include("ArgParsers.jl"); using .ArgParsers;
-include(joinpath(@__DIR__, "../src/utils/AWSCloudWatches.jl")); using .AWSCloudWatches;
+include(joinpath(Pkg.dir("ChunkFlow"), "scripts/ArgParsers.jl")); using .ArgParsers;
+include(joinpath(Pkg.dir("ChunkFlow"), "src/utils/AWSCloudWatches.jl")); using .AWSCloudWatches;
 using BigArrays
 using BigArrays.BinDicts
 using S3Dicts
@@ -56,7 +56,10 @@ function read_image_worker()
 
         # cutout the chunk
         img = baImg[cutoutRange...]	
-        @assert !all(img|>parent .== zero(eltype(img|>parent)))
+        if all(img|>parent .== zero(eltype(img|>parent)))
+		    sqs_delete_message(AWS_QUEUE, message)
+		    continue
+	    end 
         #img = OffsetArray{UInt8}(cutoutRange...)
         #sleep(10)
          
@@ -104,7 +107,7 @@ function convnet_inference_worker()
     	println("elapse of inference submitted: ", elapsed)
 
         put!(affinityChannel, (pipelineLatencyStartTime, message, out))
-	#break
+	    #break
     end
     println("close affinity channel...") 
     close(affinityChannel)
