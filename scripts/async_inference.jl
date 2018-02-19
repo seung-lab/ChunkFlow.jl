@@ -2,8 +2,8 @@ include(joinpath(Pkg.dir("ChunkFlow"), "scripts/ArgParsers.jl")); using .ArgPars
 include(joinpath(Pkg.dir("ChunkFlow"), "src/utils/AWSCloudWatches.jl")); using .AWSCloudWatches;
 using BigArrays
 using BigArrays.BinDicts
-using S3Dicts
-using GSDicts
+using BigArrays.S3Dicts
+using BigArrays.GSDicts
 
 using OffsetArrays
 using AWSCore 
