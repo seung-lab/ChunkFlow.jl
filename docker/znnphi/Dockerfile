@@ -32,7 +32,7 @@ RUN apt update
 #RUN apt-get update
        
 #### install some packages
-RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 python-dev python-pip  
+RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 python-dev python-pip ssh 
 RUN pip install --upgrade pip
 RUN pip install -U setuptools 
 RUN pip install awscli gsutil  
