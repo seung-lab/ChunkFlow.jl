@@ -69,6 +69,7 @@ RUN julia -e 'Pkg.update()'
 #COPY --from=intermediate /root/ChunkFlow  ChunkFlow 
 
 RUN julia -e 'Pkg.clone("https://github.com/JuliaWeb/HTTP.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/jingpengw/GoogleCloud.jl.git")'
 #RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSCore.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/jingpengw/AWSCore.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/jingpengw/AWSSQS.jl.git")'
@@ -90,4 +91,4 @@ RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
 
 
 ENTRYPOINT bash
-WORKDIR /root/.julia/v0.6/ChunkFlow/scripts
+#WORKDIR /root/.julia/v0.6/ChunkFlow/scripts
