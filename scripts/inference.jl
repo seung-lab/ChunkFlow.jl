@@ -44,7 +44,7 @@ function read_image_worker(message)
     println("message body: ", messageBody)
    
     start = map(parse, split(messageBody, ","))                                                                                                
-    cutoutRange = map((x,y)->x+1:x+y, start, ARG_DICT[:stride])
+    cutoutRange = map((x,y)->x+1:x+y, start, ARG_DICT[:chunksize])
     @show cutoutRange
 
     # cutout the chunk
@@ -62,7 +62,7 @@ function convnet_inference_worker(pipelineLatencyStartTime, message, img)
     startTime = time()
     patchStride = 1.0 - ARG_DICT[:patchoverlap]
     outArray = ChunkFlow.Nodes.Kaffe.kaffe( img |> parent, ARG_DICT[:convnetfile];
-        scanParams::AbstractString = "dict(stride=($(patchStride),$(patchStride),$(patchStride)),blend='bump')",
+        scanParams = "dict(stride=($(patchStride),$(patchStride),$(patchStride)),blend='bump')",
         caffeNetFile ="", caffeNetFileMD5 ="", 
         deviceID = ARG_DICT[:deviceid], batchSize = 1,                               
         outputLayerName = "output")
