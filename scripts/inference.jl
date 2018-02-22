@@ -13,11 +13,6 @@ using ChunkFlow
 const Image     = OffsetArray{UInt8,   3, Array{UInt8,3}}
 const Affinity  = OffsetArray{Float32, 4, Array{Float32, 4}}
 
-# timestamp, sqs queue handle, data
-const imageChannel    = Channel{ Tuple{DateTime, Dict{Symbol,Any}, Image   }}(1)
-const affinityChannel = Channel{ Tuple{DateTime, Dict{Symbol,Any}, Affinity}}(1)
-
-
 const AWS_CREDENTIAL = AWSCore.aws_config()
 const global ARG_DICT = parse_commandline()
 const AWS_QUEUE = sqs_get_queue(AWS_CREDENTIAL, ARG_DICT[:queuename])
@@ -47,8 +42,9 @@ function read_image_worker(message)
     pipelineLatencyStartTime = now()
     messageBody = message[:message]
     println("message body: ", messageBody)
-
-    cutoutRange = BigArrays.Indexes.string2unit_range( messageBody )
+   
+    start = map(parse, split(messageBody, ","))                                                                                                
+    cutoutRange = map((x,y)->x+1:x+y, start, ARG_DICT[:stride])
     @show cutoutRange
 
     # cutout the chunk
@@ -64,10 +60,12 @@ end
 function convnet_inference_worker(pipelineLatencyStartTime, message, img)
     println("start inference worker...")
     startTime = time()
+    patchStride = 1.0 - ARG_DICT[:patchoverlap]
     outArray = ChunkFlow.Nodes.Kaffe.kaffe( img |> parent, ARG_DICT[:convnetfile];
-                caffeNetFile ="", caffeNetFileMD5 ="", 
-                deviceID = ARG_DICT[:deviceid], batchSize = 1,                               
-                outputLayerName = "output")
+        scanParams::AbstractString = "dict(stride=($(patchStride),$(patchStride),$(patchStride)),blend='bump')",
+        caffeNetFile ="", caffeNetFileMD5 ="", 
+        deviceID = ARG_DICT[:deviceid], batchSize = 1,                               
+        outputLayerName = "output")
     @assert size(outArray)[1:3] == size(img |> parent)
     #outArray = Array{Float32, 4}(map(length, indices(img))..., 3)
     @show size(outArray)

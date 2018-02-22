@@ -77,6 +77,10 @@ function parse_commandline()
             help = "convnet file path"
             arg_type = String
             default = "/import/convnet"
+        "--patchoverlap", "-p"
+            help = "percentile overlap of patches"
+            arg_type = Float64
+            default = 0.5
     end
     return key2symbol( parse_args(s) )
 end
