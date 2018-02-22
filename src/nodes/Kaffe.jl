@@ -2,7 +2,6 @@ module Kaffe
 using ..Nodes 
 using HDF5
 using BigArrays
-using BigArrays.Chunks
 using EMIRT
 using OffsetArrays
 
@@ -29,7 +28,7 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     end 
     
 
-    img_origin = Chunks.get_origin( chk_img )
+    img_origin = indices( chk_img )
     originOffset = Vector{UInt32}(params[:originOffset])
     outOrigin = [img_origin[1:3]...] .+ originOffset[1:3]
 
