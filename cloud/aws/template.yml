@@ -1,0 +1,470 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  This template demonstrates the usage of a high and low priority batch job
+  queues. It uses simple EC2 and Spot style Compute Environments. It was created
+  based on a sample. 
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 187a3690-c888-442e-894a-a9dbadd3e456
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 4b3e712b-216a-4cba-82ec-16418e66e7b5
+  RouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 1f749801-c1bc-4a0e-b503-d7c1081cea5a
+  VPCGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 262a8dbc-2867-4fb1-89d2-c8d7d77b115d
+  SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Security Group for the EC2 instances launched into the VPC by Batch
+      VpcId: !Ref VPC
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 5567192a-10d5-40fb-aca5-4791e275ee08
+  Subnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: 'True'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 62d22b05-1ecf-4a39-9b94-2441aad6bfc1
+  Route:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 4b7e3c1f-08fa-471f-8d63-a25c07587400
+  SubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref Subnet
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 2152b5be-fdf8-4a24-ba7f-126de15194d7
+  BatchServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: batch.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: c31a481b-9ae9-48a5-a796-e47c034679cd
+  IamInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Roles:
+        - !Ref EcsInstanceRole
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 2c5b0a60-6cb5-49fa-a3f2-3b4408b96cf9
+  EcsInstanceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2008-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - >-
+          arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: c70acd11-4e9a-4b1d-b92c-7aa127b30b70
+  SpotIamFleetRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service: spotfleet.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetRole'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: ae21ab6c-2cdd-4e61-bc7a-fe59a100d07c
+  GPUInferenceJobDefinition:
+    Type: 'AWS::Batch::JobDefinition'
+    Properties:
+      Type: container
+      ContainerProperties:
+        Image: 'jingpengw/chunkflow.jl:kaffe'
+        Vcpus: 2
+        Memory: 30000
+        Command:
+          - julia main.jl -q chunkflow-inference
+      RetryStrategy:
+        Attempts: 2
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 27045576-67b8-4bb9-8b4f-76f3ea499355
+  CPUJobDefinition:
+    Type: 'AWS::Batch::JobDefinition'
+    Properties:
+      Type: container
+      ContainerProperties:
+        Image: 'jingpengw/chunkflow.jl:znnphi'
+        Vcpus: 4
+        Memory: 75000
+        Command:
+          - julia main.jl -q chunkflow-cpu-inference
+      RetryStrategy:
+        Attempts: 2
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 9dc8799a-c0b0-4248-a99e-b66556cfb2ce
+  CPUJobQueue:
+    Type: 'AWS::Batch::JobQueue'
+    Properties:
+      JobQueueName: CPUJobQueue
+      Priority: 2
+      ComputeEnvironmentOrder:
+        - Order: 1
+          ComputeEnvironment: !Ref SpotComputeEnvironment
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 05079ced-462b-438c-84b9-7a0f293c285a
+  GPUInferenceJobQueue:
+    Type: 'AWS::Batch::JobQueue'
+    Properties:
+      JobQueueName: GPUInferenceJobqueue
+      Priority: 2
+      ComputeEnvironmentOrder:
+        - Order: 1
+          ComputeEnvironment: !Ref GPUInferenceComputeEnvironment
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 86c56316-0fd5-42ea-9549-1057364fb172
+  SpotComputeEnvironment:
+    Type: 'AWS::Batch::ComputeEnvironment'
+    Properties:
+      Type: MANAGED
+      ComputeResources:
+        Type: SPOT
+        MinvCpus: 0
+        DesiredvCpus: 0
+        MaxvCpus: 64
+        InstanceTypes:
+          - optimal
+        Tags:
+          - User:jingpeng
+          - Tool:chunkflow
+          - Project:cpu-inference
+        Subnets:
+          - !Ref Subnet
+        SecurityGroupIds:
+          - !Ref SecurityGroup
+        InstanceRole: !Ref IamInstanceProfile
+        BidPercentage: 40
+        SpotIamFleetRole: !Ref SpotIamFleetRole
+      ServiceRole: !Ref BatchServiceRole
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 585440b1-6f71-4db3-89b8-1cd965bbe08d
+  GPUInferenceComputeEnvironment:
+    Type: 'AWS::Batch::ComputeEnvironment'
+    Properties:
+      Type: MANAGED
+      ComputeResources:
+        Type: SPOT
+        MinvCpus: 0
+        DesiredvCpus: 0
+        ImageId: ami-b929abc3
+        MaxvCpus: 64
+        InstanceTypes:
+          - p2.xlarge
+        Tags:
+          - User:jingpeng
+          - Tool:chunkflow
+          - Project:gpu-inference
+        Subnets:
+          - !Ref Subnet
+        SecurityGroupIds:
+          - !Ref SecurityGroup
+        InstanceRole: !Ref IamInstanceProfile
+        BidPercentage: 40
+        SpotIamFleetRole: !Ref SpotIamFleetRole
+      ServiceRole: !Ref BatchServiceRole
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 05be5466-c0ce-4c1b-82aa-7d5a833d5269
+  CPUQueue:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      DelaySeconds: 0
+      MaximumMessageSize: 262144
+      QueueName: chunkflow-cpu-inference
+      ReceiveMessageWaitTimeSeconds: 0
+      VisibilityTimeout: 7200
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: c32706f0-2749-4226-9017-c5fb137187c0
+  QueueDepthAlarm:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      AlarmDescription: Alarm if queue depth grows beyond 10 messages
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt 
+            - CPUQueue
+            - QueueName
+      Statistic: Sum
+      Period: '300'
+      EvaluationPeriods: '1'
+      Threshold: '10'
+      ComparisonOperator: GreaterThanThreshold
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 268e5180-ec26-45a0-a4c4-f30221a2dfc1
+Outputs:
+  CPUJobQueueArn:
+    Value: !Ref CPUJobQueue
+  SpotComputeEnvironmentArn:
+    Value: !Ref SpotComputeEnvironment
+  CPUQueueURL:
+    Description: URL of cpu jobs Queue
+    Value: !Ref CPUQueue
+  CPUQueueARN:
+    Description: ARN of cpu jobs SQS Queue
+    Value: !GetAtt 
+      - CPUQueue
+      - Arn
+  CPUQueueName:
+    Description: Name of cpu inference Queue
+    Value: !GetAtt 
+      - CPUQueue
+      - QueueName
+Metadata:
+  'AWS::CloudFormation::Designer':
+    ae21ab6c-2cdd-4e61-bc7a-fe59a100d07c:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 930
+        'y': 200
+      z: 1
+      embeds: []
+    c70acd11-4e9a-4b1d-b92c-7aa127b30b70:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 460
+        'y': 540
+      z: 1
+      embeds: []
+    2c5b0a60-6cb5-49fa-a3f2-3b4408b96cf9:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 650
+        'y': 540
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - c70acd11-4e9a-4b1d-b92c-7aa127b30b70
+    c31a481b-9ae9-48a5-a796-e47c034679cd:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 560
+        'y': -10
+      z: 1
+      embeds: []
+    4b3e712b-216a-4cba-82ec-16418e66e7b5:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 240
+        'y': -10
+      z: 1
+      embeds: []
+    187a3690-c888-442e-894a-a9dbadd3e456:
+      size:
+        width: 590
+        height: 350
+      position:
+        x: 60
+        'y': 90
+      z: 1
+      embeds:
+        - 62d22b05-1ecf-4a39-9b94-2441aad6bfc1
+        - 1f749801-c1bc-4a0e-b503-d7c1081cea5a
+    62d22b05-1ecf-4a39-9b94-2441aad6bfc1:
+      size:
+        width: 150
+        height: 150
+      position:
+        x: 390
+        'y': 150
+      z: 2
+      parent: 187a3690-c888-442e-894a-a9dbadd3e456
+      embeds: []
+      iscontainedinside:
+        - 187a3690-c888-442e-894a-a9dbadd3e456
+    5567192a-10d5-40fb-aca5-4791e275ee08:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 710
+        'y': 160
+      z: 0
+      embeds: []
+      iscontainedinside:
+        - 187a3690-c888-442e-894a-a9dbadd3e456
+    585440b1-6f71-4db3-89b8-1cd965bbe08d:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 930
+        'y': 80
+      z: 1
+      embeds: []
+    05079ced-462b-438c-84b9-7a0f293c285a:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 1080
+        'y': 80
+      z: 1
+      embeds: []
+    262a8dbc-2867-4fb1-89d2-c8d7d77b115d:
+      source:
+        id: 187a3690-c888-442e-894a-a9dbadd3e456
+      target:
+        id: 4b3e712b-216a-4cba-82ec-16418e66e7b5
+      z: 1
+    1f749801-c1bc-4a0e-b503-d7c1081cea5a:
+      size:
+        width: 240
+        height: 240
+      position:
+        x: 90
+        'y': 150
+      z: 2
+      parent: 187a3690-c888-442e-894a-a9dbadd3e456
+      embeds:
+        - 4b7e3c1f-08fa-471f-8d63-a25c07587400
+      iscontainedinside:
+        - 187a3690-c888-442e-894a-a9dbadd3e456
+    2152b5be-fdf8-4a24-ba7f-126de15194d7:
+      source:
+        id: 1f749801-c1bc-4a0e-b503-d7c1081cea5a
+      target:
+        id: 62d22b05-1ecf-4a39-9b94-2441aad6bfc1
+      z: 2
+    4b7e3c1f-08fa-471f-8d63-a25c07587400:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 120
+        'y': 210
+      z: 3
+      parent: 1f749801-c1bc-4a0e-b503-d7c1081cea5a
+      embeds: []
+      isassociatedwith:
+        - 4b3e712b-216a-4cba-82ec-16418e66e7b5
+      iscontainedinside:
+        - 1f749801-c1bc-4a0e-b503-d7c1081cea5a
+    9dc8799a-c0b0-4248-a99e-b66556cfb2ce:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 110
+        'y': 540
+      z: 1
+      embeds: []
+    27045576-67b8-4bb9-8b4f-76f3ea499355:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 10
+        'y': 540
+      z: 1
+      embeds: []
+    05be5466-c0ce-4c1b-82aa-7d5a833d5269:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 930
+        'y': 400
+      z: 1
+      embeds: []
+    c32706f0-2749-4226-9017-c5fb137187c0:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 1270
+        'y': 90
+      z: 0
+      embeds: []
+    268e5180-ec26-45a0-a4c4-f30221a2dfc1:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 1270
+        'y': 210
+      z: 0
+      embeds: []
+    86c56316-0fd5-42ea-9549-1057364fb172:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 1070
+        'y': 400
+      z: 1
+      embeds: []

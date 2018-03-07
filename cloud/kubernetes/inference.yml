@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: inference 
+spec:
+  replicas: 400
+  template:
+    metadata:
+      labels:
+        app: neuroglancer
+    spec:
+      containers:
+        - name: znnphi
+          image: gcr.io/neuromancer-seung-import/jingpeng-znnphi:pinky40
+          command: ["/bin/bash"]
+          args: ["-c", "julia inference.jl -q chunkflow-inference -s 1024,1024,128 -i gs://neuroglancer/pinky40_v11/image/4_4_40 -y gs://neuroglancer/pinky40_v11/affinitymap_overlap20/4_4_40 -v /root/.julia/v0.6/ChunkFlow/scripts/unet-8cores -k 1074,1074,144 --patchoverlap=0.2"]
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              value: AKIAJBCX2AELON5CIQPA
+            - name: AWS_SECRET_ACCESS_KEY
+              value: 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
+            - name: AWS_REGION
+              value: us-east-1
+          volumeMounts:
+          - name: secrets
+            mountPath: "/secrets"
+            readOnly: true
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 7Gi
+      volumes:
+      - name: secrets
+        secret:
+          secretName: secrets
