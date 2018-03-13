@@ -2,8 +2,9 @@ module Kaffe
 using ..Nodes 
 using HDF5
 using BigArrays
-using BigArrays.Chunks
 using EMIRT
+using OffsetArrays
+
 include("../utils/Clouds.jl"); using .Clouds
 
 export NodeKaffe, run 
@@ -27,7 +28,7 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     end 
     
 
-    img_origin = Chunks.get_origin( chk_img )
+    img_origin = indices( chk_img )
     originOffset = Vector{UInt32}(params[:originOffset])
     outOrigin = [img_origin[1:3]...] .+ originOffset[1:3]
 
@@ -37,17 +38,15 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     local out::Array 
     if haskey(params, :deviceID) && params[:deviceID] >= 0
         # gpu inference
-        out = kaffe(chk_img.data, 
-                params[:scanParams], params[:preprocess]; 
-                caffeModelFile = params[:caffeModelFile], 
+        out = kaffe(chk_img.data, params[:caffeModelFile]; 
+                scanParams = params[:scanParams], preprocess = params[:preprocess], 
                 caffeNetFile = params[:caffeNetFile], caffeNetFileMD5 = params[:caffeNetFileMD5], 
                 deviceID=params[:deviceID], batchSize=params[:batchSize],
                 outputLayerName=params[:outputLayerName])
     else
-        # gpu inference
-        out = kaffe(chk_img.data, 
-                params[:scanParams], params[:preprocess];
-                caffeModelFile = params[:caffeModelFile],
+        # cpu inference
+        out = kaffe(chk_img.data, params[:caffeModelFile]; 
+                scanParams = params[:scanParams], preprocess = params[:preprocess],
                 deviceID=params[:deviceID], batchSize=params[:batchSize],
                 outputLayerName=params[:outputLayerName])
     end 
@@ -70,12 +69,13 @@ function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
     put!(c[outputKey], chk_out)
 end 
 
-function kaffe( img::AbstractArray, 
-                scanParams::AbstractString, preprocess::AbstractString; 
-                caffeModelFile::AbstractString="", 
-                caffeNetFile::AbstractString="", caffeNetFileMD5::AbstractString="",
-                deviceID::Int = 0, batchSize::Int = 1, 
-                outputLayerName::AbstractString = "output")
+function kaffe( img::Array{UInt8, 3}, caffeModelFile::AbstractString; 
+               scanParams::AbstractString = "dict(stride=(0.8,0.8,0.8),blend='bump')",
+               preprocess::AbstractString="dict(type='divideby')", 
+               caffeNetFile::AbstractString="", 
+               caffeNetFileMD5::AbstractString="",
+               deviceID::Int = 0, batchSize::Int = 1, 
+               outputLayerName::AbstractString = "output")
     # save as hdf5 file
     fImg        = string(tempname(), ".img.h5")
     fOutPre     = string(tempname(), ".out.")
@@ -89,15 +89,7 @@ function kaffe( img::AbstractArray,
     caffeNetFile     = download_net(caffeNetFile; md5 = caffeNetFileMD5)
     caffeModelFile   = download_net(caffeModelFile)
 
-    if contains(preprocess, "ormaliz")
-        preprocess = "dict(type='standardize',mode='2D')"
-    elseif contains(preprocess, "rescale")
-        preprocess = "dict(type='rescale')"
-    elseif contains(preprocess, "divideby")
-        preprocess = "dict(type='divideby')"
-    else
-        error("invalid preprocessing type: $(params[:preprocess])")
-    end
+    @assert startswith(preprocess, "dict(")
 
 #    caffeNetFile    = fetch( futureLocalCaffeNetFile )
 #    caffeModelFile  = fetch( futureLocalCaffeModelFile )
