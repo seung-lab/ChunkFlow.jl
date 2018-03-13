@@ -22,8 +22,9 @@ function parse_commandline()
 
     @add_arg_table s begin
         "--deviceid", "-d"
-            help = "which gpu to use"
+            help = "which device to use, negative will be cpu, 0-N will be gpu id"
             arg_type = Int
+            default = -1
         "--workernumber", "-n"
             help = "number of works"
             arg_type = Int
@@ -45,15 +46,19 @@ function parse_commandline()
             default = ""
         "--origin", "-o"
             help = "the origin of chunk grids"
-            arg_type = Vector{Int}
+            arg_type = NTuple{3,Int}
+        "--chunksize", "-k"
+            help = "cutout image chunk size"
+            arg_type = NTuple{3, Int}
+            default = (1074, 1074, 144)
         "--stride", "-s"
             help = "stride of chunks"
-            arg_type = Vector{Int}
-            default = [0,0,0]
+            arg_type = NTuple{3, Int}
+            default = (0,0,0)
         "--gridsize", "-g"
             help = "size of chunks grid"
-            arg_type = Vector{Int}
-            default = [1,1,1]
+            arg_type = NTuple{3, Int}
+            default = (1,1,1)
         "--shutdown", "-u"
             help = "automatically shutdown this machine if no more task to do"
             arg_type = Bool
@@ -61,7 +66,24 @@ function parse_commandline()
         "--isshuffle", "-f"
             help = "whether shuffle the start list or not"
             arg_type = Bool 
-            default = false 
+            default = false
+		"--inputlayer", "-i"
+			help = "input neuroglancer layer path"
+			arg_type = String
+		"--outputlayer", "-y"
+			help = "output neuroglancer layer path"
+			arg_type = String
+        "--masklayer", "-m"
+            help = "mask the affinity map"
+            arg_type = String
+        "--convnetfile", "-v"
+            help = "convnet file path"
+            arg_type = String
+            default = "/import/convnet"
+        "--patchoverlap", "-p"
+            help = "percentile overlap of patches"
+            arg_type = Float64
+            default = 0.5
     end
     return key2symbol( parse_args(s) )
 end
@@ -76,5 +98,12 @@ function ArgParse.parse_item(::Type{Vector{Int}}, x::AbstractString)
     x = replace(x, "]", "")
     map(parse, split(x, ","))
 end
+
+function ArgParse.parse_item(::Type{NTuple{3,Int}}, x::AbstractString)
+    x = replace(x, "(", "")
+    x = replace(x, ")", "")
+    (map(parse, split(x, ",")) ...)
+end
+
 
 end # module

@@ -5,10 +5,10 @@ using ..Nodes
 using BigArrays
 using BigArrays.Chunks
 #using BigArrays.H5sBigArrays
-using GSDicts
-using S3Dicts
+using BigArrays.GSDicts
+using BigArrays.S3Dicts
 using DataStructures
-using BOSSArrays
+#using BOSSArrays
 #using CloudVolume
 
 export NodeBlendChunk, run
@@ -39,14 +39,14 @@ function Nodes.run(x::NodeBlendChunk, c::Dict{String, Channel},
     elseif contains(params[:backend], "s3")
         d = S3Dict( params[:outputPath] )
         ba = BigArray(d)
-    elseif contains(params[:backend], "boss")
-        ba = BOSSArray(
-                T               = eval(Symbol(params[:dataType])),
-                N               = params[:dimension],
-                collectionName  = params[:collectionName],
-                experimentName  = params[:experimentName],
-                channelName     = params[:channelName],
-                resolutionLevel = params[:resolutionLevel])
+   # elseif contains(params[:backend], "boss")
+   #     ba = BOSSArray(
+   #             T               = eval(Symbol(params[:dataType])),
+   #             N               = params[:dimension],
+   #             collectionName  = params[:collectionName],
+   #             experimentName  = params[:experimentName],
+   #             channelName     = params[:channelName],
+   #             resolutionLevel = params[:resolutionLevel])
     #elseif contains(params[:backend], "olume")
     #    ba = CloudVolumeWarpper( params[:outputPath]; is1based=true )
     else

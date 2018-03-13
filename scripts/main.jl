@@ -1,4 +1,4 @@
-include(joinpath(dirname(@__FILE__), "ArgParsers.jl"))
+include(joinpath(@__DIR__, "ArgParsers.jl"))
 using ArgParsers 
 
 # sleep a little and let the process fully launches
