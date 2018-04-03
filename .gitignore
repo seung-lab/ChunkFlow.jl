@@ -2,5 +2,6 @@
 *.hdf5
 *.h5
 *.omnify
+*.swp
 docs/build/
 docs/site/
