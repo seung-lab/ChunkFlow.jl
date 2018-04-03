@@ -1,9 +1,0 @@
-{"sleep":{
-    "kind": "NodeSleep",
-    "params":{
-        "time": 5 
-    },
-    "inputs": {},
-    "outputs": {}
-    }
-}

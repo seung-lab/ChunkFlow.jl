@@ -1,73 +1,11 @@
 module Kaffe
-using ..Nodes 
+
 using HDF5
 using BigArrays
 using EMIRT
 using OffsetArrays
 
 include("../utils/Clouds.jl"); using .Clouds
-
-export NodeKaffe, run 
-struct NodeKaffe <: AbstractComputeNode end 
-
-"""
-node function of kaffe forward pass
-"""
-function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
-                   nodeConf::NodeConf)
-    params = nodeConf[:params]
-    inputs = nodeConf[:inputs]
-    outputs = nodeConf[:outputs]
-    # note that the fetch only use reference rather than copy
-    # anychange for chk_img could affect the img in dickchannel
-    chk_img = take!(c[inputs[:img]])
-
-    outputLayerName = "output"
-    if haskey(nodeConf[:params], :outputLayerName)
-        outputLayerName = nodeConf[:params][:outputLayerName]
-    end 
-    
-
-    img_origin = indices( chk_img )
-    originOffset = Vector{UInt32}(params[:originOffset])
-    outOrigin = [img_origin[1:3]...] .+ originOffset[1:3]
-
-    # compute cropMarginSize using integer division
-    cropMarginSize = params[:cropMarginSize]
-    
-    local out::Array 
-    if haskey(params, :deviceID) && params[:deviceID] >= 0
-        # gpu inference
-        out = kaffe(chk_img.data, params[:caffeModelFile]; 
-                scanParams = params[:scanParams], preprocess = params[:preprocess], 
-                caffeNetFile = params[:caffeNetFile], caffeNetFileMD5 = params[:caffeNetFileMD5], 
-                deviceID=params[:deviceID], batchSize=params[:batchSize],
-                outputLayerName=params[:outputLayerName])
-    else
-        # cpu inference
-        out = kaffe(chk_img.data, params[:caffeModelFile]; 
-                scanParams = params[:scanParams], preprocess = params[:preprocess],
-                deviceID=params[:deviceID], batchSize=params[:batchSize],
-                outputLayerName=params[:outputLayerName])
-    end 
-    # crop margin
-    sz = size(out)
-    cropMarginSize = params[:cropMarginSize]
-    out = out[cropMarginSize[1]+1:sz[1]-cropMarginSize[1],
-              cropMarginSize[2]+1:sz[2]-cropMarginSize[2],
-              cropMarginSize[3]+1:sz[3]-cropMarginSize[3], :]
-    # if only one channel, change to 3D array
-    if size(out, 4) == 1
-        out = squeeze(out, 4)
-    end 
-    chk_out = Chunk(out, outOrigin, chk_img.voxelSize)
-    
-    outputKey = outputs[:aff]
-    if !haskey(c, outputKey)
-        c[outputKey] = Channel{Chunk}(1)
-    end 
-    put!(c[outputKey], chk_out)
-end 
 
 function kaffe( img::Array{UInt8, 3}, caffeModelFile::AbstractString; 
                scanParams::AbstractString = "dict(stride=(0.8,0.8,0.8),blend='bump')",
@@ -128,6 +66,7 @@ function kaffe( img::Array{UInt8, 3}, caffeModelFile::AbstractString;
     @show forwardCfg
 
     # run convnet inference
+    gc(false)
     if deviceID >= 0
         # this is gpu inference setup
         Base.run(`python2 /opt/kaffe/python/forward.py $(deviceID) $(fForwardCfg) $(batchSize)`)
@@ -135,6 +74,7 @@ function kaffe( img::Array{UInt8, 3}, caffeModelFile::AbstractString;
         # this is cpu inference setup 
         Base.run(`python2 /opt/kaffe/python/forward.py $(fForwardCfg)`)
     end 
+    gc(true)
 
     # read output affinity or semantic  map
     out = h5read(fOut, "main")

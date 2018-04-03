@@ -1,5 +1,3 @@
-include(joinpath(Pkg.dir("ChunkFlow"), "scripts/ArgParsers.jl")); using .ArgParsers;
-include(joinpath(Pkg.dir("ChunkFlow"), "src/utils/AWSCloudWatches.jl")); using .AWSCloudWatches;
 using BigArrays
 using BigArrays.BinDicts
 using BigArrays.S3Dicts
@@ -9,9 +7,9 @@ using OffsetArrays
 using AWSCore 
 using AWSSQS
 using ChunkFlow
-
-const Image     = OffsetArray{UInt8,   3, Array{UInt8,3}}
-const Affinity  = OffsetArray{Float32, 4, Array{Float32, 4}}
+using ChunkFlow.Kaffe
+using ChunkFlow.AWSCloudWatches 
+using ChunkFlow.ArgParsers
 
 const AWS_CREDENTIAL = AWSCore.aws_config()
 const global ARG_DICT = parse_commandline()
@@ -61,28 +59,32 @@ function convnet_inference_worker(pipelineLatencyStartTime, message, img)
     println("start inference worker...")
     startTime = time()
     patchStride = 1.0 - ARG_DICT[:patchoverlap]
-    outArray = ChunkFlow.Nodes.Kaffe.kaffe( img |> parent, ARG_DICT[:convnetfile];
+    outArray = ChunkFlow.Kaffe.kaffe( img |> parent, ARG_DICT[:convnetfile];
         scanParams = "dict(stride=($(patchStride),$(patchStride),$(patchStride)),blend='bump')",
         caffeNetFile ="", caffeNetFileMD5 ="", 
         deviceID = ARG_DICT[:deviceid], batchSize = 1,                               
         outputLayerName = "output")
+    #outArray = Array{Float32, 4}(map(length, indices(img))..., 1)
     @assert size(outArray)[1:3] == size(img |> parent)
-    #outArray = Array{Float32, 4}(map(length, indices(img))..., 3)
     @show size(outArray)
-    @show (ARG_DICT[:stride]..., size(outArray,4)) 
-        marginCropSize = map((x,y)->div.(x-y,2), size(outArray), 
-            (ARG_DICT[:stride]..., size(outArray,4)))
+    
+    marginCropSize = map((x,y)->div.(x-y,2), size(outArray)[1:3], ARG_DICT[:stride])
     @show marginCropSize
-        newIndices = map( (x,y)->x.start+y:x.stop-y, 
-                            (indices(img)..., 1:size(outArray,4)), marginCropSize)
-    # crop
+    
+    @assert ndims(outArray) == 4
     sz = size(outArray)
-    outArray = outArray[	marginCropSize[1]+1 : sz[1]-marginCropSize[1],
-                marginCropSize[2]+1 : sz[2]-marginCropSize[2],
-                marginCropSize[3]+1 : sz[3]-marginCropSize[3], :]
+    @show indices(img)
+    newIndices = map( (x,y)->x.start+y:x.stop-y, 
+                    (indices(img)..., 1:sz[4]), (marginCropSize..., 0))
+    outArray = outArray[marginCropSize[1]+1 : sz[1]-marginCropSize[1],
+                        marginCropSize[2]+1 : sz[2]-marginCropSize[2],
+                        marginCropSize[3]+1 : sz[3]-marginCropSize[3], :]
+    if sz[4]==1
+        outArray = squeeze(outArray, 4)
+        newIndices = newIndices[1:3]
+    end 
     @show newIndices
     out = OffsetArray(outArray, newIndices...)
-    #sleep(30)
 
     elapsed = time() - startTime  
     AWSCloudWatches.record_elapsed("inference", elapsed)

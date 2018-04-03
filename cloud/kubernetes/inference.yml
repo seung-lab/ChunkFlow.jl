@@ -11,9 +11,9 @@ spec:
     spec:
       containers:
         - name: znnphi
-          image: gcr.io/neuromancer-seung-import/jingpeng-znnphi:pinky40
+          image: gcr.io/neuromancer-seung-import/jingpeng-znnphi:psd_w4_wt_focused_760k
           command: ["/bin/bash"]
-          args: ["-c", "julia inference.jl -q chunkflow-inference -s 1024,1024,128 -i gs://neuroglancer/pinky40_v11/image/4_4_40 -y gs://neuroglancer/pinky40_v11/affinitymap_overlap20/4_4_40 -v /root/.julia/v0.6/ChunkFlow/scripts/unet-8cores -k 1074,1074,144 --patchoverlap=0.2"]
+          args: ["-c", "julia inference.jl -q chunkflow-inference -s 1024,1024,128 -i gs://neuroglancer/pinky40_v11/image/4_4_40 -y gs://neuroglancer/pinky40_v11/psd-w4_wt_focused_760k/4_4_40 -v /root/.julia/v0.6/ChunkFlow/scripts/w4_wt_focused_760k-8cores -k 1074,1074,144 --patchoverlap=0.2"]
           env:
             - name: AWS_ACCESS_KEY_ID
               value: AKIAJBCX2AELON5CIQPA
