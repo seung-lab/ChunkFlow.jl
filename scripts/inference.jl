@@ -7,9 +7,9 @@ using OffsetArrays
 using AWSCore 
 using AWSSQS
 using ChunkFlow
-using ChunkFlow.Kaffe
-using ChunkFlow.AWSCloudWatches 
-using ChunkFlow.ArgParsers
+using ChunkFlow.Edges.Kaffe
+using ChunkFlow.Utils.AWSCloudWatches 
+using ChunkFlow.Utils.ArgParsers
 
 const AWS_CREDENTIAL = AWSCore.aws_config()
 const global ARG_DICT = parse_commandline()

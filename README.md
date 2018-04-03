@@ -3,31 +3,18 @@ ChunkFlow.jl ![ChunkFlow logo](/docs/chunkflow-logo.png?raw=true)
 [![Build Status](https://travis-ci.org/seung-lab/ChunkFlow.jl.svg?branch=master)](https://travis-ci.org/seung-lab/ChunkFlow.jl)
 
 # Introduction
-the computation was defined as a node. The kinds of node was defined in [a task file](https://github.com/seung-lab/ChunkFlow.jl/blob/master/test/sleep.json)
+ChunkFlow was used to run convnet inference for large scale 3D image volume across clouds and local cluster. The job scheduling is based on AWS SQS, and all the jobs was produced and ingested to a queue in AWS SQS. Then, we can launch workers anywhere with internet connection and AWS authentication to fetch jobs from the queue. After finishing the job, worker will delete the job in queue and fetch another one to work on until all the jobs were done.
 
 # Usage
+all the scripts are in the `scripts` directory.
 
-## Find help
-    julia main.jl --help
-    julia main.jl -h
+## produce test tasks of golden cube
+```
+julia produce_starts.jl -q chunkflow-inference -o -25,-25,-8 -s 1024,1024,128 -g 2,2,2
+```
 
+## ConvNet Inference
 
-## Running pipeline using local task configuration json file
-
-    julia main.jl --task=task.json --deviceid=0
-    julia main.jl -t task.json -d 0
-
-## Using AWS Simple Queue Service
-
-### Produce a bunch of tasks
-- define `task.json` file, the file name can be only a prefix. Task producer will match all the files and produce a bunch of tasks
-- produce tasks: `julia taskproducer.jl --task=task.json --awssqs=chunkflow-tasks`
-
-find help:
-
-    julia taskproducer.jl -h
-
-## Fetch tasks from AWS SQS 
-launch a number of instances to deal with the tasks. run the same commands in each instance
-
-    julia -j number_of_processes main.jl -n number_of_processes -w wait_seconds_of_each_launch -q queue-name
+```
+julia inference.jl -q chunkflow-inference -i s3://neuroglancer/pinkygolden_v0/image/4_4_40 -y s3://neuroglancer/pinkygolden_v0/affinitymap-rs-unet-cremi/4_4_40 -v /import/rs-unet-cremi-4cores -d -1 -s 1024,1024,128
+```

@@ -1,3 +1,5 @@
+module Edges
+
 include("Kaffe.jl"); using .Kaffe;
 #include("nodes/maskaffinity.jl")
 #include("nodes/mergeseg.jl")
@@ -13,3 +15,5 @@ include("Kaffe.jl"); using .Kaffe;
 #include("nodes/watershed.jl")
 #include("nodes/watershed_stage1.jl")
 #include("nodes/znni.jl")
+
+end # module

@@ -1,6 +1,6 @@
-include("ArgParsers.jl"); using .ArgParsers 
 using AWSSDK.SQS
 using BigArrays
+using ChunkFlow.Utils.ArgParsers  
 
 const aws = AWSCore.aws_config()
 
