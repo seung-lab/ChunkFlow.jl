@@ -12,6 +12,9 @@ all the scripts are in the `scripts` directory.
 workstation20 was already configured with intel license and docker image.
 [pznet](https://github.com/seung-lab/seunglab-wiki#pznet) 
 save the networks in the production docker image from [google registration](https://console.cloud.google.com/gcr/images/neuromancer-seung-import/GLOBAL/jingpeng-znnphi?project=neuromancer-seung-import&gcrImageListsize=50). take tag `pinky40` for example.
+
+Note that the inference docker image is not built uppon `seunglab/kaffe:pznet` which do not have ChunkFlow.
+
 build a new docker image with a your own tag, then push it to [Google Cloud Container Registry](https://console.cloud.google.com/gcr/images/neuromancer-seung-import/GLOBAL/jingpeng-znnphi?project=neuromancer-seung-import&gcrImageListsize=50). the command is `gcloud docker -- push gcr.io/neuromancer-seung-import/your-image:your-tag`
 
 ## produce test tasks of golden cube
@@ -41,51 +44,8 @@ kubectl create secret generic secrets \
 ```
 
 ### run the inference containers
-an example of `kube_config.yml` file would be like:
-```
-apiVersion: extensions/v1beta1                                                 
-kind: Deployment                                                               
-metadata:                                                                      
-  name: inference                                                          
-  labels:                                                                      
-    app: chunkflow                                                             
-spec:                                                                          
-  replicas: 83                                                                 
-  template:                                                                    
-    metadata:                                                                  
-      labels:                                                                  
-        app: neuroglancer                                                      
-    spec:                                                                      
-      containers:                                                              
-        - name: neuroglancer                                                   
-          image: gcr.io/neuromancer-seung-import/jingpeng-rs-unet-cremi:64cores
-          command: ["bash -c julia inference.jl -q chunkflow-inference -i s3://neuroglancer/pinkygolden_v0/image/4_4_40 -y s3://neuroglancer/pinkygolden_v0/affinitymap-rs-unet-cremi/4_4_40 -v /import/rs-unet-cremi-4cores -d -1 -s 1024,1024,128"]
-          env:                                                                 
-            - name: AWS_ACCESS_KEY_ID                                          
-              value: YOUR_KEY_ID  
-            - name: AWS_SECRET_ACCESS_KEY                                      
-              value: YOUR_KEY
-            - name: AWS_REGION                                                 
-              value: us-east-1                                                 
-          volumeMounts:                                                        
-          - name: secrets                                                      
-            mountPath: "/secrets"                                              
-            readOnly: true                                                     
-          - name: tmp                                                          
-            mountPath: "/tmp"                                                  
-            readOnly: false                                                    
-          imagePullPolicy: Always                                              
-          resources:                                                           
-            requests:                                                          
-                memory: 40Gi                                                   
-      volumes:                                                                 
-      - name: secrets                                                          
-        secret:                                                                
-          secretName: secrets                                                  
-      - name: tmp                                                              
-        emptyDir: { medium: "Memory" }                                         
-```
-modify it accordingly, and then use `kube create -f kube_config.yml --record` to start the deployment.
+an example of [kube_config.yml](https://github.com/seung-lab/ChunkFlow.jl/blob/master/cloud/kubernetes/inference.yml) 
+copy and modify it accordingly, and then use `kubectl create -f kube_config.yml --record` to start the deployment.
 
 ## monitoring of progress
 there are three ways to monitor the progress.
