@@ -79,10 +79,10 @@ function convnet_inference_worker(pipelineLatencyStartTime, message, img)
     outArray = outArray[marginCropSize[1]+1 : sz[1]-marginCropSize[1],
                         marginCropSize[2]+1 : sz[2]-marginCropSize[2],
                         marginCropSize[3]+1 : sz[3]-marginCropSize[3], :]
-    if sz[4]==1
-        outArray = squeeze(outArray, 4)
-        newIndices = newIndices[1:3]
-    end 
+#     if sz[4]==1
+#         outArray = squeeze(outArray, 4)
+#         newIndices = newIndices[1:3]
+#     end 
     @show newIndices
     out = OffsetArray(outArray, newIndices...)
 
