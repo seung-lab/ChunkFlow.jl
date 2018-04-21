@@ -72,9 +72,9 @@ function parse_commandline()
 			arg_type = String
 		"--outputlayer", "-y"
 			help = "output neuroglancer layer path"
-			arg_type = String
-	"--masklayer", "-m"                                                                                                                    
-            help = "mask the affinity map"                                                                                                     
+			arg_type = String                                                                                                                                                                                                          
+        "--masklayer", "-m"
+            help = "mask the affinity map"
             arg_type = String
         "--convnetfile", "-v"
             help = "convnet file path"
