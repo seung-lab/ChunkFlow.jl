@@ -69,10 +69,10 @@ function kaffe( img::Array{UInt8, 3}, caffeModelFile::AbstractString;
     gc(false)
     if deviceID >= 0
         # this is gpu inference setup
-        Base.run(`python2 /opt/kaffe/python/forward.py $(deviceID) $(fForwardCfg) $(batchSize)`)
+        Base.run(`python /opt/kaffe/python/forward.py $(deviceID) $(fForwardCfg) $(batchSize)`)
     else
         # this is cpu inference setup 
-        Base.run(`python2 /opt/kaffe/python/forward.py $(fForwardCfg)`)
+        Base.run(`python3 /opt/kaffe/python/forward.py $(fForwardCfg)`)
     end 
     gc(true)
 
