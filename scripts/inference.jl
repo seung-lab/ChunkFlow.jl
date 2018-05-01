@@ -59,8 +59,8 @@ function convnet_inference_worker(pipelineLatencyStartTime, message, img)
     println("start inference worker...")
     startTime = time()
     patchStride = 1.0 - ARG_DICT[:patchoverlap]
-    outArray = Kaffe.kaffe( img |> parent, ARG_DICT[:convnetfile];
-        scanParams = "dict(stride=($(patchStride),$(patchStride),$(patchStride)),blend='bump')",
+    outArray = Kaffe.kaffe(img |> parent, ARG_DICT[:convnetfile];
+        scanParams = "dict(stride=($(patchStride[3]),$(patchStride[2]),$(patchStride[1])),blend='bump')",
         caffeNetFile ="", caffeNetFileMD5 ="", 
         deviceID = ARG_DICT[:deviceid], batchSize = 1,                               
         outputLayerName = "output")
