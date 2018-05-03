@@ -78,21 +78,28 @@ function mask_affinitymap!(aff::OffsetArray)
     maskRange[3] = maskRange[3].start-1 : maskRange[3].stop
 
     mask = baMask[maskRange[1:3]...]
+    if !isa(mask, Array{Bool,3})
+        mask = mask .> zero(eltype(mask))
+    end
+    const ZERO_AFF = zero(eltype(aff))
     @unsafe for z in indices(aff, 3)
         @unsafe for y in indices(aff, 2)
+            ym = div(y, MASK_SCALE)
             @unsafe for x in indices(aff, 1)
-                if  !mask[div(x,MASK_SCALE), div(y,MASK_SCALE), z] || 
-                    !mask[div(x,MASK_SCALE), div(y,MASK_SCALE), z-1]
-                    aff[x,y,z,3] = zero(eltype(aff))
-                end 
-                if  !mask[div(x,MASK_SCALE), div(y,  MASK_SCALE), z] || 
-                    !mask[div(x,MASK_SCALE), div(y-1,MASK_SCALE), z]
-                    aff[x,y,z,2] = zero(eltype(aff))
-                end 
-                if  !mask[div(x,  MASK_SCALE), div(y,MASK_SCALE), z] || 
-                    !mask[div(x-1,MASK_SCALE), div(y,MASK_SCALE), z]
-                    aff[x,y,z,1] = zero(eltype(aff))
-                end 
+                xm = div(x, MASK_SCALE)
+                if !mask[xm, ym, z]
+                    aff[x,y,z,:] = ZERO_AFF
+                else
+                    if !mask[xm, ym, z-1]
+                        aff[x,y,z,3] = ZERO_AFF
+                    end 
+                    if  !mask[ym, div(y-1,MASK_SCALE), z]
+                        aff[x,y,z,2] = ZERO_AFF
+                    end 
+                    if  !mask[div(x-1,MASK_SCALE), ym, z]
+                        aff[x,y,z,1] = ZERO_AFF
+                    end
+                end
             end
         end
     end
