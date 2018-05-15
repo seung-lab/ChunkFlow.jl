@@ -32,10 +32,10 @@ RUN apt update
 #RUN apt-get update
        
 #### install some packages
-RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 python-dev python-pip ssh 
-RUN pip install --upgrade pip
-RUN pip install -U setuptools 
-RUN pip install awscli gsutil  
+RUN apt-get install -qq --no-install-recommends build-essential wget unzip libjemalloc-dev libhdf5-dev libblosc-dev libmagickwand-6.q16-2 python3-dev python3-pip ssh 
+RUN pip3 install --upgrade pip
+RUN pip3 install -U setuptools 
+RUN pip3 install awscli gsutil  
 #RUN pip install protobuf google cloud-volume
 
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so 
@@ -90,5 +90,4 @@ RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
 #RUN julia -e 'Pkg.test("BigArrays")'
 
 
-ENTRYPOINT bash
-#WORKDIR /root/.julia/v0.6/ChunkFlow/scripts
+WORKDIR /root/.julia/v0.6/ChunkFlow/scripts

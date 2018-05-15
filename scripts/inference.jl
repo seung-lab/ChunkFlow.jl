@@ -10,6 +10,14 @@ using ChunkFlow
 using ChunkFlow.Edges.Kaffe
 using ChunkFlow.Utils.AWSCloudWatches 
 using ChunkFlow.Utils.ArgParsers
+using JSON
+
+if isfile("/secrets/aws-secret.json")
+    d = JSON.parsefile("/secrets/aws-secret.json")
+    for (k,v) in d
+        ENV[k] = v
+    end
+end
 
 const AWS_CREDENTIAL = AWSCore.aws_config()
 const global ARG_DICT = parse_commandline()
