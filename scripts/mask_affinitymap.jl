@@ -81,25 +81,25 @@ function mask_affinitymap!(aff::OffsetArray)
     if !isa(mask, Array{Bool,3})
         mask = mask .> zero(eltype(mask))
     end
+    # for the new mask of basil dataset, the mask region intensity is larger than 0
     const ZERO_AFF = zero(eltype(aff))
     @unsafe for z in indices(aff, 3)
         @unsafe for y in indices(aff, 2)
-            ym = div(y, MASK_SCALE)
+	    dy = div(y, MASK_SCALE)
             @unsafe for x in indices(aff, 1)
-                xm = div(x, MASK_SCALE)
-                if !mask[xm, ym, z]
-                    aff[x,y,z,:] = ZERO_AFF
-                else
-                    if !mask[xm, ym, z-1]
-                        aff[x,y,z,3] = ZERO_AFF
-                    end 
-                    if  !mask[ym, div(y-1,MASK_SCALE), z]
-                        aff[x,y,z,2] = ZERO_AFF
-                    end 
-                    if  !mask[div(x-1,MASK_SCALE), ym, z]
-                        aff[x,y,z,1] = ZERO_AFF
-                    end
-                end
+		dx = div(x, MASK_SCALE)
+                if  !mask[dx, dy, z] || 
+                    !mask[dx, dy, z-1]
+                    aff[x,y,z,3] = ZERO_AFF
+                end 
+                if  !mask[dx, dy, z] || 
+                    !mask[dx, div(y-1,MASK_SCALE), z]
+                    aff[x,y,z,2] = ZERO_AFF
+                end 
+                if  !mask[dx, dy, z] || 
+                    !mask[div(x-1,MASK_SCALE), dy, z]
+                    aff[x,y,z,1] = ZERO_AFF
+                end 
             end
         end
     end
