@@ -72,6 +72,7 @@ function read_worker(message)
 end 
 
 function mask_affinitymap!(aff::OffsetArray)
+    println("masking out affinitymap ...")
     maskRange = [indices( aff )[1:3]...]
     maskRange[1] = div(maskRange[1].start-1, MASK_SCALE) : div(maskRange[1].stop, MASK_SCALE)
     maskRange[2] = div(maskRange[2].start-1, MASK_SCALE) : div(maskRange[2].stop, MASK_SCALE)
@@ -82,18 +83,18 @@ function mask_affinitymap!(aff::OffsetArray)
         mask = mask .> zero(eltype(mask))
     end
     const ZERO_AFF = zero(eltype(aff))
-    @unsafe for z in indices(aff, 3)
+    @unsafe Threads.@threads for z in indices(aff, 3)
         @unsafe for y in indices(aff, 2)
             ym = div(y, MASK_SCALE)
             @unsafe for x in indices(aff, 1)
                 xm = div(x, MASK_SCALE)
                 if !mask[xm, ym, z]
-                    aff[x,y,z,:] = ZERO_AFF
+                    aff[x,y,z,1:3] = ZERO_AFF
                 else
                     if !mask[xm, ym, z-1]
                         aff[x,y,z,3] = ZERO_AFF
                     end 
-                    if  !mask[ym, div(y-1,MASK_SCALE), z]
+                    if  !mask[xm, div(y-1,MASK_SCALE), z]
                         aff[x,y,z,2] = ZERO_AFF
                     end 
                     if  !mask[div(x-1,MASK_SCALE), ym, z]
