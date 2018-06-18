@@ -4,8 +4,8 @@ using HDF5
 using BigArrays
 using EMIRT
 using OffsetArrays
-
-include("../utils/Clouds.jl"); using .Clouds
+using ChunkFlow.Utils.Clouds 
+# include("../utils/Clouds.jl"); using .Clouds
 
 function kaffe( img::Array{UInt8, 3}, caffeModelFile::AbstractString; 
                scanParams::AbstractString = "dict(stride=(0.8,0.8,0.8),blend='bump')",

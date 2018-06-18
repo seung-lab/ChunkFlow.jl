@@ -5,21 +5,21 @@ using AWSS3
 """
 whether this file is in s3
 """
-function iss3(fname)
-    return ismatch(r"^(s3://)", fname)
+@inline function iss3(fname)
+    ismatch(r"^(s3://)", fname)
 end
 
 """
 whether this file is google storage
 """
-function isgs(fname)
-  return ismatch(r"^(gs://)", fname)
+@inline function isgs(fname)
+    ismatch(r"^(gs://)", fname)
 end
 
 """
 split a s3 path to bucket name and key
 """
-function splits3(path::AbstractString)
+@inline function splits3(path::AbstractString)
     path = replace(path, "s3://", "")
     bkt, key = split(path, "/", limit = 2)
     return String(bkt), String(key)

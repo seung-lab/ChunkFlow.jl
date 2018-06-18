@@ -21,25 +21,22 @@ function parse_commandline()
     s = ArgParseSettings()
 
     @add_arg_table s begin
-        "--deviceid", "-d"
+        "--device-id", "-d"
             help = "which device to use, negative will be cpu, 0-N will be gpu id"
             arg_type = Int
             default = -1
-        "--continuefrom", "-c"
-            help = "continue task submission from an origin"
+        "--continue-from", "-c"
+            help = "continue task submission from an output start"
             arg_type = Vector 
             default = Vector()
-        "--task", "-t"
-            help = "task definition json file location or raw json"
-            arg_type = AbstractString
         "--queuename", "-q"
             help = "AWS SQS queue name. default is chunkflow-tasks"
             arg_type = AbstractString
             default = ""
-        "--origin", "-o"
+        "--output-start", "-o"
             help = "the origin of chunk grids"
             arg_type = NTuple{3,Int}
-        "--chunksize", "-k"
+        "--chunk-size", "-k"
             help = "cutout image chunk size"
             arg_type = NTuple{3, Int}
             default = (1074, 1074, 144)
@@ -51,27 +48,27 @@ function parse_commandline()
             help = "size of chunks grid"
             arg_type = NTuple{3, Int}
             default = (1,1,1)
-        "--isshuffle", "-f"
+        "--is-shuffle", "-f"
             help = "whether shuffle the start list or not"
             arg_type = Bool 
             default = false
-		"--inputlayer", "-i"
+		"--input-layer", "-i"
 			help = "input neuroglancer layer path"
 			arg_type = String
-		"--outputlayer", "-y"
+		"--output-layer", "-y"
 			help = "output neuroglancer layer path"
 			arg_type = String
-        "--masklayer", "-m"
+        "--mask-layer", "-m"
             help = "mask the affinity map"
             arg_type = String
-        "--convnetfile", "-v"
+        "--convnet-file", "-v"
             help = "convnet file path"
             arg_type = String
             default = "/import/convnet"
-        "--patchoverlap", "-p"
-            help = "percentile overlap of patches"
-            arg_type = Vector 
-            default = [0.5, 0.5, 0.5]
+        "--patch-overlap", "-p"
+            help = "voxel overlap of patches (x,y,z)"
+            arg_type = NTuple{3, Int} 
+            default = (64, 64, 4)
     end
     return key2symbol( parse_args(s) )
 end

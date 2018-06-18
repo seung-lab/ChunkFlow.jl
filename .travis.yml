@@ -20,6 +20,8 @@ before_install:
 script:
     - julia -e 'Pkg.init()'
     - julia -e 'Pkg.update()'
+    - julia -e 'Pkg.clone("git@github.com:jingpengw/HTTP.jl.git")'
+    - julia -e 'Pkg.clone("git@github.com:jingpengw/AWSS3.jl.git")'
     - julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
     - julia -e 'Pkg.clone("https://github.com/samoconnor/AWSSQS.jl.git")'
     - julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'

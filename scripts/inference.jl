@@ -21,10 +21,10 @@ end
 
 const AWS_CREDENTIAL = AWSCore.aws_config()
 const global ARG_DICT = parse_commandline()
-const AWS_QUEUE = sqs_get_queue(AWS_CREDENTIAL, ARG_DICT[:queuename])
+const AWS_QUEUE = sqs_get_queue(AWS_CREDENTIAL, ARG_DICT[:queue-name])
 
-const INPUT_LAYER = ARG_DICT[:inputlayer]
-const OUTPUT_LAYER = ARG_DICT[:outputlayer]
+const INPUT_LAYER = ARG_DICT[:input-layer]
+const OUTPUT_LAYER = ARG_DICT[:output-layer]
 
 if startswith(INPUT_LAYER, "s3://")
 	const global baImg = BigArray(S3Dict(INPUT_LAYER))
@@ -50,7 +50,7 @@ function read_image_worker(message)
     println("message body: ", messageBody)
    
     start = map(parse, split(messageBody, ","))                                                                                                
-    cutoutRange = map((x,y)->x+1:x+y, start, ARG_DICT[:chunksize])
+    cutoutRange = map((x,y)->x+1:x+y, start, ARG_DICT[:chunk-size])
     @show cutoutRange
 
     # cutout the chunk
@@ -66,11 +66,11 @@ end
 function convnet_inference_worker(pipelineLatencyStartTime, message, img)
     println("start inference worker...")
     startTime = time()
-    patchStride = 1.0 - ARG_DICT[:patchoverlap]
-    outArray = Kaffe.kaffe(img |> parent, ARG_DICT[:convnetfile];
+    patchStride = 1.0 - ARG_DICT[:patch-overlap]
+    outArray = Kaffe.kaffe(img |> parent, ARG_DICT[:convnet-file];
         scanParams = "dict(stride=($(patchStride[3]),$(patchStride[2]),$(patchStride[1])),blend='bump')",
         caffeNetFile ="", caffeNetFileMD5 ="", 
-        deviceID = ARG_DICT[:deviceid], batchSize = 1,                               
+        deviceID = ARG_DICT[:device-id], batchSize = 1,                               
         outputLayerName = "output")
     #outArray = Array{Float32, 4}(map(length, indices(img))..., 1)
     @assert size(outArray)[1:3] == size(img |> parent)
