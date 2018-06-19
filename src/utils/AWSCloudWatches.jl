@@ -2,15 +2,15 @@ module AWSCloudWatches
 
 import AWSSDK.CloudWatch 
 
-function record_elapsed(node_name, elapsed; namespace="ChunkFlow/")
+function record_elapsed(edge_name, elapsed; namespace="ChunkFlow/")
     CloudWatch.put_metric_data(;Namespace=namespace,                
 			MetricData=[["MetricName"   => "time_elapsed",       
 						 "Timestamp"    => now(),              
 						 "Value"        => elapsed,            
 						 "Unit"         => "Seconds",          
 						 "Dimensions"   => [[                  
-							"Name"      => "node",             
-							"Value"     => "$node_name"             
+							"Name"      => "edge",             
+							"Value"     => "$edge_name"             
 						]]                                     
 			]])                                                
 end 

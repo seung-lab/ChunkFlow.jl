@@ -1,12 +1,13 @@
 module ChunkFlowTasks
 using ..ChunkFlow 
-using ..Nodes
+using ..Edges
 
 using AWSCore
 using AWSSQS
 using JSON
-using DataStructures
-include("utils/AWSCloudWatches.jl"); using .AWSCloudWatches
+import DataStructures: OrderedDict 
+
+using ChunkFlow.Utils.AWSCloudWatches 
 
 export ChunkFlowTask, execute 
                                                   
@@ -43,8 +44,8 @@ end
 
 """
 construct a net from computation graph config file.
-currently, the net was composed by nodes/layers
-all the nodes was stored and managed in a DictChannel.
+currently, the net was composed by edges/layers
+all the edges was stored and managed in a DictChannel.
 """
 function execute( task::OrderedDict{Symbol, Any} )
     # the global dict channel 
@@ -52,9 +53,9 @@ function execute( task::OrderedDict{Symbol, Any} )
     t = AWSCloudWatches.Timer()
     for (name, d) in task 
         info("----- start $(name) -----")
-        node = eval(Symbol(d[:kind]))()
+        edge = eval(Symbol(d[:kind]))()
         try 
-            Nodes.run(node, c, d)
+            Edges.run(edge, c, d)
         catch err 
             if isa(err, ChunkFlow.ZeroOverFlowError)
 				warn("the input has too many zeros!")

@@ -1,10 +1,10 @@
 module CutoutChunk
-using ChunkFlow.Errors
-using ..Nodes
-using HDF5
+
+import ChunkFlow.Errors: ZeroOverFlowError
+using ..Edges
+using OffsetArrays 
 using BigArrays
 #using BigArrays.H5sBigArrays
-#using BigArrays.Chunk
 #using H5SectionsArrays
 using BigArrays.BinDicts, BigArrays.GSDicts, BigArrays.S3Dicts
 #using BOSSArrays
@@ -12,15 +12,15 @@ using BigArrays.BinDicts, BigArrays.GSDicts, BigArrays.S3Dicts
 
 include("../utils/Clouds.jl"); using .Clouds 
 
-export NodeCutoutChunk, run
-struct NodeCutoutChunk <: AbstractIONode end 
+export EdgeCutoutChunk, run
+struct EdgeCutoutChunk <: AbstractIOEdge end 
 
 """
-node function of cutting out chunk from bigarray
+edge function of cutting out chunk from bigarray
 """
-function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeConf)
-    params = nodeConf[:params]
-    outputs = nodeConf[:outputs]
+function Edges.run(x::EdgeCutoutChunk, c::Dict{String, Channel}, edgeConf::EdgeConf)
+    params = edgeConf[:params]
+    outputs = edgeConf[:outputs]
     if haskey(params, :chunkSize)
         warn("should use cutoutSize rather than chunkSize for clarity!")
         params[:cutoutSize] = params[:chunkSize]
@@ -62,43 +62,25 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
 
     # get range
     N = ndims(ba)
-    if haskey(params, :referenceChunk)
-        referenceChunk = c[params[:referenceChunk]]
-        origin      = referenceChunk.origin[1:N]
-        cutoutSize  = size(referenceChunk)[1:N]
-        if length(origin) > N
-            origin = origin[1:N]
-            cutoutSize = cutoutSize[1:N]
-        elseif length(origin) < N
-            origin = [origin..., ones(typeof(origin), N-length(origin))...]
-        end
-    else
-        origin = params[:origin]
-        cutoutSize = params[:cutoutSize]
-    end
+    offset = params[:offset]
+    cutoutSize = params[:cutoutSize]
 
-    if haskey(params, :originOffset)
-        origin .+= params[:originOffset]
-    end
-
-    # cutout as chunk
+    # cutout as an OffsetArray 
     #if contains(params[:bigArrayType], "olume")
         #CloudVolume only works with 3D index
     #    data = ba[map((x,y)->x:x+y-1, origin[1:3], cutoutSize[1:3])...]
     #else
-    data = ba[map((x,y)->x:x+y-1, origin, cutoutSize)...]
-    #end 
+    chunk = ba[map((x,y)->x+1:x+y, offset, cutoutSize)...]
 
     if haskey(params, :isRemoveNaN) && params[:isRemoveNaN]
-        ZERO = convert(eltype(data), 0)
         for i in eachindex(data)
-            if isnan(data[i])
-                data[i] = ZERO
+            if isnan(chunk[i])
+                chunk[i] = zero(eltype(chunk))
             end
         end
     end
 
-    nonzeroRatio = Float64(countnz(data)) / Float64(length(data))
+    nonzeroRatio = Float64(countnz(chunk)) / Float64(length(chunk))
     info("ratio of nonzero voxels in this chunk: $(nonzeroRatio)")
     if haskey(params, :nonzeroRatioThreshold) &&
         nonzeroRatio < params[:nonzeroRatioThreshold]
@@ -106,21 +88,12 @@ function Nodes.run(x::NodeCutoutChunk, c::Dict{String, Channel}, nodeConf::NodeC
         throw( ZeroOverFlowError() )
     end
 
-
-    # add offset to chunk
-    if haskey(params, :offset)
-        origin .+= params[:offset]
-    end
-    @show typeof(data)
-    @show origin, params[:voxelSize]
-    chk = Chunk(data, origin, params[:voxelSize])
-
-    println("cut out chunk size: $(size(data))")
+    @show typeof(chunk)
 
     # put chunk to channel for use
-    key = outputs[:data]
+    key = outputs[:chunk]
     if !haskey(c, key)
-        c[key] = Channel{Chunk}(1)
+        c[key] = Channel{OffsetArray}(1)
     end 
     put!(c[key], chk)
 end

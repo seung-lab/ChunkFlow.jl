@@ -1,5 +1,5 @@
 {"sleep":{
-    "kind": "NodeSleep",
+    "kind": "EdgeSleep",
     "params":{
         "time": 5 
     },

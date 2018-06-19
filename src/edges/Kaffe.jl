@@ -1,5 +1,5 @@
 module Kaffe
-using ..Nodes 
+using ..Edges 
 using HDF5
 using BigArrays
 using EMIRT
@@ -7,14 +7,14 @@ using OffsetArrays
 
 include("../utils/Clouds.jl"); using .Clouds
 
-export NodeKaffe, run 
-struct NodeKaffe <: AbstractComputeNode end 
+export EdgeKaffe, run 
+struct EdgeKaffe <: AbstractComputeEdge end 
 
 """
 node function of kaffe forward pass
 """
-function Nodes.run(x::NodeKaffe, c::Dict{String, Channel},
-                   nodeConf::NodeConf)
+function Edges.run(x::EdgeKaffe, c::Dict{String, Channel},
+                   nodeConf::EdgeConf)
     params = nodeConf[:params]
     inputs = nodeConf[:inputs]
     outputs = nodeConf[:outputs]

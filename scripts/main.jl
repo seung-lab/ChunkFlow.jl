@@ -17,6 +17,7 @@ import ChunkFlow.ChunkFlowTasks; @everywhere using ChunkFlow.ChunkFlowTasks
 
 # pmap(execute, [argDict for i in 1:argDict[:workers]])
 
+# support for multiple processing, so we can choose a number of parallel processes 
 @sync begin
     for workerId in 1:argDict[:workernumber]
         @async begin
