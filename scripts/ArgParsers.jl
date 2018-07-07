@@ -25,16 +25,8 @@ function parse_commandline()
             help = "which device to use, negative will be cpu, 0-N will be gpu id"
             arg_type = Int
             default = -1
-        "--workernumber", "-n"
-            help = "number of works"
-            arg_type = Int
-            default = 1
-        "--workerwaittime", "-w"
-            help = "waiting time to launch each worker (min)"
-            arg_type = Int
-            default = 1
         "--continuefrom", "-c"
-            help = "continue task submission from an origin"
+            help = "continue task submission from an start"
             arg_type = Vector{Int}
             default = Vector{Int}()
         "--task", "-t"
@@ -44,15 +36,11 @@ function parse_commandline()
             help = "AWS SQS queue name. default is chunkflow-tasks"
             arg_type = AbstractString
             default = ""
-        "--origin", "-o"
-            help = "the origin of chunk grids"
+        "--inputoffset", "-o"
+            help = "the offset of input in whole dataset coordinate"
             arg_type = NTuple{3,Int}
-        "--chunksize", "-k"
-            help = "cutout image chunk size"
-            arg_type = NTuple{3, Int}
-            default = (1074, 1074, 144)
-        "--stride", "-s"
-            help = "stride of chunks"
+        "--outputblocksize", "-s"
+            help = "stride of chunks, and also the output block size"
             arg_type = NTuple{3, Int}
             default = (0,0,0)
         "--gridsize", "-g"
@@ -76,14 +64,6 @@ function parse_commandline()
         "--masklayer", "-m"
             help = "mask the affinity map"
             arg_type = String
-        "--convnetfile", "-v"
-            help = "convnet file path"
-            arg_type = String
-            default = "/import/convnet"
-        "--patchoverlap", "-p"
-            help = "percentile overlap of patches"
-            arg_type = Float64
-            default = 0.5
     end
     return key2symbol( parse_args(s) )
 end

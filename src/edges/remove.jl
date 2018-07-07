@@ -1,6 +1,6 @@
 
 """
-node function of remove
+edge function of remove
 """
 function nf_remove!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},

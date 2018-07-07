@@ -8,7 +8,7 @@ abstract type AbstractEdge end
 abstract type AbstractIOEdge <: AbstractEdge end 
 abstract type AbstractComputeEdge <: AbstractEdge end
 
-# node configuration dictionary
+# edge configuration dictionary
 const EdgeConf = OrderedDict{Symbol, Any}
 
 # define a function to inherite
@@ -16,12 +16,13 @@ function run end
 
 #include("agglomeration.jl")
 #include("atomicseg.jl")
-include("savechunk.jl"); using .SaveChunk; export EdgeSaveChunk;
+include("SaveChunk.jl"); using .SaveChunk; export EdgeSaveChunk;
 #include("Crop.jl"); using .Crop; export EdgeCrop;
-include("cutoutchunk.jl"); using .CutoutChunk; export EdgeCutoutChunk;
+include("CutoutChunk.jl"); using .CutoutChunk; export EdgeCutoutChunk;
 #include("downsample.jl")
 #include("hypersquare.jl")
-#include("Kaffe.jl"); using .Kaffe; export EdgeKaffe;
+include("Kaffe.jl"); using .Kaffe; export EdgeKaffe;
+include("PZNet.jl"); using .PZNet; export EdgePZNet;
 #include("maskaffinity.jl")
 #include("mergeseg.jl")
 #include("movedata.jl")

@@ -4,7 +4,7 @@ using Agglomeration, Process
 using EMIRT
 
 """
-node function of agglomeration
+edge function of agglomeration
 """
 function nf_agglomeration!( c::DictChannel,
                     params::OrderedDict{Symbol, Any},

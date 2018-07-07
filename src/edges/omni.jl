@@ -1,6 +1,6 @@
 
 """
-node function of omnification
+edge function of omnification
 """
 function nf_omnification( c::DictChannel,
                 params::OrderedDict{Symbol, Any},

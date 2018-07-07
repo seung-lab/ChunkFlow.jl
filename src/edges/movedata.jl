@@ -1,7 +1,7 @@
 # move data
 
 """
-node function of movedata
+edge function of movedata
 """
 function nf_movedata(c::DictChannel,
                     params::OrderedDict{Symbol, Any},

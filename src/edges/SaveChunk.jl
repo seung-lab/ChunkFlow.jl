@@ -1,56 +1,57 @@
-module SaveChunk 
-# save chunk from dictchannel to local disk or aws s3
-using ..Nodes 
+module SaveChunk
+
+# save chunk from dictchannel to BigArrays
+using ..Edges 
 using BigArrays
-using BigArrays.Chunks
+#using H5sBigArrays
+using BigArrays.GSDicts
+using BigArrays.S3Dicts
+using BigArrays.BinDicts 
 using DataStructures
+#using BOSSArrays
+#using CloudVolume
 
-include("../DictChannels.jl"); using .DictChannels
-include("../utils/Clouds.jl"); using .Clouds
+export EdgeSaveChunk, run
 
-export NodeSaveChunk, run 
-struct NodeSaveChunk <: AbstractNode end 
+struct EdgeSaveChunk <: AbstractIOEdge end 
 
 """
-node function of readh5
+edge function of blendchunk
 """
-function Nodes.run(x::NodeSaveChunk, c::Dict{String, Channel},
-                   nc::NodeConf)
-    params = nc[:params]
-    inputs = nc[:inputs]
-    outputs = nc[:outputs]
+function Edges.run(x::EdgeSaveChunk, c::Dict{String, Channel},
+                   edgeConf::EdgeConf)
+    params = edgeConf[:params]
+    inputs = edgeConf[:inputs]
     # get chunk
     chk = take!(c[inputs[:chunk]])
-    
-    if haskey(params, :chunkFileName)
-        chunkFileName = params[:chunkFileName]
-        @assert contains(chunkFileName, ".h5")
-    else
-        prefix = replace(params[:prefix],"~",homedir())
-        chksz = size(chk)
-        chunkFileName = "$(prefix)$(origin[1])-$(origin[1]+chksz[1]-1)_$(origin[2])-$(origin[2]+chksz[2]-1)_$(origin[3])-$(origin[3]+chksz[3]-1).$(inputs[:chunk]).h5"
-    end
+    @show size(chk|>parent)
 
-    @async savechunk(chk, chunkFileName)
+ #   if contains(params[:backend], "h5s")
+  #      ba = H5sBigArray(expanduser(outputs[:bigArrayDir]);)
+    if ismatch(r"^gs://*", params[:outputPath])
+        d = GSDict( params[:outputPath] )
+        ba = BigArray(d)
+    elseif ismatch(r"^s3://*", params[:outputPath])
+        d = S3Dict( params[:outputPath] )
+        ba = BigArray(d)
+    elseif isdir(params[:outputPath])
+        d = BinDict( params[:outputPath] )
+        ba = BigArray(d) 
+   # elseif contains(params[:backend], "boss")
+   #     ba = BOSSArray(
+   #             T               = eval(Symbol(params[:dataType])),
+   #             N               = params[:dimension],
+   #             collectionName  = params[:collectionName],
+   #             experimentName  = params[:experimentName],
+   #             channelName     = params[:channelName],
+   #             resolutionLevel = params[:resolutionLevel])
+    #elseif contains(params[:backend], "olume")
+    #    ba = CloudVolumeWarpper( params[:outputPath]; is1based=true )
+    else
+        error("unsupported bigarray backend: $(params[:backend])")
+    end
+    # save the chunk to bigarray 
+    merge(ba, chk)
 end
 
-
-function savechunk(chk::Chunk, chunkFileName::String)
-    origin = Chunks.get_origin(chk)
-    voxelSize = chk
-    if Clouds.iss3(chunkFileName)
-        ftmp = string(tempname(), ".chk.h5")
-        BigArrays.Chunks.save(ftmp, chk)
-        Base.run(`aws s3 mv $ftmp $chunkFileName`)
-    elseif ismatch(r"^gs://*", chunkFileName)
-        ftmp = string(tempname(), ".chk.h5")
-        BigArrays.Chunks.save(ftmp, chk)
-        # GoogleCloud.Utils.Storage.upload(ftmp, chunkFileName)
-        # actually gsutil can also handle aws s3 file, 
-        # no need to distinguish them. not tested, so keep this style
-        Base.run(`gsutil mv $ftmp $chunkFileName`)
-    else
-        BigArrays.Chunks.save(chunkFileName, chk)
-    end
-end
 end # end of module

@@ -5,32 +5,50 @@ using BigArrays
 using EMIRT
 using OffsetArrays
 
-include("../utils/Clouds.jl"); using .Clouds
+using ChunkFlow.Utils.Clouds
 
 export EdgeKaffe, run 
 struct EdgeKaffe <: AbstractComputeEdge end 
 
 """
-node function of kaffe forward pass
+edge function of kaffe forward pass
+
+{
+    "params": {
+        "outputLayerName": "output",
+        "outputStartOffset": (0,0,0,0),
+        "cropMarginSize": (64,64,4),
+        "deviceID": 0,
+        "outputLayerName": "output",
+        "caffeModelFile": "/tmp/cores2",
+        "preprocess": "divideby"
+    },
+    "inputs":{
+        "img": "img"
+    },
+    "outputs": {
+        "out": "aff" 
+    }
+}
 """
 function Edges.run(x::EdgeKaffe, c::Dict{String, Channel},
-                   nodeConf::EdgeConf)
-    params = nodeConf[:params]
-    inputs = nodeConf[:inputs]
-    outputs = nodeConf[:outputs]
+                   edgeConf::EdgeConf)
+    params = edgeConf[:params]
+    inputs = edgeConf[:inputs]
+    outputs = edgeConf[:outputs]
     # note that the fetch only use reference rather than copy
     # anychange for chk_img could affect the img in dickchannel
     chk_img = take!(c[inputs[:img]])
 
     outputLayerName = "output"
-    if haskey(nodeConf[:params], :outputLayerName)
-        outputLayerName = nodeConf[:params][:outputLayerName]
+    if haskey(params, :outputLayerName)
+        outputLayerName = params[:outputLayerName]
     end 
     
 
-    img_origin = indices( chk_img )
-    originOffset = Vector{UInt32}(params[:originOffset])
-    outOrigin = [img_origin[1:3]...] .+ originOffset[1:3]
+    img_start = indices( chk_img )
+    outputStartOffset = Vector{UInt32}(params[:outputStartOffset])
+    outOrigin = [img_start[1:3]...] .+ outputStartOffset[1:3]
 
     # compute cropMarginSize using integer division
     cropMarginSize = params[:cropMarginSize]
@@ -38,17 +56,18 @@ function Edges.run(x::EdgeKaffe, c::Dict{String, Channel},
     local out::Array 
     if haskey(params, :deviceID) && params[:deviceID] >= 0
         # gpu inference
-        out = kaffe(chk_img.data, params[:caffeModelFile]; 
+        out = kaffe(chk_img |> parent, params[:caffeModelFile]; 
                 scanParams = params[:scanParams], preprocess = params[:preprocess], 
                 caffeNetFile = params[:caffeNetFile], caffeNetFileMD5 = params[:caffeNetFileMD5], 
                 deviceID=params[:deviceID], batchSize=params[:batchSize],
-                outputLayerName=params[:outputLayerName])
+                outputLayerName=outputLayerName)
     else
         # cpu inference
-        out = kaffe(chk_img.data, params[:caffeModelFile]; 
-                scanParams = params[:scanParams], preprocess = params[:preprocess],
-                deviceID=params[:deviceID], batchSize=params[:batchSize],
-                outputLayerName=params[:outputLayerName])
+        out = kaffe(chk_img |> parent, params[:caffeModelFile]; 
+                scanParams = params[:scanParams], 
+                preprocess = params[:preprocess],
+                batchSize=params[:batchSize],
+                outputLayerName=outputLayerName)
     end 
     # crop margin
     sz = size(out)
@@ -62,7 +81,7 @@ function Edges.run(x::EdgeKaffe, c::Dict{String, Channel},
     end 
     chk_out = Chunk(out, outOrigin, chk_img.voxelSize)
     
-    outputKey = outputs[:aff]
+    outputKey = outputs[:chunk]
     if !haskey(c, outputKey)
         c[outputKey] = Channel{Chunk}(1)
     end 
@@ -89,7 +108,7 @@ function kaffe( img::Array{UInt8, 3}, caffeModelFile::AbstractString;
     caffeNetFile     = download_net(caffeNetFile; md5 = caffeNetFileMD5)
     caffeModelFile   = download_net(caffeModelFile)
 
-    @assert startswith(preprocess, "dict(")
+    @assert startswith(scanParams, "dict(")
 
 #    caffeNetFile    = fetch( futureLocalCaffeNetFile )
 #    caffeModelFile  = fetch( futureLocalCaffeModelFile )

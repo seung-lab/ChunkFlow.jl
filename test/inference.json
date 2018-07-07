@@ -1,51 +1,37 @@
 {"input": {
-    "kind": "NodeReadH5",
+    "kind": "EdgeCutoutChunk",
     "params":{
-        "origin": [],
-        "voxelSize": [5,5,45],
-        "datasetName": "image",
-        "isRemoveSourceFile": false
-    },
-    "inputs": {
-        "fileName": "../assets/zfish_25397_8001_1.img.h5"
+        "inputOffset": [11904, 9728, 120],
+        "cutoutSize": [1216, 1216, 132],
+        "inputPath": "gs://neuroglancer/basil_v0/son_of_alignment/v3.04_cracks_only_normalized_rechunked"
     },
     "outputs": {
         "data": "img"
     }
 },
-"MSF":{
-    "kind": "NodeKaffe",
+"UNet":{
+    "kind": "EdgeInference",
     "params":{
-        "kaffeDir": "/opt/kaffe",
-        "caffeModelFile": "s3://seunglab/jpwu/zfish/JKNet/deploy.prototxt",
-        "caffeNetFile": "s3://seunglab/jpwu/zfish/JKNet/divideby/train_iter_800000.caffemodel.h5",
-        "caffeNetFileMD5"       : "0f62cd92188a65c014e5611a73822ae8",
-        "outputPatchSize":    [158, 158,  32],
-        "scanParams": "dict(stride=(0.5,0.5,0.5), blend='bump')",
-        "preprocess": "divideby",
-        "deviceID": 0,
-        "batchSize"     : 1,
-        "isCropImg": false,
-        "cropMarginSize": [54, 54, 4,0],
-        "originOffset": [54, 54, 4,0],
-        "affWeight": 1    
+        "modelFile": "/import/basil100/cores2",
+        "patchSize":    [256, 256,  20],
+        "blendMarginSize": [64, 64, 4],
+        "cropMarginSize": [64, 64, 4,0],
+        "originOffset": [64, 64, 4,0]
     },
     "inputs": {
-        "img": "img",
-        "aff": "aff"
+        "img": "img"
     },
     "outputs": {
-        "aff": "aff"
+        "output": "aff"
     }
 },
 "saveaff":{
-    "kind": "NodeSaveChunk",
+    "kind": "EdgeSaveChunk",
     "params": {  
-        "chunkFileName": "/tmp/aff.h5"
+        "outputPath":"/import/basil100/8_8_40" 
     },
     "inputs": {
         "chunk": "aff"
-    },
-    "outputs": {}
+    }
 }
 }

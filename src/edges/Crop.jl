@@ -1,16 +1,16 @@
 module Crop
-using ..Nodes 
+using ..Edges 
 using DataStructures
-export NodeCrop, run
+export EdgeCrop, run
 
 
-struct NodeCrop <: AbstractNode end 
+struct EdgeCrop <: AbstractEdge end 
 
-function Nodes.run( x::NodeCrop, c::AbstractChannel,
-                   nodeConf::NodeConf)
-    params = nodeConf[:params]
-    inputs = nodeConf[:inputs]
-    outputs = nodeConf[:outputs]
+function Edges.run( x::EdgeCrop, c::AbstractChannel,
+                   edgeConf::EdgeConf)
+    params = edgeConf[:params]
+    inputs = edgeConf[:inputs]
+    outputs = edgeConf[:outputs]
     for (k,v) in inputs
         @assert haskey(outputs, k)
         c[outputs[k]] = BigArrays.Chunks.crop_border(c[v], params[:cropMarginSize])

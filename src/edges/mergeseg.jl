@@ -1,6 +1,6 @@
 
 """
-node function of watershed
+edge function of watershed
 """
 function nf_mergeseg!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},

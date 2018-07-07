@@ -2,7 +2,7 @@ using Watershed
 using DataStructures
 
 """
-node function of watershed
+edge function of watershed
 """
 function nf_watershed!( c::DictChannel,
                 params::OrderedDict{Symbol, Any},

@@ -3,7 +3,7 @@ using BigArrays
 using DataStructures
 
 """
-node function of readh5
+edge function of readh5
 """
 function nf_readchunk!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},

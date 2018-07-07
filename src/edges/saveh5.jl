@@ -3,7 +3,7 @@ using BigArrays
 using DataStructures
 
 """
-node function of saveh5
+edge function of saveh5
 """
 function nf_saveh5!(c::DictChannel,
                     params::OrderedDict{Symbol, Any},

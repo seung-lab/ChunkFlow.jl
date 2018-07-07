@@ -1,7 +1,8 @@
-FROM nvidia/cuda:8.0-cudnn6-runtime-ubuntu16.04
+#FROM nvidia/cuda:8.0-cudnn6-runtime-ubuntu16.04
 #FROM jingpengw/kaffe
 #FROM seunglab/kaffe:pznet
 #FROM nvidia/cuda:8.0-cudnn5-runtime-ubuntu14.04
+FROM jingpengw/chunkflow:latest
 LABEL   maintainer="Jingpeng Wu" \
         project="ChunkFlow"
 
@@ -37,27 +38,34 @@ RUN mkdir -p /opt/gcloud && \
 
 #### install julia
 WORKDIR /opt 
-RUN wget https://julialang-s3.julialang.org/bin/linux/x64/0.6/julia-0.6.1-linux-x86_64.tar.gz 
-RUN tar -xvf julia-0.6.1-linux-x86_64.tar.gz
-RUN mv julia-0d7248e2ff julia-0.6
-ENV JULIA_PATH /opt/julia-0.6 
-ENV JULIA_VERSION 0.6.1
-ENV PATH $JULIA_PATH/bin:$PATH
+RUN wget https://julialang-s3.julialang.org/bin/linux/x64/0.6/julia-0.6.3-linux-x86_64.tar.gz
+RUN tar -xvf julia-0.6.3-linux-x86_64.tar.gz                                                 
+RUN mv julia-d55cadc350 julia-0.6                                                            
+ENV JULIA_PATH /opt/julia-0.6                                                                
+ENV JULIA_VERSION 0.6.3                                                                      
+ENV PATH $JULIA_PATH/bin:$PATH                                                               
 
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
 RUN julia -e 'Pkg.update()'
+# fix some warnings since FFTW was removed from base and some packages needs it.
+RUN julia -e 'Pkg.add("FFTW")'
 RUN julia -e 'Pkg.clone("https://github.com/JuliaWeb/HTTP.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/samoconnor/SymDict.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSCore.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSSDK.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/samoconnor/AWSSQS.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/GSDicts.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/S3Dicts.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/CloudVolume.jl.git")'
-RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
+#RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
+#RUN julia -e 'Pkg.clone("https://github.com/seung-lab/CloudVolume.jl.git")'
+#RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
+
+WORKDIR /root/.julia/v0.6 
+RUN mkdir ChunkFlow 
+ADD . ChunkFlow 
+
+RUN julia -e 'Pkg.resolve()'
 
 # RUN julia -e 'Pkg.checkout("CloudVolume", "julia0.6")'
 RUN julia -e 'Pkg.build("ChunkFlow")'

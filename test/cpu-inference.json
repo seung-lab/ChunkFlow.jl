@@ -1,46 +1,41 @@
 {"input": {                                                    
-    "kind": "NodeCutoutChunk",                                 
+    "kind": "EdgeCutoutChunk",                                 
     "params":{                                                 
         "bigArrayType": "s3",                                  
-        "origin":   [506, 506, 60],                                 
-        "cutoutSize": [524, 524,  68],                         
-        "voxelSize": [4,4,40],                                 
-        "nonzeroRatioThreshold": 0.01,
-        "inputPath": "s3://neuroglancer/pinkygolden_v0/image/4_4_40/" 
+        "inputOffset":  [4896, 4896, 940],                                 
+        "cutoutSize": [1120, 1120,  126],                         
+        "nonzeroRatioThreshold": 0.00,
+        "inputPath": "s3://path/to/layer/6_6_30/" 
     },
-    "inputs": {},                                                         
-    "outputs": {                                               
-        "data": "img"                                          
-    }                                                          
+    "outputs":{
+        "chunk": "img"                        
+    }      
 }, 
-"CPUInferenceUNet":{
-    "kind": "NodeKaffe",
+"CPUInference":{
+    "kind": "EdgePZNet",
     "params":{
-        "kaffeDir"          : "/opt/kaffe",
-        "scanParams"        : "dict(stride=(0,0,0))",
-        "preprocess"        : "divideby",
-        "batchSize"         : 1,
-        "cropMarginSize"    : [0, 0, 0,0],
-        "originOffset"      : [0, 0, 0,0],
-        "affWeight"         : 1.0
+        "convnetPath"       : "/import/s1/cores4",
+        "patchSize"         : [160, 160, 18],
+        "patchOverlap"      : [80, 80,9],
+        "outputLayerName"   : "output",
+        "outputChannelNum"  : 3,
+        "cropMarginSize"    : [64, 64, 4,0]
     },
     "inputs": {
-        "img": "img",
-        "aff": "aff"
+        "img": "img"
     },
     "outputs": {
-        "aff": "aff"
+        "chunk": "aff"
     }
 },
 "saveaff":{                                
-    "kind": "NodeBlendChunk",                                           
+    "kind": "EdgeSaveChunk",                                           
     "params": {                                                       
         "backend": "s3",                                                 
-        "outputPath": "s3://neuroglancer/pinkygolden_v0/affinities-cpu/4_4_40/" 
+        "outputPath": "s3://path/to/layer/6_6_30/" 
     },                                                                    
     "inputs": {                                     
         "chunk": "aff"                                                           
-    },                                                              
-    "outputs": {}                                                         
+    } 
 }                                                                         
 }

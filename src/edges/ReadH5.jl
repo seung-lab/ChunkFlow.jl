@@ -1,5 +1,5 @@
 module ReadH5
-using ..Nodes
+using ..Edges
 using HDF5
 using BigArrays
 using BigArrays.Chunks
@@ -7,8 +7,8 @@ using DataStructures
 
 include("../utils/Clouds.jl"); using .Clouds
 
-export NodeReadH5, run
-struct NodeReadH5 <: AbstractNode end 
+export EdgeReadH5, run
+struct EdgeReadH5 <: AbstractEdge end 
 
 """
 extract offset from file name
@@ -38,10 +38,10 @@ function filename2offset(fileName::AbstractString)
 end
 
 """
-node function of readh5
+edge function of readh5
 """
-function Nodes.run(x::NodeReadH5, c::Dict{String, Channel},
-                   nc::NodeConf)
+function Edges.run(x::EdgeReadH5, c::Dict{String, Channel},
+                   nc::EdgeConf)
     params = nc[:params]
     inputs = nc[:inputs]
     outputs = nc[:outputs]

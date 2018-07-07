@@ -10,13 +10,27 @@ using BigArrays.BinDicts, BigArrays.GSDicts, BigArrays.S3Dicts
 #using BOSSArrays
 #using CloudVolume 
 
-include("../utils/Clouds.jl"); using .Clouds 
+using ChunkFlow.Utils.Clouds 
 
 export EdgeCutoutChunk, run
 struct EdgeCutoutChunk <: AbstractIOEdge end 
 
 """
 edge function of cutting out chunk from bigarray
+
+example: 
+{
+    "params": {
+        "bigArrayType": "s3",
+        "start": [4897, 4897, 941],
+        "cutoutSize": [1120, 1120, 126],
+        "nonzeroRatioThreshold": 0.00,
+        "inputPath": "path/to/input/layer/4_4_40"
+    },
+    "outputs": {
+        "data": "img"
+    }
+}
 """
 function Edges.run(x::EdgeCutoutChunk, c::Dict{String, Channel}, edgeConf::EdgeConf)
     params = edgeConf[:params]
@@ -36,13 +50,13 @@ function Edges.run(x::EdgeCutoutChunk, c::Dict{String, Channel}, edgeConf::EdgeC
     #        contains(params[:bigArrayType], "h5") ||
     #        contains( params[:bigArrayType], "hdf5" )
     #    ba = H5sBigArray( params[:h5sDir] )
-    if contains( params[:bigArrayType], "gs" )
+    if ismatch(r"^gs://*", params[:inputPath])
         d = GSDict( params[:inputPath] )
         ba = BigArray( d )
-    elseif contains( params[:bigArrayType], "s3" )
+    elseif ismatch(r"^s3://*", params[:inputPath])
         d = S3Dict( params[:inputPath] )
         ba = BigArray( d )
-    elseif contains( params[:bigArrayType], "bin" )
+    elseif isdir(params[:inputPath])
         d = BinDict( params[:inputPath] )
         ba = BigArray( d )
 
@@ -62,7 +76,7 @@ function Edges.run(x::EdgeCutoutChunk, c::Dict{String, Channel}, edgeConf::EdgeC
 
     # get range
     N = ndims(ba)
-    offset = params[:offset]
+    inputOffset = params[:inputOffset]
     cutoutSize = params[:cutoutSize]
 
     # cutout as an OffsetArray 
@@ -70,7 +84,7 @@ function Edges.run(x::EdgeCutoutChunk, c::Dict{String, Channel}, edgeConf::EdgeC
         #CloudVolume only works with 3D index
     #    data = ba[map((x,y)->x:x+y-1, origin[1:3], cutoutSize[1:3])...]
     #else
-    chunk = ba[map((x,y)->x+1:x+y, offset, cutoutSize)...]
+    chunk = ba[map((x,y)->x+1:x+y, inputOffset, cutoutSize)...]
 
     if haskey(params, :isRemoveNaN) && params[:isRemoveNaN]
         for i in eachindex(data)
@@ -80,12 +94,15 @@ function Edges.run(x::EdgeCutoutChunk, c::Dict{String, Channel}, edgeConf::EdgeC
         end
     end
 
-    nonzeroRatio = Float64(countnz(chunk)) / Float64(length(chunk))
-    info("ratio of nonzero voxels in this chunk: $(nonzeroRatio)")
-    if haskey(params, :nonzeroRatioThreshold) &&
-        nonzeroRatio < params[:nonzeroRatioThreshold]
-        warn("ratio of nonzeros $(nonzeroRatio) less than threshold:$(params[:nonzeroRatioThreshold]), origin: $(origin)")
-        throw( ZeroOverFlowError() )
+    if haskey(params, :nonzeroRatioThreshold) && params[:nonzeroRatioThreshold] > 0.0
+        data = chunk |> parent 
+        nonzeroRatio = Float64(countnz(data)) / Float64(length(data))
+        info("ratio of nonzero voxels in this chunk: $(nonzeroRatio)")
+        
+        if nonzeroRatio < params[:nonzeroRatioThreshold]
+            warn("ratio of nonzeros $(nonzeroRatio) less than threshold:$(params[:nonzeroRatioThreshold]), origin: $(origin)")
+            throw( ZeroOverFlowError() )
+        end 
     end
 
     @show typeof(chunk)
@@ -95,7 +112,7 @@ function Edges.run(x::EdgeCutoutChunk, c::Dict{String, Channel}, edgeConf::EdgeC
     if !haskey(c, key)
         c[key] = Channel{OffsetArray}(1)
     end 
-    put!(c[key], chk)
+    put!(c[key], chunk)
 end
 
 end # end of module

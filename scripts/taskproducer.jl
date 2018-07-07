@@ -21,7 +21,7 @@ global const argDict = parse_commandline()
 #using JLD
 #originSet = OrderedSet( load("templates/zfish/originset.fix.2.jld", "originSet"))
 
-originSet =  Producers.get_origin_set(argDict)
+inputOffsetSet =  Producers.get_input_offset_set(argDict)
 
 # produce tasks using the originSet
-taskproducer( argDict; originSet = originSet )
+taskproducer( argDict; inputOffsetSet = inputOffsetSet )

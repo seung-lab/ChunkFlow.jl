@@ -15,17 +15,18 @@ import ChunkFlow.ChunkFlowTasks; @everywhere using ChunkFlow.ChunkFlowTasks
 @everywhere argDict = parse_commandline()
 @show argDict
 
+execute(argDict)
 # pmap(execute, [argDict for i in 1:argDict[:workers]])
 
 # support for multiple processing, so we can choose a number of parallel processes 
-@sync begin
-    for workerId in 1:argDict[:workernumber]
-        @async begin
-            if argDict[:workernumber] > 1
-                sleep( (workerId-1) * argDict[:workerwaittime]*60 )
-            end
-            remotecall_wait(execute, workerId, argDict)
-        end
-    end
-end
+#@sync begin
+#    for workerId in 1:argDict[:workernumber]
+#        @async begin
+#            if argDict[:workernumber] > 1
+#                sleep( (workerId-1) * argDict[:workerwaittime]*60 )
+#            end
+#            remotecall_wait(execute, workerId, argDict)
+#        end
+#    end
+#end
 

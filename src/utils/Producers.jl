@@ -1,7 +1,5 @@
 module Producers
 
-#include(joinpath(dirname(@__FILE__), "polygon.jl"))
-
 using ChunkFlow
 using ChunkFlow.ChunkFlowTasks
 using DataStructures
@@ -9,30 +7,27 @@ using DataStructures
 using AWSCore
 using AWSSQS
 using JSON
-using S3Dicts
-using GSDicts
+using BigArrays.S3Dicts 
+using BigArrays.GSDicts
 
-#const IS_USE_POLYGON_FILTER = false 
-const IS_FILTER_EXISTING_CHUNKS = false 
-const IS_FILTER_EXISTING_CHUNKS_HYPERSQUARE = false
 
-export submit_chunk_task, taskproducer, get_origin_set
+export submit_chunk_task, taskproducer, get_inputOffset_set
 
-function get_origin_set( fileNameList::Vector )
-    originSet = Set()
+function get_input_offset_set( fileNameList::Vector )
+    inputOffsetSet = Set()
     for fileName in fileNameList
-        origin = fileName2origin( fileName; prefix = "block_" )
-        push!(originSet, origin)
+        inputOffset = fileName2inputOffset( fileName; prefix = "block_" )
+        push!(inputOffsetSet, inputOffset)
     end
-    return originSet
+    return inputOffsetSet
 end
 
-function get_origin_set(argDict::Dict)
+function get_input_offset_set(argDict::Dict)
     # cut out from a big array
     N = length(argDict[:gridsize])
     gridIndexList = Vector{Tuple}()
-    originSet = OrderedSet{Vector}()
-    # the flag to indicate whether the specific origin was visited
+    inputOffsetSet = OrderedSet{Vector}()
+    # the flag to indicate whether the specific inputOffset was visited
     if isempty(argDict[:continuefrom])
         flag = true
     else
@@ -47,57 +42,20 @@ function get_origin_set(argDict::Dict)
                 else
                     gridIndex = (gridx, gridy, gridz)
                 end
-                origin = argDict[:origin] .+ ([gridIndex...] .- 1) .* argDict[:stride]
-                if origin == argDict[:continuefrom]
+                inputOffset = argDict[:inputoffset] .+ ([gridIndex...] .- 1) .* argDict[:outputblocksize]
+                if inputOffset == argDict[:continuefrom]
                    flag = true
                 end
                 if flag
-                    push!(originSet, origin)
+                    push!(inputOffsetSet, inputOffset)
                 end
             end
         end
     end
-    return originSet
+    return inputOffsetSet
 end
 
-function existing_chunk_filter_hypersquare!( originSet::OrderedSet; 
-                                chunkSize::Vector   = [1024,1024,128],
-                                cropMargin::Vector  = [64,64,8],
-                                dirPath::String     = "gs://zfish/all_7/hypersquare")
-    d = GSDict(dirPath)
-    for origin in originSet
-        start0 = origin[1:3] .+ cropMargin 
-        stop  = start0 .+ chunkSize - 1
-        chunkFileName = "chunk_$(start0[1])-$(stop[1])_$(start0[2])-$(stop[2])_$(start0[3])-$(stop[3])/segmentation.lzma"
-        if haskey(d, chunkFileName)
-            println("existing chunk, no need to keep: $(chunkFileName)")
-            delete!(originSet, origin)
-        else 
-            println("key not exist, will produce this task: $(chunkFileName)")
-        end 
-    end
-end 
-
-
-function existing_chunk_filter!( originSet::OrderedSet; 
-                                chunkSize::Vector   = [512,512,64],
-                                cropMargin::Vector  = [32,32,4],
-                                dirPath::String     = "s3://neuroglancer/pinky40_v11/affinitymap-unet/4_4_40/")
-    d = S3Dict(dirPath)
-    for origin in originSet
-        start0 = origin .+ cropMargin .- 1
-        stop  = start0 .+ chunkSize 
-        chunkFileName = "$(start0[1])-$(stop[1])_$(start0[2])-$(stop[2])_$(start0[3])-$(stop[3])"
-        if haskey(d, chunkFileName)
-            println("existing chunk, no need to keep: $(chunkFileName)")
-            delete!(originSet, origin)
-        else 
-            println("key not exist: $(chunkFileName), will produce this task")
-        end 
-    end
-end 
-
-function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
+function taskproducer( argDict::Dict{Symbol, Any}; inputOffsetSet = Set{Vector}() )
     task = JSON.parsefile( argDict[:task], dicttype=OrderedDict{Symbol,Any} )
     # set gpu id
     if !isa(argDict[:deviceid], Void) 
@@ -115,27 +73,16 @@ function taskproducer( argDict::Dict{Symbol, Any}; originSet = Set{Vector}() )
     end
     # read task config file
     # produce task script
-    if isempty( originSet )
-        originSet = get_origin_set( argDict )
+    if isempty( inputOffsetSet )
+        inputOffsetSet = get_inputOffset_set( argDict )
     end
 
-    # filter out the chunks outside the polygon
-#    if IS_USE_POLYGON_FILTER
- #       originSet = polygon_filter( originSet )
- #   end
-    if IS_FILTER_EXISTING_CHUNKS_HYPERSQUARE 
-        existing_chunk_filter_hypersquare!(originSet)
-    end 
-
-    if IS_FILTER_EXISTING_CHUNKS 
-        existing_chunk_filter!(originSet)
-    end 
-    for origin in originSet
-        ChunkFlowTasks.set!(task, :origin, origin)
+    for inputOffset in inputOffsetSet
+        ChunkFlowTasks.set!(task, :inputOffset, inputOffset)
         if isempty(queuename)
             println(JSON.json(task))
         else
-            println("start of chunk: $origin")
+            println("offset of input chunk: $inputOffset")
             sqs_send_message(queue, JSON.json(task))
         end
     end

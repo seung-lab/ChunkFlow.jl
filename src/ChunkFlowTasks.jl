@@ -112,6 +112,12 @@ end
 function execute( argDict::Dict{Symbol, Any} )
     if argDict[:task]==nothing || isa(argDict[:task], Void)
         # fetch task from AWS SQS
+        if !haskey(ENV, "AWS_ACCESS_KEY_ID") && isfile("/secrets/aws-secret.json") 
+            d = JSON.parsefile("/secrets/aws-secret.json")
+            for (k,v) in d 
+                ENV[k] = v
+            end 
+        end 
         aws = AWSCore.aws_config()
         sqsQueue = sqs_get_queue(aws, argDict[:queuename])
         execute_sqs_tasks( sqsQueue; argDict = argDict )
