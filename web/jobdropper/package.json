@@ -17,23 +17,23 @@
   "author": "Jingpeng Wu",
   "license": "Appache",
   "dependencies": {
+    "@types/node": "^8.0.26",
+    "@types/aws-sdk": "^2.7.0",
     "@types/dotenv": "^4.0.1",
-    "@types/react": "^16.0.5",
-    "@types/react-dom": "^15.5.4",
+    "@types/react": "^16.4.6",
+    "@types/react-dom": "^15.5.7",
     "material-ui": "^0.19.1",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
+    "react": "^15.6.2",
+    "react-dom": "^15.6.2",
     "webpack": "^3.5.6"
   },
   "devDependencies": {
-    "@types/aws-sdk": "^2.7.0",
     "@types/material-ui": "^0.18.0",
-    "@types/node": "^8.0.26",
-    "awesome-typescript-loader": "^3.2.3",
+    "awesome-typescript-loader": "^3.5.0",
     "dotenv-webpack": "^1.5.4",
     "react-hot-loader": "^3.0.0-beta.7",
-    "source-map-loader": "^0.2.1",
-    "typescript": "^2.5.2",
+    "source-map-loader": "^0.2.3",
+    "typescript": "^2.9.2",
     "webpack-dev-server": "^2.7.1"
   }
 }

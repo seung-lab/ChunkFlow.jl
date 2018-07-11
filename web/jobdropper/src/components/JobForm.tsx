@@ -36,15 +36,15 @@ export class JobForm extends React.Component <any, any> {
             sqs: new AWSSQS(SQS_QUEUE_NAME),
             //batch: new AWSBatch(JOB_QUEUE_NAME, SQS_QUEUE_NAME),
             taskTemplate: new TaskTemplate(),
-            start: {
-                x: 1,
-                y: 1,
-                z: 1
-            },
-            stride: {
+            inputOffset: {
                 x: 0,
                 y: 0,
                 z: 0
+            },
+            outputBlockSize: {
+                x: 1024,
+                y: 1024,
+                z: 128
             },
             gridSize: {
                 x: 1,
@@ -54,12 +54,12 @@ export class JobForm extends React.Component <any, any> {
         };
         this.handleTaskTemplateChange = this.handleTaskTemplateChange.bind(this);
         this.handleQueueChange = this.handleQueueChange.bind(this);
-        this.handleStartXChange = this.handleStartXChange.bind(this);
-        this.handleStartYChange = this.handleStartYChange.bind(this);
-        this.handleStartZChange = this.handleStartZChange.bind(this);
-        this.handleStrideXChange = this.handleStrideXChange.bind(this);
-        this.handleStrideYChange = this.handleStrideYChange.bind(this);
-        this.handleStrideZChange = this.handleStrideZChange.bind(this);
+        this.handleInputOffsetXChange = this.handleInputOffsetXChange.bind(this);
+        this.handleInputOffsetYChange = this.handleInputOffsetYChange.bind(this);
+        this.handleInputOffsetZChange = this.handleInputOffsetZChange.bind(this);
+        this.handleOutputBlockSizeXChange = this.handleOutputBlockSizeXChange.bind(this);
+        this.handleOutputBlockSizeYChange = this.handleOutputBlockSizeYChange.bind(this);
+        this.handleOutputBlockSizeZChange = this.handleOutputBlockSizeZChange.bind(this);
         this.handleGridSizeXChange = this.handleGridSizeXChange.bind(this);
         this.handleGridSizeYChange = this.handleGridSizeYChange.bind(this);
         this.handleGridSizeZChange = this.handleGridSizeZChange.bind(this);
@@ -73,46 +73,46 @@ export class JobForm extends React.Component <any, any> {
     handleTaskTemplateChange(event: any, newValue: string) {
         this.setState({taskTemplate: this.state.taskTemplate.parse(newValue)});
     }
-    handleStartXChange(event: any) {
+    handleInputOffsetXChange(event: any) {
         this.setState({start: {
             x: event.target.value,
             y: this.state.start.y,
             z: this.state.start.z
         }});
     }
-    handleStartYChange(event: any){
+    handleInputOffsetYChange(event: any){
         this.setState({start: {
             x: this.state.start.x,
             y: event.target.value,
             z: this.state.start.z
         }})
     }
-    handleStartZChange(event: any) {
+    handleInputOffsetZChange(event: any) {
         this.setState({start: {
             x: this.state.start.x,
             y: this.state.start.y,
             z: event.target.value
         }})
     }
-    handleStrideXChange(event: any) {
-        this.setState({stride: {
+    handleOutputBlockSizeXChange(event: any) {
+        this.setState({outputBlockSize: {
             x: event.target.value,
-            y: this.state.stride.y,
-            z: this.state.stride.z
+            y: this.state.outputBlockSize.y,
+            z: this.state.outputBlockSize.z
         }})
     }
-    handleStrideYChange(event: any) {
-        this.setState({stride: {
+    handleOutputBlockSizeYChange(event: any) {
+        this.setState({outputBlockSize: {
             y: event.target.value,
-            x: this.state.stride.x,
-            z: this.state.stride.z
+            x: this.state.outputBlockSize.x,
+            z: this.state.outputBlockSize.z
         }})
     }
-    handleStrideZChange(event: any) {
-        this.setState({stride: {
+    handleOutputBlockSizeZChange(event: any) {
+        this.setState({outputBlockSize: {
             z: event.target.value,
-            x: this.state.stride.x,
-            y: this.state.stride.y
+            x: this.state.outputBlockSize.x,
+            y: this.state.outputBlockSize.y
         }})
     }
     handleGridSizeXChange(event: any) {
@@ -161,7 +161,7 @@ export class JobForm extends React.Component <any, any> {
                 <h3>Current Settings</h3>
                 <pre>
                     start: {JSON.stringify(this.state.start)}<br/>
-                    stride: {JSON.stringify(this.state.stride)}<br/>
+                    outputBlockSize: {JSON.stringify(this.state.outputBlockSize)}<br/>
                     gridSize: {JSON.stringify(this.state.gridSize)}<br/>
                     taskTemplate: {this.state.taskTemplate.stringify()}<br/>
                     queue name: {this.state.sqs.get_queue_name()}
@@ -173,13 +173,13 @@ export class JobForm extends React.Component <any, any> {
                 </SelectField>
                 <pre>
                 start       (x,y,z):
-                <input type='number' defaultValue={this.state.start.x} onChange={this.handleStartXChange}/>
-                <input type='number' defaultValue={this.state.start.y} onChange={this.handleStartYChange}/>
-                <input type='number' defaultValue={this.state.start.z} onChange={this.handleStartZChange}/><br/>
-                stride      (x,y,z):
-                <input type='number' defaultValue={this.state.stride.x} onChange={this.handleStrideXChange}/>
-                <input type='number' defaultValue={this.state.stride.y} onChange={this.handleStrideYChange}/>
-                <input type='number' defaultValue={this.state.stride.z} onChange={this.handleStrideZChange}/><br/>
+                <input type='number' defaultValue={this.state.start.x} onChange={this.handleInputOffsetXChange}/>
+                <input type='number' defaultValue={this.state.start.y} onChange={this.handleInputOffsetYChange}/>
+                <input type='number' defaultValue={this.state.start.z} onChange={this.handleInputOffsetZChange}/><br/>
+                outputBlockSize      (x,y,z):
+                <input type='number' defaultValue={this.state.outputBlockSize.x} onChange={this.handleOutputBlockSizeXChange}/>
+                <input type='number' defaultValue={this.state.outputBlockSize.y} onChange={this.handleOutputBlockSizeYChange}/>
+                <input type='number' defaultValue={this.state.outputBlockSize.z} onChange={this.handleOutputBlockSizeZChange}/><br/>
                 grid size   (x,y,z):
                 <input type='number' defaultValue={this.state.gridSize.x} onChange={this.handleGridSizeXChange}/>
                 <input type='number' defaultValue={this.state.gridSize.y} onChange={this.handleGridSizeYChange}/>

@@ -1,5 +1,5 @@
-// import AWS = require('aws-sdk');
-import * as AWS from './aws-sdk-2.141.0';
+import AWS = require('aws-sdk');
+// import * as AWS from './aws-sdk-2.141.0';
 
 //AWS.config.update({
 //    region: process.env.AWS_REGION,

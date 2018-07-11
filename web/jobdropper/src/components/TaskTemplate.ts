@@ -3,7 +3,6 @@ export class TaskTemplate {
     private _template: any;
 
     constructor(data: string = DEFAULT_TEMPLATE){
-        //let data = '{"input": {"origin": [1,2,3]}, "id":229, "name":"John"}';
         this._template = JSON.parse(data);
     }
     parse(newValue: string){
@@ -17,51 +16,45 @@ export class TaskTemplate {
 }
 
 const DEFAULT_TEMPLATE = `
-{"input": {
-    "kind": "NodeCutoutChunk",
+{"input": {                                                    
+    "kind": "EdgeCutoutChunk",                                 
+    "params":{                                                 
+        "bigArrayType": "s3",                                  
+        "inputOffset":  [4896, 4896, 940],                                 
+        "cutoutSize": [1120, 1120,  126],                         
+        "nonzeroRatioThreshold": 0.00,
+        "inputPath": "s3://path/to/layer/6_6_30/" 
+    },
+    "outputs":{
+        "chunk": "img"                        
+    }      
+}, 
+"CPUInference":{
+    "kind": "EdgePZNet",
     "params":{
-        "bigArrayType": "s3",
-        "origin":   [1, 1, 1],
-        "cutoutSize": [524, 524,  68],
-        "voxelSize": [4,4,40],
-        "nonzeroRatioThreshold": 0.01,
-        "inputPath": "s3://neuroglancer/pinkygolden_v0/image/4_4_40/"
+        "convnetPath"       : "/import/s1/cores4",
+        "patchSize"         : [160, 160, 18],
+        "patchOverlap"      : [80, 80,9],
+        "outputLayerName"   : "output",
+        "outputChannelNum"  : 3,
+        "cropMarginSize"    : [64, 64, 4,0]
     },
     "inputs": {
+        "img": "img"
     },
     "outputs": {
-        "data": "img"
-    }
-},
-"CPUInferenceUNet":{
-    "kind": "NodeKaffe",
-    "params":{
-        "kaffeDir"          : "/opt/kaffe",
-        "scanParams"        : "dict(stride=(0,0,0))",
-        "preprocess"        : "divideby",
-        "batchSize"         : 1,
-        "cropMarginSize"    : [0, 0, 0,0],
-        "originOffset"      : [0, 0, 0,0],
-        "affWeight"         : 1.0
-    },
-    "inputs": {
-        "img": "img",
-        "aff": "aff"
-    },
-    "outputs": {
-        "aff": "aff"
-    }
-},
-"saveaff":{
-    "kind": "NodeBlendChunk",
-    "params": {
-        "backend": "s3",
-        "outputPath": "s3://neuroglancer/pinkygolden_v0/affinitymap-cpu/4_4_40/"
-    },
-    "inputs": {
         "chunk": "aff"
-    },
-    "outputs": {}
-}
+    }
+},
+"saveaff":{                                
+    "kind": "EdgeSaveChunk",                                           
+    "params": {                                                       
+        "backend": "s3",                                                 
+        "outputPath": "s3://path/to/layer/6_6_30/" 
+    },                                                                    
+    "inputs": {                                     
+        "chunk": "aff"                                                           
+    } 
+}                                                                         
 }
 `

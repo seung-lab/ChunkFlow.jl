@@ -37,3 +37,7 @@ you can open `index.html` with other mordern browser too.
 # Trouble Shooting
 ## can not find 'webpack'
 `npm link webpack`
+
+## /usr/bin/env: ‘node’: No such file or directory
+use [old way of nodejs](https://github.com/animetosho/Nyuu/issues/14) 
+apt-get install nodejs-legacy 
