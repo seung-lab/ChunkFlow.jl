@@ -6,6 +6,7 @@ FROM jingpengw/chunkflow:latest
 LABEL   maintainer="Jingpeng Wu" \
         project="ChunkFlow"
 
+
 #### update repository
 RUN apt update 
 #RUN apt install -y -qq --no-install-recommends software-properties-common
@@ -38,12 +39,12 @@ RUN mkdir -p /opt/gcloud && \
 
 #### install julia
 WORKDIR /opt 
-RUN wget https://julialang-s3.julialang.org/bin/linux/x64/0.6/julia-0.6.3-linux-x86_64.tar.gz
-RUN tar -xvf julia-0.6.3-linux-x86_64.tar.gz                                                 
-RUN mv julia-d55cadc350 julia-0.6                                                            
-ENV JULIA_PATH /opt/julia-0.6                                                                
-ENV JULIA_VERSION 0.6.3                                                                      
-ENV PATH $JULIA_PATH/bin:$PATH                                                               
+RUN wget https://julialang-s3.julialang.org/bin/linux/x64/0.6/julia-0.6.4-linux-x86_64.tar.gz
+RUN tar -xvf julia-0.6.4-linux-x86_64.tar.gz 
+RUN mv julia-9d11f62bcb julia-0.6
+ENV JULIA_PATH /opt/julia-0.6 
+ENV JULIA_VERSION 0.6.4 
+ENV PATH $JULIA_PATH/bin:$PATH 
 
 # Julia computational environment
 RUN julia -e 'Pkg.init()'
@@ -59,11 +60,11 @@ RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
 #RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
 #RUN julia -e 'Pkg.clone("https://github.com/seung-lab/CloudVolume.jl.git")'
-#RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
+RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
 
-WORKDIR /root/.julia/v0.6 
-RUN mkdir ChunkFlow 
-ADD . ChunkFlow 
+#WORKDIR /root/.julia/v0.6 
+#RUN mkdir ChunkFlow 
+#ADD . ChunkFlow 
 
 RUN julia -e 'Pkg.resolve()'
 
