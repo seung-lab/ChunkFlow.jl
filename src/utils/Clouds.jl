@@ -1,6 +1,6 @@
 module Clouds
 
-using AWSS3
+using AWSSDK.S3 
 
 """
 whether this file is in s3
@@ -33,7 +33,7 @@ function downloads3(remoteFile::AbstractString, localFile::AbstractString)
   bkt,key = splits3(remoteFile)
   # download s3 file using awscli
   f = open(localFile, "w")
-  obj = s3_get(bkt, key)
+  obj = S3.get_object(Bucke=bkt, Key=key)
   write( f, obj )
   close(f)
   return localFile
