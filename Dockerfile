@@ -57,7 +57,9 @@ RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSCore.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/JuliaCloud/AWSSDK.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/samoconnor/AWSSQS.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/EMIRT.jl.git")'
+
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BigArrays.jl.git")'
+#RUN julia -e 'Pkg.checkout("BigArrays", "fast")'
 #RUN julia -e 'Pkg.clone("https://github.com/seung-lab/BOSSArrays.jl.git")'
 #RUN julia -e 'Pkg.clone("https://github.com/seung-lab/CloudVolume.jl.git")'
 RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
@@ -67,11 +69,9 @@ RUN julia -e 'Pkg.clone("https://github.com/seung-lab/ChunkFlow.jl.git")'
 #ADD . ChunkFlow 
 
 RUN julia -e 'Pkg.resolve()'
-
-# RUN julia -e 'Pkg.checkout("CloudVolume", "julia0.6")'
+RUN julia -e 'Pkg.test("BigArrays")'
 RUN julia -e 'Pkg.build("ChunkFlow")'
 RUN julia -e 'using ChunkFlow'
-RUN julia -e 'Pkg.test("BigArrays")'
 
 
 #ENTRYPOINT /bin/bash
