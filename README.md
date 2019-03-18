@@ -2,6 +2,10 @@ ChunkFlow.jl ![ChunkFlow logo](/docs/chunkflow-logo.png?raw=true)
 ==============
 [![Build Status](https://travis-ci.org/seung-lab/ChunkFlow.jl.svg?branch=master)](https://travis-ci.org/seung-lab/ChunkFlow.jl)
 
+<aside class="notice">
+Note that this package was deprecated in favor of <a href="https://github.com/seung-lab/chunkflow">python chunkflow.</a>
+</aside>
+
 # Introduction
 the computation was defined as a node. The kinds of node was defined in [a task file](https://github.com/seung-lab/ChunkFlow.jl/blob/master/test/sleep.json)
 
